@@ -2,6 +2,8 @@
 
 """
 Module to test basic RO manager commands
+
+See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
 import os, os.path
@@ -22,6 +24,9 @@ sys.path.append("..")
 from MiscLib import TestUtils
 
 import ro
+import ro_utils
+
+from TestConfig import ro_test_config
 
 class TestBasicCommands(unittest.TestCase):
     """
@@ -41,23 +46,58 @@ class TestBasicCommands(unittest.TestCase):
         assert True, 'Null test failed'
 
     def testHelpVersion(self):
-        status = ro.runCommand("config", "robase", ["ro", "--version"])
-        assert status == 0
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, ["ro", "--version"])
+        self.assertEqual(status, 0)
         return
 
     def testHelpOptions(self):
-        status = ro.runCommand("config", "robase", ["ro", "--help"])
-        assert status == 0
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, ["ro", "--help"])
+        self.assertEqual(status, 0)
         return
 
     def testHelpCommands(self):
-        status = ro.runCommand("config", "robase", ["ro", "help"])
-        assert status == 0
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, ["ro", "help"])
+        self.assertEqual(status, 0)
         return
 
     def testInvalidCommand(self):
-        status = ro.runCommand("config", "robase", ["ro", "nosuchcommand"])
-        assert status == 2
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, ["ro", "nosuchcommand"])
+        self.assertEqual(status, 2)
+        return
+
+    def testConfig(self):
+        """
+        $ ro config \
+          -r http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2 \
+          -p d41d8cd98f00b204e9800998ecf8427e \
+          -d /usr/workspace/Dropbox/myROs \
+          -n "Graham Klyne" \
+          -e gk@example.org
+        """
+        ro_utils.resetconfig(ro_test_config.CONFIGDIR)
+        config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
+        self.assertEqual(config["robase"],    None)
+        self.assertEqual(config["roboxuri"],  None)
+        self.assertEqual(config["roboxpass"], None)
+        self.assertEqual(config["username"],  None)
+        self.assertEqual(config["useremail"], None)
+        args = [
+            "ro", "config",
+            "-d", ro_test_config.ROBASEDIR,
+            "-r", ro_test_config.ROBOXURI,
+            "-n", ro_test_config.ROBOXUSERNAME,
+            "-p", ro_test_config.ROBOXPASSWORD,
+            "-e", ro_test_config.ROBOXEMAIL
+            ]
+        ##args = ["ro", "config"]
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
+        self.assertEqual(config["robase"],    os.path.abspath(ro_test_config.ROBASEDIR))
+        self.assertEqual(config["roboxuri"],  ro_test_config.ROBOXURI)
+        self.assertEqual(config["roboxpass"], ro_test_config.ROBOXPASSWORD)
+        self.assertEqual(config["username"],  ro_test_config.ROBOXUSERNAME)
+        self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
         return
 
     # Sentinel/placeholder tests
@@ -95,6 +135,7 @@ def getTestSuite(select="unit"):
             #, "testHelpOptions"
             , "testHelpCommands"
             , "testInvalidCommand"
+            , "testConfig"
             ],
         "component":
             [ "testComponents"

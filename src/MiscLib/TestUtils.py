@@ -85,34 +85,37 @@ def runTests(logname, getSuite, args):
     if len(args) > 1:
         sel = args[1]
     if sel == "xml":
+        # Run with XML test output for use in Jenkins environment
         if not junitxml_present:
             print "junitxml module not available for XML test output"
             raise ValueError, "junitxml module not available for XML test output"
-        # Run with XML test output for use in Jenkins environment
         with open('xmlresults.xml', 'w') as report:
             result = junitxml.JUnitXmlResult(report)
             result.startTestRun()
-            getTestSuite().run(result)
-            result.stopTestRun()
-    elif sel[0:3] in ["uni","com","all","int","pen"]:
-        logging.basicConfig(level=logging.WARNING)
-        if sel[0:3] in ["com","all"]: vrb = 2
+            try:
+                getSuite(select="unit").run(result)
+            finally:
+                result.stopTestRun()
     else:
-        # Run single test with elevated logging to file via new handler
-        logging.basicConfig(level=logging.DEBUG)
-        # Enable debug logging to a file
-        fileloghandler = logging.FileHandler(logname,"w")
-        fileloghandler.setLevel(logging.DEBUG)
-        # Use this formatter for shorter log records
-        ###filelogformatter = logging.Formatter('%(levelname)s %(message)s', "%H:%M:%S")
-        # Use this formatter to display timing information:
-        filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
-        fileloghandler.setFormatter(filelogformatter)
-        #logging.getLogger('').addHandler(fileloghandler)
-        vrb = 2
-    runner = unittest.TextTestRunner(verbosity=vrb)
-    tests  = getSuite(select=sel)
-    if tests: runner.run(tests)
+        if sel[0:3] in ["uni","com","all","int","pen"]:
+            logging.basicConfig(level=logging.WARNING)
+            if sel[0:3] in ["com","all"]: vrb = 2
+        else:
+            # Run single test with elevated logging to file via new handler
+            logging.basicConfig(level=logging.DEBUG)
+            # Enable debug logging to a file
+            fileloghandler = logging.FileHandler(logname,"w")
+            fileloghandler.setLevel(logging.DEBUG)
+            # Use this formatter for shorter log records
+            ###filelogformatter = logging.Formatter('%(levelname)s %(message)s', "%H:%M:%S")
+            # Use this formatter to display timing information:
+            filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
+            fileloghandler.setFormatter(filelogformatter)
+            #logging.getLogger('').addHandler(fileloghandler)
+            vrb = 2
+        runner = unittest.TextTestRunner(verbosity=vrb)
+        tests  = getSuite(select=sel)
+        if tests: runner.run(tests)
     return
 
 # End.
