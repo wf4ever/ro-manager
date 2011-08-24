@@ -22,6 +22,8 @@ def run(configbase, options, args):
         status = ro_command.help(progname, args)
     elif args[1] == "config":
         status = ro_command.config(progname, configbase, options, args)
+    elif args[1] == "create":
+        status = ro_command.create(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2
@@ -53,9 +55,9 @@ def parseCommandArgs(prog, argv):
     parser.add_option("-p", "--robox-password",
                       dest="roboxpassword", 
                       help="Local directory monitored by ROBOX")
-    parser.add_option("-d", "--robox-directory",
+    parser.add_option("-b", "--robox-base",
                       dest="roboxdir", 
-                      help="Local directory monitored by ROBOX")
+                      help="Base of local directory tree monitored by ROBOX")
     parser.add_option("-n", "--user-name",
                       dest="username", 
                       help="Full name of research objects owner")

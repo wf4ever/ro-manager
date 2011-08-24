@@ -27,6 +27,8 @@ def help(progname, args):
         "Available commands are:",
         "",
         "  %(progname)s help",
+        "  %(progname)s config",
+        "  %(progname)s create",
         "",
         "See also:",
         "",
@@ -50,11 +52,20 @@ def config(progname, configbase, options, args):
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
-        print "ro config -d %(robase)s"%ro_config
+        print "ro config -b %(robase)s"%ro_config
         print "          -r %(roboxuri)s"%ro_config
         print "          -p %(roboxpass)s"%ro_config
         print "          -u %(username)s -e %(useremail)s"%ro_config
     ro_utils.writeconfig(configbase, ro_config)
     if options.verbose:
         print "Confif written to %s"%(configbase)
+    return 0
+
+def create(progname, configbase, options, args):
+    """
+    Create a new Research Object.
+
+    ro create RO-name [ -d dir ] [ -i RO-ident ]
+    """
+    #    create(progname, configbase, options, args):
     return 0
