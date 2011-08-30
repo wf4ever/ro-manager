@@ -175,9 +175,7 @@ class TestBasicCommands(unittest.TestCase):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        # Create directory tree for test
         rodir = self.createRoFixture("data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreate")
-        # Run command
         args = [
             "ro", "create", "Test Create RO",
             "-v", 
@@ -186,9 +184,7 @@ class TestBasicCommands(unittest.TestCase):
             ]
         status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        # Confirm existence of manifest directory and file
         self.checkRoFixtureManifest(rodir)
-        # Remove test RO directory
         self.deleteRoFixture(rodir)
         return
 
@@ -198,18 +194,9 @@ class TestBasicCommands(unittest.TestCase):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        # Create directory tree for test
-        rodir = ro_test_config.ROBASEDIR+"/ro-testCreate"
-        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
-        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
-        shutil.rmtree(rodir, ignore_errors=True)
-        shutil.copytree("data/ro-test-1", rodir)
-        # Confirm non-existence of manifest
-        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
-        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
-        # Run command
+        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreateDefaults")
         args = [
-            "ro", "create", "Test Create RO",
+            "ro", "create", "Test Create RO_+_defaults",
             "-v"
             ]
         save_cwd = os.getcwd()
@@ -218,11 +205,8 @@ class TestBasicCommands(unittest.TestCase):
         status = ro.runCommand(configbase, ro_test_config.ROBASEDIR, args)
         os.chdir(save_cwd)
         assert status == 0
-        # Confirm existence of manifest directory and file
-        self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
-        self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
-        # Remove test RO directory
-        shutil.rmtree(rodir, ignore_errors=True)
+        self.checkRoFixtureManifest(rodir)
+        self.deleteRoFixture(rodir)
         return
 
     def testCreateBadDir(self):
@@ -231,33 +215,18 @@ class TestBasicCommands(unittest.TestCase):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        # Create directory tree for test
-        rodir = ro_test_config.NOBASEDIR+"/ro-testCreate"
-        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
-        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
-        shutil.rmtree(rodir, ignore_errors=True)
-        shutil.copytree("data/ro-test-1", rodir)
-        # Confirm non-existence of manifest
-        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
-        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
-        # Run command
+        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.NOBASEDIR, "ro-testCreateBadDir")
         args = [
-            "ro", "create", "Test Create RO",
-            "-d ", rodir,
+            "ro", "create", "Test Create RO bad directory",
+            "-d", rodir,
             "-v"
             ]
-
-
-
         status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        # Confirm existence of manifest directory and file
-        self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
-        self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
-        # Remove test RO directory
-        shutil.rmtree(rodir, ignore_errors=True)
-
-
+        self.assertTrue(status == 1, "Expected failure due to bad RO directory");
+        manifestdir = rodir+"/"+ro_test_config.ROMANIFESTDIR
+        self.assertFalse(os.path.exists(manifestdir), msg="checking created RO manifest dir")
+        self.deleteRoFixture(rodir)
+        return
 
     # Sentinel/placeholder tests
 
@@ -298,6 +267,7 @@ def getTestSuite(select="unit"):
             , "testConfigVerbose"
             , "testCreate"
             , "testCreateDefaults"
+            , "testCreateBadDir",
             ],
         "component":
             [ "testComponents"

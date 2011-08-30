@@ -92,9 +92,7 @@ def create(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     ro_options['roident'] = ro_options['roident'] or ronametoident(ro_options['roname'])
     if options.verbose: 
-        print "ro create %(roname)s"%ro_options
-        print "          -d %(rodir)s"%ro_options
-        print "          -i %(roident)s"%ro_options
+        print "ro create \"%(roname)s\" -d \"%(rodir)s\" -i \"%(roident)s\""%ro_options
 
     # Read local ro configuration and extract creator
     ro_config = ro_utils.readconfig(configbase)
