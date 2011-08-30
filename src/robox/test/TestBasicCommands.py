@@ -35,10 +35,12 @@ class TestBasicCommands(unittest.TestCase):
     """
     def setUp(self):
         super(TestBasicCommands, self).setUp()
+        self.save_cwd = os.getcwd()
         return
 
     def tearDown(self):
         super(TestBasicCommands, self).tearDown()
+        os.chdir(self.save_cwd)
         return
 
     # Actual tests follow
@@ -100,9 +102,99 @@ class TestBasicCommands(unittest.TestCase):
         self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
         return
 
+    def testConfigVerbose(self):
+        """
+        $ ro config -v \
+          -r http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2 \
+          -p d41d8cd98f00b204e9800998ecf8427e \
+          -b /usr/workspace/Dropbox/myROs \
+          -n "Graham Klyne" \
+          -e gk@example.org
+        """
+        ro_utils.resetconfig(ro_test_config.CONFIGDIR)
+        config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
+        self.assertEqual(config["robase"],    None)
+        self.assertEqual(config["roboxuri"],  None)
+        self.assertEqual(config["roboxpass"], None)
+        self.assertEqual(config["username"],  None)
+        self.assertEqual(config["useremail"], None)
+        args = [
+            "ro", "config", "-v",
+            "-b", ro_test_config.ROBASEDIR,
+            "-r", ro_test_config.ROBOXURI,
+            "-n", ro_test_config.ROBOXUSERNAME,
+            "-p", ro_test_config.ROBOXPASSWORD,
+            "-e", ro_test_config.ROBOXEMAIL
+            ]
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
+        self.assertEqual(config["robase"],    os.path.abspath(ro_test_config.ROBASEDIR))
+        self.assertEqual(config["roboxuri"],  ro_test_config.ROBOXURI)
+        self.assertEqual(config["roboxpass"], ro_test_config.ROBOXPASSWORD)
+        self.assertEqual(config["username"],  ro_test_config.ROBOXUSERNAME)
+        self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
+        return
+
+    def createRoFixture(self, src, robase, roname):
+        """
+        Create test fixture research object
+        
+        Returns name of research object directory
+        """
+        rodir = robase+"/"+ roname
+        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
+        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
+        shutil.rmtree(rodir, ignore_errors=True)
+        shutil.copytree(src, rodir)
+        # Confirm non-existence of manifest
+        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
+        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
+        return rodir
+
+    def checkRoFixtureManifest(self, rodir):
+        """
+        Test for existence of manifest in RO fixture.
+        """
+        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
+        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
+        self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
+        self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
+        return
+
+    def deleteRoFixture(self, rodir):
+        """
+        Delete test fixture research object
+        """
+        shutil.rmtree(rodir, ignore_errors=True)
+        return
+
     def testCreate(self):
         """
         Create a new Research Object.
+
+        ro create RO-name [ -d dir ] [ -i RO-ident ]
+        """
+        # Create directory tree for test
+        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreate")
+        # Run command
+        args = [
+            "ro", "create", "Test Create RO",
+            "-v", 
+            "-d", rodir,
+            "-i", "RO-id-testCreate",
+            ]
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        # Confirm existence of manifest directory and file
+        self.checkRoFixtureManifest(rodir)
+        # Remove test RO directory
+        self.deleteRoFixture(rodir)
+        return
+
+    def testCreateDefaults(self):
+        """
+        Create a new Research Object with default options
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
@@ -117,11 +209,14 @@ class TestBasicCommands(unittest.TestCase):
         self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
         # Run command
         args = [
-            "ro", "create", "Test Create RO"
-            "-d", rodir,
-            "-i", "RO-id-testCreate",
+            "ro", "create", "Test Create RO",
+            "-v"
             ]
-        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        save_cwd = os.getcwd()
+        configbase = os.path.abspath(ro_test_config.CONFIGDIR)
+        os.chdir(rodir)
+        status = ro.runCommand(configbase, ro_test_config.ROBASEDIR, args)
+        os.chdir(save_cwd)
         assert status == 0
         # Confirm existence of manifest directory and file
         self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
@@ -129,6 +224,40 @@ class TestBasicCommands(unittest.TestCase):
         # Remove test RO directory
         shutil.rmtree(rodir, ignore_errors=True)
         return
+
+    def testCreateBadDir(self):
+        """
+        Create a new Research Object with directory not in configured area
+
+        ro create RO-name [ -d dir ] [ -i RO-ident ]
+        """
+        # Create directory tree for test
+        rodir = ro_test_config.NOBASEDIR+"/ro-testCreate"
+        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
+        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
+        shutil.rmtree(rodir, ignore_errors=True)
+        shutil.copytree("data/ro-test-1", rodir)
+        # Confirm non-existence of manifest
+        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
+        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
+        # Run command
+        args = [
+            "ro", "create", "Test Create RO",
+            "-d ", rodir,
+            "-v"
+            ]
+
+
+
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        # Confirm existence of manifest directory and file
+        self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
+        self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
+        # Remove test RO directory
+        shutil.rmtree(rodir, ignore_errors=True)
+
+
 
     # Sentinel/placeholder tests
 
@@ -166,7 +295,9 @@ def getTestSuite(select="unit"):
             , "testHelpCommands"
             , "testInvalidCommand"
             , "testConfig"
+            , "testConfigVerbose"
             , "testCreate"
+            , "testCreateDefaults"
             ],
         "component":
             [ "testComponents"

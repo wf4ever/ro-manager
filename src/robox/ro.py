@@ -11,9 +11,8 @@ import codecs
 import sys
 import optparse
 import logging
+import ro_settings
 import ro_command
-
-VERSION = "0.1 (ROBOX)"
 
 def run(configbase, options, args):
     status = 0
@@ -42,13 +41,14 @@ def parseCommandArgs(prog, argv):
     # create a parser for the command line options
     parser = optparse.OptionParser(
                 usage="%prog [options] command [args...]\n\n",
-                version="%prog "+VERSION)
+                version="%prog "+ro_settings.VERSION)
     # version option
-    parser.add_option("-v", "--verbose",
-                      action="store_true", 
-                      dest="verbose", 
-                      default=False,
-                      help="display verbose output")
+    parser.add_option("-d", "--ro-directory",
+                      dest="rodir", 
+                      help="Directory of Research Object to process (defaults to current directory)")
+    parser.add_option("-i", "--ro-identifier",
+                      dest="roident", 
+                      help="Identifier of Research Object (defaults to value based on name)")
     parser.add_option("-r", "--robox-uri",
                       dest="roboxuri", 
                       help="URI of ROBOX service")
@@ -64,6 +64,11 @@ def parseCommandArgs(prog, argv):
     parser.add_option("-e", "--user-email",
                       dest="useremail", 
                       help="Email address of research objects owner")
+    parser.add_option("-v", "--verbose",
+                      action="store_true", 
+                      dest="verbose", 
+                      default=False,
+                      help="display verbose output")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")

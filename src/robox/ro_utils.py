@@ -9,6 +9,16 @@ import json
 
 CONFIGFILE = ".ro_config"
 
+def progname(args):
+    return os.path.split(args[0])[1]
+
+def ropath(ro_config, dir):
+    rodir  = os.path.abspath(dir)
+    robase = ro_config['robase']
+    if os.path.isdir(rodir) and os.path.commonprefix([robase, rodir]) == robase:
+       return rodir
+    return None
+    
 def configfilename(configbase):
     return os.path.abspath(configbase+"/"+CONFIGFILE)
 
