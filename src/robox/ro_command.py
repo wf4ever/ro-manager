@@ -124,8 +124,7 @@ def create(progname, configbase, options, args):
     manifestfilename = os.path.join(manifestdir, ro_settings.MANIFEST_FILE)
     log.debug("manifestfilename: "+manifestfilename)
     manifest = (
-        """
-        <?xml version="1.0" encoding="utf-8"?>
+        """<?xml version="1.0" encoding="utf-8"?>
         <rdf:RDF
           xmlns:dcterms="http://purl.org/dc/terms/"
           xmlns:oxds="http://vocab.ox.ac.uk/dataset/schema#"

@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>ro.py</string>
+	<string>test/TestBasicCommands.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,15 +16,13 @@
 			<key>filename</key>
 			<string>ro.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:51:24Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-08-30T15:32:06Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>../MiscLib/TestUtils.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:46:37Z</date>
+			<date>2011-08-30T13:54:03Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -36,25 +34,27 @@
 			<key>filename</key>
 			<string>ro_command.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:51:24Z</date>
+			<date>2011-08-30T15:38:21Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestBasicCommands.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:49:47Z</date>
+			<date>2011-08-30T15:38:21Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_utils.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T16:59:25Z</date>
+			<date>2011-08-30T15:27:35Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestConfig.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:36:11Z</date>
+			<date>2011-08-30T14:49:09Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -86,40 +86,118 @@
 			<key>lastUsed</key>
 			<date>2011-08-24T17:15:51Z</date>
 		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ro_settings.py</string>
+			<key>lastUsed</key>
+			<date>2011-08-30T14:37:51Z</date>
+		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
 	<integer>200</integer>
 	<key>metaData</key>
 	<dict>
+		<key>../MiscLib/TestUtils.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>89</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>61</integer>
+		</dict>
 		<key>ro.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>44</integer>
+				<integer>7</integer>
 				<key>line</key>
-				<integer>49</integer>
+				<integer>39</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>29</integer>
+			<integer>9</integer>
 		</dict>
 		<key>ro_command.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>63</integer>
+				<integer>75</integer>
 				<key>line</key>
-				<integer>60</integer>
+				<integer>94</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>13</integer>
+			<integer>61</integer>
+		</dict>
+		<key>ro_settings.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>3</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>13</integer>
+				<key>line</key>
+				<integer>8</integer>
+			</dict>
 		</dict>
 		<key>ro_utils.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test/TestBasicCommands.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>57</integer>
+				<key>line</key>
+				<integer>219</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>179</integer>
+		</dict>
+		<key>test/TestConfig.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -133,46 +211,20 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>test/TestBasicCommands.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>32</integer>
-				<key>line</key>
-				<integer>202</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>162</integer>
-		</dict>
-		<key>test/TestConfig.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>17</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
 		<string>ro_command.py</string>
 		<string>ro_utils.py</string>
-		<string>test/TestBasicCommands.py</string>
 		<string>ro.py</string>
+		<string>test/TestBasicCommands.py</string>
+		<string>ro_settings.py</string>
 		<string>test/TestConfig.py</string>
+		<string>../MiscLib/TestUtils.py</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{8, 94}, {932, 1018}}</string>
+	<string>{{12, 80}, {816, 1057}}</string>
 </dict>
 </plist>

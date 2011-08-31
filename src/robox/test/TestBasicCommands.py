@@ -12,6 +12,7 @@ import re
 import shutil
 import unittest
 import logging
+import datetime
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -26,6 +27,7 @@ from MiscLib import TestUtils
 
 import ro
 import ro_utils
+import ro_manifest
 
 from TestConfig import ro_test_config
 
@@ -147,7 +149,7 @@ class TestBasicCommands(unittest.TestCase):
         manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
         shutil.rmtree(rodir, ignore_errors=True)
         shutil.copytree(src, rodir)
-        # Confirm non-existence of manifest
+        # Confirm non-existence of manifest directory
         self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
         self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
         return rodir
@@ -160,6 +162,22 @@ class TestBasicCommands(unittest.TestCase):
         manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
         self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
         self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
+        return
+
+    def checkManifestContent(self, rodir, roname, roident):
+        manifest = ro_manifest.readManifest(rodir)
+        self.assertEqual(manifest['roident'],       roident, "RO identifier")
+        self.assertEqual(manifest['rodescription'], roname,  "RO name")
+        self.assertEqual(manifest['roname'],        roname,  "RO name")
+        self.assertEqual(manifest['rocreator'],     ro_test_config.ROBOXUSERNAME, "RO creator")
+        # See: http://stackoverflow.com/questions/969285/
+        #      how-do-i-translate-a-iso-8601-datetime-string-into-a-python-datetime-object
+        rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
+        timenow   = datetime.datetime.now().replace(microsecond=0)
+        rodelta   = timenow-rocreated
+        self.assertTrue(rodelta.total_seconds()<=1.0, 
+            "Unexpected created datetime: %s, expected about %s"%
+                (manifest['rocreated'],timenow.isoformat()))
         return
 
     def deleteRoFixture(self, rodir):
@@ -185,6 +203,7 @@ class TestBasicCommands(unittest.TestCase):
         status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         self.checkRoFixtureManifest(rodir)
+        self.checkManifestContent(rodir, "Test Create RO", "RO-id-testCreate")
         self.deleteRoFixture(rodir)
         return
 

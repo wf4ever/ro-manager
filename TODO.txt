@@ -10,3 +10,16 @@ I think such a tool would form a great starting point! As a start I would be hap
     * ro users: sharing research objects
 
 which corresponds very well with your proposal of which functions to tackle initially. The only thing I miss is the sharing part. I think that is something I would like to be able to do quite fast as well. One thing I thought about was logging. Would it be possible to create a log? That would help me backtrack what I actually do with a RO, and in which order I tend to do things.
+
+----
+
+TODO:
+
+* ro create test cases: check content of manifest.  Create new manifest access module.
+* ro status - show information about RO
+* ro ls
+* ro add
+* ro annotate
+* ro users
+* ro create: create manifest via RDF libraries
+
