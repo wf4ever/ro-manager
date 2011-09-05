@@ -16,6 +16,7 @@ log = logging.getLogger(__name__)
 
 import ro_settings
 import ro_utils
+import ro_manifest
 
 def getoptionvalue(val, prompt):
     if not val:
@@ -25,14 +26,6 @@ def getoptionvalue(val, prompt):
             val = sys.stdin.readline()
             if val[-1] == '\n': val = val[:-1]    
     return val
-
-def ronametoident(name):
-    """
-    Turn resource object name into an identifier containing only letters, digits and underscore characters
-    """
-    name = re.sub(r"\s", '_', name)         # spaces, etc. -> underscores
-    name = re.sub(r"\W", "", name)          # Non-identifier characters -> remove
-    return name
 
 def help(progname, args):
     """
@@ -82,15 +75,14 @@ def create(progname, configbase, options, args):
 
     ro create RO-name [ -d dir ] [ -i RO-ident ]
     """
-    #    create(progname, configbase, options, args):
     ro_options = {
-        "roname":  getoptionvalue(args[2],  "Name of new reesearch object: "),
+        "roname":  getoptionvalue(args[2],  "Name of new research object: "),
         "rodir":   options.rodir or "",
         "roident": options.roident or ""
         }
     log.debug("cwd: "+os.getcwd())
     log.debug("ro_options: "+repr(ro_options))
-    ro_options['roident'] = ro_options['roident'] or ronametoident(ro_options['roname'])
+    ro_options['roident'] = ro_options['roident'] or ro_utils.ronametoident(ro_options['roname'])
     if options.verbose: 
         print "ro create \"%(roname)s\" -d \"%(rodir)s\" -i \"%(roident)s\""%ro_options
 
@@ -106,8 +98,7 @@ def create(progname, configbase, options, args):
         return 1
     
     # Create directory for manifest
-    manifestdir = os.path.join(os.getcwd(), ro_options['rodir'], ro_settings.MANIFEST_DIR)
-
+    manifestdir = os.path.join(ro_dir, ro_settings.MANIFEST_DIR)
     log.debug("manifestdir: "+manifestdir)
     try:
         os.makedirs(manifestdir)
@@ -121,6 +112,7 @@ def create(progname, configbase, options, args):
             raise
 
     # Create manifest file
+    # @@TODO: create in-memory graph and serialize that
     manifestfilename = os.path.join(manifestdir, ro_settings.MANIFEST_FILE)
     log.debug("manifestfilename: "+manifestfilename)
     manifest = (
@@ -132,8 +124,8 @@ def create(progname, configbase, options, args):
         >
           <oxds:Grouping>
             <dcterms:identifier>%(roident)s</dcterms:identifier>
-            <dcterms:description>%(roname)s</dcterms:description>
             <dcterms:title>%(roname)s</dcterms:title>
+            <dcterms:description>%(roname)s</dcterms:description>
             <dcterms:creator>%(rocreator)s</dcterms:creator>
             <dcterms:created>%(rocreated)s</dcterms:created>
           </oxds:Grouping>
@@ -143,6 +135,54 @@ def create(progname, configbase, options, args):
     manifestfile = open(manifestfilename, 'w')
     manifestfile.write(manifest)
     manifestfile.close()
+    return 0
+
+def status(progname, configbase, options, args):
+    """
+    Display status of a designated research object
+
+    ro status [ -d dir ]
+    """
+    # Check command arguments
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":   options.rodir or "",
+        }
+    log.debug("cwd: "+os.getcwd())
+    log.debug("ro_options: "+repr(ro_options))
+    if options.verbose: 
+        print "ro status -d \"%(rodir)s\""%ro_options
+    ro_dir = ro_utils.ropath(ro_config, ro_options['rodir'])
+    if not ro_dir:
+        print ("%s: indicated directory not in configured research object directory tree: %s"%
+               (ro_utils.progname(args), ro_options['rodir']))
+        return 1
+    if not os.path.isdir(ro_dir):
+        print ("%s: indicated directory does not exist: %s"%
+               (ro_utils.progname(args), ro_options['rodir']))
+        return 1
+    # Find root of research object
+    manifestdir = None
+    ro_dir_next = ro_dir
+    ro_dir_prev = ""
+    while ro_dir_next and ro_dir_next != ro_dir_prev:
+        manifestdir = os.path.join(ro_dir_next, ro_settings.MANIFEST_DIR)
+        if os.path.isdir(manifestdir): break
+        ro_dir_prev = ro_dir_next
+        ro_dir_next = os.path.dirname(ro_dir_next)    # Up one directory level
+    if ro_dir_next == ro_dir_prev:
+        print ("%s: indicated directory is not contained in a research object: %s"%
+               (ro_utils.progname(args), ro_dir))
+        return 1
+    # Read manifest and display status
+    ro_dict = ro_manifest.readManifest(ro_dir_next)
+    print "Research Object status"
+    print "  identifier:  %(roident)s, title: %(rotitle)s"%ro_dict
+    print "  creator:     %(rocreator)s, created: %(rocreated)s"%ro_dict
+    print "  path:        %(ropath)s"%ro_dict
+    if ro_dict['rouri']:
+        print "  uri:         %(rouri)s"%ro_dict
+    print "  description: %(rodescription)s"%ro_dict
     return 0
 
 # End.

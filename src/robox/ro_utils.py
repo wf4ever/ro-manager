@@ -6,8 +6,17 @@ Research Object management supporting utility functions
 
 import os.path
 import json
+import re
 
 CONFIGFILE = ".ro_config"
+
+def ronametoident(name):
+    """
+    Turn resource object name into an identifier containing only letters, digits and underscore characters
+    """
+    name = re.sub(r"\s", '_', name)         # spaces, etc. -> underscores
+    name = re.sub(r"\W", "", name)          # Non-identifier characters -> remove
+    return name
 
 def progname(args):
     return os.path.split(args[0])[1]

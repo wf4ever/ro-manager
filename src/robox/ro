@@ -3,7 +3,7 @@
 # Run Research Object manager program
 #
 
-python `readlink -f $0`.py $@
+python `readlink -f $0`.py "$@"
 
 # All this because using ro symlinked to ro.py doesn't find the Python import libraries
 

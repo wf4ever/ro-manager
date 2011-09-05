@@ -15,7 +15,6 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
-* ro create test cases: check content of manifest.  Create new manifest access module.
 * ro status - show information about RO
 * ro ls
 * ro add

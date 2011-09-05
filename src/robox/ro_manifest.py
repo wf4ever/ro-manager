@@ -47,13 +47,16 @@ def readManifest(rodir):
     """
     rdfGraph = readManifestGraph(rodir)
     subject  = rdfGraph.value(None, RDF.type, OXDS.Grouping)
-    
+    strsubject = ""
+    if isinstance(subject, rdflib.URIRef): strsubject = str(subject)
     manifestDict = {
+        'ropath':         rodir,
+        'rouri':          strsubject,
         'roident':        rdfGraph.value(subject, DCTERMS.identifier,  None),
-        'rodescription':  rdfGraph.value(subject, DCTERMS.description, None),
-        'roname':         rdfGraph.value(subject, DCTERMS.title,       None),
+        'rotitle':        rdfGraph.value(subject, DCTERMS.title,       None),
         'rocreator':      rdfGraph.value(subject, DCTERMS.creator,     None),
         'rocreated':      rdfGraph.value(subject, DCTERMS.created,     None),
+        'rodescription':  rdfGraph.value(subject, DCTERMS.description, None),
         }
     return manifestDict
 

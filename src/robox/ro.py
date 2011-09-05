@@ -23,6 +23,8 @@ def run(configbase, options, args):
         status = ro_command.config(progname, configbase, options, args)
     elif args[1] == "create":
         status = ro_command.create(progname, configbase, options, args)
+    elif args[1] == "status":
+        status = ro_command.status(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2
@@ -72,7 +74,7 @@ def parseCommandArgs(prog, argv):
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
-    if len(args) > 4: parser.error("Too many arguments present")
+    if len(args) > 4: parser.error("Too many arguments present: "+repr(args))
     return (options, args)
 
 def runCommand(configbase, robase, argv):
