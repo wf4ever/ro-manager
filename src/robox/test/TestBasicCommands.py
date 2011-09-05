@@ -264,8 +264,8 @@ class TestBasicCommands(unittest.TestCase):
             "ro", "create", "Test Create RO_+_defaults",
             "-v"
             ]
-        save_cwd = os.getcwd()
         configbase = os.path.abspath(ro_test_config.CONFIGDIR)
+        save_cwd = os.getcwd()
         os.chdir(rodir)
         with SwitchStdout(self.outstr):
             status = ro.runCommand(configbase, ro_test_config.ROBASEDIR, args)
@@ -302,7 +302,7 @@ class TestBasicCommands(unittest.TestCase):
         """
         Display status of created RO
 
-        ro status 
+        ro status -d rodir
         """
         rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoStatus")
         args = [
@@ -312,6 +312,34 @@ class TestBasicCommands(unittest.TestCase):
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro status"), 1)
+        self.assertRegexpMatches(outtxt, "identifier.*ro-testRoStatus")
+        self.assertRegexpMatches(outtxt, "title.*RO test status")
+        self.assertRegexpMatches(outtxt, "path.*%s"%rodir)
+        self.assertRegexpMatches(outtxt, "creator.*%s"%ro_test_config.ROBOXUSERNAME)
+        self.assertRegexpMatches(outtxt, "created")
+        self.deleteTestRo(rodir)
+        return
+
+    def testStatusDefault(self):
+        """
+        Display status of created RO
+
+        ro status 
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoStatus")
+        args = [
+            "ro", "status",
+            "-v"
+            ]
+        configbase = os.path.abspath(ro_test_config.CONFIGDIR)
+        save_cwd = os.getcwd()
+        os.chdir(rodir+"/subdir1/")
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(configbase, ro_test_config.ROBASEDIR, args)
+        os.chdir(save_cwd)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
         self.assertEqual(outtxt.count("ro status"), 1)
@@ -364,6 +392,7 @@ def getTestSuite(select="unit"):
             , "testCreateDefaults"
             , "testCreateBadDir"
             , "testStatus"
+            , "testStatusDefault"
             ],
         "component":
             [ "testComponents"
