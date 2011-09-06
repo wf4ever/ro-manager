@@ -4,13 +4,18 @@
 RO manager command parser and dispatcher
 """
 
+import sys
 import os
 import os.path
 import re
 import codecs
-import sys
 import optparse
 import logging
+
+# Make sure MiscLib can be found on path
+if __name__ == "__main__":
+    sys.path.append(os.path.join(sys.path[0],".."))
+
 import ro_settings
 import ro_command
 import ro_utils
@@ -77,7 +82,7 @@ def parseCommandArgs(prog, argv):
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
-    if len(args) > 4: parser.error("Too many arguments present: "+repr(args))
+    if len(args) > 5: parser.error("Too many arguments present: "+repr(args))
     return (options, args)
 
 def runCommand(configbase, robase, argv):

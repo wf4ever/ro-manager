@@ -153,7 +153,7 @@ def create(progname, configbase, options, args):
           xmlns:oxds="http://vocab.ox.ac.uk/dataset/schema#"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         >
-          <oxds:Grouping>
+          <oxds:Grouping xml:base="..">
             <dcterms:identifier>%(roident)s</dcterms:identifier>
             <dcterms:title>%(roname)s</dcterms:title>
             <dcterms:description>%(roname)s</dcterms:description>

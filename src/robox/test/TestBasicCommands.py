@@ -33,96 +33,18 @@ import ro_manifest
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
-class TestBasicCommands(unittest.TestCase):
+import TestROSupport
+
+class TestBasicCommands(TestROSupport.TestROSupport):
     """
     Test basic ro commands
     """
     def setUp(self):
         super(TestBasicCommands, self).setUp()
-        self.save_cwd = os.getcwd()
-        self.outstr = StringIO.StringIO()
         return
 
     def tearDown(self):
-        self.outstr.close()
         super(TestBasicCommands, self).tearDown()
-        os.chdir(self.save_cwd)
-        return
-
-    def createRoFixture(self, src, robase, roname):
-        """
-        Create test fixture research object - this is a set of directries
-        and files that will be used as a research object, but not actually
-        creating the reesearch object specific structures.
-        
-        Returns name of research object directory
-        """
-        rodir = robase+"/"+ roname
-        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
-        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
-        shutil.rmtree(rodir, ignore_errors=True)
-        shutil.copytree(src, rodir)
-        # Confirm non-existence of manifest directory
-        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
-        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
-        return rodir
-
-    def checkRoFixtureManifest(self, rodir):
-        """
-        Test for existence of manifest in RO fixture.
-        """
-        manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
-        manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
-        self.assertTrue(os.path.exists(manifestdir), msg="checking created RO manifest dir")
-        self.assertTrue(os.path.exists(manifestfile), msg="checking created RO manifest file")
-        return
-
-    def checkManifestContent(self, rodir, roname, roident):
-        manifest = ro_manifest.readManifest(rodir)
-        self.assertEqual(manifest['roident'],       roident, "RO identifier")
-        self.assertEqual(manifest['rotitle'],       roname,  "RO title")
-        self.assertEqual(manifest['rocreator'],     ro_test_config.ROBOXUSERNAME, "RO creator")
-        # See: http://stackoverflow.com/questions/969285/
-        #      how-do-i-translate-a-iso-8601-datetime-string-into-a-python-datetime-object
-        rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
-        timenow   = datetime.datetime.now().replace(microsecond=0)
-        rodelta   = timenow-rocreated
-        self.assertTrue(rodelta.total_seconds()<=1.0, 
-            "Unexpected created datetime: %s, expected about %s"%
-                (manifest['rocreated'],timenow.isoformat()))
-        self.assertEqual(manifest['rodescription'], roname,  "RO name")
-        return
-
-    def deleteRoFixture(self, rodir):
-        """
-        Delete test fixture research object
-        """
-        shutil.rmtree(rodir, ignore_errors=True)
-        return
-
-    def createTestRo(self, src, roname, roident):
-        """
-        Create test research object
-        
-        Returns name of research object directory
-        """
-        rodir = self.createRoFixture(src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
-        args = [
-            "ro", "create", roname,
-            "-v", 
-            "-d", rodir,
-            "-i", roident,
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        return rodir
-
-    def deleteTestRo(self, rodir):
-        """
-        Delete test research object
-        """
-        self.deleteRoFixture(rodir)
         return
 
     # Actual tests follow
@@ -357,7 +279,7 @@ class TestBasicCommands(unittest.TestCase):
 
         ro ls -d rodir
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoList")
+        rodir = self.createTestRo("data/ro-test-1", "RO test list", "ro-testRoList")
         args = [
             "ro", "ls",
             "-d", rodir,
@@ -380,7 +302,7 @@ class TestBasicCommands(unittest.TestCase):
 
         ro ls
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoList")
+        rodir = self.createTestRo("data/ro-test-1", "RO test list", "ro-testRoList")
         args = [
             "ro", "ls",
             "-v"
