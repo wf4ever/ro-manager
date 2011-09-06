@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<root attr="attrtext">
+  <child1>
+    some text
+    <child11 />
+    more text
+    <child12>child text</child12>
+    final text
+  </child1>
+</root>
