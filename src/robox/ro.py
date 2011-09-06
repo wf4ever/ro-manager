@@ -26,6 +26,8 @@ def run(configbase, options, args):
         status = ro_command.create(progname, configbase, options, args)
     elif args[1] == "status":
         status = ro_command.status(progname, configbase, options, args)
+    elif args[1] == "list" or args[1] == "ls":
+        status = ro_command.list(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2

@@ -14,6 +14,8 @@ import logging
 
 log = logging.getLogger(__name__)
 
+import MiscLib.ScanDirectories
+
 import ro_settings
 import ro_utils
 import ro_manifest
@@ -27,7 +29,7 @@ def getoptionvalue(val, prompt):
             if val[-1] == '\n': val = val[:-1]    
     return val
 
-def ro_root_directory(progname, ro_config, rodir):
+def ro_root_directory(cmdname, ro_config, rodir):
     """
     Find research object root directory
 
@@ -37,11 +39,11 @@ def ro_root_directory(progname, ro_config, rodir):
     ro_dir = ro_utils.ropath(ro_config, rodir)
     if not ro_dir:
         print ("%s: indicated directory not in configured research object directory tree: %s"%
-               (progname, rodir))
+               (cmdname, rodir))
         return None
     if not os.path.isdir(ro_dir):
         print ("%s: indicated directory does not exist: %s"%
-               (progname, rodir))
+               (cmdname, rodir))
         return None
     manifestdir = None
     ro_dir_next = ro_dir
@@ -53,7 +55,7 @@ def ro_root_directory(progname, ro_config, rodir):
         ro_dir_prev = ro_dir_next
         ro_dir_next = os.path.dirname(ro_dir_next)    # Up one directory level
     print ("%s: indicated directory is not contained in a research object: %s"%
-           (progname, ro_dir))
+           (cmdname, ro_dir))
     return None
 
 def help(progname, args):
@@ -177,12 +179,11 @@ def status(progname, configbase, options, args):
     ro_options = {
         "rodir":   options.rodir or "",
         }
-    log.debug("cwd: "+os.getcwd())
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose: 
         print "ro status -d \"%(rodir)s\""%ro_options
     # Find RO root directory
-    ro_dir = ro_root_directory(progname, ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory(progname+" status", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read manifest and display status
     ro_dict = ro_manifest.readManifest(ro_dir)
@@ -193,6 +194,31 @@ def status(progname, configbase, options, args):
     if ro_dict['rouri']:
         print "  uri:         %(rouri)s"%ro_dict
     print "  description: %(rodescription)s"%ro_dict
+    return 0
+
+def list(progname, configbase, options, args):
+    """
+    List contents of a designated research object
+
+    ro list [ -d dir ]
+    ro ls [ -d dir ]
+    """
+    # Check command arguments
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":   options.rodir or "",
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    if options.verbose:
+        print "ro list -d \"%(rodir)s\""%ro_options
+    # Find RO root directory
+    ro_dir = ro_root_directory(progname+" list", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    # Scan directory tree and display files
+    rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+                ro_dir, baseDir=ro_config['robase'], 
+                listDirs=False, listFiles=True, recursive=True, appendSep=False)
+    print "\n".join(rofiles)
     return 0
 
 # End.

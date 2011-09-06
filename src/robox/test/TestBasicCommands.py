@@ -367,7 +367,7 @@ class TestBasicCommands(unittest.TestCase):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
-        self.assertEqual(outtxt.count("ro ls"), 1)
+        self.assertEqual(outtxt.count("ro list"), 1)
         self.assertRegexpMatches(outtxt, "README-ro-test-1")
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
@@ -383,7 +383,6 @@ class TestBasicCommands(unittest.TestCase):
         rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoList")
         args = [
             "ro", "ls",
-            "-d", rodir,
             "-v"
             ]
         configbase = os.path.abspath(ro_test_config.CONFIGDIR)
@@ -394,7 +393,7 @@ class TestBasicCommands(unittest.TestCase):
         os.chdir(save_cwd)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
-        self.assertEqual(outtxt.count("ro ls"), 1)
+        self.assertEqual(outtxt.count("ro list"), 1)
         self.assertRegexpMatches(outtxt, "README-ro-test-1")
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
