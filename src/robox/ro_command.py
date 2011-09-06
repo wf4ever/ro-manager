@@ -27,6 +27,35 @@ def getoptionvalue(val, prompt):
             if val[-1] == '\n': val = val[:-1]    
     return val
 
+def ro_root_directory(progname, ro_config, rodir):
+    """
+    Find research object root directory
+
+    Returns directory path string, or None if not found, in which
+    case an error message is displayed.
+    """
+    ro_dir = ro_utils.ropath(ro_config, rodir)
+    if not ro_dir:
+        print ("%s: indicated directory not in configured research object directory tree: %s"%
+               (progname, rodir))
+        return None
+    if not os.path.isdir(ro_dir):
+        print ("%s: indicated directory does not exist: %s"%
+               (progname, rodir))
+        return None
+    manifestdir = None
+    ro_dir_next = ro_dir
+    ro_dir_prev = ""
+    while ro_dir_next and ro_dir_next != ro_dir_prev:
+        manifestdir = os.path.join(ro_dir_next, ro_settings.MANIFEST_DIR)
+        if os.path.isdir(manifestdir):
+            return ro_dir_next
+        ro_dir_prev = ro_dir_next
+        ro_dir_next = os.path.dirname(ro_dir_next)    # Up one directory level
+    print ("%s: indicated directory is not contained in a research object: %s"%
+           (progname, ro_dir))
+    return None
+
 def help(progname, args):
     """
     Display ro command help.  See also ro --help
@@ -152,30 +181,11 @@ def status(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose: 
         print "ro status -d \"%(rodir)s\""%ro_options
-    ro_dir = ro_utils.ropath(ro_config, ro_options['rodir'])
-    if not ro_dir:
-        print ("%s: indicated directory not in configured research object directory tree: %s"%
-               (ro_utils.progname(args), ro_options['rodir']))
-        return 1
-    if not os.path.isdir(ro_dir):
-        print ("%s: indicated directory does not exist: %s"%
-               (ro_utils.progname(args), ro_options['rodir']))
-        return 1
-    # Find root of research object
-    manifestdir = None
-    ro_dir_next = ro_dir
-    ro_dir_prev = ""
-    while ro_dir_next and ro_dir_next != ro_dir_prev:
-        manifestdir = os.path.join(ro_dir_next, ro_settings.MANIFEST_DIR)
-        if os.path.isdir(manifestdir): break
-        ro_dir_prev = ro_dir_next
-        ro_dir_next = os.path.dirname(ro_dir_next)    # Up one directory level
-    if ro_dir_next == ro_dir_prev:
-        print ("%s: indicated directory is not contained in a research object: %s"%
-               (ro_utils.progname(args), ro_dir))
-        return 1
+    # Find RO root directory
+    ro_dir = ro_root_directory(progname, ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
     # Read manifest and display status
-    ro_dict = ro_manifest.readManifest(ro_dir_next)
+    ro_dict = ro_manifest.readManifest(ro_dir)
     print "Research Object status"
     print "  identifier:  %(roident)s, title: %(rotitle)s"%ro_dict
     print "  creator:     %(rocreator)s, created: %(rocreated)s"%ro_dict

@@ -13,10 +13,11 @@ import optparse
 import logging
 import ro_settings
 import ro_command
+import ro_utils
 
 def run(configbase, options, args):
     status = 0
-    progname = os.path.split(args[0])[1]
+    progname = ro_utils.progname(args)
     if args[1] == "help":
         status = ro_command.help(progname, args)
     elif args[1] == "config":

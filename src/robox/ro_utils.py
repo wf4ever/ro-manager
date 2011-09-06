@@ -19,7 +19,7 @@ def ronametoident(name):
     return name
 
 def progname(args):
-    return os.path.split(args[0])[1]
+    return os.path.basename(args[0])
 
 def ropath(ro_config, dir):
     rodir  = os.path.abspath(dir)
