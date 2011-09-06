@@ -7,6 +7,9 @@ Research Object management supporting utility functions
 import os.path
 import json
 import re
+import logging
+
+log = logging.getLogger(__name__)
 
 CONFIGFILE = ".ro_config"
 
@@ -24,6 +27,8 @@ def progname(args):
 def ropath(ro_config, dir):
     rodir  = os.path.abspath(dir)
     robase = ro_config['robase']
+    log.debug("ropath: rodir  %s"%(rodir))
+    log.debug("ropath: robase %s"%(robase))
     if os.path.isdir(rodir) and os.path.commonprefix([robase, rodir]) == robase:
        return rodir
     return None

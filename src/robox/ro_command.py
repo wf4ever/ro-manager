@@ -11,6 +11,7 @@ import readline # enable input editing for raw_input
 import re
 import datetime
 import logging
+import rdflib
 
 log = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ import MiscLib.ScanDirectories
 import ro_settings
 import ro_utils
 import ro_manifest
+from ro_manifest import RDF, DCTERMS
 
 def getoptionvalue(val, prompt):
     if not val:
@@ -36,6 +38,8 @@ def ro_root_directory(cmdname, ro_config, rodir):
     Returns directory path string, or None if not found, in which
     case an error message is displayed.
     """
+    log.debug("ro_root_directory: cmdname %s, rodir %s"%(cmdname, rodir))
+    log.debug("                   ro_config %s"%(repr(ro_config)))
     ro_dir = ro_utils.ropath(ro_config, rodir)
     if not ro_dir:
         print ("%s: indicated directory not in configured research object directory tree: %s"%
@@ -48,7 +52,9 @@ def ro_root_directory(cmdname, ro_config, rodir):
     manifestdir = None
     ro_dir_next = ro_dir
     ro_dir_prev = ""
+    log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
     while ro_dir_next and ro_dir_next != ro_dir_prev:
+        log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
         manifestdir = os.path.join(ro_dir_next, ro_settings.MANIFEST_DIR)
         if os.path.isdir(manifestdir):
             return ro_dir_next
@@ -114,9 +120,6 @@ def create(progname, configbase, options, args):
     log.debug("cwd: "+os.getcwd())
     log.debug("ro_options: "+repr(ro_options))
     ro_options['roident'] = ro_options['roident'] or ro_utils.ronametoident(ro_options['roname'])
-    if options.verbose: 
-        print "ro create \"%(roname)s\" -d \"%(rodir)s\" -i \"%(roident)s\""%ro_options
-
     # Read local ro configuration and extract creator
     ro_config = ro_utils.readconfig(configbase)
     timestamp = datetime.datetime.now().replace(microsecond=0)
@@ -127,8 +130,9 @@ def create(progname, configbase, options, args):
         print ("%s: research object not in configured research object directory tree: %s"%
                (ro_utils.progname(args), ro_options['rodir']))
         return 1
-    
     # Create directory for manifest
+    if options.verbose: 
+        print "ro create \"%(roname)s\" -d \"%(rodir)s\" -i \"%(roident)s\""%ro_options
     manifestdir = os.path.join(ro_dir, ro_settings.MANIFEST_DIR)
     log.debug("manifestdir: "+manifestdir)
     try:
@@ -136,12 +140,12 @@ def create(progname, configbase, options, args):
     except OSError:
         if os.path.isdir(manifestdir):
             # Someone else created it...
-            # See http://stackoverflow.com/questions/273192/python-best-way-to-create-directory-if-it-doesnt-exist-for-file-write
+            # See http://stackoverflow.com/questions/273192/
+            #          python-best-way-to-create-directory-if-it-doesnt-exist-for-file-write
             pass
         else:
             # There was an error on creation, so make sure we know about it
             raise
-
     # Create manifest file
     # @@TODO: create in-memory graph and serialize that
     manifestfilename = os.path.join(manifestdir, ro_settings.MANIFEST_FILE)
@@ -180,12 +184,12 @@ def status(progname, configbase, options, args):
         "rodir":   options.rodir or "",
         }
     log.debug("ro_options: "+repr(ro_options))
-    if options.verbose: 
-        print "ro status -d \"%(rodir)s\""%ro_options
     # Find RO root directory
     ro_dir = ro_root_directory(progname+" status", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read manifest and display status
+    if options.verbose: 
+        print "ro status -d \"%(rodir)s\""%ro_options
     ro_dict = ro_manifest.readManifest(ro_dir)
     print "Research Object status"
     print "  identifier:  %(roident)s, title: %(rotitle)s"%ro_dict
@@ -209,16 +213,60 @@ def list(progname, configbase, options, args):
         "rodir":   options.rodir or "",
         }
     log.debug("ro_options: "+repr(ro_options))
-    if options.verbose:
-        print "ro list -d \"%(rodir)s\""%ro_options
     # Find RO root directory
     ro_dir = ro_root_directory(progname+" list", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Scan directory tree and display files
+    if options.verbose:
+        print "ro list -d \"%(rodir)s\""%ro_options
     rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
                 ro_dir, baseDir=ro_config['robase'], 
                 listDirs=False, listFiles=True, recursive=True, appendSep=False)
     print "\n".join(rofiles)
+    return 0
+
+def annotate(progname, configbase, options, args):
+    """
+    Annotate a specified research object component
+    
+    ro annotate file attribute-name [ attribute-value ]
+    """
+    # Check command arguments
+    if len(args) not in [4,5]:
+        print ("%s annotate: wrong number of arguments provided"%
+               (progname))
+        print ("Usage: %s annotate file attribute-name [ attribute-value ]"%
+               (progname))
+        return 1
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rofile":       args[2],
+        "rodir":        os.path.dirname(args[2]),
+        "roattribute":  args[3],
+        "rovalue":      args[4] or None
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    # Find RO root directory
+    ro_dir = ro_root_directory(progname+" attribute", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    # Read and update manifest
+    if options.verbose:
+        print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    predicate = ro_options['roattribute']
+    # @@TODO: expand predefined attributes and add CURIE support
+    if predicate == "title":
+        predicate = DCTERMS.title
+    elif predicate == "zzz":
+        predicate = DCTERMS.zzz
+    else:
+        predicate = rdflib.URIRef(predicate)
+    ro_graph.add(
+        ( rdflib.URIRef(ro_options['rofile']),
+          DCTERMS.title,
+          rdflib.Literal(ro_options['rovalue']) 
+        ) )
+    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return 0
 
 # End.

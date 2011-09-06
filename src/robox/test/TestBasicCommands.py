@@ -20,9 +20,10 @@ try:
 except ImportError:
     import json
 
-# Add main project directory and ro manager directories to python path
-sys.path.append("../..")
-sys.path.append("..")
+if __name__ == "__main__":
+    # Add main project directory and ro manager directories to python path
+    sys.path.append("../..")
+    sys.path.append("..")
 
 from MiscLib import TestUtils
 
@@ -213,7 +214,6 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         self.assertTrue(status == 1, "Expected failure due to bad RO directory");
-        self.assertEqual(self.outstr.getvalue().count("ro create"), 1)
         self.assertEqual(self.outstr.getvalue().count("research object not"), 1)
         manifestdir = rodir+"/"+ro_test_config.ROMANIFESTDIR
         self.assertFalse(os.path.exists(manifestdir), msg="checking created RO manifest dir")

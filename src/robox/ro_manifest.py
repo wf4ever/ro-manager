@@ -4,8 +4,9 @@
 Research Object manifest read, write, decode functions
 """
 
+import sys
+import os
 import os.path
-
 import rdflib
 from rdflib.namespace import RDF
 #from rdflib import URIRef, Namespace, BNode
@@ -41,6 +42,14 @@ def readManifestGraph(rodir):
     rdfGraph.parse(manifestfilename)
     return rdfGraph
 
+def writeManifestGraph(rodir, rograph):
+    """
+    Write manifest file for research object given RDF graph of contents
+    """
+    manifestfilename = makeManifestFilename(rodir)
+    rograph.serialize(destination=manifestfilename, format='xml', base=None)
+    return
+
 def readManifest(rodir):
     """
     Read manifest file for research object, return dictionary of manifest values.
@@ -59,5 +68,8 @@ def readManifest(rodir):
         'rodescription':  rdfGraph.value(subject, DCTERMS.description, None),
         }
     return manifestDict
+
+def getComponentUri(rodir, path):
+    return rdflib.URIRef("file://"+os.path.join(os.path.abspath(rodir), path))
 
 # End.
