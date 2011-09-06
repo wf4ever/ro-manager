@@ -351,6 +351,56 @@ class TestBasicCommands(unittest.TestCase):
         self.deleteTestRo(rodir)
         return
 
+    def testList(self):
+        """
+        Display contents of created RO
+
+        ro ls -d rodir
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoList")
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro ls"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.deleteTestRo(rodir)
+        return
+
+    def testListDefault(self):
+        """
+        Display contents of created RO containing current directory
+
+        ro ls
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoList")
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        configbase = os.path.abspath(ro_test_config.CONFIGDIR)
+        save_cwd = os.getcwd()
+        os.chdir(rodir+"/subdir2/")
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(configbase, ro_test_config.ROBASEDIR, args)
+        os.chdir(save_cwd)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro ls"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.deleteTestRo(rodir)
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -393,6 +443,8 @@ def getTestSuite(select="unit"):
             , "testCreateBadDir"
             , "testStatus"
             , "testStatusDefault"
+            , "testList"
+            , "testListDefault"
             ],
         "component":
             [ "testComponents"

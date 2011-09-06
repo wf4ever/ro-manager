@@ -16,13 +16,13 @@
 			<key>filename</key>
 			<string>ro.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T15:47:50Z</date>
+			<date>2011-09-05T14:16:45Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>../MiscLib/TestUtils.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-30T13:54:03Z</date>
+			<date>2011-09-05T10:52:54Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -34,13 +34,13 @@
 			<key>filename</key>
 			<string>ro_command.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T17:05:51Z</date>
+			<date>2011-09-05T15:43:16Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestBasicCommands.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-01T12:46:28Z</date>
+			<date>2011-09-05T15:49:12Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
@@ -48,37 +48,43 @@
 			<key>filename</key>
 			<string>ro_manifest.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T17:06:55Z</date>
+			<date>2011-09-05T14:29:44Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_utils.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T16:34:13Z</date>
+			<date>2011-09-05T13:56:49Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test/StdoutContext.py</string>
+			<key>lastUsed</key>
+			<date>2011-09-05T11:30:24Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestConfig.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-30T14:49:09Z</date>
+			<date>2011-09-05T15:49:12Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T15:47:45Z</date>
+			<date>2011-09-05T14:27:56Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/data/ro-test-1/README-ro-test-1</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:12:12Z</date>
+			<date>2011-09-05T09:54:18Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>../../TODO.txt</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T15:51:03Z</date>
+			<date>2011-09-05T15:34:27Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -96,13 +102,13 @@
 			<key>filename</key>
 			<string>ro_settings.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T16:21:45Z</date>
+			<date>2011-09-05T13:38:49Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>../spike/ManifestRDFUtils.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T16:36:06Z</date>
+			<date>2011-09-05T09:54:30Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -128,14 +134,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>53</integer>
 				<key>line</key>
-				<integer>89</integer>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>61</integer>
+			<integer>0</integer>
 		</dict>
 		<key>../spike/ManifestRDFUtils.py</key>
 		<dict>
@@ -172,9 +178,9 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>31</integer>
 				<key>line</key>
-				<integer>7</integer>
+				<integer>5</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -186,37 +192,37 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>76</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>76</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>42</integer>
 		</dict>
 		<key>ro_command.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>11</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>126</integer>
+				<integer>150</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>80</integer>
+			<integer>104</integer>
 		</dict>
 		<key>ro_manifest.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>23</integer>
+				<integer>29</integer>
 				<key>line</key>
-				<integer>57</integer>
+				<integer>53</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -258,28 +264,58 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>9</integer>
 				<key>line</key>
-				<integer>4</integer>
+				<integer>8</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>test/StdoutContext.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>40</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>38</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>40</integer>
+			</dict>
+		</dict>
 		<key>test/TestBasicCommands.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>38</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>179</integer>
+				<integer>339</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>146</integer>
+			<integer>299</integer>
 		</dict>
 		<key>test/TestConfig.py</key>
 		<dict>
@@ -288,7 +324,21 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>test/data/ro-test-1/README-ro-test-1</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>32</integer>
+				<key>line</key>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -302,17 +352,19 @@
 		<string>ro_utils.py</string>
 		<string>ro_manifest.py</string>
 		<string>../../TODO.txt</string>
+		<string>test/data/ro-test-1/README-ro-test-1</string>
 		<string>ro</string>
 		<string>ro.py</string>
 		<string>test/TestBasicCommands.py</string>
 		<string>../spike/ManifestRDFUtils.py</string>
 		<string>ro_settings.py</string>
 		<string>test/TestConfig.py</string>
+		<string>test/StdoutContext.py</string>
 		<string>../MiscLib/TestUtils.py</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{133, 68}, {828, 1072}}</string>
+	<string>{{38, 51}, {828, 1072}}</string>
 </dict>
 </plist>
