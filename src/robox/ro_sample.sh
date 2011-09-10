@@ -15,8 +15,16 @@ cp -r test/data/ro-test-1/* test/robase/test-create-RO
 
 ./ro create -v "Test Create RO" -d test/robase/test-create-RO -i RO-id-testCreate
 
-cd test/robase/test-create-RO
-../../../ro status -v
-cd ../../..
+#cd test/robase/test-create-RO
+#../../../ro status -v
+#cd ../../..
+
+./ro status -v -d test/robase/test-create-RO
+
+./ro list -v -d test/robase/test-create-RO
+
+./ro annotate -v test/robase/test-create-RO/subdir1/subdir1-file.txt title "subdir1-file.txt title"
+
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt title "subdir2-file.txt title"
 
 # End.

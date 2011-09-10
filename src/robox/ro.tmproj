@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>test/TestBasicCommands.py</string>
+	<string>ro_command.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,7 +16,7 @@
 			<key>filename</key>
 			<string>ro.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T14:16:45Z</date>
+			<date>2011-09-09T13:11:56Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -26,35 +26,47 @@
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>../spike/raw_input.py</string>
+			<string>../MiscLib/ScanDirectories.py</string>
 			<key>lastUsed</key>
-			<date>2011-08-31T15:48:01Z</date>
+			<date>2011-09-06T10:04:42Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_command.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T15:43:16Z</date>
-		</dict>
-		<dict>
-			<key>filename</key>
-			<string>test/TestBasicCommands.py</string>
-			<key>lastUsed</key>
-			<date>2011-09-05T15:49:12Z</date>
+			<date>2011-09-09T13:18:06Z</date>
 			<key>selected</key>
 			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
+			<string>test/TestBasicCommands.py</string>
+			<key>lastUsed</key>
+			<date>2011-09-06T16:45:40Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test/TestAnnotations.py</string>
+			<key>lastUsed</key>
+			<date>2011-09-06T16:50:43Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>test/TestROSupport.py</string>
+			<key>lastUsed</key>
+			<date>2011-09-06T15:23:46Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>ro_manifest.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T14:29:44Z</date>
+			<date>2011-09-09T12:56:30Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_utils.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T13:56:49Z</date>
+			<date>2011-09-09T13:18:06Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -66,31 +78,37 @@
 			<key>filename</key>
 			<string>test/TestConfig.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T15:49:12Z</date>
+			<date>2011-09-06T12:58:10Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>ro_sample.sh</string>
+			<key>lastUsed</key>
+			<date>2011-09-06T15:06:11Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T14:27:56Z</date>
+			<date>2011-09-06T14:51:50Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/data/ro-test-1/README-ro-test-1</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T09:54:18Z</date>
+			<date>2011-09-06T13:09:45Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>../../TODO.txt</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T15:34:27Z</date>
+			<date>2011-09-06T13:10:04Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/data/ro-test-1/subdir2/subdir2-file.txt</string>
 			<key>lastUsed</key>
-			<date>2011-08-24T17:36:16Z</date>
+			<date>2011-09-06T12:58:27Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -178,7 +196,7 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>31</integer>
+				<integer>0</integer>
 				<key>line</key>
 				<integer>5</integer>
 			</dict>
@@ -192,37 +210,51 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>76</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>76</integer>
+				<integer>114</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>42</integer>
+			<integer>71</integer>
 		</dict>
 		<key>ro_command.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>17</integer>
 				<key>line</key>
-				<integer>150</integer>
+				<integer>217</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>104</integer>
+			<integer>195</integer>
 		</dict>
 		<key>ro_manifest.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>29</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>53</integer>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>ro_sample.sh</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>22</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -264,14 +296,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>9</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>8</integer>
+				<integer>81</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>38</integer>
 		</dict>
 		<key>test/StdoutContext.py</key>
 		<dict>
@@ -303,19 +335,33 @@
 				<integer>40</integer>
 			</dict>
 		</dict>
+		<key>test/TestAnnotations.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>29</integer>
+				<key>line</key>
+				<integer>80</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>46</integer>
+		</dict>
 		<key>test/TestBasicCommands.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>14</integer>
 				<key>line</key>
-				<integer>339</integer>
+				<integer>244</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>299</integer>
+			<integer>222</integer>
 		</dict>
 		<key>test/TestConfig.py</key>
 		<dict>
@@ -331,14 +377,28 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>test/data/ro-test-1/README-ro-test-1</key>
+		<key>test/TestROSupport.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>32</integer>
-				<key>line</key>
 				<integer>0</integer>
+				<key>line</key>
+				<integer>26</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>26</integer>
+		</dict>
+		<key>test/data/ro-test-1/subdir2/subdir2-file.txt</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>1</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -352,10 +412,13 @@
 		<string>ro_utils.py</string>
 		<string>ro_manifest.py</string>
 		<string>../../TODO.txt</string>
-		<string>test/data/ro-test-1/README-ro-test-1</string>
 		<string>ro</string>
+		<string>ro_sample.sh</string>
 		<string>ro.py</string>
+		<string>test/TestROSupport.py</string>
+		<string>test/TestAnnotations.py</string>
 		<string>test/TestBasicCommands.py</string>
+		<string>test/data/ro-test-1/subdir2/subdir2-file.txt</string>
 		<string>../spike/ManifestRDFUtils.py</string>
 		<string>ro_settings.py</string>
 		<string>test/TestConfig.py</string>
@@ -365,6 +428,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{38, 51}, {828, 1072}}</string>
+	<string>{{34, 159}, {828, 778}}</string>
 </dict>
 </plist>

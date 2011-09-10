@@ -47,7 +47,7 @@ def writeManifestGraph(rodir, rograph):
     Write manifest file for research object given RDF graph of contents
     """
     manifestfilename = makeManifestFilename(rodir)
-    rograph.serialize(destination=manifestfilename, format='xml', base=None)
+    rograph.serialize(destination=manifestfilename, format='xml', base=getRoUri(rodir), xml_base="..")
     return
 
 def readManifest(rodir):
@@ -71,5 +71,11 @@ def readManifest(rodir):
 
 def getComponentUri(rodir, path):
     return rdflib.URIRef("file://"+os.path.join(os.path.abspath(rodir), path))
+
+def getRoUri(rodir):
+    return rdflib.URIRef("file://"+os.path.abspath(rodir)+"/")
+
+def getGraphRoUri(rodir, rograph):
+    return str(rograph.value(None, RDF.type, OXDS.Grouping))
 
 # End.

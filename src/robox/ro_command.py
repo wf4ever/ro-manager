@@ -153,11 +153,12 @@ def create(progname, configbase, options, args):
     manifest = (
         """<?xml version="1.0" encoding="utf-8"?>
         <rdf:RDF
+          xml:base=".."
           xmlns:dcterms="http://purl.org/dc/terms/"
           xmlns:oxds="http://vocab.ox.ac.uk/dataset/schema#"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         >
-          <oxds:Grouping xml:base="..">
+          <oxds:Grouping rdf:about="#">
             <dcterms:identifier>%(roident)s</dcterms:identifier>
             <dcterms:title>%(roname)s</dcterms:title>
             <dcterms:description>%(roname)s</dcterms:description>
@@ -262,7 +263,7 @@ def annotate(progname, configbase, options, args):
     else:
         predicate = rdflib.URIRef(predicate)
     ro_graph.add(
-        ( rdflib.URIRef(ro_options['rofile']),
+        ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile'])),
           DCTERMS.title,
           rdflib.Literal(ro_options['rovalue']) 
         ) )
