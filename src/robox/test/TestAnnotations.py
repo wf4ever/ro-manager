@@ -79,7 +79,8 @@ class TestAnnotations(TestROSupport.TestROSupport):
         filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
         log.debug("filesubj %s"%filesubj)
         filetitle = manifestgraph.value(filesubj, DCTERMS.title, None),
-        self.assertEqual(filetitle, "subdir1-file title")
+        self.assertEqual(len(filetitle), 1, "Singleton result expected")
+        self.assertEqual(filetitle[0], "subdir1-file title")
         self.deleteTestRo(rodir)
         return
 
