@@ -20,7 +20,45 @@ import MiscLib.ScanDirectories
 import ro_settings
 import ro_utils
 import ro_manifest
-from ro_manifest import RDF, DCTERMS
+from ro_manifest import RDF, DCTERMS, ROTERMS
+
+annotationTypes = (
+    [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
+      , "label": "Type"
+      , "description": "Word or brief phrase describing type of Research Object component" 
+      }
+    , { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist" 
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.subject
+      , "label": "Keywords"
+      , "description": "List of key words or phrases associated with a Research Object component"
+      }
+    , { "name": "description", "prefix": "dcterms", "localName": "description", "type": "text"
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.description
+      , "label": "Description"
+      , "description": "Extended description of Research Object component" 
+      }
+    , { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string"
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format
+      , "label": "Data format"
+      , "description": "String indicating the data format of a Research Object component" 
+      }
+    , { "name": "note", "prefix": "dcterms", "localName": "format", "type": "text"
+      , "baseUri": ROTERMS.baseUri, "fullUri": ROTERMS.note
+      , "label": "Data format"
+      , "description": "String indicating the data format of a Research Object component" 
+      }
+    , { "name": "title", "prefix": "dcterms", "localName": "title", "type": "string"
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title
+      , "label": "Title"
+      , "description": "Title of Research Object component" 
+      }
+    , { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime"
+      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created
+      , "label": "Creation time"
+      , "description": "Data and time that Research Object component was created" 
+      }
+    ])
 
 def getoptionvalue(val, prompt):
     if not val:
@@ -68,18 +106,24 @@ def help(progname, args):
     """
     Display ro command help.  See also ro --help
     """
-    helptext = [
-        "Available commands are:",
-        "",
-        "  %(progname)s help",
-        "  %(progname)s config",
-        "  %(progname)s create",
-        "",
-        "See also:",
-        "",
-        "  %(progname)s --help"
-        "",
-        ]
+    helptext = (
+        [ "Available commands are:"
+        , ""
+        , "  %(progname)s help"
+        , "  %(progname)s config -b <robase> -r <roboxuri> -p <roboxpass> -u <username> -e <useremail>"
+        , "  %(progname)s create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"
+        , "  %(progname)s status [ -d <dir> ]"
+        , "  %(progname)s list [ -d <dir> ]"
+        , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
+        , ""
+        , "Supported annotation type names are: "
+        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
+        , ""
+        , "See also:"
+        , ""
+        , "  %(progname)s --help"
+        ""
+        ])
     for h in helptext:
         print h%{'progname': progname}
     return 0
@@ -95,36 +139,7 @@ def config(progname, configbase, options, args):
         "username":   getoptionvalue(options.username,      "Name of research object owner: "),
         "useremail":  getoptionvalue(options.useremail,     "Email address of owner:        "),
         # Built-in annotation types
-        "annotationTypes": [
-            { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type,
-              "label": "Type",
-              "description": "Word or brief phrase describing type of Research Object component" },
-            { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.subject,
-              "label": "Keywords",
-              "description": "List of key words or phrases associated with a Research Object component" },
-            { "name": "description", "prefix": "dcterms", "localName": "description", "type": "text", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.description,
-              "label": "Description",
-              "description": "Extended description of Research Object component" },
-            { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format,
-              "label": "Data format",
-              "description": "String indicating the data format of a Research Object component" },
-            { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format,
-              "label": "Data format",
-              "description": "String indicating the data format of a Research Object component" },
-            { "name": "title", "prefix": "dcterms", "localName": "title", "type": "string",
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title,
-              "label": "Title",
-              "description": "Title of Research Object component" },
-            { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime",
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created,
-              "label": "Creation time",
-              "description": "Data and time that Research Object component was created" }
-            ],
+        "annotationTypes": annotationTypes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
