@@ -97,7 +97,7 @@ def config(progname, configbase, options, args):
         # Built-in annotation types
         "annotationTypes": [
             { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string", 
-              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title,
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type,
               "label": "Type",
               "description": "Word or brief phrase describing type of Research Object component" },
             { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist", 
@@ -291,12 +291,11 @@ def annotate(progname, configbase, options, args):
         if atype["name"] == predicate:
             predicate = atype["fullUri"]
             break
-    else:
-        # Not matched
-        predicate = rdflib.URIRef(predicate)
+    predicate = rdflib.URIRef(predicate)
+    log.debug("Adding annotation predicate: %s, value %s"%(repr(predicate),repr(ro_options['rovalue'])))
     ro_graph.add(
         ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile'])),
-          DCTERMS.title,
+          predicate,
           rdflib.Literal(ro_options['rovalue']) 
         ) )
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)

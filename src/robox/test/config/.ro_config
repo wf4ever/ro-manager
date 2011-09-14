@@ -4,7 +4,7 @@
     "roboxuri": "http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2", 
     "annotationTypes": [
         {
-            "fullUri": "http://purl.org/dc/terms/title", 
+            "fullUri": "http://purl.org/dc/terms/type", 
             "prefix": "dcterms", 
             "name": "type", 
             "baseUri": "http://purl.org/dc/terms/", 

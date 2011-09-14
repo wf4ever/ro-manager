@@ -31,7 +31,8 @@ dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
 OXDS    = makeNamespace(oxds, ["Grouping"])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"
-            , "subject", "format"])
+            , "subject", "format", "type"
+            ])
 
 def makeManifestFilename(rodir):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)
