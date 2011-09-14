@@ -84,6 +84,27 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    # Test annotation display
+    
+    # Test annotations shown in RO listing
+
+    # Test interactive/multiline update (how?)
+    
+    # Test use of CURIE as type
+    
+    # Test use of URI as type
+
+    # Test use of CURIE
+
+    # Annotation types to add (cf. http://wf4ever.github.com/labs/ro-annotator/mockups/1/index.html)
+    #   type - text
+    #   keywords
+    #   description - multiline text
+    #   role - ?
+    #   created at - date (use file system date?)
+
+
+
     # Sentinel/placeholder tests
 
     def testUnits(self):

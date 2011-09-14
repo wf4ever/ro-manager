@@ -94,6 +94,37 @@ def config(progname, configbase, options, args):
         "roboxpass":  getoptionvalue(options.roboxpassword, "Password for ROBOX service:    "),
         "username":   getoptionvalue(options.username,      "Name of research object owner: "),
         "useremail":  getoptionvalue(options.useremail,     "Email address of owner:        "),
+        # Built-in annotation types
+        "annotationTypes": [
+            { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string", 
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title,
+              "label": "Type",
+              "description": "Word or brief phrase describing type of Research Object component" },
+            { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist", 
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.subject,
+              "label": "Keywords",
+              "description": "List of key words or phrases associated with a Research Object component" },
+            { "name": "description", "prefix": "dcterms", "localName": "description", "type": "text", 
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.description,
+              "label": "Description",
+              "description": "Extended description of Research Object component" },
+            { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string", 
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format,
+              "label": "Data format",
+              "description": "String indicating the data format of a Research Object component" },
+            { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string", 
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format,
+              "label": "Data format",
+              "description": "String indicating the data format of a Research Object component" },
+            { "name": "title", "prefix": "dcterms", "localName": "title", "type": "string",
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title,
+              "label": "Title",
+              "description": "Title of Research Object component" },
+            { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime",
+              "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created,
+              "label": "Creation time",
+              "description": "Data and time that Research Object component was created" }
+            ],
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
@@ -255,12 +286,13 @@ def annotate(progname, configbase, options, args):
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     predicate = ro_options['roattribute']
-    # @@TODO: expand predefined attributes and add CURIE support
-    if predicate == "title":
-        predicate = DCTERMS.title
-    elif predicate == "zzz":
-        predicate = DCTERMS.zzz
+    #@@TODO: deal with annotation types
+    for atype in ro_config["annotationTypes"]:
+        if atype["name"] == predicate:
+            predicate = atype["fullUri"]
+            break
     else:
+        # Not matched
         predicate = rdflib.URIRef(predicate)
     ro_graph.add(
         ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile'])),
