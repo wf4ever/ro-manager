@@ -76,8 +76,8 @@ def ro_root_directory(cmdname, ro_config, rodir):
     Returns directory path string, or None if not found, in which
     case an error message is displayed.
     """
-    log.debug("ro_root_directory: cmdname %s, rodir %s"%(cmdname, rodir))
-    log.debug("                   ro_config %s"%(repr(ro_config)))
+    #log.debug("ro_root_directory: cmdname %s, rodir %s"%(cmdname, rodir))
+    #log.debug("                   ro_config %s"%(repr(ro_config)))
     ro_dir = ro_utils.ropath(ro_config, rodir)
     if not ro_dir:
         print ("%s: indicated directory not in configured research object directory tree: %s"%
@@ -90,9 +90,9 @@ def ro_root_directory(cmdname, ro_config, rodir):
     manifestdir = None
     ro_dir_next = ro_dir
     ro_dir_prev = ""
-    log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
+    #log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
     while ro_dir_next and ro_dir_next != ro_dir_prev:
-        log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
+        #log.debug("ro_dir_next %s, ro_dir_prev %s"%(ro_dir_next, ro_dir_prev))
         manifestdir = os.path.join(ro_dir_next, ro_settings.MANIFEST_DIR)
         if os.path.isdir(manifestdir):
             return ro_dir_next
@@ -115,6 +115,7 @@ def help(progname, args):
         , "  %(progname)s status [ -d <dir> ]"
         , "  %(progname)s list [ -d <dir> ]"
         , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
+        , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , ""
         , "Supported annotation type names are: "
         , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
@@ -272,6 +273,33 @@ def list(progname, configbase, options, args):
     print "\n".join(rofiles)
     return 0
 
+def getAnnotationByName(ro_config, aname):
+    """
+    Given an attribute name from the command line, returns an 
+    attribute type URI as a URIRef node and attribute value type
+    """
+    #@@TODO: deal properly with annotation types: return URIRef
+    for atype in ro_config["annotationTypes"]:
+        if atype["name"] == aname:
+            predicate = atype["fullUri"]
+            valtype   = atype["type"]
+            break
+    else:
+        predicate = aname
+        valtype   = "string"
+    predicate = rdflib.URIRef(predicate)
+    return (predicate, valtype)
+
+def getAnnotationNameByUri(ro_config, auri):
+    """
+    Given an attribute URI from the manifest graph, returns an 
+    attribute name for displaying an attribute
+    """
+    for atype in ro_config["annotationTypes"]:
+        if atype["fullUri"] == str(auri):
+            return atype["name"]
+    return str(auri)
+
 def annotate(progname, configbase, options, args):
     """
     Annotate a specified research object component
@@ -300,13 +328,7 @@ def annotate(progname, configbase, options, args):
     if options.verbose:
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    predicate = ro_options['roattribute']
-    #@@TODO: deal with annotation types
-    for atype in ro_config["annotationTypes"]:
-        if atype["name"] == predicate:
-            predicate = atype["fullUri"]
-            break
-    predicate = rdflib.URIRef(predicate)
+    (predicate,valtype) = getAnnotationByName(ro_config, ro_options['roattribute'])
     log.debug("Adding annotation predicate: %s, value %s"%(repr(predicate),repr(ro_options['rovalue'])))
     ro_graph.add(
         ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile'])),
@@ -314,6 +336,45 @@ def annotate(progname, configbase, options, args):
           rdflib.Literal(ro_options['rovalue']) 
         ) )
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    return 0
+
+def annotations(progname, configbase, options, args):
+    """
+    Dusplay annotations
+    
+    ro annotations [ file | -d dir ]
+    """
+    # Check command arguments
+    if len(args) not in [2,3]:
+        print ("%s annotations: wrong number of arguments provided"%
+               (progname))
+        print ("Usage: %s annotations [ file | -d dir ]"%
+               (progname))
+        return 1
+    ro_config  = ro_utils.readconfig(configbase)
+    ro_file    = (args[2] if len(args) >= 3 else "")
+    ro_options = {
+        "rofile":       ro_file,
+        "rodir":        options.rodir or os.path.dirname(ro_file)
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    if options.verbose:
+        print "ro annotations -d \"%(rodir)s\" %(rofile)s "%ro_options
+    ro_dir= ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    if ro_options['rofile']:
+        ro_file     = ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile']))
+        annotations = ro_graph.predicate_objects(subject=ro_file)
+        print str(ro_file)  # @@TODO figure relativization
+        log.debug("annotations for %s"%str(ro_file))
+        for (atyp,aval) in annotations:
+            aname = getAnnotationNameByUri(ro_config, atyp)
+            log.debug("Annotations atyp %s, aname %s, aval %s"%(repr(atyp), aname, repr(aval)))
+            print "  %s: %s"%(aname,str(aval))
+    else:
+        # list all annotations
+        assert False, "@@TODO - show annotations for all RO components"
     return 0
 
 # End.

@@ -23,8 +23,23 @@ cp -r test/data/ro-test-1/* test/robase/test-create-RO
 
 ./ro list -v -d test/robase/test-create-RO
 
+echo "--------"
+
 ./ro annotate -v test/robase/test-create-RO/subdir1/subdir1-file.txt title "subdir1-file.txt title"
 
-./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt title "subdir2-file.txt title"
+./ro annotations -v test/robase/test-create-RO/subdir1/subdir1-file.txt
+
+echo "--------"
+
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt type        "subdir2-file.txt type"
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt keywords    "subdir2-file.txt foo,bar"
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt description "subdir2-file.txt description\nline 2"
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt format      "subdir2-file.txt format"
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt title       "subdir2-file.txt title"
+./ro annotate -v test/robase/test-create-RO/subdir2/subdir2-file.txt created     "20110914T12:00:00"
+
+./ro annotations -v test/robase/test-create-RO/subdir2/subdir2-file.txt
+
+echo "--------"
 
 # End.
