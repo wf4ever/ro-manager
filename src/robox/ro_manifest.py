@@ -15,11 +15,12 @@ from rdflib.namespace import RDF
 import ro_settings
 
 class Namespace(object):
-    def __init__(self):
+    def __init__(self, baseUri):
+        self.baseUri = baseUri
         return
 
 def makeNamespace(baseUri, names):
-    ns = Namespace()
+    ns = Namespace(baseUri)
     for name in names:
         setattr(ns, name, rdflib.URIRef(baseUri+name))
     return ns
@@ -28,7 +29,10 @@ oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
 
 OXDS    = makeNamespace(oxds, ["Grouping"])
-DCTERMS = makeNamespace(dcterms, ["identifier", "description", "title", "creator", "created"])
+DCTERMS = makeNamespace(dcterms, 
+            [ "identifier", "description", "title", "creator", "created"
+            , "subject", "format", "type"
+            ])
 
 def makeManifestFilename(rodir):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)

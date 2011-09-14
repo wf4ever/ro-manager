@@ -84,6 +84,69 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def annotationTest(self, anntype, annvalue, anntypeuri, annexpect):
+        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        args = [
+            "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
+            "-v",
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro annotate"), 1)
+        # Read manifest and check for annotation
+        manifestgraph = ro_manifest.readManifestGraph(rodir)
+        filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
+        fileann   = manifestgraph.value(filesubj, anntypeuri, None),
+        #@@TODO: deal with case that expected result is a list
+        self.assertEqual(len(fileann), 1, "Singleton result expected")
+        self.assertEqual(fileann[0], annexpect)
+        self.deleteTestRo(rodir)
+        return
+
+    # Other annotation types to add (cf. http://wf4ever.github.com/labs/ro-annotator/mockups/1/index.html)
+
+    def testAnnotateType(self):
+        self.annotationTest("type", "file type", DCTERMS.type, "file type")
+        return
+
+    def testAnnotateKeywords(self):
+        self.annotationTest("keywords", "foo,bar", DCTERMS.subject, "foo,bar")  #@@TODO: make multiples
+        return
+
+    def testAnnotateDescription(self):
+        descr = """
+            Multiline
+            description
+            """
+        self.annotationTest("description", descr, DCTERMS.description, descr)
+        return
+
+    def testAnnotateCreated(self):
+        #@@TODO: use for creation date/time of file
+        created = "2011-09-14T12:00:00"
+        self.annotationTest("created", created, DCTERMS.created, created)
+        return
+
+    def testAnnotateTypeUri(self):
+        anntypeuri = rdflib.URIRef("http://example.org/annotationtype")
+        annvalue   = "Annotation value"
+        self.annotationTest(anntypeuri, annvalue, anntypeuri, annvalue)
+        return
+
+    # Test annotation display
+    
+    # Test annotations shown in RO listing
+
+    # @@TODO: Test interactive/multiline update (how?)
+    
+    # @@TODO: Test use of CURIE as type
+    
+    # @@TODO: Test use of URI as type
+
+    # Test use of CURIE
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -116,6 +179,11 @@ def getTestSuite(select="unit"):
             [ "testUnits"
             , "testNull"
             , "testAnnotate"
+            , "testAnnotateType"
+            , "testAnnotateKeywords"
+            , "testAnnotateDescription"
+            , "testAnnotateCreated"
+            , "testAnnotateTypeUri"
             ],
         "component":
             [ "testComponents"
