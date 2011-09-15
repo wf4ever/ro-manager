@@ -1,0 +1,85 @@
+Research Object manager command line tool for function experimentation
+
+To run this program:
+
+1. Pull a copy of this repository to a local directory. Let's call this $RO_MANAGER.
+
+2. Go to directory $RO_MANAGER/src
+
+3. If necessary, edit the first line so that it refers to the appropriate Python 
+   interpreter on your system. (Linux/Unix systems only.  If using Windows, some more
+   fancy footwork may be needed, such as creating a .bat file.)
+
+4. Go to directory $RO_MANAGER/src/rocommand/test
+
+5. Run this command:  python TestAll.py.  
+   The resulting output should look like this:
+
+    $ python TestAll.py
+    .......................
+    ----------------------------------------------------------------------
+    Ran 23 tests in 0.233s
+
+    OK
+
+6. Go to directory $RO_MANAGER/src
+
+7. Run this command: ./ro_sample.sh
+   The output should look something like this:
+
+    $ ./ro_sample.sh 
+    --------
+    ro config -b /usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase
+              -r http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2
+              -p d41d8cd98f00b204e9800998ecf8427e
+              -u Test user -e testuser@example.org
+    ro configuration written to /Users/graham
+    --------
+    mkdir: rocommand/test/robase/test-create-RO: File exists
+    cp: /ro-test-1/*: No such file or directory
+    ro create "Test Create RO" -d "rocommand/test/robase/test-create-RO" -i "RO-id-testCreate"
+    ro status -d "rocommand/test/robase/test-create-RO"
+    Research Object status
+      identifier:  RO-id-testCreate, title: Test Create RO
+      creator:     Test user, created: 2011-09-15T15:12:17
+      path:        /usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase/test-create-RO
+      uri:         file:///usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase/test-create-RO/#
+      description: Test Create RO
+    ro list -d "rocommand/test/robase/test-create-RO"
+    test-create-RO/.ro_manifest/manifest.rdf
+    test-create-RO/README-ro-test-1
+    test-create-RO/subdir1/subdir1-file.txt
+    test-create-RO/subdir2/subdir2-file.txt
+    --------
+    ro annotate rocommand/test/robase/test-create-RO/subdir1/subdir1-file.txt title "subdir1-file.txt title"
+    ro annotations -d "rocommand/test/robase/test-create-RO/subdir1" rocommand/test/robase/test-create-RO/subdir1/subdir1-file.txt 
+    file:///usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase/test-create-RO/subdir1/subdir1-file.txt
+      title: subdir1-file.txt title
+    --------
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt type "subdir2-file.txt type"
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt keywords "subdir2-file.txt foo,bar"
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt description "subdir2-file.txt description\nline 2"
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt format "subdir2-file.txt format"
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt title "subdir2-file.txt title"
+    ro annotate rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt created "20110914T12:00:00"
+    ro annotations -d "rocommand/test/robase/test-create-RO/subdir2" rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt 
+    file:///usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase/test-create-RO/subdir2/subdir2-file.txt
+      type: subdir2-file.txt type
+      title: subdir2-file.txt title
+      format: subdir2-file.txt format
+      keywords: subdir2-file.txt foo,bar
+      created: 20110914T12:00:00
+      description: subdir2-file.txt description\nline 2
+    --------
+
+8. Look inside the file $RO_MANAGER/src/ro_sample.sh to see what the individual command look like.
+
+9. Try running ./ro help
+
+10. Note that the ro config command only needs to be run once to set up a 
+    configuration for your environment, though it can be re-run to update 
+    the details.  Most ro config values are currently ignored.  The important 
+    value is -b <robase>, which indicates a disk area (possibly a DropBox area)
+    where Research Objects are managed.
+
+  

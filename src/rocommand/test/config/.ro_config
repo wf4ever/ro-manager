@@ -69,11 +69,11 @@
             "name": "created", 
             "baseUri": "http://purl.org/dc/terms/", 
             "localName": "created", 
-            "description": "Data and time that Research Object component was created", 
+            "description": "Date and time that Research Object component was created", 
             "type": "datetime", 
             "label": "Creation time"
         }
     ], 
-    "robase": "/usr/workspace/wf4ever-ro-manager/src/robox/test/robase", 
+    "robase": "/usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase", 
     "roboxpass": "d41d8cd98f00b204e9800998ecf8427e"
 }

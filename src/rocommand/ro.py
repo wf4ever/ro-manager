@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/bin/python
 
 """
 RO manager command parser and dispatcher
@@ -42,7 +42,7 @@ def run(configbase, options, args):
         status = 2
     return status
 
-def parseCommandArgs(prog, argv):
+def parseCommandArgs(argv):
     """
     Parse command line arguments
     
@@ -91,14 +91,14 @@ def parseCommandArgs(prog, argv):
 
 def runCommand(configbase, robase, argv):
     """
-    Run program with supplied configuration base directory, RO base directory 
-    and arguments.
+    Run program with supplied configuration base directory, Base directory 
+    from which to start looking for research objects, and arguments.
     
     This is called by main function (below), and also by test suite routines.
     
     Returns exit status.
     """
-    (options, args) = parseCommandArgs("ro", argv)
+    (options, args) = parseCommandArgs(argv)
     status = 1
     if options:
         status  = run(configbase, options, args)
