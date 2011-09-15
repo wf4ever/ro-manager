@@ -7,9 +7,9 @@
 import sys, unittest, logging
 
 if __name__ == "__main__":
-    # Add main project directory and ro manager directories to python path
-    sys.path.append("../..")
-    sys.path.append("..")
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "..")
 
 import TestBasicCommands
 import TestAnnotations
