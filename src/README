@@ -1,0 +1,9 @@
+Research Object manager command line tool for function experimentation
+
+To run this program:
+
+1. pull a copy of this repository to a local directory. Let's call this $RO_MANAGER.
+
+2. Go to directory $RO_MANGER/src
+
+3. If necessary, edit the first line so that it reads
