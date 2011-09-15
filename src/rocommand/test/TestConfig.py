@@ -4,7 +4,7 @@
 Configuration module for RO manager tests
 """
 
-import ro_config
+import ro_settings
 
 class ro_test_config:
     CONFIGDIR      = "config"
@@ -14,7 +14,7 @@ class ro_test_config:
     ROBOXUSERNAME  = "Test User"
     ROBOXPASSWORD  = "d41d8cd98f00b204e9800998ecf8427e"
     ROBOXEMAIL     = "testuser@example.org"
-    ROMANIFESTDIR  = ro_config.MANIFEST_DIR
-    ROMANIFESTFILE = ro_config.MANIFEST_FILE
+    ROMANIFESTDIR  = ro_settings.MANIFEST_DIR
+    ROMANIFESTFILE = ro_settings.MANIFEST_FILE
 
 # End.
