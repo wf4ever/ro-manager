@@ -15,8 +15,10 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
-* ro annotate
-* ro annotations
+* ro show config
+* ro create to fail if RO already created
+* option to change ro manifest details - ro modify?
+
 * ro link
 * ro links
 * ro users
@@ -24,7 +26,7 @@ TODO:
 ** Maintain list of files in manifest, treat like git staging?
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
-* Options for RO logging
+* Options for RO logging of changes, etc
 * ro list currently shows only files: want to show directories too?
 
 ----
@@ -35,5 +37,6 @@ DONE
 * ro create: create new research object
 * ro status: display status of RO
 * ro list / ro ls: list contents of research object
+* ro annotate, ro annotations: annotate research object contents
 
 

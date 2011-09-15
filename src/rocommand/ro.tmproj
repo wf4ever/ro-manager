@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>ro_manifest.py</string>
+	<string>ro_sample.sh</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -16,7 +16,7 @@
 			<key>filename</key>
 			<string>ro.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-09T13:11:56Z</date>
+			<date>2011-09-14T16:42:10Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -32,47 +32,51 @@
 		</dict>
 		<dict>
 			<key>filename</key>
+			<string>test/TestAll.py</string>
+			<key>lastUsed</key>
+			<date>2011-09-14T15:29:49Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
 			<string>ro_command.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-10T12:20:32Z</date>
+			<date>2011-09-14T18:15:46Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestBasicCommands.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-06T16:45:40Z</date>
+			<date>2011-09-14T16:34:26Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestAnnotations.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-10T11:49:49Z</date>
+			<date>2011-09-14T18:06:41Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/TestROSupport.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-06T15:23:46Z</date>
+			<date>2011-09-14T16:30:51Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_manifest.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-10T12:37:24Z</date>
-			<key>selected</key>
-			<true/>
+			<date>2011-09-14T18:11:53Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro_utils.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-10T12:17:05Z</date>
+			<date>2011-09-14T18:11:49Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test/StdoutContext.py</string>
 			<key>lastUsed</key>
-			<date>2011-09-05T11:30:24Z</date>
+			<date>2011-09-14T18:04:16Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -84,13 +88,15 @@
 			<key>filename</key>
 			<string>ro_sample.sh</string>
 			<key>lastUsed</key>
-			<date>2011-09-10T12:37:24Z</date>
+			<date>2011-09-14T18:15:46Z</date>
+			<key>selected</key>
+			<true/>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>ro</string>
 			<key>lastUsed</key>
-			<date>2011-09-06T14:51:50Z</date>
+			<date>2011-09-14T14:50:57Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
@@ -198,7 +204,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>5</integer>
+				<integer>11</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -210,28 +216,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>39</integer>
 				<key>line</key>
-				<integer>114</integer>
+				<integer>38</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>71</integer>
+			<integer>0</integer>
 		</dict>
 		<key>ro_command.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>83</integer>
+				<integer>7</integer>
 				<key>line</key>
-				<integer>265</integer>
+				<integer>296</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>230</integer>
+			<integer>296</integer>
 		</dict>
 		<key>ro_manifest.py</key>
 		<dict>
@@ -240,28 +246,12 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>50</integer>
+				<integer>89</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>35</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>49</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>50</integer>
-			</dict>
 		</dict>
 		<key>ro_sample.sh</key>
 		<dict>
@@ -270,7 +260,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>28</integer>
+				<integer>43</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -319,66 +309,64 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>38</integer>
+			<integer>27</integer>
 		</dict>
 		<key>test/StdoutContext.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>43</integer>
 				<key>line</key>
-				<integer>40</integer>
+				<integer>32</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
-			<key>selectFrom</key>
+		</dict>
+		<key>test/TestAll.py</key>
+		<dict>
+			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>38</integer>
+				<integer>12</integer>
 			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>40</integer>
-			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
 		</dict>
 		<key>test/TestAnnotations.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>65</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>67</integer>
+				<integer>158</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>46</integer>
+			<integer>148</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>41</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>67</integer>
+				<integer>152</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>65</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>67</integer>
+				<integer>158</integer>
 			</dict>
 		</dict>
 		<key>test/TestBasicCommands.py</key>
@@ -386,14 +374,30 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>14</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>244</integer>
+				<integer>322</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>222</integer>
+			<integer>294</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>317</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>322</integer>
+			</dict>
 		</dict>
 		<key>test/TestConfig.py</key>
 		<dict>
@@ -416,12 +420,12 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>26</integer>
+				<integer>93</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>26</integer>
+			<integer>66</integer>
 		</dict>
 		<key>test/data/ro-test-1/subdir2/subdir2-file.txt</key>
 		<dict>
@@ -441,6 +445,7 @@
 	<key>openDocuments</key>
 	<array>
 		<string>ro_command.py</string>
+		<string>test/TestAll.py</string>
 		<string>ro_utils.py</string>
 		<string>ro_manifest.py</string>
 		<string>../../TODO.txt</string>
@@ -460,6 +465,6 @@
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{34, 24}, {892, 754}}</string>
+	<string>{{96, 210}, {1068, 954}}</string>
 </dict>
 </plist>

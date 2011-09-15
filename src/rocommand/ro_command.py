@@ -56,7 +56,7 @@ annotationTypes = (
     , { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created
       , "label": "Creation time"
-      , "description": "Data and time that Research Object component was created" 
+      , "description": "Date and time that Research Object component was created" 
       }
     ])
 
