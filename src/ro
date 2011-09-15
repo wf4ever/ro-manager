@@ -9,7 +9,7 @@ import os
 import os.path
 
 progdir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(progdir)
+sys.path.insert(0, progdir) # Insert at front of path to override pre-installed rdflib, if any
 
 from rocommand import ro
 
