@@ -44,13 +44,13 @@
             "label": "Data format"
         }, 
         {
-            "fullUri": "http://purl.org/dc/terms/format", 
+            "fullUri": "http://ro.example.org/ro/terms/note", 
             "prefix": "dcterms", 
-            "name": "format", 
-            "baseUri": "http://purl.org/dc/terms/", 
+            "name": "note", 
+            "baseUri": "http://ro.example.org/ro/terms/", 
             "localName": "format", 
             "description": "String indicating the data format of a Research Object component", 
-            "type": "string", 
+            "type": "text", 
             "label": "Data format"
         }, 
         {

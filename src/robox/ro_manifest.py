@@ -27,11 +27,15 @@ def makeNamespace(baseUri, names):
 
 oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
+roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
 
 OXDS    = makeNamespace(oxds, ["Grouping"])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"
             , "subject", "format", "type"
+            ])
+ROTERMS = makeNamespace(roterms, 
+            [ "note"
             ])
 
 def makeManifestFilename(rodir):

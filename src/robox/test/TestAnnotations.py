@@ -135,17 +135,76 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.annotationTest(anntypeuri, annvalue, anntypeuri, annvalue)
         return
 
+    def annotateMultiple(self, rodir, rofile, annotations):
+        with SwitchStdout(self.outstr):
+            for a in annotations:
+                args = ["ro", "annotate", rofile, a["atypename"], a["avalue"]]
+                status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+                outtxt = self.outstr.getvalue()
+                assert status == 0, outtxt
+        # Reset output stream buffer closed
+        self.outstr = StringIO.StringIO()
+        return
+
+    def testAnnotateMultiple(self):
+        rodir  = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        annotations = (
+            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
+            , {"atypename": "keywords",    "avalue":"asubj",    "atypeuri":DCTERMS.subject,     "aexpect":"asubj" }
+            , {"atypename": "description", "avalue":"adesc",    "atypeuri":DCTERMS.description, "aexpect":"adesc" }
+            , {"atypename": "format",      "avalue":"aformat",  "atypeuri":DCTERMS.format,      "aexpect":"aformat" }
+            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
+            , {"atypename": "created",     "avalue":"acreated", "atypeuri":DCTERMS.created,     "aexpect":"acreated" }
+            #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
+            #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
+            ])
+        self.annotateMultiple(rodir, rofile, annotations)
+        # Read manifest and check for annotation
+        manifestgraph = ro_manifest.readManifestGraph(rodir)
+        filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
+        for a in annotations:
+            fileann   = manifestgraph.value(filesubj, a["atypeuri"], None),
+            self.assertEqual(len(fileann), 1, "Singleton result expected")
+            self.assertEqual(fileann[0], a["aexpect"])
+        self.deleteTestRo(rodir)
+        return
+
     # Test annotation display
+    def testAnnotationDisplay(self):
+        # Construct annotated RO
+        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        annotations = (
+            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
+            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
+            ])
+        self.annotateMultiple(rodir, rofile, annotations)
+        # Display annotations
+        args = [ "ro", "annotations", rofile
+               , "-v"
+               ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro annotations"), 1)
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "type:.*atype")
+        self.assertRegexpMatches(outtxt, "title:.*atitle")
+        self.deleteTestRo(rodir)
+        return
+
+    # Test display of annotations for entire RO
+
     
-    # Test annotations shown in RO listing
+    # @@TODO: Test annotations shown in RO listing
 
     # @@TODO: Test interactive/multiline update (how?)
     
     # @@TODO: Test use of CURIE as type
     
     # @@TODO: Test use of URI as type
-
-    # Test use of CURIE
 
     # Sentinel/placeholder tests
 
@@ -184,6 +243,8 @@ def getTestSuite(select="unit"):
             , "testAnnotateDescription"
             , "testAnnotateCreated"
             , "testAnnotateTypeUri"
+            , "testAnnotateMultiple"
+            , "testAnnotationDisplay"
             ],
         "component":
             [ "testComponents"
