@@ -4,7 +4,7 @@
 #
 
 ROBASE="rocommand/test/robase"
-TEXTRO="rocommand/test/data"
+TESTRO="rocommand/test/data"
 
 echo "--------"
 
