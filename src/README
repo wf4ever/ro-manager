@@ -1,5 +1,12 @@
 Research Object manager command line tool for function experimentation
 
+
+Dependencies:
+- Python 2.6 or 2.7.  The test suite depends on Python 2.7, but the program has been run under Python 2.6
+- Linux/Unix type system
+- The ro_sample script is written to run under BASH
+
+
 To run this program:
 
 1. Pull a copy of this repository to a local directory. Let's call this $RO_MANAGER.
