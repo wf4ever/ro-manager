@@ -47,6 +47,8 @@ class XMLSerializer(Serializer):
 
         # startRDF
         write('<rdf:RDF\n')
+        if "xml_base" in args:
+            write('   xml:base="%s"\n' % args['xml_base'])
         # TODO: assert(namespaces["http://www.w3.org/1999/02/22-rdf-syntax-ns#"]=='rdf')
         bindings = list(self.__bindings())
         bindings.sort()
