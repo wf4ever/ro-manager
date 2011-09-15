@@ -6,8 +6,12 @@ Created on 13-09-2011
 
 from httplib import HTTPConnection, CREATED, NO_CONTENT, OK, responses
 import base64
+import logging
+
+log = logging.getLogger(__name__)
 
 class RosrsSync:
+
 
     URI_WORKSPACES = "/rosrs3/workspaces"
     URI_WORKSPACE_ID = URI_WORKSPACES + "/%s"
@@ -24,7 +28,7 @@ class RosrsSync:
         self.username = username
         self.password = password
     
-    def post_workspace(self):
+    def postWorkspace(self):
         """
         Create a new workspace in ROSRS. This complies to ROSRS 3, which means that 
         the workspace id will be the same as username.
@@ -41,11 +45,11 @@ class RosrsSync:
         conn.request("POST", url, body, headers)
         res = conn.getresponse()
         if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Workspace %s created: %s" % (self.username, res.msg["location"])
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Workspace %s created: %s" % (self.username, res.msg["location"]))
         return res.msg["location"]
     
-    def delete_workspace(self):
+    def deleteWorkspace(self):
         """
         Delete a workspace in ROSRS. This complies to ROSRS 3, which means that 
         the workspace id is the same as username.
@@ -58,11 +62,11 @@ class RosrsSync:
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Workspace %s deleted" % self.username
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Workspace %s deleted" % self.username)
         return None
     
-    def post_ro(self, roId):
+    def postRo(self, roId):
         """
         Create a new Research Object in ROSRS.
         
@@ -76,11 +80,11 @@ class RosrsSync:
         conn.request("POST", url, body, headers)
         res = conn.getresponse()
         if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "RO %s created: %s" % (roId, res.msg["location"])
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("RO %s created: %s" % (roId, res.msg["location"]))
         return res.msg["location"]
     
-    def delete_ro(self, roId):
+    def deleteRo(self, roId):
         """
         Deletes a Research Object from ROSRS.
         
@@ -92,11 +96,11 @@ class RosrsSync:
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "RO %s deleted" % roId
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("RO %s deleted" % roId)
         return None 
     
-    def post_version(self, roId, versionId):
+    def postVersion(self, roId, versionId):
         """
         Create a new Research Object version in ROSRS.
         
@@ -110,11 +114,11 @@ class RosrsSync:
         conn.request("POST", url, body, headers)
         res = conn.getresponse()
         if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Version %s created: %s" % (versionId, res.msg["location"])
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Version %s created: %s" % (versionId, res.msg["location"]))
         return res.msg["location"]
     
-    def post_version_as_copy(self, roId, versionId, oldVersionUri):
+    def postVersionAsCopy(self, roId, versionId, oldVersionUri):
         """
         Create a new Research Object version in ROSRS as a copy of another version of the same RO.
         
@@ -130,11 +134,11 @@ class RosrsSync:
         conn.request("POST", url, body, headers)
         res = conn.getresponse()
         if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Version %s created as a copy of %s: %s" % (versionId, oldVersionUri, res.msg["location"])
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Version %s created as a copy of %s: %s" % (versionId, oldVersionUri, res.msg["location"]))
         return res.msg["location"]
     
-    def delete_version(self, roId, versionId):
+    def deleteVersion(self, roId, versionId):
         """
         Deletes a Research Object version from ROSRS.
         
@@ -146,11 +150,11 @@ class RosrsSync:
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Version %s deleted" % versionId
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Version %s deleted" % versionId)
         return None 
 
-    def put_manifest(self, roId, versionId, manifestFile):
+    def putManifest(self, roId, versionId, manifestFile):
         """
         Updates the manifest of a RO version.
         
@@ -164,11 +168,11 @@ class RosrsSync:
         conn.request("PUT", url, body, headers)
         res = conn.getresponse()
         if res.status != OK:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "Manifest updated: %s" % res.msg["location"]
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("Manifest updated: %s" % res.msg["location"])
         return res.msg["location"]
         
-    def put_file(self, roId, versionId, filePath, contentType, fileObject):
+    def putFile(self, roId, versionId, filePath, contentType, fileObject):
         """
         Creates or updates a file in ROSRS
         
@@ -183,11 +187,11 @@ class RosrsSync:
         conn.request("PUT", url, body, headers)
         res = conn.getresponse()
         if res.status != OK:
-            raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "File created/updated: %s" % filePath
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        log.debug("File created/updated: %s" % filePath)
         return None
     
-    def delete_file(self, roId, versionId, filePath):
+    def deleteFile(self, roId, versionId, filePath):
         """
         Deletes a file from ROSRS.
         
@@ -200,8 +204,9 @@ class RosrsSync:
         res = conn.getresponse()
         if res.status != NO_CONTENT:
             raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
-        print "File %s deleted" % filePath
-        return None 
+        log.debug("File %s deleted" % filePath)
+        return None
+    
 
 if __name__ == '__main__':
         pass
