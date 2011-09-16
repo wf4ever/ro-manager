@@ -62,11 +62,11 @@ class BackgroundResourceSync(object):
                 log.debug("Adding Directory %s " % (path))
                 sentFiles = sentFiles.union(self.__scanDirectories4Put(roId, versionId, versiondir, path))
             else:
-                if (self.__checkFilePut__(roId, versionId, versiondir, path)):
+                if (self.__checkFile4Put(roId, versionId, versiondir, path)):
                     sentFiles.add(path)
         return sentFiles
     
-    def __checkFilePut__(self, roId, versionId, versiondir, filepath):
+    def __checkFile4Put(self, roId, versionId, versiondir, filepath):
         assert filepath.startswith(versiondir)
         rosrsFilepath = filepath[len(versiondir) + 1:]
         if rosrsFilepath == "manifest.rdf":

@@ -28,7 +28,7 @@ class SyncRegistry(object):
         
     def hasBeenModified(self):
         if (path.getmtime(self.filename) > self.lastSyncTime):
-            if (self.__calculateMd5(self.filename) != self.checksum):
+            if (self.__calculateMd5() != self.checksum):
                 return True
         return False
         
@@ -37,6 +37,7 @@ class SyncRegistry(object):
         with open(self.filename) as f:
             for line in f:
                 m.update(line)
+            f.close()
         return m.hexdigest()
         
     

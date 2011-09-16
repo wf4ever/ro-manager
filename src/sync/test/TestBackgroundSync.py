@@ -8,7 +8,7 @@ from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
 from sync.test.TestConfig import ro_test_config
 import logging
-from os import rename
+from os import rename, utime
 from os.path import exists
 
 class Test(unittest.TestCase):
@@ -19,6 +19,11 @@ class Test(unittest.TestCase):
              'data/ro-test-1/subdir1/sub2dir/file2.txt' }
     fileToDelete = 'data/ro-test-1/subdir1/file1.txt'
     fileToReplace = 'data/ro-test-1/subdir1/file1beta.txt'
+    fileToTouch = 'data/ro-test-1/subdir1/subdir1-file.txt'
+    fileToModify = 'data/ro-test-1/subdir1/sub2dir/file2.txt'
+    
+    modifiedFileContent = """lorem ipsum
+ora et labora"""
 
     def setUp(self):
         self.__sync = RosrsSync(ro_test_config.ROSRS_HOST, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
@@ -33,6 +38,9 @@ class Test(unittest.TestCase):
         self.__sync.deleteWorkspace()
         if (exists(self.fileToReplace)):
             rename(self.fileToReplace, self.fileToDelete)
+        with open(self.fileToModify, 'w') as f:
+            f.write(self.modifiedFileContent)
+            f.close()
         return
 
     def testSyncRecources(self):
@@ -44,11 +52,15 @@ class Test(unittest.TestCase):
         assert len(deleted) == 0
 
         rename(self.fileToDelete, self.fileToReplace)
+        utime(self.fileToTouch, None)
+        with open(self.fileToModify, 'a') as f:
+            f.write("foobar")
+            f.close()
+        
         (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
-        self.assertEquals(sent, {self.fileToReplace}, "New sent file")
+        self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
-        rename(self.fileToReplace, self.fileToDelete)
         return
 
 
