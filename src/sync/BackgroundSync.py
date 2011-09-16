@@ -66,13 +66,12 @@ class BackgroundResourceSync(object):
         put = True
         if (filepath in self.syncRegistries):
             put = self.syncRegistries[filepath].hasBeenModified()
-        else:
-            self.syncRegistries[filepath] = SyncRegistry(filepath)
         if put:
             contentType = mimetypes.guess_type(filepath)[0]
             fileObject = open(filepath)
             log.debug("Put file %s" % filepath)
             self.rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
+            self.syncRegistries[filepath] = SyncRegistry(filepath)
         return put
     
     def __scanRegistries4Delete(self, roId, versionId, srcdir):
@@ -85,6 +84,6 @@ class BackgroundResourceSync(object):
                     rosrsFilepath = r.filename[len(srcdir) + 1:]
                     self.rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
         for f in deletedFiles:
-            self.syncRegistries[f] = None
+            del self.syncRegistries[f]
         return deletedFiles
         

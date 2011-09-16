@@ -61,6 +61,11 @@ ora et labora"""
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
+
+        (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
+                              "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
+        assert len(sent) == 0
+        assert len(deleted) == 0
         return
 
 
