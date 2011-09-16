@@ -9,6 +9,8 @@ import mimetypes
 import logging
 from os.path import isdir, exists, join
 from os import listdir, walk
+import json
+import pickle
 
 log = logging.getLogger(__name__)
 
@@ -17,13 +19,17 @@ class BackgroundResourceSync(object):
     classdocs
     '''
    
+    REGISTRIES_FILE = "registries.json"
 
-    def __init__(self, rosrsSync):
+    def __init__(self, rosrsSync, resetRegistries = False):
         '''
         Constructor
         '''
         self.rosrsSync = rosrsSync
-        self.syncRegistries = dict()
+        if resetRegistries:
+            self.syncRegistries = dict()
+        else:
+            self.syncRegistries = self.__loadRegistries()
         mimetypes.init()
         
     def syncAllResourcesInWorkspace(self, srcDirectory, createROVersions = False):
@@ -69,6 +75,7 @@ class BackgroundResourceSync(object):
         '''
         sentFiles = self.__scanDirectories4Put(roId, versionId, srcDirectory)
         deletedFiles = self.__scanRegistries4Delete(roId, versionId, srcDirectory)
+        self.__saveRegistries()
         return (sentFiles, deletedFiles)
     
     def __scanDirectories4Put(self, roId, versionId, srcdir):
@@ -104,8 +111,23 @@ class BackgroundResourceSync(object):
                     log.debug("Delete file %s" % r.filename)
                     deletedFiles.add(r.filename)
                     rosrsFilepath = r.filename[len(srcdir) + 1:]
-                    self.rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
+                    try:
+                        self.rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
+                    except:
+                        log.debug("File %s did not exist in ROSRS" % r.filename)
         for f in deletedFiles:
             del self.syncRegistries[f]
         return deletedFiles
+    
+    def __loadRegistries(self):
+        try:
+            rf = open(self.REGISTRIES_FILE, 'r')
+            return pickle.load(rf)
+        except:
+            return dict()
+        
+    def __saveRegistries(self):
+        rf = open(self.REGISTRIES_FILE, 'w')
+        pickle.dump(self.syncRegistries, rf)
+        return
         

@@ -51,7 +51,7 @@ ora et labora"""
         return
 
     def testSyncRecources(self):
-        back = BackgroundResourceSync(self.__sync)
+        back = BackgroundResourceSync(self.__sync, True)
         
         (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
@@ -77,7 +77,7 @@ ora et labora"""
         return
     
     def testSyncWorkspace(self):
-        back = BackgroundResourceSync(self.__sync)
+        back = BackgroundResourceSync(self.__sync, True)
         self.assertRaises(Exception, back.syncAllResourcesInWorkspace, "data")
         (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
@@ -85,7 +85,21 @@ ora et labora"""
         self.assertTupleEqual((set(), set()), back.syncAllResourcesInWorkspace("data"), 
                               "Sync workspace after creating RO")
         return
-
+    
+    def testSaveLoadRegistries(self):
+        back = BackgroundResourceSync(self.__sync, True)
+        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
+        self.assertEquals(deleted, set())
+        back = BackgroundResourceSync(self.__sync, False)
+        self.assertTupleEqual((set(), set()), back.syncAllResourcesInWorkspace("data"), 
+                              "Sync workspace after loading registries")
+        back = BackgroundResourceSync(self.__sync, True)
+        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
+        self.assertEquals(deleted, set())
+        return
+    
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSyncRecources']
