@@ -26,15 +26,33 @@ class BackgroundResourceSync(object):
         self.syncRegistries = dict()
         mimetypes.init()
         
-    def syncAllResourcesInWorkspace(self, srcDirectory):
+    def syncAllResourcesInWorkspace(self, srcDirectory, createROVersions = False):
+        '''
+        Scans all directories in srcDirectory as ROs, then all subdirectories as their versions.
+        For each RO version pushes all changes to ROSRS.
+        
+        If createROVersions is True, this method will try to create RO and versions before pushing
+        the resources. Otherwise, an exception will be raised if a directory is found without its
+        corresponding RO or version in ROSRS.
+        '''
         sentFiles = set()
         deletedFiles = set()
         for ro in listdir(srcDirectory):
             roDirectory = join(srcDirectory, ro)
             if isdir(roDirectory):
+                if createROVersions:
+                    try:
+                        self.rosrsSync.postRo(ro)
+                    except:
+                        log.debug("Failed to create RO %s" % ro)
                 for ver in listdir(roDirectory):
                     verDirectory = join(roDirectory, ver)
                     if isdir(verDirectory):
+                        if createROVersions:
+                            try:
+                                self.rosrsSync.postVersion(ro, ver)
+                            except:
+                                log.debug("Failed to create version %s" % ver)
                         (s, d) = self.syncAllResources(ro, ver, verDirectory)
                         sentFiles = sentFiles.union(s)
                         deletedFiles = deletedFiles.union(d)
@@ -45,6 +63,10 @@ class BackgroundResourceSync(object):
         return (sentFiles, deletedFiles)
         
     def syncAllResources(self, roId, versionId, srcDirectory):
+        '''
+        Scans a given RO version directory for files that have been modified since last synchronization
+        and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
+        '''
         sentFiles = self.__scanDirectories4Put(roId, versionId, srcDirectory)
         deletedFiles = self.__scanRegistries4Delete(roId, versionId, srcDirectory)
         return (sentFiles, deletedFiles)

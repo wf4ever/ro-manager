@@ -13,7 +13,7 @@ from os.path import exists
 
 class Test(unittest.TestCase):
     
-    files = { 'data/ro-test-1/subdir1/file1.txt',
+    files1 = { 'data/ro-test-1/subdir1/file1.txt',
              'data/ro-test-1/subdir1/file3.jpg',
              'data/ro-test-1/subdir1/subdir1-file.txt',
              'data/ro-test-1/subdir1/sub2dir/file2.txt' }
@@ -21,6 +21,13 @@ class Test(unittest.TestCase):
     fileToReplace = 'data/ro-test-1/subdir1/file1beta.txt'
     fileToTouch = 'data/ro-test-1/subdir1/subdir1-file.txt'
     fileToModify = 'data/ro-test-1/subdir1/sub2dir/file2.txt'
+
+    filesAll = { 'data/ro-test-1/subdir1/file1.txt',
+                 'data/ro-test-1/subdir1/file3.jpg',
+                 'data/ro-test-1/subdir1/subdir1-file.txt',
+                 'data/ro-test-1/subdir1/sub2dir/file2.txt',
+                 'data/ro-test-1/subdir2/subdir2-file.txt',
+                 'data/ro-test-2/subdir3/file4.txt' }
     
     modifiedFileContent = """lorem ipsum
 ora et labora"""
@@ -48,8 +55,8 @@ ora et labora"""
         
         (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
-        self.assertEquals(sent, self.files, "Sent files are not equal")
-        assert len(deleted) == 0
+        self.assertEquals(sent, self.files1, "Sent files1 are not equal")
+        self.assertEquals(deleted, set())
 
         rename(self.fileToDelete, self.fileToReplace)
         utime(self.fileToTouch, None)
@@ -64,8 +71,19 @@ ora et labora"""
 
         (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
-        assert len(sent) == 0
-        assert len(deleted) == 0
+        self.assertEquals(sent, set())
+        self.assertEquals(deleted, set())
+        rename(self.fileToReplace, self.fileToDelete)
+        return
+    
+    def testSyncWorkspace(self):
+        back = BackgroundResourceSync(self.__sync)
+        self.assertRaises(Exception, back.syncAllResourcesInWorkspace, "data")
+        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
+        self.assertEquals(deleted, set())
+        self.assertTupleEqual((set(), set()), back.syncAllResourcesInWorkspace("data"), 
+                              "Sync workspace after creating RO")
         return
 
 
