@@ -37,6 +37,8 @@ def run(configbase, options, args):
         status = ro_command.annotate(progname, configbase, options, args)
     elif args[1] == "annotations":
         status = ro_command.annotations(progname, configbase, options, args)
+    elif args[1] == "push":
+        status = ro_command.push(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2
@@ -63,12 +65,15 @@ def parseCommandArgs(argv):
     parser.add_option("-i", "--ro-identifier",
                       dest="roident", 
                       help="Identifier of Research Object (defaults to value based on name)")
-    parser.add_option("-r", "--robox-uri",
-                      dest="roboxuri", 
-                      help="URI of ROBOX service")
-    parser.add_option("-p", "--robox-password",
-                      dest="roboxpassword", 
-                      help="Local directory monitored by ROBOX")
+    parser.add_option("-r", "--rosrs-uri",
+                      dest="rosrs_uri", 
+                      help="URI of ROSRS service")
+    parser.add_option("-u", "--rosrs-username",
+                      dest="rosrs_username", 
+                      help="ROSRS username")
+    parser.add_option("-p", "--rosrs-password",
+                      dest="rosrs_password", 
+                      help="ROSRS password")
     parser.add_option("-b", "--robox-base",
                       dest="roboxdir", 
                       help="Base of local directory tree monitored by ROBOX")

@@ -22,6 +22,9 @@ import ro_utils
 import ro_manifest
 from ro_manifest import RDF, DCTERMS, ROTERMS
 
+from sync.RosrsSync import RosrsSync
+from sync.BackgroundSync import BackgroundResourceSync
+
 annotationTypes = (
     [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
@@ -135,8 +138,9 @@ def config(progname, configbase, options, args):
     """
     ro_config = {
         "robase":     getoptionvalue(options.roboxdir,      "ROBOX service base directory:  "),
-        "roboxuri":   getoptionvalue(options.roboxuri,      "URI for ROBOX service:         "),
-        "roboxpass":  getoptionvalue(options.roboxpassword, "Password for ROBOX service:    "),
+        "rosrs_uri":      getoptionvalue(options.roboxuri,      "URI for ROSRS service:         "),
+        "rosrs_username": getoptionvalue(options.roboxuri,      "Username for ROSRS service:         "),
+        "rosrs_password": getoptionvalue(options.roboxuri,      "Password for ROSRS service:         "),
         "username":   getoptionvalue(options.username,      "Name of research object owner: "),
         "useremail":  getoptionvalue(options.useremail,     "Email address of owner:        "),
         # Built-in annotation types
@@ -145,9 +149,10 @@ def config(progname, configbase, options, args):
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
         print "ro config -b %(robase)s"%ro_config
-        print "          -r %(roboxuri)s"%ro_config
-        print "          -p %(roboxpass)s"%ro_config
-        print "          -u %(username)s -e %(useremail)s"%ro_config
+        print "          -r %(rosrs_uri)s"%ro_config
+        print "          -u %(rosrs_username)s"%ro_config
+        print "          -p %(rosrs_password)s"%ro_config
+        print "          -n %(username)s -e %(useremail)s"%ro_config
     ro_utils.writeconfig(configbase, ro_config)
     if options.verbose:
         print "ro configuration written to %s"%(os.path.abspath(configbase))
@@ -375,6 +380,35 @@ def annotations(progname, configbase, options, args):
     else:
         # list all annotations
         assert False, "@@TODO - show annotations for all RO components"
+    return 0
+
+def push(progname, configbase, options, args):
+    """
+    Push all or selected ROs, versions and resources to ROSRS
+    
+    ro push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    """
+    # Check command arguments
+    if len(args) not in [0, 1, 2, 3, 4, 5]:
+        print ("%s annotate: wrong number of arguments provided"%
+               (progname))
+        print ("Usage: %s push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+               (progname))
+        return 1
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "roname":         args[2] or None,
+        "rodir":          options.rodir or None,
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config.rosrs_uri,           "URI for ROSRS service:         "),
+        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config.rosrs_username, "Username for ROSRS service:    "),
+        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config.rosrs_password, "Password for ROSRS service:    "),
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    if options.verbose:
+        print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+    sync = RosrsSync(ro_options.rosrs_uri, ro_options.rosrs_username, ro_options.rosrs_password)
+    back = BackgroundResourceSync(sync)
+    back.pushAllResourcesInWorkspace(".", True)
     return 0
 
 # End.

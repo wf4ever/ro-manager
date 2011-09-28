@@ -53,7 +53,7 @@ ora et labora"""
     def testSyncRecources(self):
         back = BackgroundResourceSync(self.__sync, True)
         
-        (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
@@ -64,12 +64,12 @@ ora et labora"""
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.syncAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
                               "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
@@ -78,24 +78,24 @@ ora et labora"""
     
     def testSyncWorkspace(self):
         back = BackgroundResourceSync(self.__sync, True)
-        self.assertRaises(Exception, back.syncAllResourcesInWorkspace, "data")
-        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        self.assertRaises(Exception, back.pushAllResourcesInWorkspace, "data")
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
-        self.assertTupleEqual((set(), set()), back.syncAllResourcesInWorkspace("data"), 
+        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
                               "Sync workspace after creating RO")
         return
     
     def testSaveLoadRegistries(self):
         back = BackgroundResourceSync(self.__sync, True)
-        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
         back = BackgroundResourceSync(self.__sync, False)
-        self.assertTupleEqual((set(), set()), back.syncAllResourcesInWorkspace("data"), 
+        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
                               "Sync workspace after loading registries")
         back = BackgroundResourceSync(self.__sync, True)
-        (sent, deleted) = back.syncAllResourcesInWorkspace("data", True)
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
         return

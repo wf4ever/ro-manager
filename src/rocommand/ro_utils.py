@@ -51,11 +51,12 @@ def resetconfig(configbase):
     Reset configuration in indicated directory
     """
     ro_config = {
-        "robase":     None,
-        "roboxuri":   None,
-        "roboxpass":  None,
-        "username":   None,
-        "useremail":  None
+        "robase":         None,
+        "rosrs_uri":      None,
+        "rosrs_username": None,
+        "rosrs_password": None,
+        "username":       None,
+        "useremail":       None
         }
     writeconfig(configbase, ro_config)
     return
@@ -65,11 +66,12 @@ def readconfig(configbase):
     Read configuration in indicated directory and return as a dictionary
     """
     ro_config = {
-        "robase":     None,
-        "roboxuri":   None,
-        "roboxpass":  None,
-        "username":   None,
-        "useremail":  None
+        "robase":         None,
+        "rosrs_uri":      None,
+        "rosrs_username": None,
+        "rosrs_password": None,
+        "username":       None,
+        "useremail":      None
         }
     configfile = open(configfilename(configbase), 'r')
     try:

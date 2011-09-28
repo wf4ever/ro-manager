@@ -9,7 +9,6 @@ import mimetypes
 import logging
 from os.path import isdir, exists, join
 from os import listdir, walk
-import json
 import pickle
 
 log = logging.getLogger(__name__)
@@ -32,7 +31,7 @@ class BackgroundResourceSync(object):
             self.syncRegistries = self.__loadRegistries()
         mimetypes.init()
         
-    def syncAllResourcesInWorkspace(self, srcDirectory, createROVersions = False):
+    def pushAllResourcesInWorkspace(self, srcDirectory, createROVersions = False):
         '''
         Scans all directories in srcDirectory as ROs, then all subdirectories as their versions.
         For each RO version pushes all changes to ROSRS.
@@ -59,7 +58,7 @@ class BackgroundResourceSync(object):
                                 self.rosrsSync.postVersion(ro, ver)
                             except:
                                 log.debug("Failed to create version %s" % ver)
-                        (s, d) = self.syncAllResources(ro, ver, verDirectory)
+                        (s, d) = self.pushAllResources(ro, ver, verDirectory)
                         sentFiles = sentFiles.union(s)
                         deletedFiles = deletedFiles.union(d)
                     else:
@@ -68,7 +67,7 @@ class BackgroundResourceSync(object):
                 log.warn("%s is a file in workspace, it should probably be moved somewhere" % roDirectory)
         return (sentFiles, deletedFiles)
         
-    def syncAllResources(self, roId, versionId, srcDirectory):
+    def pushAllResources(self, roId, versionId, srcDirectory):
         '''
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
