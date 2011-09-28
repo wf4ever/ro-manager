@@ -7,8 +7,10 @@ Created on 15-09-2011
 from SyncRegistry import SyncRegistry
 import mimetypes
 import logging
-from os.path import isdir, exists
-from os import listdir
+from os.path import isdir, exists, join
+from os import listdir, walk
+import json
+import pickle
 
 log = logging.getLogger(__name__)
 
@@ -17,24 +19,46 @@ class BackgroundResourceSync(object):
     classdocs
     '''
    
+    REGISTRIES_FILE = "registries.json"
 
-    def __init__(self, rosrsSync):
+    def __init__(self, rosrsSync, resetRegistries = False):
         '''
         Constructor
         '''
-        self.__rosrsSync = rosrsSync
-        self.__syncRegistries = dict()
+        self.rosrsSync = rosrsSync
+        if resetRegistries:
+            self.syncRegistries = dict()
+        else:
+            self.syncRegistries = self.__loadRegistries()
         mimetypes.init()
         
-    def syncAllResourcesInWorkspace(self, srcDirectory):
+    def syncAllResourcesInWorkspace(self, srcDirectory, createROVersions = False):
+        '''
+        Scans all directories in srcDirectory as ROs, then all subdirectories as their versions.
+        For each RO version pushes all changes to ROSRS.
+        
+        If createROVersions is True, this method will try to create RO and versions before pushing
+        the resources. Otherwise, an exception will be raised if a directory is found without its
+        corresponding RO or version in ROSRS.
+        '''
         sentFiles = set()
         deletedFiles = set()
         for ro in listdir(srcDirectory):
-            roDirectory = srcDirectory + "/" + ro
+            roDirectory = join(srcDirectory, ro)
             if isdir(roDirectory):
+                if createROVersions:
+                    try:
+                        self.rosrsSync.postRo(ro)
+                    except:
+                        log.debug("Failed to create RO %s" % ro)
                 for ver in listdir(roDirectory):
-                    verDirectory = roDirectory + "/" + ver
+                    verDirectory = join(roDirectory, ver)
                     if isdir(verDirectory):
+                        if createROVersions:
+                            try:
+                                self.rosrsSync.postVersion(ro, ver)
+                            except:
+                                log.debug("Failed to create version %s" % ver)
                         (s, d) = self.syncAllResources(ro, ver, verDirectory)
                         sentFiles = sentFiles.union(s)
                         deletedFiles = deletedFiles.union(d)
@@ -45,54 +69,65 @@ class BackgroundResourceSync(object):
         return (sentFiles, deletedFiles)
         
     def syncAllResources(self, roId, versionId, srcDirectory):
-        sentFiles = self.__scanDirectories4Put(roId, versionId, srcDirectory, srcDirectory)
+        '''
+        Scans a given RO version directory for files that have been modified since last synchronization
+        and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
+        '''
+        sentFiles = self.__scanDirectories4Put(roId, versionId, srcDirectory)
         deletedFiles = self.__scanRegistries4Delete(roId, versionId, srcDirectory)
+        self.__saveRegistries()
         return (sentFiles, deletedFiles)
     
-    def __scanDirectories4Put(self, roId, versionId, versiondir, srcdir):
-        """
-        Scan all sub-directories in a given source directory.
-        Exceptions are thrown back to the calling program.
-        """
-        directoryList = listdir(srcdir)
+    def __scanDirectories4Put(self, roId, versionId, srcdir):
         sentFiles = set()
-        for directoryComponent in directoryList:
-            path = srcdir + "/" + directoryComponent
-            if isdir(path):
-                log.debug("Adding Directory %s " % (path))
-                sentFiles = sentFiles.union(self.__scanDirectories4Put(roId, versionId, versiondir, path))
-            else:
-                if (self.__checkFilePut__(roId, versionId, versiondir, path)):
-                    sentFiles.add(path)
+        for root, dirs, files in walk(srcdir):
+            for f in files:
+                filepath = join(root, f)
+                if (self.__checkFile4Put(roId, versionId, srcdir, filepath)):
+                    sentFiles.add(filepath)
         return sentFiles
     
-    def __checkFilePut__(self, roId, versionId, versiondir, filepath):
+    def __checkFile4Put(self, roId, versionId, versiondir, filepath):
         assert filepath.startswith(versiondir)
         rosrsFilepath = filepath[len(versiondir) + 1:]
         if rosrsFilepath == "manifest.rdf":
             return
         put = True
-        if (filepath in self.__syncRegistries):
-            put = self.__syncRegistries[filepath].hasBeenModified()
-        else:
-            self.__syncRegistries[filepath] = SyncRegistry(filepath)
+        if (filepath in self.syncRegistries):
+            put = self.syncRegistries[filepath].hasBeenModified()
         if put:
             contentType = mimetypes.guess_type(filepath)[0]
             fileObject = open(filepath)
             log.debug("Put file %s" % filepath)
-            self.__rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
+            self.rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
+            self.syncRegistries[filepath] = SyncRegistry(filepath)
         return put
     
     def __scanRegistries4Delete(self, roId, versionId, srcdir):
         deletedFiles = set()
-        for r in self.__syncRegistries.viewvalues():
+        for r in self.syncRegistries.viewvalues():
             if r.filename.startswith(srcdir):
                 if not exists(r.filename):
                     log.debug("Delete file %s" % r.filename)
                     deletedFiles.add(r.filename)
                     rosrsFilepath = r.filename[len(srcdir) + 1:]
-                    self.__rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
+                    try:
+                        self.rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
+                    except:
+                        log.debug("File %s did not exist in ROSRS" % r.filename)
         for f in deletedFiles:
-            self.__syncRegistries[f] = None
+            del self.syncRegistries[f]
         return deletedFiles
+    
+    def __loadRegistries(self):
+        try:
+            rf = open(self.REGISTRIES_FILE, 'r')
+            return pickle.load(rf)
+        except:
+            return dict()
+        
+    def __saveRegistries(self):
+        rf = open(self.REGISTRIES_FILE, 'w')
+        pickle.dump(self.syncRegistries, rf)
+        return
         
