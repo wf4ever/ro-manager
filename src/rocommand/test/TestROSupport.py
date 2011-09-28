@@ -86,7 +86,7 @@ class TestROSupport(unittest.TestCase):
         rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
         timenow   = datetime.datetime.now().replace(microsecond=0)
         rodelta   = timenow-rocreated
-        self.assertTrue(rodelta.total_seconds()<=1.0, 
+        self.assertTrue(rodelta.seconds<=1, 
             "Unexpected created datetime: %s, expected about %s"%
                 (manifest['rocreated'],timenow.isoformat()))
         self.assertEqual(manifest['rodescription'], roname,  "RO name")
