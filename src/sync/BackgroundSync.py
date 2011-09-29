@@ -10,7 +10,6 @@ import logging
 from os.path import isdir, exists, join
 from os import listdir, walk
 import pickle
-import rocommand.ro_settings
 from rocommand import ro_settings
 
 log = logging.getLogger(__name__)
@@ -80,7 +79,11 @@ class BackgroundResourceSync(object):
         for root, dirs, files in walk(srcdir):
             for f in files:
                 filepath = join(root, f)
-                if (self.__checkFile4Put(roId, versionId, srcdir, filepath)):
+                if root.startswith(ro_settings.MANIFEST_DIR):
+                    if f == ro_settings.MANIFEST_FILE:
+                        self.rosrsSync.putManifest(roId, versionId, filepath)
+                        sentFiles.add(filepath)
+                elif (self.__checkFile4Put(roId, versionId, srcdir, filepath)):
                     sentFiles.add(filepath)
         return sentFiles
     
