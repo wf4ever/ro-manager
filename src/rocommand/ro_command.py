@@ -138,9 +138,9 @@ def config(progname, configbase, options, args):
     """
     ro_config = {
         "robase":     getoptionvalue(options.roboxdir,      "ROBOX service base directory:  "),
-        "rosrs_uri":      getoptionvalue(options.roboxuri,      "URI for ROSRS service:         "),
-        "rosrs_username": getoptionvalue(options.roboxuri,      "Username for ROSRS service:         "),
-        "rosrs_password": getoptionvalue(options.roboxuri,      "Password for ROSRS service:         "),
+        "rosrs_uri":      getoptionvalue(options.rosrs_uri,      "URI for ROSRS service:         "),
+        "rosrs_username": getoptionvalue(options.rosrs_username,      "Username for ROSRS service:         "),
+        "rosrs_password": getoptionvalue(options.rosrs_password,      "Password for ROSRS service:         "),
         "username":   getoptionvalue(options.username,      "Name of research object owner: "),
         "useremail":  getoptionvalue(options.useremail,     "Email address of owner:        "),
         # Built-in annotation types
@@ -408,7 +408,10 @@ def push(progname, configbase, options, args):
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     sync = RosrsSync(ro_options.rosrs_uri, ro_options.rosrs_username, ro_options.rosrs_password)
     back = BackgroundResourceSync(sync)
-    back.pushAllResourcesInWorkspace(".", True)
+    if not ro_options.roname:
+        back.pushAllResourcesInWorkspace(".", True)
+    else:
+        sync.postRo(ro_options.roname)
     return 0
 
 # End.

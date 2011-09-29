@@ -183,7 +183,7 @@ class RosrsSync:
         url = self.URI_RESOURCE % (self.username, roId, versionId, filePath)
         body = fileObject
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": contentType}
+                   "Content-Type": contentType or "text/plain"}
         conn.request("PUT", url, body, headers)
         res = conn.getresponse()
         if res.status != OK:

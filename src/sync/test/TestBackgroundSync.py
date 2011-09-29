@@ -13,21 +13,24 @@ from os.path import exists
 
 class Test(unittest.TestCase):
     
-    files1 = { 'data/ro-test-1/subdir1/file1.txt',
-             'data/ro-test-1/subdir1/file3.jpg',
-             'data/ro-test-1/subdir1/subdir1-file.txt',
-             'data/ro-test-1/subdir1/sub2dir/file2.txt' }
-    fileToDelete = 'data/ro-test-1/subdir1/file1.txt'
-    fileToReplace = 'data/ro-test-1/subdir1/file1beta.txt'
-    fileToTouch = 'data/ro-test-1/subdir1/subdir1-file.txt'
-    fileToModify = 'data/ro-test-1/subdir1/sub2dir/file2.txt'
+    files1 = { 'data/ro-test-1/.ro_manifest/manifest.rdf', 
+             'data/ro-test-1/file1.txt',
+             'data/ro-test-1/file3.jpg',
+             'data/ro-test-1/subdir1-file.txt',
+             'data/ro-test-1/subdir1/file2.txt',
+             'data/ro-test-1/README-ro-test-1' }
+    fileToDelete = 'data/ro-test-1/file1.txt'
+    fileToReplace = 'data/ro-test-1/file1beta.txt'
+    fileToTouch = 'data/ro-test-1/subdir1-file.txt'
+    fileToModify = 'data/ro-test-1/subdir1/file2.txt'
 
-    filesAll = { 'data/ro-test-1/subdir1/file1.txt',
-                 'data/ro-test-1/subdir1/file3.jpg',
-                 'data/ro-test-1/subdir1/subdir1-file.txt',
-                 'data/ro-test-1/subdir1/sub2dir/file2.txt',
-                 'data/ro-test-1/subdir2/subdir2-file.txt',
-                 'data/ro-test-2/subdir3/file4.txt' }
+    filesAll = { 'data/ro-test-1/.ro_manifest/manifest.rdf',
+                 'data/ro-test-1/file1.txt',
+                 'data/ro-test-1/file3.jpg',
+                 'data/ro-test-1/subdir1-file.txt',
+                 'data/ro-test-1/subdir1/file2.txt',
+                 'data/ro-test-1/README-ro-test-1',
+                 'data/ro-test-2/file4.txt' }
     
     modifiedFileContent = """lorem ipsum
 ora et labora"""
@@ -53,8 +56,7 @@ ora et labora"""
     def testSyncRecources(self):
         back = BackgroundResourceSync(self.__sync, True)
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
-                              "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
 
@@ -64,13 +66,11 @@ ora et labora"""
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
-                              "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, ro_test_config.VER_ID, \
-                              "data/%s/%s" % (ro_test_config.RO_ID, ro_test_config.VER_ID))
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
         rename(self.fileToReplace, self.fileToDelete)
