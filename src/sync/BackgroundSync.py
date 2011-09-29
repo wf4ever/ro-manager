@@ -10,7 +10,7 @@ import logging
 from os.path import isdir, exists, join
 from os import listdir, walk
 import pickle
-from rocommand import ro_settings
+from rocommand import ro_settings, ro_manifest
 
 log = logging.getLogger(__name__)
 
@@ -47,16 +47,17 @@ class BackgroundResourceSync(object):
         for ro in listdir(srcDirectory):
             roDirectory = join(srcDirectory, ro)
             if isdir(roDirectory):
+                roId = self.getRoId(roDirectory) or ro
                 if createRO:
                     try:
-                        self.rosrsSync.postRo(ro)
+                        self.rosrsSync.postRo(roId)
                     except:
-                        log.debug("Failed to create RO %s" % ro)
+                        log.debug("Failed to create RO %s" % roId)
                     try:
-                        self.rosrsSync.postVersion(ro, versionId)
+                        self.rosrsSync.postVersion(roId, versionId)
                     except:
                         log.debug("Failed to create version %s" % versionId)
-                (s, d) = self.pushAllResources(ro, roDirectory)
+                (s, d) = self.pushAllResources(roId, roDirectory)
                 sentFiles = sentFiles.union(s)
                 deletedFiles = deletedFiles.union(d)
             else:
@@ -73,6 +74,15 @@ class BackgroundResourceSync(object):
         deletedFiles = self.__scanRegistries4Delete(roId, versionId, srcDirectory)
         self.__saveRegistries()
         return (sentFiles, deletedFiles)
+    
+    def getRoId(self, roDirectory):
+        try:
+            manifest = ro_manifest.readManifest(roDirectory)
+            log.debug("Returning %(roident)s" % manifest)
+            return manifest['roident']
+        except IOError as err:
+            log.warn("Caught exception %s" % err)
+            return None
     
     def __scanDirectories4Put(self, roId, versionId, srcdir):
         sentFiles = set()

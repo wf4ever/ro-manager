@@ -56,7 +56,7 @@ ora et labora"""
     def testSyncRecources(self):
         back = BackgroundResourceSync(self.__sync, True)
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
 
@@ -66,11 +66,11 @@ ora et labora"""
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
         rename(self.fileToReplace, self.fileToDelete)
@@ -99,6 +99,14 @@ ora et labora"""
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
         return
+    
+    def testGetRoId(self):
+        back = BackgroundResourceSync(self.__sync)
+        roId = back.getRoId("data/ro-test-1")
+        self.assertEquals(roId, "ro1-identifier", "Wrong RO id read from manifest")
+        roId = back.getRoId("data/ro-test-2")
+        self.assertIsNone(roId, "RO id should be None when there is no manifest")
+        pass
     
 
 if __name__ == "__main__":
