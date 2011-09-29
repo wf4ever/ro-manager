@@ -16,18 +16,18 @@ class Test(unittest.TestCase):
     files1 = { 'data/ro-test-1/.ro_manifest/manifest.rdf', 
              'data/ro-test-1/file1.txt',
              'data/ro-test-1/file3.jpg',
-             'data/ro-test-1/subdir1-file.txt',
+             'data/ro-test-1/file with spaces.txt',
              'data/ro-test-1/subdir1/file2.txt',
              'data/ro-test-1/README-ro-test-1' }
     fileToDelete = 'data/ro-test-1/file1.txt'
     fileToReplace = 'data/ro-test-1/file1beta.txt'
-    fileToTouch = 'data/ro-test-1/subdir1-file.txt'
+    fileToTouch = 'data/ro-test-1/file with spaces.txt'
     fileToModify = 'data/ro-test-1/subdir1/file2.txt'
 
     filesAll = { 'data/ro-test-1/.ro_manifest/manifest.rdf',
                  'data/ro-test-1/file1.txt',
                  'data/ro-test-1/file3.jpg',
-                 'data/ro-test-1/subdir1-file.txt',
+                 'data/ro-test-1/file with spaces.txt',
                  'data/ro-test-1/subdir1/file2.txt',
                  'data/ro-test-1/README-ro-test-1',
                  'data/ro-test-2/file4.txt' }
