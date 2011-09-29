@@ -384,7 +384,7 @@ def annotations(progname, configbase, options, args):
 
 def push(progname, configbase, options, args):
     """
-    Push all or selected ROs, versions and resources to ROSRS
+    Push all or selected ROs and their resources to ROSRS
     
     ro push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
@@ -405,13 +405,14 @@ def push(progname, configbase, options, args):
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
-        print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+        print "ro push %(roname)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
     sync = RosrsSync(ro_options.rosrs_uri, ro_options.rosrs_username, ro_options.rosrs_password)
     back = BackgroundResourceSync(sync)
-    if not ro_options.roname:
-        back.pushAllResourcesInWorkspace(".", True)
+    if not ro_options['roname']:
+        back.pushAllResourcesInWorkspace(ro_config['robase'], True)
     else:
-        sync.postRo(ro_options.roname)
+        roDir= ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
+        back.pushAllResources(roDir)
     return 0
 
 # End.

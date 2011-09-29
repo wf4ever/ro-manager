@@ -7,7 +7,7 @@ Created on 15-09-2011
 from SyncRegistry import SyncRegistry
 import mimetypes
 import logging
-from os.path import isdir, exists, join
+from os.path import isdir, exists, join, basename
 from os import listdir, walk
 import pickle
 from rocommand import ro_settings, ro_manifest
@@ -41,37 +41,36 @@ class BackgroundResourceSync(object):
         the resources. Otherwise, an exception will be raised if a directory is found without its
         corresponding RO in ROSRS.
         '''
-        versionId = ro_settings.RO_VERSION
         sentFiles = set()
         deletedFiles = set()
         for ro in listdir(srcDirectory):
             roDirectory = join(srcDirectory, ro)
             if isdir(roDirectory):
-                roId = self.getRoId(roDirectory) or ro
-                if createRO:
-                    try:
-                        self.rosrsSync.postRo(roId)
-                    except:
-                        log.debug("Failed to create RO %s" % roId)
-                    try:
-                        self.rosrsSync.postVersion(roId, versionId)
-                    except:
-                        log.debug("Failed to create version %s" % versionId)
-                (s, d) = self.pushAllResources(roId, roDirectory)
+                (s, d) = self.pushAllResources(roDirectory, createRO)
                 sentFiles = sentFiles.union(s)
                 deletedFiles = deletedFiles.union(d)
             else:
                 log.warn("%s is a file in workspace, it should probably be moved somewhere" % roDirectory)
         return (sentFiles, deletedFiles)
         
-    def pushAllResources(self, roId, srcDirectory):
+    def pushAllResources(self, roDirectory, createRO = False):
         '''
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
         '''
         versionId = ro_settings.RO_VERSION
-        sentFiles = self.__scanDirectories4Put(roId, versionId, srcDirectory)
-        deletedFiles = self.__scanRegistries4Delete(roId, versionId, srcDirectory)
+        roId = self.getRoId(roDirectory) or basename(roDirectory)
+        if createRO:
+            try:
+                self.rosrsSync.postRo(roId)
+            except:
+                log.debug("Failed to create RO %s" % roId)
+            try:
+                self.rosrsSync.postVersion(roId, versionId)
+            except:
+                log.debug("Failed to create version %s" % versionId)
+        sentFiles = self.__scanDirectories4Put(roId, versionId, roDirectory)
+        deletedFiles = self.__scanRegistries4Delete(roId, versionId, roDirectory)
         self.__saveRegistries()
         return (sentFiles, deletedFiles)
     

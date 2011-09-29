@@ -56,7 +56,7 @@ ora et labora"""
     def testSyncRecources(self):
         back = BackgroundResourceSync(self.__sync, True)
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
 
@@ -66,11 +66,11 @@ ora et labora"""
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.pushAllResources(ro_test_config.RO_ID, "data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
         rename(self.fileToReplace, self.fileToDelete)
