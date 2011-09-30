@@ -74,6 +74,9 @@
             "label": "Creation time"
         }
     ], 
-    "robase": "src/rocommand/test/robase", 
-    "roboxpass": "d41d8cd98f00b204e9800998ecf8427e"
+    "robase": "robase", 
+    "roboxpass": "d41d8cd98f00b204e9800998ecf8427e",
+    "rosrs_uri": "sandbox.wf4ever-project.org",
+    "rosrs_username": "test-423435r4353t543t5323",
+    "rosrs_password": "pass"
 }

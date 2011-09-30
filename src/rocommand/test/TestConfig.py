@@ -4,7 +4,7 @@
 Configuration module for RO manager tests
 """
 
-import ro_settings
+from rocommand import ro_settings
 
 class ro_test_config:
     CONFIGDIR      = "config"
@@ -16,5 +16,8 @@ class ro_test_config:
     ROBOXEMAIL     = "testuser@example.org"
     ROMANIFESTDIR  = ro_settings.MANIFEST_DIR
     ROMANIFESTFILE = ro_settings.MANIFEST_FILE
+    ROSRS_URI      = "sandbox.wf4ever-project.org"
+    ROSRS_USERNAME = "test-423435r4353t543t5323"
+    ROSRS_PASSWORD = "pass"
 
 # End.

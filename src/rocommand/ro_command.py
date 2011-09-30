@@ -389,24 +389,24 @@ def push(progname, configbase, options, args):
     ro push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
     # Check command arguments
-    if len(args) not in [0, 1, 2, 3, 4, 5]:
-        print ("%s annotate: wrong number of arguments provided"%
+    if len(args) not in [2, 3, 4, 5, 6, 7]:
+        print ("%s push: wrong number of arguments provided"%
                (progname))
         print ("Usage: %s push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
-        "roname":         args[2] or None,
+        "roname":         (args[2] if len(args) >= 3 else None),
         "rodir":          options.rodir or None,
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config.rosrs_uri,           "URI for ROSRS service:         "),
-        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config.rosrs_username, "Username for ROSRS service:    "),
-        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config.rosrs_password, "Password for ROSRS service:    "),
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
+        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
+        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro push %(roname)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
-    sync = RosrsSync(ro_options.rosrs_uri, ro_options.rosrs_username, ro_options.rosrs_password)
+    sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
     back = BackgroundResourceSync(sync)
     if not ro_options['roname']:
         back.pushAllResourcesInWorkspace(ro_config['robase'], True)
