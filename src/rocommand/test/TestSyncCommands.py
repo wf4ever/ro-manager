@@ -51,7 +51,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push all Research Objects to ROSRS, even unchanged.
 
-        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
         rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
         
@@ -75,7 +75,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push all Research Objects to ROSRS.
 
-        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
         rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
         rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
@@ -96,7 +96,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push a Research Object to ROSRS.
 
-        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
         rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
         rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
@@ -106,7 +106,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         
         args = [
-            "ro", "push", "ro-testRoPush",
+            "ro", "push",
             "-d", rodir
             ]
         with SwitchStdout(self.outstr):

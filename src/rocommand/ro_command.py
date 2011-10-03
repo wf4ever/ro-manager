@@ -386,18 +386,17 @@ def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
     
-    ro push [ <RO-name> -d <dir>] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
     # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6, 7, 8]:
+    if len(args) not in [2, 3, 4, 5, 6, 7]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
-        "roname":         (args[2] if len(args) >= 3 else None),
         "rodir":          options.rodir or None,
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
         "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
@@ -406,10 +405,10 @@ def push(progname, configbase, options, args):
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
-        print "ro push %(roname)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
+        print "ro push %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
     sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
     back = BackgroundResourceSync(sync, ro_options['force'])
-    if not ro_options['roname']:
+    if not ro_options['rodir']:
         (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True)
     else:
         roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
