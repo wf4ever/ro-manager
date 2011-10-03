@@ -88,7 +88,7 @@ class BackgroundResourceSync(object):
         for root, dirs, files in walk(srcdir):
             for f in files:
                 filepath = join(root, f)
-                if root.startswith(ro_settings.MANIFEST_DIR):
+                if root == join(srcdir, ro_settings.MANIFEST_DIR):
                     if f == ro_settings.MANIFEST_FILE:
                         self.rosrsSync.putManifest(roId, versionId, filepath)
                         sentFiles.add(filepath)

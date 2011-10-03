@@ -25,7 +25,6 @@ class Test(unittest.TestCase):
         sync.postWorkspace()
         sync.postRo(ro_test_config.RO_ID)
         ver1 = sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
-#        sync.put_manifest(self.RO_ID, self.VER_ID, open("data/manifest.rdf"))
         sync.putFile(ro_test_config.RO_ID, ro_test_config.VER_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
         sync.postVersionAsCopy(ro_test_config.RO_ID, ro_test_config.VER_ID_2, ver1)
         sync.deleteFile(ro_test_config.RO_ID, ro_test_config.VER_ID, "folderX/fileY.txt")
@@ -33,6 +32,16 @@ class Test(unittest.TestCase):
         sync.deleteVersion(ro_test_config.RO_ID, ro_test_config.VER_ID_2)
         sync.deleteRo(ro_test_config.RO_ID)
         sync.deleteWorkspace()
+        
+    def testPutManifest(self):
+        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
+        sync.postWorkspace()
+        sync.postRo(ro_test_config.RO_ID)
+        sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
+        res = sync.putManifest(ro_test_config.RO_ID, ro_test_config.VER_ID, open("data/ro-test-1/.ro_manifest/manifest.rdf"))
+        self.assertIsNotNone(res, "Put manifest must be implemented")
+        sync.deleteWorkspace()
+        return
         
     def testGetVersionAsZip(self):
         sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)

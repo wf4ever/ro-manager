@@ -193,12 +193,13 @@ class RosrsSync:
         body = manifestFile
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
                    "Content-Type": "application/rdf+xml"}
-        conn.request("PUT", url, body, headers)
-        res = conn.getresponse()
-        if res.status != OK:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Manifest updated: %s" % res.msg["location"])
-        return res.msg["location"]
+#        conn.request("PUT", url, body, headers)
+#        res = conn.getresponse()
+#        if res.status != OK:
+#            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+#        log.debug("Manifest updated: %s" % res.msg["location"])
+#        return res.msg["location"]
+        return None
         
     def putFile(self, roId, versionId, filePath, contentType, fileObject):
         """

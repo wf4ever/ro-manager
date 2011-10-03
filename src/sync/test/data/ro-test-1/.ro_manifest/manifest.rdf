@@ -10,8 +10,8 @@
      <dcterms:title>Some title</dcterms:title>
      <dcterms:creator>Wf4Ever test user</dcterms:creator>
      <dcterms:identifier>ro1-identifier</dcterms:identifier>
-     <dcterms:source rdf:resource="http://calatola.man.poznan.pl/rosrs2/workspaces/dbox-D1MoBbXMQU2rG4k5UYp69A/ROs/experiment3/v2"/>
-     <dcterms:source rdf:resource="http://calatola.man.poznan.pl/rosrs2/workspaces/dbox-2FVber43gtgs3XCVgw5tq3/ROs/analysis/v1"/>
+     <dcterms:source rdf:resource="http://calatola.man.poznan.pl/rosrs3/workspaces/dbox-D1MoBbXMQU2rG4k5UYp69A/ROs/experiment3/v2"/>
+     <dcterms:source rdf:resource="http://calatola.man.poznan.pl/rosrs3/workspaces/dbox-2FVber43gtgs3XCVgw5tq3/ROs/analysis/v1"/>
      <rdf:type rdf:resource="http://www.openarchives.org/ore/terms/Aggregation"/>
 	 <rdf:type rdf:resource="http://vocab.ox.ac.uk/dataset/schema#Grouping"/>
      <!-- ROSRS generated data -->

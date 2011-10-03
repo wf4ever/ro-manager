@@ -12,6 +12,7 @@ import re
 import datetime
 import logging
 import rdflib
+import shutil
 
 log = logging.getLogger(__name__)
 
@@ -24,6 +25,8 @@ from ro_manifest import RDF, DCTERMS, ROTERMS
 
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
+
+from zipfile import ZipFile
 
 annotationTypes = (
     [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
@@ -420,6 +423,59 @@ def push(progname, configbase, options, args):
             print "Updated: %s" % s
         for d in deleted:
             print "Deleted: %s" % d
+    return 0
+
+def checkout(progname, configbase, options, args):
+    """
+    Checkout a RO from ROSRS
+    
+    ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    """
+    # Check command arguments
+    if len(args) not in [3, 4, 5, 6, 7]:
+        print ("%s push: wrong number of arguments provided"%
+               (progname))
+        print ("Usage: %s checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+               (progname))
+        return 1
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "roident":        args[2],
+        "rodir":          options.rodir or "",
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
+        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
+        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
+        "force":          options.force
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    if options.verbose:
+        print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
+    sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
+    verzip = sync.getVersionAsZip(ro_options['roident'], ro_settings.RO_VERSION)
+    zipfile = ZipFile(verzip)
+    
+    if options.verbose:
+        # HACK for moving the manifest
+#        zipfile.printdir()
+        for l in zipfile.namelist():
+            if l == ro_settings.MANIFEST_FILE:
+                print ro_settings.MANIFEST_DIR + "/" + l
+            else:
+                print l
+                
+    if ro_options['rodir'] == "":
+        zipfile.extractall()
+    else:
+        if not os.path.exists(ro_options['rodir']) or not os.path.isdir(ro_options['rodir']):
+            os.mkdir(ro_options['rodir'])
+        zipfile.extractall(ro_options['rodir'])
+        
+    # HACK for moving the manifest
+    if not os.path.exists(ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR):
+        os.mkdir(ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR)
+    shutil.move(ro_options['rodir'] + "/" + ro_settings.MANIFEST_FILE, ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR + "/" + ro_settings.MANIFEST_FILE)
+    
+    print "%d files checked out" % len(zipfile.namelist())
     return 0
 
 # End.

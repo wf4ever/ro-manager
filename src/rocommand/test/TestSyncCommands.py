@@ -7,6 +7,7 @@ See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
 import sys
+import filecmp
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -16,7 +17,6 @@ except ImportError:
 from MiscLib import TestUtils
 
 from rocommand import ro
-
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -28,6 +28,13 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     """
     Test sync ro commands
     """
+    
+    files = ["subdir1/subdir1-file.txt"
+             , "subdir2/subdir2-file.txt"
+             , "README-ro-test-1"
+             , ".ro_manifest/manifest.rdf"]
+
+    
     def setUp(self):
         super(TestSyncCommands, self).setUp()
         self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
@@ -64,10 +71,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
-        self.assertEqual(self.outstr.getvalue().count(rodir + "/subdir1/subdir1-file.txt"), 1)
-        self.assertEqual(self.outstr.getvalue().count(rodir + "/subdir2/subdir2-file.txt"), 1)
-        self.assertEqual(self.outstr.getvalue().count(rodir + "/README-ro-test-1"), 1)
-        self.assertEqual(self.outstr.getvalue().count(rodir + "/.ro_manifest/manifest.rdf"), 1)
+        for f in self.files:
+            self.assertEqual(self.outstr.getvalue().count(rodir + "/" + f), 1)
         self.deleteTestRo(rodir)
         return
 
@@ -112,7 +117,46 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("4 files updated"), 1)
+        self.assertEqual(self.outstr.getvalue().count("%d files updated" % len(self.files)), 1)
+        self.deleteTestRo(rodir)
+        self.deleteTestRo(rodir2)
+        return
+
+    def testCheckout(self):
+        """
+        Checkout a Research Object from ROSRS.
+
+        ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
+        args = [
+            "ro", "push",
+            "-d", rodir,
+            "-f"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        
+        rodir2 = ro_test_config.ROBASEDIR + "/RO_test_checkout_copy"
+        args = [
+            "ro", "checkout", "ro-testRoCheckoutIdentifier",
+            "-d", rodir2,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
+        for f in self.files:
+            self.assertEqual(self.outstr.getvalue().count(f), 1)
+        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
+        
+        cmpres = filecmp.dircmp(rodir, rodir2)
+        self.assertEquals(cmpres.left_only, [])
+        self.assertEquals(cmpres.right_only, [])
+        self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
+
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
         return
@@ -147,10 +191,11 @@ def getTestSuite(select="unit"):
     testdict = {
         "unit":
             [ "testUnits"
-            , "testNull"
-            , "testPushAll"
-            , "testPushAllForce"
-            , "testPushOneRO"
+#            , "testNull"
+#            , "testPushAll"
+#            , "testPushAllForce"
+#            , "testPushOneRO"
+            , "testCheckout"
             ],
         "component":
             [ "testComponents"
