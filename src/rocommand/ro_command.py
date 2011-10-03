@@ -386,13 +386,13 @@ def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
     
-    ro push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
     # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6, 7]:
+    if len(args) not in [2, 3, 4, 5, 6, 7, 8]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
@@ -402,17 +402,25 @@ def push(progname, configbase, options, args):
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
         "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
         "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
+        "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro push %(roname)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
     sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
-    back = BackgroundResourceSync(sync)
+    back = BackgroundResourceSync(sync, ro_options['force'])
     if not ro_options['roname']:
-        back.pushAllResourcesInWorkspace(ro_config['robase'], True)
+        (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True)
     else:
         roDir= ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
-        back.pushAllResources(roDir)
+        (sent, deleted) = back.pushAllResources(roDir)
+    if not options.verbose:
+        print "%d files updated, %d files deleted" % (len(sent), len(deleted))
+    else:
+        for s in sent:
+            print "Updated: %s" % s
+        for d in deleted:
+            print "Deleted: %s" % d
     return 0
 
 # End.

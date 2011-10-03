@@ -88,10 +88,15 @@ def parseCommandArgs(argv):
                       dest="verbose", 
                       default=False,
                       help="display verbose output")
+    parser.add_option("-f", "--force",
+                      action="store_true",
+                      dest="force", 
+                      default=False,
+                      help="Force, depends on the context")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
-    if len(args) > 5: parser.error("Too many arguments present: "+repr(args))
+    if len(args) > 6: parser.error("Too many arguments present: "+repr(args))
     return (options, args)
 
 def runCommand(configbase, robase, argv):

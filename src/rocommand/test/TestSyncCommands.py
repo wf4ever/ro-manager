@@ -31,7 +31,10 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     def setUp(self):
         super(TestSyncCommands, self).setUp()
         self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
-        self.__sync.postWorkspace()
+        try:
+            self.__sync.postWorkspace()
+        except:
+            pass
         return
 
     def tearDown(self):
@@ -44,22 +47,45 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testPushAll(self):
+    def testPushAllForce(self):
         """
-        Push a Research Object to ROSRS.
+        Push a Research Object to ROSRS, force pushing all.
 
-        ro push [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoStatus")
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoStatus")
         
         args = [
             "ro", "push",
-            "-v" 
+            "-v",
+            "-f"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
+        self.assertEqual(self.outstr.getvalue().count(rodir + "/subdir1/subdir1-file.txt"), 1)
+        self.assertEqual(self.outstr.getvalue().count(rodir + "/subdir2/subdir2-file.txt"), 1)
+        self.assertEqual(self.outstr.getvalue().count(rodir + "/README-ro-test-1"), 1)
+        self.assertEqual(self.outstr.getvalue().count(rodir + "/.ro_manifest/manifest.rdf"), 1)
+        self.deleteTestRo(rodir)
+        return
+
+    def testPushAll(self):
+        """
+        Push a Research Object to ROSRS.
+
+        ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoStatus")
+        
+        args = [
+            "ro", "push"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("1 files updated, 0 files deleted"), 1)
         self.deleteTestRo(rodir)
         return
 
