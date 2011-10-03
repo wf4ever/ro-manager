@@ -6,9 +6,19 @@ Created on 14-09-2011
 import unittest
 from sync.RosrsSync import RosrsSync
 from sync.test.TestConfig import ro_test_config
+from zipfile import ZipFile
+import os
 
 
 class Test(unittest.TestCase):
+    
+    def setUp(self):
+        unittest.TestCase.setUp(self)
+        try:
+            sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
+            sync.deleteWorkspace()
+        except:
+            pass
     
     def testROCreation(self):
         sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
@@ -23,6 +33,19 @@ class Test(unittest.TestCase):
         sync.deleteVersion(ro_test_config.RO_ID, ro_test_config.VER_ID_2)
         sync.deleteRo(ro_test_config.RO_ID)
         sync.deleteWorkspace()
+        
+    def testGetVersionAsZip(self):
+        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
+        sync.postWorkspace()
+        sync.postRo(ro_test_config.RO_ID)
+        sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
+        sync.putFile(ro_test_config.RO_ID, ro_test_config.VER_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
+        verzip = sync.getVersionAsZip(ro_test_config.RO_ID, ro_test_config.VER_ID)
+        zipfile = ZipFile(verzip)
+        self.assertEquals(len(zipfile.read("folderX/fileY.txt")), os.path.getsize("data/ro-test-1/file1.txt"), "FileY size must be the same")
+        self.assertTrue(len(zipfile.read("manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
+        sync.deleteWorkspace()
+        return
         
 
 if __name__ == "__main__":
