@@ -386,13 +386,13 @@ def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
     
-    ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro push [ <RO-name> -d <dir>] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
     # Check command arguments
     if len(args) not in [2, 3, 4, 5, 6, 7, 8]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
@@ -412,8 +412,8 @@ def push(progname, configbase, options, args):
     if not ro_options['roname']:
         (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True)
     else:
-        roDir= ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
-        (sent, deleted) = back.pushAllResources(roDir)
+        roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
+        (sent, deleted) = back.pushAllResources(roDir, True)
     if not options.verbose:
         print "%d files updated, %d files deleted" % (len(sent), len(deleted))
     else:

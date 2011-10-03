@@ -49,11 +49,11 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
     def testPushAllForce(self):
         """
-        Push a Research Object to ROSRS, force pushing all.
+        Push all Research Objects to ROSRS, even unchanged.
 
-        ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoStatus")
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
         
         args = [
             "ro", "push",
@@ -73,11 +73,12 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
     def testPushAll(self):
         """
-        Push a Research Object to ROSRS.
+        Push all Research Objects to ROSRS.
 
-        ro push [ <RO-name> [ -d <dir>] ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoStatus")
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         
         args = [
             "ro", "push"
@@ -85,8 +86,35 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("1 files updated, 0 files deleted"), 1)
+        self.assertEqual(self.outstr.getvalue().count("files updated"), 1)
+        self.assertEqual(self.outstr.getvalue().count("files deleted"), 1)
         self.deleteTestRo(rodir)
+        self.deleteTestRo(rodir2)
+        return
+
+    def testPushOneRO(self):
+        """
+        Push a Research Object to ROSRS.
+
+        ro push [ <RO-name> -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+        self.deleteTestRo(rodir)
+        self.deleteTestRo(rodir2)
+        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+        
+        args = [
+            "ro", "push", "ro-testRoPush",
+            "-d", rodir
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("4 files updated"), 1)
+        self.deleteTestRo(rodir)
+        self.deleteTestRo(rodir2)
         return
 
     # Sentinel/placeholder tests
@@ -121,6 +149,8 @@ def getTestSuite(select="unit"):
             [ "testUnits"
             , "testNull"
             , "testPushAll"
+            , "testPushAllForce"
+            , "testPushOneRO"
             ],
         "component":
             [ "testComponents"
