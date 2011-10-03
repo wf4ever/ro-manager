@@ -8,13 +8,14 @@ from httplib import HTTPConnection, CREATED, NO_CONTENT, OK, responses
 import base64
 import logging
 import urllib
+import urlparse
 
 log = logging.getLogger(__name__)
 
 class RosrsSync:
 
 
-    URI_WORKSPACES = "/rosrs3/workspaces"
+    URI_WORKSPACES = "/workspaces"
     URI_WORKSPACE_ID = URI_WORKSPACES + "/%s"
     URI_ROS = URI_WORKSPACE_ID + "/ROs"
     URI_RO_ID = URI_ROS + "/%s"
@@ -24,8 +25,10 @@ class RosrsSync:
     ADMIN_USERNAME = "wfadmin"
     ADMIN_PASSWORD = "wfadmin!!!"
     
-    def __init__(self, rosrs_host, username, password):
-        self.rosrs_host = rosrs_host
+    def __init__(self, rosrs_uri, username, password):
+        parsed = urlparse.urlparse(rosrs_uri)
+        self.rosrs_path = parsed.path
+        self.rosrs_host = parsed.netloc
         self.username = username
         self.password = password
     
@@ -37,7 +40,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.URI_WORKSPACES
+        url = self.rosrs_path + self.URI_WORKSPACES
         body = (
 """%s
 %s""" % (self.username, self.password))
@@ -58,7 +61,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_WORKSPACE_ID % self.username)
+        url = self.rosrs_path + urllib.quote(self.URI_WORKSPACE_ID % self.username)
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.ADMIN_USERNAME, self.ADMIN_PASSWORD))[:-1]}
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
@@ -74,7 +77,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_ROS % self.username)
+        url = self.rosrs_path + urllib.quote(self.URI_ROS % self.username)
         body = roId
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
                    "Content-Type": "text/plain"}
@@ -92,7 +95,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_RO_ID % (self.username, roId))
+        url = self.rosrs_path + urllib.quote(self.URI_RO_ID % (self.username, roId))
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
@@ -108,7 +111,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id, version id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_RO_ID % (self.username, roId))
+        url = self.rosrs_path + urllib.quote(self.URI_RO_ID % (self.username, roId))
         body = versionId
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
                    "Content-Type": "text/plain"}
@@ -126,7 +129,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id, version id, old version URL
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_RO_ID % (self.username, roId))
+        url = self.rosrs_path + urllib.quote(self.URI_RO_ID % (self.username, roId))
         body = """%s
 %s""" % (versionId, oldVersionUri)
         versionId
@@ -146,7 +149,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id, version id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
+        url = self.rosrs_path + urllib.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
@@ -162,7 +165,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id, version id, file with the manifest as XML/RDF
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
+        url = self.rosrs_path + urllib.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
         body = manifestFile
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
                    "Content-Type": "application/rdf+xml"}
@@ -181,7 +184,7 @@ class RosrsSync:
         content type, file object
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
+        url = self.rosrs_path + urllib.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
         body = fileObject
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
                    "Content-Type": contentType or "text/plain"}
@@ -199,7 +202,7 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id, version id, file path
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = urllib.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
+        url = self.rosrs_path + urllib.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
         headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()

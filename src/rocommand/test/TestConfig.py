@@ -16,7 +16,7 @@ class ro_test_config:
     ROBOXEMAIL     = "testuser@example.org"
     ROMANIFESTDIR  = ro_settings.MANIFEST_DIR
     ROMANIFESTFILE = ro_settings.MANIFEST_FILE
-    ROSRS_URI      = "sandbox.wf4ever-project.org"
+    ROSRS_URI      = "http://sandbox.wf4ever-project.org/rosrs3"
     ROSRS_USERNAME = "test-423435r4353t543t5323"
     ROSRS_PASSWORD = "pass"
 

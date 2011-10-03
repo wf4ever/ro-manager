@@ -36,7 +36,7 @@ class Test(unittest.TestCase):
 ora et labora"""
 
     def setUp(self):
-        self.__sync = RosrsSync(ro_test_config.ROSRS_HOST, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
+        self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
         self.__sync.postWorkspace()
         self.__sync.postRo(ro_test_config.RO_ID)
         self.__sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
