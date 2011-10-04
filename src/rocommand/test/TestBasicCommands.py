@@ -92,16 +92,18 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro_utils.resetconfig(ro_test_config.CONFIGDIR)
         config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
         self.assertEqual(config["robase"],    None)
-        self.assertEqual(config["roboxuri"],  None)
-        self.assertEqual(config["roboxpass"], None)
+        self.assertEqual(config["rosrs_uri"],  None)
+        self.assertEqual(config["rosrs_username"],  None)
+        self.assertEqual(config["rosrs_password"],  None)
         self.assertEqual(config["username"],  None)
         self.assertEqual(config["useremail"], None)
         args = [
             "ro", "config",
             "-b", ro_test_config.ROBASEDIR,
-            "-r", ro_test_config.ROBOXURI,
+            "-r", ro_test_config.ROSRS_URI,
+            "-u", ro_test_config.ROSRS_USERNAME,
+            "-p", ro_test_config.ROSRS_PASSWORD,
             "-n", ro_test_config.ROBOXUSERNAME,
-            "-p", ro_test_config.ROBOXPASSWORD,
             "-e", ro_test_config.ROBOXEMAIL
             ]
         with SwitchStdout(self.outstr):
@@ -110,8 +112,9 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("ro config"), 0)
         config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
         self.assertEqual(config["robase"],    os.path.abspath(ro_test_config.ROBASEDIR))
-        self.assertEqual(config["roboxuri"],  ro_test_config.ROBOXURI)
-        self.assertEqual(config["roboxpass"], ro_test_config.ROBOXPASSWORD)
+        self.assertEqual(config["rosrs_uri"],       ro_test_config.ROSRS_URI)
+        self.assertEqual(config["rosrs_username"],  ro_test_config.ROSRS_USERNAME)
+        self.assertEqual(config["rosrs_password"],  ro_test_config.ROSRS_PASSWORD)
         self.assertEqual(config["username"],  ro_test_config.ROBOXUSERNAME)
         self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
         return
@@ -128,16 +131,18 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro_utils.resetconfig(ro_test_config.CONFIGDIR)
         config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
         self.assertEqual(config["robase"],    None)
-        self.assertEqual(config["roboxuri"],  None)
-        self.assertEqual(config["roboxpass"], None)
+        self.assertEqual(config["rosrs_uri"],  None)
+        self.assertEqual(config["rosrs_username"],  None)
+        self.assertEqual(config["rosrs_password"],  None)
         self.assertEqual(config["username"],  None)
         self.assertEqual(config["useremail"], None)
         args = [
             "ro", "config", "-v",
             "-b", ro_test_config.ROBASEDIR,
-            "-r", ro_test_config.ROBOXURI,
+            "-r", ro_test_config.ROSRS_URI,
+            "-u", ro_test_config.ROSRS_USERNAME,
+            "-p", ro_test_config.ROSRS_PASSWORD,
             "-n", ro_test_config.ROBOXUSERNAME,
-            "-p", ro_test_config.ROBOXPASSWORD,
             "-e", ro_test_config.ROBOXEMAIL
             ]
         with SwitchStdout(self.outstr):
@@ -146,8 +151,9 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("ro configuration written"), 1)
         config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
         self.assertEqual(config["robase"],    os.path.abspath(ro_test_config.ROBASEDIR))
-        self.assertEqual(config["roboxuri"],  ro_test_config.ROBOXURI)
-        self.assertEqual(config["roboxpass"], ro_test_config.ROBOXPASSWORD)
+        self.assertEqual(config["rosrs_uri"],       ro_test_config.ROSRS_URI)
+        self.assertEqual(config["rosrs_username"],  ro_test_config.ROSRS_USERNAME)
+        self.assertEqual(config["rosrs_password"],  ro_test_config.ROSRS_PASSWORD)
         self.assertEqual(config["username"],  ro_test_config.ROBOXUSERNAME)
         self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
         return

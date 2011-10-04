@@ -31,10 +31,10 @@ import rdflib
 
 from MiscLib import TestUtils
 
-import ro
-import ro_utils
-import ro_manifest
-from ro_manifest import DCTERMS
+from rocommand import ro
+from rocommand import ro_utils
+from rocommand import ro_manifest
+from rocommand.ro_manifest import DCTERMS
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout

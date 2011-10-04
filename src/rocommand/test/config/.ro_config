@@ -1,7 +1,7 @@
 {
     "username": "Test User", 
     "useremail": "testuser@example.org", 
-    "roboxuri": "http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2", 
+    "rosrs_password": "pass", 
     "annotationTypes": [
         {
             "fullUri": "http://purl.org/dc/terms/type", 
@@ -74,9 +74,7 @@
             "label": "Creation time"
         }
     ], 
-    "robase": "robase", 
-    "roboxpass": "d41d8cd98f00b204e9800998ecf8427e",
-    "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs3",
-    "rosrs_username": "test-423435r4353t543t5323",
-    "rosrs_password": "pass"
+    "robase": "/home/piotrhol/Workspace/ro-manager/src/rocommand/test/robase", 
+    "rosrs_username": "test-423435r4353t543t5323", 
+    "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs3"
 }
