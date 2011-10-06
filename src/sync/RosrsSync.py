@@ -72,6 +72,29 @@ class RosrsSync:
         log.debug("Workspace %s deleted" % self.username)
         return None
     
+    def getRos(self):
+        """
+        Create a new Research Object in ROSRS.
+        
+        Parameters: ROSRS URL, username, password
+        """
+        conn = HTTPConnection(self.rosrs_host)
+        url = self.rosrs_path + urllib2.quote(self.URI_ROS % self.username)
+        body = None
+        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
+                   "Content-Type": "text/plain"}
+        conn.request("GET", url, body, headers)
+        res = conn.getresponse()
+        if res.status != OK:
+            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
+        roUris = res.read().split("\n")
+        ros = set()
+        for roUri in roUris:
+            if roUri.strip() != '':
+                ros.add(roUri.rpartition("/")[2])
+        log.debug("RO list retrieved: %d items" % len(ros))
+        return ros
+    
     def postRo(self, roId):
         """
         Create a new Research Object in ROSRS.

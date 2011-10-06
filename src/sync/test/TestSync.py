@@ -55,6 +55,16 @@ class Test(unittest.TestCase):
         self.assertTrue(len(zipfile.read("manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
         sync.deleteWorkspace()
         return
+    
+    def testGetRos(self):
+        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
+        sync.postWorkspace()
+        sync.postRo(ro_test_config.RO_ID)
+        sync.postRo(ro_test_config.RO_ID_2)
+        ros = sync.getRos()
+        self.assertSetEqual(ros, { ro_test_config.RO_ID, ro_test_config.RO_ID_2 }, "Returned ROs are not correct")
+        sync.deleteWorkspace()
+        return
         
 
 if __name__ == "__main__":
