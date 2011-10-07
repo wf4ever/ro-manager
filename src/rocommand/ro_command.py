@@ -122,6 +122,8 @@ def help(progname, args):
         , "  %(progname)s list [ -d <dir> ]"
         , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
+        , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
+        , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , ""
         , "Supported annotation type names are: "
         , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
