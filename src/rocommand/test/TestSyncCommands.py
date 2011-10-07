@@ -46,7 +46,10 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
-        self.__sync.deleteWorkspace()
+        try:
+            self.__sync.deleteWorkspace()
+        except:
+            pass
         return
 
     # Actual tests follow
@@ -112,7 +115,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         args = [
             "ro", "push",
-            "-d", rodir
+            "-d", rodir,
+            "-f"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -141,7 +145,45 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         rodir2 = ro_test_config.ROBASEDIR + "/RO_test_checkout_copy"
         args = [
             "ro", "checkout", "ro-testRoCheckoutIdentifier",
-            "-d", rodir2,
+            "-d", "RO_test_checkout_copy",
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
+        for f in self.files:
+            self.assertEqual(self.outstr.getvalue().count(f), 1)
+        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
+        
+        cmpres = filecmp.dircmp(rodir, rodir2)
+        self.assertEquals(cmpres.left_only, [])
+        self.assertEquals(cmpres.right_only, [])
+        self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
+
+        self.deleteTestRo(rodir)
+        self.deleteTestRo(rodir2)
+        return
+
+    def testCheckoutAll(self):
+        """
+        Checkout a Research Object from ROSRS.
+
+        ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
+        args = [
+            "ro", "push",
+            "-d", rodir,
+            "-f"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        
+        rodir2 = ro_test_config.ROBASEDIR + "/ro-testRoCheckoutIdentifier"
+        args = [
+            "ro", "checkout", 
             "-v"
             ]
         with SwitchStdout(self.outstr):
@@ -191,11 +233,12 @@ def getTestSuite(select="unit"):
     testdict = {
         "unit":
             [ "testUnits"
-#            , "testNull"
-#            , "testPushAll"
-#            , "testPushAllForce"
-#            , "testPushOneRO"
+            , "testNull"
+            , "testPushAll"
+            , "testPushAllForce"
+            , "testPushOneRO"
             , "testCheckout"
+            , "testCheckoutAll"
             ],
         "component":
             [ "testComponents"

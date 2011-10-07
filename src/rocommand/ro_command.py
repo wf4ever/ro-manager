@@ -429,19 +429,19 @@ def checkout(progname, configbase, options, args):
     """
     Checkout a RO from ROSRS
     
-    ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
     """
     # Check command arguments
-    if len(args) not in [3, 4, 5, 6, 7]:
+    if len(args) not in [2, 3, 4, 5, 6, 7]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
-        "roident":        args[2],
-        "rodir":          options.rodir or "",
+        "roident":        args[2] if len(args) > 2 else None,
+        "rodir":          options.rodir or (args[2] if len(args) > 2 else None),
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
         "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
         "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
@@ -451,31 +451,38 @@ def checkout(progname, configbase, options, args):
     if options.verbose:
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
     sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
-    verzip = sync.getVersionAsZip(ro_options['roident'], ro_settings.RO_VERSION)
-    zipfile = ZipFile(verzip)
-    
-    if options.verbose:
-        # HACK for moving the manifest
-#        zipfile.printdir()
-        for l in zipfile.namelist():
-            if l == ro_settings.MANIFEST_FILE:
-                print ro_settings.MANIFEST_DIR + "/" + l
-            else:
-                print l
-                
-    if ro_options['rodir'] == "":
-        zipfile.extractall()
+    if (ro_options["roident"]):
+        ros = { ro_options['roident'] }
+        rodirs = ro_options['rodir']
     else:
-        if not os.path.exists(ro_options['rodir']) or not os.path.isdir(ro_options['rodir']):
-            os.mkdir(ro_options['rodir'])
-        zipfile.extractall(ro_options['rodir'])
-        
-    # HACK for moving the manifest
-    if not os.path.exists(ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR):
-        os.mkdir(ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR)
-    shutil.move(ro_options['rodir'] + "/" + ro_settings.MANIFEST_FILE, ro_options['rodir'] + "/" + ro_settings.MANIFEST_DIR + "/" + ro_settings.MANIFEST_FILE)
+        ros = sync.getRos()
+        rodirs = None
     
-    print "%d files checked out" % len(zipfile.namelist())
+    for ro in ros:
+        print "Checking out %s" % ro
+        rodir = os.path.join(ro_config["robase"], rodirs if rodirs else ro)
+        verzip = sync.getVersionAsZip(ro, ro_settings.RO_VERSION)
+        zipfile = ZipFile(verzip)
+        
+        if options.verbose:
+            # HACK for moving the manifest
+    #        zipfile.printdir()
+            for l in zipfile.namelist():
+                if l == ro_settings.MANIFEST_FILE:
+                    print ro_settings.MANIFEST_DIR + "/" + l
+                else:
+                    print l
+                    
+        if not os.path.exists(rodir) or not os.path.isdir(rodir):
+            os.mkdir(rodir)
+        zipfile.extractall(rodir)
+            
+        # HACK for moving the manifest
+        if not os.path.exists(rodir + "/" + ro_settings.MANIFEST_DIR):
+            os.mkdir(rodir + "/" + ro_settings.MANIFEST_DIR)
+        shutil.move(rodir + "/" + ro_settings.MANIFEST_FILE, rodir + "/" + ro_settings.MANIFEST_DIR + "/" + ro_settings.MANIFEST_FILE)
+        
+        print "%d files checked out" % len(zipfile.namelist())
     return 0
 
 # End.
