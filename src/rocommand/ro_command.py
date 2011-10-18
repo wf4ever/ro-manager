@@ -268,7 +268,7 @@ def list(progname, configbase, options, args):
     if options.verbose:
         print "ro list -d \"%(rodir)s\""%ro_options
     rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
-                ro_dir, baseDir=ro_config['robase'], 
+                ro_dir, baseDir=os.path.abspath(ro_dir), 
                 listDirs=False, listFiles=True, recursive=True, appendSep=False)
     print "\n".join(rofiles)
     return 0

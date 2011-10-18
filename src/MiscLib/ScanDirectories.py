@@ -67,7 +67,7 @@ def ScanDirectories(srcdir, DirFunc, listFiles=False, recursive=True):
 # Collect directories/sub-directories found under the source directory
 #
 # srcdir    directory to search, maybe including sub-directories
-# baseDir   a base directory that is removed from al results returned.
+# baseDir   a base directory that is removed from all results returned.
 # listFiles is True if files are to be included in the listing returned
 # recursive is True if directories are to be scanned recursively,
 #           otherwise only the named directory is scanned.
