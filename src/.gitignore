@@ -1,4 +1,6 @@
 *.pyc
 *.log
 *.tmp
+*.tmproj
 xmlresults.xml
+spike/
