@@ -3,12 +3,16 @@ Created on 14-09-2011
 
 @author: piotrhol
 '''
+
+import sys
+if __name__ == "__main__":
+    sys.path.append("../..")
+
 import unittest
 from sync.RosrsSync import RosrsSync
 from sync.test.TestConfig import ro_test_config
 from zipfile import ZipFile
 import os
-
 
 class Test(unittest.TestCase):
     
@@ -33,6 +37,7 @@ class Test(unittest.TestCase):
         sync.deleteRo(ro_test_config.RO_ID)
         sync.deleteWorkspace()
         
+    @unittest.skip("putManifest not yet implemented")
     def testPutManifest(self):
         sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
         sync.postWorkspace()
