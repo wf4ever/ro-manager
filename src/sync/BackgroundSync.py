@@ -88,19 +88,14 @@ class BackgroundResourceSync(object):
         for root, dirs, files in walk(srcdir):
             for f in files:
                 filepath = join(root, f)
-                if root == join(srcdir, ro_settings.MANIFEST_DIR):
-                    if f == ro_settings.MANIFEST_FILE:
-                        self.rosrsSync.putManifest(roId, versionId, filepath)
-                        sentFiles.add(filepath)
-                elif (self.__checkFile4Put(roId, versionId, srcdir, filepath)):
+                isManifest = (root == join(srcdir, ro_settings.MANIFEST_DIR) and f == ro_settings.MANIFEST_FILE) 
+                if self.__checkFile4Put(roId, versionId, srcdir, filepath, isManifest):
                     sentFiles.add(filepath)
         return sentFiles
     
-    def __checkFile4Put(self, roId, versionId, versiondir, filepath):
+    def __checkFile4Put(self, roId, versionId, versiondir, filepath, isManifest = False):
         assert filepath.startswith(versiondir)
         rosrsFilepath = filepath[len(versiondir) + 1:]
-        if rosrsFilepath == "manifest.rdf":
-            return
         put = True
         if (filepath in self.syncRegistries):
             put = self.syncRegistries[filepath].hasBeenModified()
@@ -108,7 +103,10 @@ class BackgroundResourceSync(object):
             contentType = mimetypes.guess_type(filepath)[0]
             fileObject = open(filepath)
             log.debug("Put file %s" % filepath)
-            self.rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
+            if isManifest:
+                self.rosrsSync.putManifest(roId, versionId, filepath)
+            else:
+                self.rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
             self.syncRegistries[filepath] = SyncRegistry(filepath)
         return put
     
