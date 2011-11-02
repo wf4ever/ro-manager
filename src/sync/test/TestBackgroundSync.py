@@ -3,6 +3,10 @@ Created on 15-09-2011
 
 @author: piotrhol
 '''
+import sys
+if __name__ == "__main__":
+    sys.path.append("../..")
+
 import unittest
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
