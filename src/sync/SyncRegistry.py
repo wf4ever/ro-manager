@@ -4,11 +4,11 @@ Created on 15-09-2011
 @author: piotrhol
 '''
 
-from timemodule import time
+from time import time
 from os import path
 import hashlib
 
-class SyncRegistry(object):
+class SyncRegistry:
     '''
     classdocs
     '''
