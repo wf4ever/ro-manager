@@ -83,9 +83,10 @@ ora et labora"""
     def testSyncWorkspace(self):
         back = BackgroundResourceSync(self.__sync, True)
         self.assertRaises(Exception, back.pushAllResourcesInWorkspace, "data")
+        back = BackgroundResourceSync(self.__sync, True)
         (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
-        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
-        self.assertEquals(deleted, set())
+        self.assertSetEqual(sent, self.filesAll, "Send all workspace resource")
+        self.assertSetEqual(deleted, set())
         self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
                               "Sync workspace after creating RO")
         return
