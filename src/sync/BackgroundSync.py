@@ -80,7 +80,7 @@ class BackgroundResourceSync(object):
             log.debug("Returning %(roident)s" % manifest)
             return manifest['roident']
         except IOError as err:
-            log.warn("Caught exception %s" % err)
+            log.debug("Caught exception %s" % err)
             return None
     
     def __scanDirectories4Put(self, roId, versionId, srcdir):

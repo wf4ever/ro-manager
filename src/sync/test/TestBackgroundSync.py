@@ -45,7 +45,7 @@ ora et labora"""
         self.__sync.postRo(ro_test_config.RO_ID)
         self.__sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
         logging.basicConfig()
-        logging.getLogger("sync.BackgroundSync").setLevel(logging.DEBUG)
+        logging.getLogger("sync.BackgroundSync").setLevel(logging.INFO)
         return
 
     def tearDown(self):
