@@ -4,3 +4,5 @@
 *.tmproj
 xmlresults.xml
 spike/
+rocommand/test/config/.ro_config
+
