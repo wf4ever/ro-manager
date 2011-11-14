@@ -44,8 +44,8 @@ ora et labora"""
         self.__sync.postWorkspace()
         self.__sync.postRo(ro_test_config.RO_ID)
         self.__sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
-        #logging.basicConfig()
-        #logging.getLogger("sync.BackgroundSync").setLevel(logging.INFO)
+        logging.basicConfig()
+        logging.getLogger("sync.BackgroundSync").setLevel(logging.INFO)
         return
 
     def tearDown(self):
@@ -116,21 +116,4 @@ ora et labora"""
 
 if __name__ == "__main__":
     #import sys;sys.argv = ['', 'Test.testSyncRecources']
-    loglevel = "info"
-    if loglevel == "info":
-        logging.basicConfig(level=logging.INFO)
-    if loglevel == "warning":
-        logging.basicConfig(level=logging.WARNING)
-    if loglevel == "file":
-        # Note: log level to file is also limited by basicConfig setting
-        logging.basicConfig(level=logging.DEBUG)
-        # Enable debug logging to a file
-        fileloghandler = logging.FileHandler("TestBackgroundSync.log","w")
-        fileloghandler.setLevel(logging.DEBUG)
-        # Use this formatter for shorter log records
-        ###filelogformatter = logging.Formatter('%(levelname)s %(message)s', "%H:%M:%S")
-        # Use this formatter to display timing information:
-        filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
-        fileloghandler.setFormatter(filelogformatter)
-        logging.getLogger('').addHandler(fileloghandler)
     unittest.main()
