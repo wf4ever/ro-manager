@@ -4,7 +4,7 @@
 # See http://pyunit.sourceforge.net/pyunit.html
 #
 
-import sys, unittest, logging
+import sys, unittest
 
 if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
@@ -13,12 +13,14 @@ if __name__ == "__main__":
 
 import TestBasicCommands
 import TestAnnotations
+import TestSyncCommands
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
     suite = unittest.TestSuite()
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
+    suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils
