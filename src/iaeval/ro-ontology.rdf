@@ -3,33 +3,35 @@
 
 <!DOCTYPE rdf:RDF [
     <!ENTITY ao "http://purl.org/ao/" >
-    <!ENTITY foaf "http://xmlns.com/foaf/0.1/" >
-    <!ENTITY ns "http://purl.org/net/opmv/ns#" >
+    <!ENTITY dcterms "http://purl.org/dc/terms/" >
+    <!ENTITY dcmitype "http://purl.org/dc/dcmitype/" >
     <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
     <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
     <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY terms "http://www.openarchives.org/ore/terms/" >
+    <!ENTITY ore "http://www.openarchives.org/ore/terms/" >
+    <!ENTITY rdfg-1 "http://www.w3.org/2004/03/trix/rdfg-1/" >
     <!ENTITY ro "http://www.wf4ever-project.org/vocab/ro#" >
     <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-    <!ENTITY dcmi-terms "http://dublincore.org/documents/dcmi-terms/" >
 ]>
 
 
 <rdf:RDF xmlns="http://www.wf4ever-project.org/vocab/ro#"
      xml:base="http://www.wf4ever-project.org/vocab/ro"
-     xmlns:dcmi-terms="http://dublincore.org/documents/dcmi-terms/"
+     xmlns:rdfg-1="http://www.w3.org/2004/03/trix/rdfg-1/"
      xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
      xmlns:ro="http://www.wf4ever-project.org/vocab/ro#"
-     xmlns:ns="http://purl.org/net/opmv/ns#"
-     xmlns:foaf="http://xmlns.com/foaf/0.1/"
+     xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
      xmlns:ao="http://purl.org/ao/"
-     xmlns:terms="http://www.openarchives.org/ore/terms/"
+     xmlns:dcmitype="http://purl.org/dc/dcmitype/"
      xmlns:owl="http://www.w3.org/2002/07/owl#"
      xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:ore="http://www.openarchives.org/ore/terms/"
+     xmlns:dcterms="http://purl.org/dc/terms/">
     <owl:Ontology rdf:about="http://www.wf4ever-project.org/vocab/ro">
+        <rdfs:comment>This ontology is an adaptation of the Wf4Ever RO ontology, mainly cut down for use with Research Object evaluation functions.</rdfs:comment>
         <owl:imports rdf:resource="http://purl.org/ao/"/>
-        <owl:imports rdf:resource="http://www.openarchives.org/ore/terms/"/>
     </owl:Ontology>
     
 
@@ -42,10 +44,34 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    <owl:AnnotationProperty rdf:about="&rdfs;seeAlso"/>
-    <owl:AnnotationProperty rdf:about="&rdfs;label"/>
-    <owl:AnnotationProperty rdf:about="&rdfs;comment"/>
-    <owl:AnnotationProperty rdf:about="&dcmi-terms;creator"/>
+    <owl:AnnotationProperty rdf:about="&dcterms;hasPart"/>
+    <owl:AnnotationProperty rdf:about="&ore;proxyIn">
+        <rdfs:label>Proxy In</rdfs:label>
+        <rdfs:comment>Proxy objects must link to the Aggregation in which the resource being proxied is aggregated. The ore:proxyIn relationship is used for this purpose. The subject of the relationship is a Proxy object, and the object of the relationship is the Aggregation.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&ore;lineage">
+        <rdfs:label>Lineage</rdfs:label>
+        <rdfs:comment>ore:lineage is a relationship between two Proxy objects, both of which MUST have the same Resource for which they are proxies. The meaning is that the Resource for which the subject of the relationship is a Proxy was discovered in the Aggregation in which the object Proxy&#39;s resource is aggregated.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&ore;aggregates">
+        <rdfs:label>Aggregates</rdfs:label>
+        <rdfs:comment>Aggregations, by definition, aggregate resources. The ore:aggregates relationship expresses that the object resource is a member of the set of Aggregated Resources of the subject (the Aggregation). This relationship between the Aggregation and its Aggregated Resources is thus more specific than a simple part/whole relationship, as expressed by dcterms:hasPart for example.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&dcterms;hasPart"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&ore;proxyFor">
+        <rdfs:label>Proxy For</rdfs:label>
+        <rdfs:comment>Proxy objects are used to represent a Resource as it is aggregated in a particular Aggregation. The ore:proxyFor relationship is used to link the proxy to the Aggregated Resource it is a proxy for. The subject of the relationship is a Proxy object, and the object of the relationship is the Aggregated Resource.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:AnnotationProperty>
+    <owl:AnnotationProperty rdf:about="&ore;similarTo">
+        <rdfs:label>Similar To</rdfs:label>
+        <rdfs:comment>The subject of this relationship MUST be an Aggregation.  This Aggregation should be considered an expression within the ORE context of the object of the relationship, as it is broadly equivalent to the resource. For example, the Aggregation may consist of the resources which, together, make up a journal article which has a DOI assigned to it. The Aggregation is not the article to which the DOI was assigned, but is a representation of it in some manner.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:domain rdf:resource="&ore;Aggregation"/>
+    </owl:AnnotationProperty>
     
 
 
@@ -57,12 +83,6 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
-    
-
-
-    <!-- http://www.w3.org/1999/02/22-rdf-syntax-ns#PlainLiteral -->
-
-    <rdfs:Datatype rdf:about="&rdf;PlainLiteral"/>
     
 
 
@@ -83,37 +103,110 @@
     
 
 
-    <!-- http://purl.org/ao/body -->
-
-    <owl:ObjectProperty rdf:about="&ao;body"/>
-
-
     <!-- http://purl.org/ao/hasTopic -->
 
     <owl:ObjectProperty rdf:about="&ao;hasTopic"/>
+    
 
+
+    <!-- http://purl.org/dc/terms/isPartOf -->
+
+    <owl:ObjectProperty rdf:about="&dcterms;isPartOf"/>
+    
 
 
     <!-- http://www.openarchives.org/ore/terms/aggregates -->
 
-    <owl:ObjectProperty rdf:about="&terms;aggregates"/>
+    <owl:ObjectProperty rdf:about="&ore;aggregates">
+        <rdfs:label>Aggregates</rdfs:label>
+        <rdfs:comment>Aggregations, by definition, aggregate resources. The ore:aggregates relationship expresses that the object resource is a member of the set of Aggregated Resources of the subject (the Aggregation). This relationship between the Aggregation and its Aggregated Resources is thus more specific than a simple part/whole relationship, as expressed by dcterms:hasPart for example.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:range rdf:resource="&ore;AggregatedResource"/>
+        <rdfs:domain rdf:resource="&ore;Aggregation"/>
+        <owl:inverseOf rdf:resource="&ore;isAggregatedBy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/describes -->
+
+    <owl:ObjectProperty rdf:about="&ore;describes">
+        <rdfs:label>Describes</rdfs:label>
+        <rdfs:comment>This relationship asserts that the subject (a Resource Map) describes the object (an Aggregation).</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:range rdf:resource="&ore;Aggregation"/>
+        <rdfs:domain rdf:resource="&ore;ResourceMap"/>
+        <owl:inverseOf rdf:resource="&ore;isDescribedBy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/isAggregatedBy -->
+
+    <owl:ObjectProperty rdf:about="&ore;isAggregatedBy">
+        <rdfs:label>Is Aggregated By</rdfs:label>
+        <rdfs:comment>The inverse relationship of ore:aggregates, ore:isAggregatedBy asserts that an Aggregated Resource is aggregated by an Aggregation.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="&dcterms;isPartOf"/>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:domain rdf:resource="&ore;AggregatedResource"/>
+        <rdfs:range rdf:resource="&ore;Aggregation"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/isDescribedBy -->
+
+    <owl:ObjectProperty rdf:about="&ore;isDescribedBy">
+        <rdfs:label>Is Described By</rdfs:label>
+        <rdfs:comment>The inverse relationship of ore:describes, in this case the object of the relationship is the Resource Map and the subject is the Aggregation which it describes.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:domain rdf:resource="&ore;Aggregation"/>
+        <rdfs:range rdf:resource="&ore;ResourceMap"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/lineage -->
+
+    <owl:ObjectProperty rdf:about="&ore;lineage">
+        <rdfs:label>Lineage</rdfs:label>
+        <rdfs:comment>ore:lineage is a relationship between two Proxy objects, both of which MUST have the same Resource for which they are proxies. The meaning is that the Resource for which the subject of the relationship is a Proxy was discovered in the Aggregation in which the object Proxy&#39;s resource is aggregated.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:domain rdf:resource="&ore;Proxy"/>
+        <rdfs:range rdf:resource="&ore;Proxy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/proxyFor -->
+
+    <owl:ObjectProperty rdf:about="&ore;proxyFor">
+        <rdfs:label>Proxy For</rdfs:label>
+        <rdfs:comment>Proxy objects are used to represent a Resource as it is aggregated in a particular Aggregation. The ore:proxyFor relationship is used to link the proxy to the Aggregated Resource it is a proxy for. The subject of the relationship is a Proxy object, and the object of the relationship is the Aggregated Resource.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:range rdf:resource="&ore;AggregatedResource"/>
+        <rdfs:domain rdf:resource="&ore;Proxy"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/proxyIn -->
+
+    <owl:ObjectProperty rdf:about="&ore;proxyIn">
+        <rdfs:label>Proxy In</rdfs:label>
+        <rdfs:comment>Proxy objects must link to the Aggregation in which the resource being proxied is aggregated. The ore:proxyIn relationship is used for this purpose. The subject of the relationship is a Proxy object, and the object of the relationship is the Aggregation.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+        <rdfs:range rdf:resource="&ore;Aggregation"/>
+        <rdfs:domain rdf:resource="&ore;Proxy"/>
+    </owl:ObjectProperty>
     
 
 
     <!-- http://www.w3.org/2002/07/owl#topObjectProperty -->
 
     <owl:ObjectProperty rdf:about="&owl;topObjectProperty"/>
+    
 
-
-    <!-- http://www.wf4ever-project.org/vocab/ro#hasWorkflowTemplate -->
-<!--
-    <owl:ObjectProperty rdf:about="&ro;hasWorkflowTemplate">
-        <rdfs:comment>This property associates a workflow run to its corresponding workflow template.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ro;WorkflowRun"/>
-        <rdfs:range rdf:resource="&ro;WorkflowTemplate"/>
-        <rdfs:subPropertyOf rdf:resource="&ro;hasProcessTemplate"/>
-    </owl:ObjectProperty>
--->
 
     <!-- 
     ///////////////////////////////////////////////////////////////////////////////////////
@@ -123,108 +216,160 @@
     ///////////////////////////////////////////////////////////////////////////////////////
      -->
 
+    
+
 
     <!-- http://purl.org/ao/Annotation -->
 
     <owl:Class rdf:about="&ao;Annotation"/>
+    
 
+
+    <!-- http://purl.org/ao/AnnotationBody -->
+
+    <owl:Class rdf:about="&ao;AnnotationBody"/>
+    
+
+
+    <!-- http://purl.org/ao/Artifact -->
+
+    <owl:Class rdf:about="&ao;Artifact"/>
+    
+
+
+    <!-- http://purl.org/dc/dcmitype/Collection -->
+
+    <owl:Class rdf:about="&dcmitype;Collection"/>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/AggregatedResource -->
+
+    <owl:Class rdf:about="&ore;AggregatedResource">
+        <rdfs:label>Aggregated Resource</rdfs:label>
+        <rdfs:comment>A resource which is included in an Aggregation. Note that asserting that a resource is a member of the class of Aggregated Resources does not imply anything other than that it is aggregated by at least one Aggregation.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:Class>
+    
 
 
     <!-- http://www.openarchives.org/ore/terms/Aggregation -->
 
-    <owl:Class rdf:about="&terms;Aggregation"/>
+    <owl:Class rdf:about="&ore;Aggregation">
+        <rdfs:label>Aggregation</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&dcmitype;Collection"/>
+        <rdfs:comment>A set of related resources (Aggregated Resources), grouped together such that the set can be treated as a single resource. This is the entity described within the ORE interoperability framework by a Resource Map.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:Class>
+    
+
+
+    <!-- http://www.openarchives.org/ore/terms/Proxy -->
+
+    <owl:Class rdf:about="&ore;Proxy">
+        <rdfs:label>Proxy</rdfs:label>
+        <rdfs:comment>A Proxy represents an Aggregated Resource as it exists in a specific Aggregation. All assertions made about an entity are globally true, not only within the context of the Aggregation. As such, in order to make assertions which are only true of a resource as it exists in an Aggregation, a Proxy object is required. For example, one might want to cite an article as it appears in a specific journal, or assign aggregation-specific metadata to a Resource.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:Class>
     
 
 
     <!-- http://www.openarchives.org/ore/terms/ResourceMap -->
 
-    <owl:Class rdf:about="&terms;ResourceMap"/>
+    <owl:Class rdf:about="&ore;ResourceMap">
+        <rdfs:label>Resource Map</rdfs:label>
+        <rdfs:subClassOf rdf:resource="&rdfg-1;Graph"/>
+        <rdfs:comment>A description of an Aggregation according to the OAI-ORE data model. Resource Maps are serialised to a machine readable format according to the implementation guidelines.</rdfs:comment>
+        <rdfs:isDefinedBy rdf:resource="http://www.openarchives.org/ore/terms/"/>
+    </owl:Class>
+    
 
 
-    <!-- http://www.w3.org/2002/07/owl#Thing -->
+    <!-- http://www.w3.org/2004/03/trix/rdfg-1/Graph -->
 
-    <owl:Class rdf:about="&owl;Thing"/>
+    <owl:Class rdf:about="&rdfg-1;Graph"/>
+    
 
-    <owl:Class rdf:about="&ro;Resource"/>
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#Annotation -->
 
     <owl:Class rdf:about="&ro;Annotation">
-        <rdfs:subClassOf rdf:resource="&ro;Resource"/>
         <rdfs:subClassOf rdf:resource="&ao;Annotation"/>
-        <owl:disjointWith rdf:resource="&ro;Artifact"/>
+        <rdfs:subClassOf rdf:resource="&ro;Resource"/>
         <rdfs:subClassOf>
             <owl:Restriction>
                 <owl:onProperty rdf:resource="&ao;annotatesResource"/>
                 <owl:someValuesFrom rdf:resource="&ro;Artifact"/>
             </owl:Restriction>
         </rdfs:subClassOf>
+        <owl:disjointWith rdf:resource="&ro;Artifact"/>
     </owl:Class>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#AnnotationBody -->
 
     <owl:Class rdf:about="&ro;AnnotationBody">
         <rdfs:subClassOf rdf:resource="&ao;AnnotationBody"/>
     </owl:Class>
+    
 
-    <owl:Class rdf:about="&ro;WorkflowRun">
-        <rdfs:subClassOf rdf:resource="&ro;AnnotationBody"/>
-    </owl:Class>
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#Artifact -->
 
     <owl:Class rdf:about="&ro;Artifact">
-        <rdfs:subClassOf rdf:resource="&ro;Resource"/>
         <rdfs:subClassOf rdf:resource="&ao;Artifact"/>
-        <owl:disjointWith rdf:resource="&ro;Annotation"/>
+        <rdfs:subClassOf rdf:resource="&ro;Resource"/>
         <rdfs:comment>An artifact is something other than an annotation that is aggregated by a ResearchObject.</rdfs:comment>
     </owl:Class>
+    
 
-    <owl:Class rdf:about="&ro;WorkflowTemplate">
-        <rdfs:subClassOf rdf:resource="&ro;Artifact"/>
-    </owl:Class>
-
-    <owl:Class rdf:about="&ro;WorkflowInstance">
-        <rdfs:subClassOf rdf:resource="&ro;Artifact"/>
-    </owl:Class>
 
     <!-- http://www.wf4ever-project.org/vocab/ro#Manifest -->
 
     <owl:Class rdf:about="&ro;Manifest">
-        <rdfs:subClassOf rdf:resource="&terms;ResourceMap"/>
+        <rdfs:subClassOf rdf:resource="&ore;ResourceMap"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&terms;describes"/>
+                <owl:onProperty rdf:resource="&ore;describes"/>
                 <owl:someValuesFrom rdf:resource="&ro;ResearchObject"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>Manifest is used to describe a research object.</rdfs:comment>
     </owl:Class>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#ProcessDefinition -->
+
+    <owl:Class rdf:about="&ro;ProcessDefinition">
+        <rdfs:comment>Defines a process with specified inputs and outputs.</rdfs:comment>
+    </owl:Class>
+    
+
 
     <!-- http://www.wf4ever-project.org/vocab/ro#ResearchObject -->
 
     <owl:Class rdf:about="&ro;ResearchObject">
-        <rdfs:subClassOf rdf:resource="&terms;Aggregation"/>
+        <rdfs:subClassOf rdf:resource="&ore;Aggregation"/>
         <rdfs:subClassOf>
             <owl:Restriction>
-                <owl:onProperty rdf:resource="&terms;aggregates"/>
+                <owl:onProperty rdf:resource="&ore;aggregates"/>
                 <owl:someValuesFrom rdf:resource="&ro;Resource"/>
             </owl:Restriction>
         </rdfs:subClassOf>
         <rdfs:comment>A research object aggregates a number of resources. A resource can be a workflow, web service, document, data item, data set, workflow run, software or a research object.</rdfs:comment>
     </owl:Class>
-
-    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowResearchObject -->
-
-    <owl:Class rdf:about="&ro;WorkflowResearchObject">
-        <owl:equivalentClass>
-            <owl:Class>
-                <owl:intersectionOf rdf:parseType="Collection">
-                    <rdf:Description rdf:about="&ro;ResearchObject"/>
-                    <owl:Restriction>
-                        <owl:onProperty rdf:resource="&terms;aggregates"/>
-                        <owl:someValuesFrom rdf:resource="&ro;WorkflowAnnotation"/>
-                    </owl:Restriction>
-                </owl:intersectionOf>
-            </owl:Class>
-        </owl:equivalentClass>
-        <rdfs:comment>A workflow research object is a research object that contains at least one workflow template.</rdfs:comment>
-    </owl:Class>
     
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#Resource -->
+
+    <owl:Class rdf:about="&ro;Resource"/>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowAnnotation -->
 
     <owl:Class rdf:about="&ro;WorkflowAnnotation">
         <rdfs:subClassOf rdf:resource="&ro;Annotation"/>
@@ -234,29 +379,71 @@
                 <owl:someValuesFrom rdf:resource="&ro;WorkflowRun"/>
             </owl:Restriction>
         </rdfs:subClassOf>
-        <rdfs:comment>A workflow annotation is a special kind of annotation that represents a WorkflowRun.</rdfs:comment>
+        <rdfs:comment>A workflow annotation is a special kind of annotation that uses a WorkflowRun to encapsulate provenance information about the contents of a Research Object.</rdfs:comment>
     </owl:Class>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowDefinition -->
+
+    <owl:Class rdf:about="&ro;WorkflowDefinition">
+        <rdfs:subClassOf rdf:resource="&ro;Artifact"/>
+        <rdfs:subClassOf rdf:resource="&ro;ProcessDefinition"/>
+        <rdfs:comment>A workflow definition is a directed graph in which the nodes are process definitions and the edges represent data dependencies between the constituent process definitions.  This defines a workflow that is invoked with specific inputs and outputs.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowResearchObject -->
+
+    <owl:Class rdf:about="&ro;WorkflowResearchObject">
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="&ro;ResearchObject"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="&ore;aggregates"/>
+                        <owl:someValuesFrom rdf:resource="&ro;WorkflowAnnotation"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:comment>A workflow research object is a research object that contains at least one workflow template.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowRun -->
 
     <owl:Class rdf:about="&ro;WorkflowRun">
         <rdfs:subClassOf rdf:resource="&ro;AnnotationBody"/>
         <rdfs:comment>A workflow run is a special kind of process that is composed of a series of actions.</rdfs:comment>
     </owl:Class>
-
-
-    <!-- http://www.wf4ever-project.org/vocab/ro#WorkflowTemplate -->
-    <owl:Class rdf:about="&ro;WorkflowTemplate">
-        <rdfs:subClassOf rdf:resource="&ro;Artifact"/>
-        <rdfs:subClassOf rdf:resource="&ro;ProcessTemplate"/>
-        <rdfs:comment>A workflow template is a directed graph in which the nodes are process templates and the edges represent data dependencies between the constituent process templates.</rdfs:comment>
-    </owl:Class>
-
-    <!-- http://xmlns.com/foaf/0.1/Agent -->
-
-    <owl:Class rdf:about="&foaf;Agent"/>
     
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotations
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <rdf:Description rdf:about="http://www.openarchives.org/ore/terms/">
+        <rdfs:label>The OAI ORE terms vocabulary</rdfs:label>
+        <rdfs:comment>The set of terms provided by the OAI ORE initiative</rdfs:comment>
+        <dcterms:title>The OAI ORE terms vocabulary</dcterms:title>
+        <rdfs:seeAlso rdf:resource="http://www.openarchives.org/ore/toc"/>
+        <dcterms:publisher>
+            <rdf:Description>
+                <rdfs:label>The Open Archives Initiative ORE Project</rdfs:label>
+            </rdf:Description>
+        </dcterms:publisher>
+    </rdf:Description>
 </rdf:RDF>
 
 
 
-<!-- Generated by the OWL API (version 3.0.0.1451) http://owlapi.sourceforge.net -->
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
 
