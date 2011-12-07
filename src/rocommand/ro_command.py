@@ -28,6 +28,7 @@ from sync.BackgroundSync import BackgroundResourceSync
 
 from zipfile import ZipFile
 
+# @@TODO import from ro_annotation
 annotationTypes = (
     [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
@@ -283,6 +284,7 @@ def list(progname, configbase, options, args):
     print "\n".join(rofiles)
     return 0
 
+#@@TODO: import from ro_annotation
 def getAnnotationByName(ro_config, aname):
     """
     Given an attribute name from the command line, returns an 
@@ -300,6 +302,7 @@ def getAnnotationByName(ro_config, aname):
     predicate = rdflib.URIRef(predicate)
     return (predicate, valtype)
 
+#@@TODO: import from ro_annotation
 def getAnnotationNameByUri(ro_config, auri):
     """
     Given an attribute URI from the manifest graph, returns an 
@@ -350,7 +353,7 @@ def annotate(progname, configbase, options, args):
 
 def annotations(progname, configbase, options, args):
     """
-    Dusplay annotations
+    Display annotations
     
     ro annotations [ file | -d dir ]
     """

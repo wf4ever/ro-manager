@@ -56,7 +56,7 @@ def resetconfig(configbase):
         "rosrs_username": None,
         "rosrs_password": None,
         "username":       None,
-        "useremail":       None
+        "useremail":      None
         }
     writeconfig(configbase, ro_config)
     return

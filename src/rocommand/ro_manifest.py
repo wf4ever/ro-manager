@@ -78,7 +78,7 @@ def readManifest(rodir):
     return manifestDict
 
 def getComponentUri(rodir, path):
-    return rdflib.URIRef("file://"+os.path.join(os.path.abspath(rodir), path))
+    return rdflib.URIRef("file://"+os.path.normpath(os.path.join(os.path.abspath(rodir), path)))
 
 def getRoUri(rodir):
     return rdflib.URIRef("file://"+os.path.abspath(rodir)+"/")
