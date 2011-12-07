@@ -48,9 +48,9 @@ class TestROSupport(unittest.TestCase):
 
     def createRoFixture(self, src, robase, roname):
         """
-        Create test fixture research object - this is a set of directries
+        Create test fixture research object - this is a set of directories
         and files that will be used as a research object, but not actually
-        creating the reesearch object specific structures.
+        creating the research object specific structures.
         
         Returns name of research object directory
         """
