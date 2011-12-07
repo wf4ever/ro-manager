@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Module to test basic RO manager commands
+Module to test RO manager annotation commands
 
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
@@ -197,7 +197,6 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     # Test display of annotations for entire RO
-
     
     # @@TODO: Test annotations shown in RO listing
 
