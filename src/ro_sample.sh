@@ -10,10 +10,18 @@ echo "--------"
 
 ./ro config -v \
   -b $ROBASE \
-  -r http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2 \
+  -r http://sandbox.wf4ever-project.org/rosrs3 \
+  -u "OpenID-1318340111490" \
+  -p "2ae55d36-de48-444c-a" \
   -n "Test user" \
-  -p "d41d8cd98f00b204e9800998ecf8427e" \
   -e "testuser@example.org"
+
+#./ro config -v \
+#  -b $ROBASE \
+#  -r http://calatola.man.poznan.pl/robox/dropbox_accounts/1/ro_containers/2 \
+#  -n "Test user" \
+#  -p "d41d8cd98f00b204e9800998ecf8427e" \
+#  -e "testuser@example.org"
 
 echo "--------"
 
