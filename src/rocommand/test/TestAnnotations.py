@@ -189,6 +189,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
+        log.debug("outtxt: %s"%(outtxt))
         self.assertEqual(outtxt.count("ro annotations"), 1)
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "type:.*atype")

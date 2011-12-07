@@ -7,6 +7,11 @@ Research Object manifest read, write, decode functions
 import sys
 import os
 import os.path
+import logging
+import urlparse
+
+log = logging.getLogger(__name__)
+
 import rdflib
 from rdflib.namespace import RDF
 #from rdflib import URIRef, Namespace, BNode
@@ -77,11 +82,24 @@ def readManifest(rodir):
         }
     return manifestDict
 
-def getComponentUri(rodir, path):
-    return rdflib.URIRef("file://"+os.path.normpath(os.path.join(os.path.abspath(rodir), path)))
+def getRoUri(ro_dir):
+    return rdflib.URIRef("file://"+os.path.abspath(ro_dir)+"/")
 
-def getRoUri(rodir):
-    return rdflib.URIRef("file://"+os.path.abspath(rodir)+"/")
+def getComponentUri(ro_dir, path):
+    return rdflib.URIRef(urlparse.urljoin(getRoUri(ro_dir), path))
+    #return rdflib.URIRef("file://"+os.path.normpath(os.path.join(os.path.abspath(ro_dir), path)))
+
+def getComponentUriRel(ro_dir, path):
+    log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
+    file_uri = urlparse.urlunsplit(urlparse.urlsplit(getComponentUri(ro_dir, path)))
+    ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(getRoUri(ro_dir)))
+    log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
+    if ro_uri is not None and file_uri.startswith(ro_uri):
+        file_uri_rel = file_uri.replace(ro_uri, "", 1)
+    else:
+        file_uri_rel = path
+    log.debug("getComponentUriRel: file_uri_rel %s"%(file_uri_rel))
+    return file_uri_rel
 
 def getGraphRoUri(rodir, rograph):
     return str(rograph.value(None, RDF.type, OXDS.Grouping))

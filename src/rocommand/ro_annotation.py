@@ -8,6 +8,10 @@ import sys
 import os
 import os.path
 import datetime
+import logging
+
+log = logging.getLogger(__name__)
+
 import rdflib
 from rdflib.namespace import RDF
 #from rdflib import URIRef, Namespace, BNode
@@ -140,5 +144,54 @@ def createSimpleAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     annGraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename), 
         format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
     return annotation_filename
+
+def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+    """
+    Add a simple annotation to a file in a research object.
+    
+    ro_config   is the research object manager configuration, supplied as a dictionary
+    ro_dir      is the research object root directory
+    rofile      names the file
+    attrname    names the attribute in a form recognized by getAnnotationByName
+    attrvalue   is a value to be associated with the attribute
+    """
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    (predicate,valtype) = getAnnotationByName(ro_config, attrname)
+    log.debug("Adding annotation predicate: %s, value %s"%(repr(predicate),repr(attrvalue)))
+    ro_graph.add(
+        ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(rofile)),
+          predicate, 
+          rdflib.Literal(attrvalue) 
+        ) )
+    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    return
+
+def getFileNameAbs(ro_dir, rofile):
+    """
+    Return the absolute file name for a file in an RO
+    """
+    return os.path.abspath(rofile)
+
+def getFileNameRel(ro_dir, rofile):
+    """
+    Return the relative name for a file in an RO
+    """
+    if ro_dir is not None and ro_file_abs.startswith(ro_dir):
+        ro_file_rel = ro_file_abs.replace(ro_dir, "", 1)
+    else:
+        ro_file_rel = rofile
+    return ro_file_rel
+
+def getFileAnnotations(ro_dir, rofile):
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getComponentUri(ro_dir, os.path.abspath(rofile))
+    log.debug("annotations for %s"%str(subject))
+    for (p, v) in ro_graph.predicate_objects(subject=subject):
+        yield (subject, p, v)
+    return
+
+def getAllAnnotations(ro_dir):
+    assert False, "@@TODO - enumerate annotations for all RO components"
+    return
 
 # End.

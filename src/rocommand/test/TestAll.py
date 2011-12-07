@@ -12,6 +12,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 import TestBasicCommands
+import TestAnnotationUtils
 import TestAnnotations
 import TestSyncCommands
 
@@ -19,6 +20,7 @@ import TestSyncCommands
 def getTestSuite(select="unit"):
     suite = unittest.TestSuite()
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
+    suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite

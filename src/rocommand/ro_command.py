@@ -22,6 +22,7 @@ import ro_settings
 import ro_utils
 import ro_manifest
 from ro_manifest import RDF, DCTERMS, ROTERMS
+import ro_annotation
 
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
@@ -337,18 +338,11 @@ def annotate(progname, configbase, options, args):
     # Find RO root directory
     ro_dir = ro_root_directory(progname+" attribute", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
-    # Read and update manifest
+    # Read and update manifest and annotations
     if options.verbose:
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
-    ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    (predicate,valtype) = getAnnotationByName(ro_config, ro_options['roattribute'])
-    log.debug("Adding annotation predicate: %s, value %s"%(repr(predicate),repr(ro_options['rovalue'])))
-    ro_graph.add(
-        ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile'])),
-          predicate,
-          rdflib.Literal(ro_options['rovalue']) 
-        ) )
-    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    ro_annotation.addSimpleAnnotation(ro_config, ro_dir, 
+        ro_options['rofile'], ro_options['roattribute'],  ro_options['rovalue'])
     return 0
 
 def annotations(progname, configbase, options, args):
@@ -375,19 +369,23 @@ def annotations(progname, configbase, options, args):
         print "ro annotations -d \"%(rodir)s\" %(rofile)s "%ro_options
     ro_dir= ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
-    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    # Enumerate and display annotations
     if ro_options['rofile']:
-        ro_file     = ro_manifest.getComponentUri(ro_dir, os.path.abspath(ro_options['rofile']))
-        annotations = ro_graph.predicate_objects(subject=ro_file)
-        print str(ro_file)  # @@TODO figure relativization
-        log.debug("annotations for %s"%str(ro_file))
-        for (atyp,aval) in annotations:
-            aname = getAnnotationNameByUri(ro_config, atyp)
-            log.debug("Annotations atyp %s, aname %s, aval %s"%(repr(atyp), aname, repr(aval)))
-            print "  %s: %s"%(aname,str(aval))
+        log.debug("Annotations for %s"%str(ro_options['rofile']))
+        annotations = ro_annotation.getFileAnnotations(ro_dir, ro_options['rofile'])
     else:
-        # list all annotations
-        assert False, "@@TODO - show annotations for all RO components"
+        annotations = ro_annotation.getAllAnnotations(ro_dir)
+    sname_prev = None
+    for (asubj,apred,aval) in annotations:
+        log.debug("Annotations: asubj %s, apred %s, aval %s"%
+                  (repr(asubj), repr(apred), repr(aval)))
+        aname = getAnnotationNameByUri(ro_config, apred)
+        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
+        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
+        if sname != sname_prev:
+            print sname
+            sname_prev = sname
+        print "  %s: %s"%(aname,str(aval))
     return 0
 
 def push(progname, configbase, options, args):
