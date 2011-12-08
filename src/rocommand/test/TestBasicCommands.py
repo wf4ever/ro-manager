@@ -111,12 +111,12 @@ class TestBasicCommands(TestROSupport.TestROSupport):
             assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro config"), 0)
         config = ro_utils.readconfig(ro_test_config.CONFIGDIR)
-        self.assertEqual(config["robase"],    os.path.abspath(ro_test_config.ROBASEDIR))
+        self.assertEqual(config["robase"],          os.path.abspath(ro_test_config.ROBASEDIR))
         self.assertEqual(config["rosrs_uri"],       ro_test_config.ROSRS_URI)
         self.assertEqual(config["rosrs_username"],  ro_test_config.ROSRS_USERNAME)
         self.assertEqual(config["rosrs_password"],  ro_test_config.ROSRS_PASSWORD)
-        self.assertEqual(config["username"],  ro_test_config.ROBOXUSERNAME)
-        self.assertEqual(config["useremail"], ro_test_config.ROBOXEMAIL)
+        self.assertEqual(config["username"],        ro_test_config.ROBOXUSERNAME)
+        self.assertEqual(config["useremail"]        ro_test_config.ROBOXEMAIL)
         return
 
     def testConfigVerbose(self):

@@ -19,11 +19,12 @@ from rdflib.namespace import RDF
 
 import ro_settings
 import ro_manifest
-from ro_manifest import DCTERMS, ROTERMS
+from ro_manifest import RDF, DCTERMS, ROTERMS
 
 #   Default list of annotation types
 annotationTypes = (
-    [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
+    [ 
+      { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
       , "label": "Type"
       , "description": "Word or brief phrase describing type of Research Object component" 
@@ -58,6 +59,11 @@ annotationTypes = (
       , "label": "Creation time"
       , "description": "Date and time that Research Object component was created" 
       }
+    , { "name": "rdf:type", "prefix": "rdf", "localName": "type", "type": "resource"
+      , "baseUri": RDF.baseUri, "fullUri": RDF.type
+      , "label": "RDF type"
+      , "description": "RDF type of the annotated object"
+      }
     ])
 
 def getAnnotationByName(ro_config, aname):
@@ -83,9 +89,9 @@ def getAnnotationNameByUri(ro_config, auri):
     attribute name for displaying an attribute
     """
     for atype in ro_config["annotationTypes"]:
-        if atype["fullUri"] == str(auri):
+        if str(atype["fullUri"]) == str(auri):
             return atype["name"]
-    return str(auri)
+    return "<"+str(auri)+">"
 
 def makeAnnotationFilename(rodir, afile):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", afile)
@@ -183,15 +189,30 @@ def getFileNameRel(ro_dir, rofile):
     return ro_file_rel
 
 def getFileAnnotations(ro_dir, rofile):
+    log.debug("getFileAnnotations: ro_dir %s, rofile %s"%(ro_dir, rofile))
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
-    subject     = ro_manifest.getComponentUri(ro_dir, os.path.abspath(rofile))
-    log.debug("annotations for %s"%str(subject))
+    subject     = ro_manifest.getComponentUri(ro_dir, os.path.join(os.getcwd(), rofile))
+    log.debug("getFileAnnotations: %s"%str(subject))
     for (p, v) in ro_graph.predicate_objects(subject=subject):
         yield (subject, p, v)
     return
 
+def getRoAnnotations(ro_dir):
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getRoUri(ro_dir)
+    log.debug("getRoAnnotations %s"%str(subject))
+    for (p, v) in ro_graph.predicate_objects(subject=subject):
+        log.debug("Triple: %s %s %s"%(subject,p,v))
+        yield (subject, p, v)
+    return
+
 def getAllAnnotations(ro_dir):
-    assert False, "@@TODO - enumerate annotations for all RO components"
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getRoUri(ro_dir)
+    log.debug("getRoAnnotations %s"%str(subject))
+    for (s, p, v) in ro_graph.triples((None, None, None)):
+        log.debug("Triple: %s %s %s"%(s,p,v))
+        yield (s, p, v)
     return
 
 # End.

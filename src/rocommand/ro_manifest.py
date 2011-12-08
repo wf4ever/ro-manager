@@ -7,13 +7,13 @@ Research Object manifest read, write, decode functions
 import sys
 import os
 import os.path
-import logging
 import urlparse
+import logging
 
 log = logging.getLogger(__name__)
 
 import rdflib
-from rdflib.namespace import RDF
+import rdflib.namespace
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
@@ -34,6 +34,16 @@ oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
 roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
 
+RDF     = makeNamespace(rdflib.namespace.RDF.uri,
+            [ "Seq", "Bag", "Alt", "Statement", "Property", "XMLLiteral", "List", "PlainLiteral"
+            , "subject", "predicate", "object", "type", "value", "first", "rest"
+            , "nil"
+            ])
+RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
+            [ "Resource", "Class", "subClassOf", "subPropertyOf", "comment", "label"
+            , "domain", "range", "seeAlso", "isDefinedBy", "Literal", "Container"
+            , "ContainerMembershipProperty", "member", "Datatype"
+            ])
 OXDS    = makeNamespace(oxds, ["Grouping"])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"
@@ -86,19 +96,20 @@ def getRoUri(ro_dir):
     return rdflib.URIRef("file://"+os.path.abspath(ro_dir)+"/")
 
 def getComponentUri(ro_dir, path):
+    #log.debug("getComponentUri: ro_dir %s, path %s"%(ro_dir, path))
     return rdflib.URIRef(urlparse.urljoin(getRoUri(ro_dir), path))
     #return rdflib.URIRef("file://"+os.path.normpath(os.path.join(os.path.abspath(ro_dir), path)))
 
 def getComponentUriRel(ro_dir, path):
-    log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
+    #log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
     file_uri = urlparse.urlunsplit(urlparse.urlsplit(getComponentUri(ro_dir, path)))
     ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(getRoUri(ro_dir)))
-    log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
+    #log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
     if ro_uri is not None and file_uri.startswith(ro_uri):
         file_uri_rel = file_uri.replace(ro_uri, "", 1)
     else:
         file_uri_rel = path
-    log.debug("getComponentUriRel: file_uri_rel %s"%(file_uri_rel))
+    #log.debug("getComponentUriRel: file_uri_rel %s"%(file_uri_rel))
     return file_uri_rel
 
 def getGraphRoUri(rodir, rograph):

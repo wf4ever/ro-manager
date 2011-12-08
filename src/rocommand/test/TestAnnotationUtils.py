@@ -35,7 +35,7 @@ from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand import ro_annotation
-from rocommand.ro_manifest import DCTERMS, ROTERMS
+from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -59,13 +59,26 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
+    def testGetAnnotationNameByUri(self):
+        def testAnnotatonName(uri, name):
+            roconfig = {
+                "annotationTypes": ro_annotation.annotationTypes
+                }
+            self.assertEqual(ro_annotation.getAnnotationNameByUri(roconfig, uri), name)
+            return 
+        self.assertEqual(RDF.type, rdflib.URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
+        testAnnotatonName(DCTERMS.title,        "title")
+        testAnnotatonName(RDF.type,             "rdf:type")
+        testAnnotatonName(rdflib.URIRef("http://example.org/foo"),  "<http://example.org/foo>")
+        return
+
     def testCreateSimpleAnnotationBody(self):
         """
         Test function to create simple annotation body
         """
         roconfig = {
             "annotationTypes": ro_annotation.annotationTypes
-            }   # @@TODO: add needed fields
+            }
         rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "."
         attrdict = {
@@ -136,6 +149,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testGetAnnotationNameByUri"
             , "testCreateSimpleAnnotationBody"
             ],
         "component":

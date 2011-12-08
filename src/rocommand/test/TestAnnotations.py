@@ -172,7 +172,31 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     # Test annotation display
-    def testAnnotationDisplay(self):
+    def testAnnotationDisplayRo(self):
+        # Construct annotated RO
+        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        # Display annotations
+        args = [ "ro", "annotations", rodir+"/"
+               , "-v"
+               ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: %s"%(status, outtxt))
+        self.assertEqual(outtxt.count("ro annotations"), 1)
+        #self.assertRegexpMatches(outtxt, "((name))")
+        self.assertRegexpMatches(outtxt, "title.*RO test annotation")
+        self.assertRegexpMatches(outtxt, "created.*\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d")
+        self.assertRegexpMatches(outtxt, "description.*RO test annotation")
+        self.assertRegexpMatches(outtxt, "rdf:type.*http://vocab.ox.ac.uk/dataset/schema#Grouping")
+        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/identifier>.*ro-testRoAnnotate")
+        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/creator>.*Test User")
+        self.deleteTestRo(rodir)
+        return
+
+    def testAnnotationDisplayFile(self):
         # Construct annotated RO
         rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
@@ -192,8 +216,8 @@ class TestAnnotations(TestROSupport.TestROSupport):
         log.debug("outtxt: %s"%(outtxt))
         self.assertEqual(outtxt.count("ro annotations"), 1)
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
-        self.assertRegexpMatches(outtxt, "type:.*atype")
-        self.assertRegexpMatches(outtxt, "title:.*atitle")
+        self.assertRegexpMatches(outtxt, "type.*atype")
+        self.assertRegexpMatches(outtxt, "title.*atitle")
         self.deleteTestRo(rodir)
         return
 
@@ -245,7 +269,8 @@ def getTestSuite(select="unit"):
             , "testAnnotateCreated"
             , "testAnnotateTypeUri"
             , "testAnnotateMultiple"
-            , "testAnnotationDisplay"
+            , "testAnnotationDisplayRo"
+            , "testAnnotationDisplayFile"
             ],
         "component":
             [ "testComponents"

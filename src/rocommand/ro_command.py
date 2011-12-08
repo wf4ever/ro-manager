@@ -29,45 +29,6 @@ from sync.BackgroundSync import BackgroundResourceSync
 
 from zipfile import ZipFile
 
-# @@TODO import from ro_annotation
-annotationTypes = (
-    [ { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
-      , "label": "Type"
-      , "description": "Word or brief phrase describing type of Research Object component" 
-      }
-    , { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist" 
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.subject
-      , "label": "Keywords"
-      , "description": "List of key words or phrases associated with a Research Object component"
-      }
-    , { "name": "description", "prefix": "dcterms", "localName": "description", "type": "text"
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.description
-      , "label": "Description"
-      , "description": "Extended description of Research Object component" 
-      }
-    , { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string"
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format
-      , "label": "Data format"
-      , "description": "String indicating the data format of a Research Object component" 
-      }
-    , { "name": "note", "prefix": "dcterms", "localName": "format", "type": "text"
-      , "baseUri": ROTERMS.baseUri, "fullUri": ROTERMS.note
-      , "label": "Data format"
-      , "description": "String indicating the data format of a Research Object component" 
-      }
-    , { "name": "title", "prefix": "dcterms", "localName": "title", "type": "string"
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title
-      , "label": "Title"
-      , "description": "Title of Research Object component" 
-      }
-    , { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime"
-      , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created
-      , "label": "Creation time"
-      , "description": "Date and time that Research Object component was created" 
-      }
-    ])
-
 def getoptionvalue(val, prompt):
     if not val:
         if sys.stdin.isatty():
@@ -128,7 +89,7 @@ def help(progname, args):
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , ""
         , "Supported annotation type names are: "
-        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
+        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in ro_annotation.annotationTypes ])
         , ""
         , "See also:"
         , ""
@@ -144,14 +105,14 @@ def config(progname, configbase, options, args):
     Update RO repository access configuration
     """
     ro_config = {
-        "robase":     getoptionvalue(options.roboxdir,      "ROBOX service base directory:  "),
+        "robase":         getoptionvalue(options.roboxdir,       "ROBOX service base directory:  "),
         "rosrs_uri":      getoptionvalue(options.rosrs_uri,      "URI for ROSRS service:         "),
-        "rosrs_username": getoptionvalue(options.rosrs_username,      "Username for ROSRS service:         "),
-        "rosrs_password": getoptionvalue(options.rosrs_password,      "Password for ROSRS service:         "),
-        "username":   getoptionvalue(options.username,      "Name of research object owner: "),
-        "useremail":  getoptionvalue(options.useremail,     "Email address of owner:        "),
+        "rosrs_username": getoptionvalue(options.rosrs_username, "Username for ROSRS service:    "),
+        "rosrs_password": getoptionvalue(options.rosrs_password, "Password for ROSRS service:    "),
+        "username":       getoptionvalue(options.username,       "Name of research object owner: "),
+        "useremail":      getoptionvalue(options.useremail,      "Email address of owner:        "),
         # Built-in annotation types
-        "annotationTypes": annotationTypes
+        "annotationTypes": ro_annotation.annotationTypes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
@@ -217,7 +178,7 @@ def create(progname, configbase, options, args):
           xmlns:oxds="http://vocab.ox.ac.uk/dataset/schema#"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         >
-          <oxds:Grouping rdf:about="#">
+          <oxds:Grouping rdf:about="">
             <dcterms:identifier>%(roident)s</dcterms:identifier>
             <dcterms:title>%(roname)s</dcterms:title>
             <dcterms:description>%(roname)s</dcterms:description>
@@ -285,35 +246,6 @@ def list(progname, configbase, options, args):
     print "\n".join(rofiles)
     return 0
 
-#@@TODO: import from ro_annotation
-def getAnnotationByName(ro_config, aname):
-    """
-    Given an attribute name from the command line, returns an 
-    attribute type URI as a URIRef node and attribute value type
-    """
-    #@@TODO: deal properly with annotation types: return URIRef
-    for atype in ro_config["annotationTypes"]:
-        if atype["name"] == aname:
-            predicate = atype["fullUri"]
-            valtype   = atype["type"]
-            break
-    else:
-        predicate = aname
-        valtype   = "string"
-    predicate = rdflib.URIRef(predicate)
-    return (predicate, valtype)
-
-#@@TODO: import from ro_annotation
-def getAnnotationNameByUri(ro_config, auri):
-    """
-    Given an attribute URI from the manifest graph, returns an 
-    attribute name for displaying an attribute
-    """
-    for atype in ro_config["annotationTypes"]:
-        if atype["fullUri"] == str(auri):
-            return atype["name"]
-    return str(auri)
-
 def annotate(progname, configbase, options, args):
     """
     Annotate a specified research object component
@@ -351,6 +283,8 @@ def annotations(progname, configbase, options, args):
     
     ro annotations [ file | -d dir ]
     """
+    log.debug("annotations: progname %s, configbase %s, args %s"%
+              (progname, configbase, repr(args)))
     # Check command arguments
     if len(args) not in [2,3]:
         print ("%s annotations: wrong number of arguments provided"%
@@ -367,7 +301,7 @@ def annotations(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro annotations -d \"%(rodir)s\" %(rofile)s "%ro_options
-    ro_dir= ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Enumerate and display annotations
     if ro_options['rofile']:
@@ -377,15 +311,17 @@ def annotations(progname, configbase, options, args):
         annotations = ro_annotation.getAllAnnotations(ro_dir)
     sname_prev = None
     for (asubj,apred,aval) in annotations:
-        log.debug("Annotations: asubj %s, apred %s, aval %s"%
-                  (repr(asubj), repr(apred), repr(aval)))
-        aname = getAnnotationNameByUri(ro_config, apred)
+        #log.debug("Annotations: asubj %s, apred %s, aval %s"%
+        #          (repr(asubj), repr(apred), repr(aval)))
+        aname = ro_annotation.getAnnotationNameByUri(ro_config, apred)
         sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
         log.debug("Annotations: sname %s, aname %s"%(sname, aname))
+        if sname == "":
+            sname = ro_manifest.getRoUri(ro_dir)
         if sname != sname_prev:
             print sname
             sname_prev = sname
-        print "  %s: %s"%(aname,str(aval))
+        print "  %s %s"%(aname,str(aval))
     return 0
 
 def push(progname, configbase, options, args):
@@ -469,7 +405,7 @@ def checkout(progname, configbase, options, args):
         
         if options.verbose:
             # HACK for moving the manifest
-    #        zipfile.printdir()
+            #        zipfile.printdir()
             for l in zipfile.namelist():
                 if l == ro_settings.MANIFEST_FILE:
                     print ro_settings.MANIFEST_DIR + "/" + l

@@ -12,6 +12,8 @@ import codecs
 import optparse
 import logging
 
+log = logging.getLogger(__name__)
+
 # Make sure MiscLib can be found on path
 if __name__ == "__main__":
     sys.path.append(os.path.join(sys.path[0],".."))
@@ -110,6 +112,7 @@ def runCommand(configbase, robase, argv):
     
     Returns exit status.
     """
+    log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     (options, args) = parseCommandArgs(argv)
     status = 1
     if options:
