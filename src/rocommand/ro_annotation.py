@@ -83,6 +83,16 @@ def getAnnotationByName(ro_config, aname):
     predicate = rdflib.URIRef(predicate)
     return (predicate, valtype)
 
+def getAnnotationByUri(ro_config, auri):
+    """
+    Given an attribute URI from the manifest graph, returns an 
+    attribute name and type tuple for displaying an attribute
+    """
+    for atype in ro_config["annotationTypes"]:
+        if str(atype["fullUri"]) == str(auri):
+            return (atype["name"], atype["type"])
+    return ("<"+str(auri)+">", "string")
+
 def getAnnotationNameByUri(ro_config, auri):
     """
     Given an attribute URI from the manifest graph, returns an 
@@ -213,6 +223,37 @@ def getAllAnnotations(ro_dir):
     for (s, p, v) in ro_graph.triples((None, None, None)):
         log.debug("Triple: %s %s %s"%(s,p,v))
         yield (s, p, v)
+    return
+
+def formatAnnotationValue(aval, atype):
+    """
+    atype is one of "string", "resurce", ...
+    """
+    if atype == "string":
+        return '"' + str(aval).replace('"', '\\"') + '"'
+    if atype == "text":
+        # multiline
+        return '"""' + str(aval) + '"""'
+    if atype == "datetime":
+        return '"' + str(aval) + '"'
+    if atype == "resource":
+        return '<' + str(aval) + '>'
+    return str(aval)
+
+def showAnnotations(ro_config, ro_dir, annotations, outstr):
+    sname_prev = None
+    for (asubj,apred,aval) in annotations:
+        #log.debug("Annotations: asubj %s, apred %s, aval %s"%
+        #          (repr(asubj), repr(apred), repr(aval)))
+        (aname, atype) = getAnnotationByUri(ro_config, apred)
+        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
+        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
+        if sname == "":
+            sname = ro_manifest.getRoUri(ro_dir)
+        if sname != sname_prev:
+            print sname
+            sname_prev = sname
+        outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
     return
 
 # End.

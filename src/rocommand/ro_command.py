@@ -309,6 +309,8 @@ def annotations(progname, configbase, options, args):
         annotations = ro_annotation.getFileAnnotations(ro_dir, ro_options['rofile'])
     else:
         annotations = ro_annotation.getAllAnnotations(ro_dir)
+    ro_annotation.showAnnotations(ro_config, ro_dir, annotations, sys.stdout)
+
     sname_prev = None
     for (asubj,apred,aval) in annotations:
         #log.debug("Annotations: asubj %s, apred %s, aval %s"%
