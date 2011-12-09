@@ -22,7 +22,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
-    suite.addTest(TestSyncCommands.getTestSuite(select=select))
+    #suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils

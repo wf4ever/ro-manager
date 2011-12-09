@@ -48,6 +48,10 @@ ro_config = {
     "annotationTypes": ro_annotation.annotationTypes
     }
 
+cwd        = os.getcwd()
+robase     = ro_test_config.ROBASEDIR
+robase_abs = os.path.abspath(ro_test_config.ROBASEDIR)
+
 class TestAnnotationUtils(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
@@ -64,6 +68,93 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
 
     def testNull(self):
         assert True, 'Null test failed'
+
+    def testGetRoUri(self):
+        self.assertEquals(ro_manifest.getRoUri("/example/ro/dir"), rdflib.URIRef("file:///example/ro/dir/"))
+        self.assertEquals(ro_manifest.getRoUri("/example/ro/dir/"), rdflib.URIRef("file:///example/ro/dir/"))
+        self.assertEquals(ro_manifest.getRoUri("ro/dir"), rdflib.URIRef("file://%s/ro/dir/"%(cwd)))
+        self.assertEquals(ro_manifest.getRoUri("ro/dir/"), rdflib.URIRef("file://%s/ro/dir/"%(cwd)))
+        self.assertEquals(ro_manifest.getRoUri(robase+"/ro/dir"), rdflib.URIRef("file://%s/ro/dir/"%(robase_abs)))
+        self.assertEquals(ro_manifest.getRoUri(robase+"/ro/dir/"), rdflib.URIRef("file://%s/ro/dir/"%(robase_abs)))
+        return
+
+    def testGetComponentUri(self):
+        self.assertEquals(ro_manifest.getComponentUri("/example/ro/dir", "a/b.txt"),
+                          rdflib.URIRef("file:///example/ro/dir/a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUri("/example/ro/dir/", "a/b.txt"),
+                          rdflib.URIRef("file:///example/ro/dir/a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUri("ro/dir", "a/b.txt"),
+                          rdflib.URIRef("file://%s/ro/dir/a/b.txt"%(cwd)))
+        self.assertEquals(ro_manifest.getComponentUri("ro/dir/", "a/b.txt"),
+                          rdflib.URIRef("file://%s/ro/dir/a/b.txt"%(cwd)))
+        self.assertEquals(ro_manifest.getComponentUri("/example/ro/dir", "a/b/d/"),
+                          rdflib.URIRef("file:///example/ro/dir/a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUri("/example/ro/dir/", "a/b/d/"),
+                          rdflib.URIRef("file:///example/ro/dir/a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUri("ro/dir", "a/b/d/"),
+                          rdflib.URIRef("file://%s/ro/dir/a/b/d/"%(cwd)))
+        self.assertEquals(ro_manifest.getComponentUri("ro/dir/", "a/b/d/"),
+                          rdflib.URIRef("file://%s/ro/dir/a/b/d/"%(cwd)))
+        return
+
+    def testGetComponentUriRel(self):
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", ""),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", ""),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", ""),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", ""),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "/example/ro/dir/a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "/example/ro/dir/a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "%s/ro/dir/a/b.txt"%(cwd)),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "%s/ro/dir/a/b.txt"%(cwd)),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "/example/ro/dir/a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "/example/ro/dir/a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "%s/ro/dir/a/b/d/"%(cwd)),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "%s/ro/dir/a/b/d/"%(cwd)),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "/example/ro/dir/"),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "/example/ro/dir/"),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "%s/ro/dir/"%(cwd)),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "%s/ro/dir/"%(cwd)),
+                          rdflib.URIRef(""))
+        return
+
+    def testGetGraphRoUri(self):
+        rodir = self.createTestRo("data/ro-test-1", "RO test graph", "ro-testRoGraph")
+        rograph = ro_manifest.readManifestGraph(rodir)
+        self.assertEquals( ro_manifest.getGraphRoUri(rodir, rograph),
+                           rdflib.URIRef("file://%s/RO_test_graph/"%(robase_abs)))
+        self.deleteTestRo(rodir)
+        return
 
     def testGetAnnotationByName(self):
         def testAnnotaton(name, expecteduri, expectedtype):
@@ -154,6 +245,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)
+        self.deleteTestRo(rodir)
         return
 
     def testCreateReadFileAnnotationBody(self):
@@ -163,10 +255,10 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         attrdict = {
-            "type":         "Research Object",
-            "description":  "Test research object",
-            "note":         "Research object created for annotation testing",
-            "title":        "Test research object",
+            "type":         "Test file",
+            "description":  "File in test research object",
+            "note":         "File in research object created for annotation testing",
+            "title":        "Test file in RO",
             "created":      "2011-12-07"
             }
         annotationfilename = ro_annotation.createSimpleAnnotationBody(
@@ -193,30 +285,18 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)
+        self.deleteTestRo(rodir)
         return
 
-    def testAddGetRoAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+    def testGetInitialRoAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test init RO annotation", "ro-testRoAnnotate")
         roresource = "."
-        # Add anotations for RO
-        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
-            "type",         "Research Object")
-        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
-            "description",  "Test research object")
-        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
-            "note",         "Research object created for annotation testing")
-        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
-            "title",        "Test research object")
-        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
-            "created",      "2011-12-07")
         # Retrieve the anotations
         annotations = ro_annotation.getRoAnnotations(rodir)
         rouri = ro_manifest.getRoUri(rodir)
         expected_annotations = (
-            [ (rouri, DCTERMS.type,         "...")
-            , (rouri, DCTERMS.description,  rdflib.Literal('RO test annotation'))
-            , (rouri, ROTERMS.note,         "...")
-            , (rouri, DCTERMS.title,        rdflib.Literal('RO test annotation'))
+            [ (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
+            , (rouri, DCTERMS.title,        rdflib.Literal('Test init RO annotation'))
             , (rouri, DCTERMS.created,      rdflib.Literal('unknown'))
             , (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
             , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
@@ -234,8 +314,174 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         testNextAnnotation("4")
         testNextAnnotation("5")
         testNextAnnotation("6")
-        #testNextAnnotation("7")
         self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddGetRoAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test add RO annotation", "ro-testRoAnnotate")
+        roresource = "."
+        # Add anotations for RO
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "type",         "Research Object")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "note",         "Research object created for annotation testing")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "description",  "Added description")
+        # Retrieve the anotations
+        annotations = ro_annotation.getRoAnnotations(rodir)
+        rouri = ro_manifest.getRoUri(rodir)
+        expected_annotations = (
+            [ (rouri, DCTERMS.description,  rdflib.Literal('Test add RO annotation'))
+            , (rouri, DCTERMS.title,        rdflib.Literal('Test add RO annotation'))
+            , (rouri, DCTERMS.created,      rdflib.Literal('unknown'))
+            , (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
+            , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
+            , (rouri, RDF.type,             OXDS.Grouping)
+            , (rouri, DCTERMS.type,         rdflib.Literal('Research Object'))
+            , (rouri, ROTERMS.note,         rdflib.Literal('Research object created for annotation testing'))
+            , (rouri, DCTERMS.description,  rdflib.Literal('Added description'))
+            ])
+        def testNextAnnotation(tag):
+            next = annotations.next()
+            log.debug("Next %s"%(repr(next)))
+            if not next in expected_annotations and next[1] != DCTERMS.created:
+                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
+            return
+        testNextAnnotation("1")
+        testNextAnnotation("2")
+        testNextAnnotation("3")
+        testNextAnnotation("4")
+        testNextAnnotation("5")
+        testNextAnnotation("6")
+        testNextAnnotation("7")
+        testNextAnnotation("8")
+        testNextAnnotation("9")
+        self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    def testRemoveGetRoAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test remove RO annotation", "ro-testRoAnnotate")
+        roresource = "."
+        # Replace anotations for RO
+        ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
+            "type",         "Research Object")
+        ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
+            "title",        "Test remove RO annotation")
+        ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
+            "description",  None)
+        ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
+            "note",         "Research object created for annotation testing")
+        ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
+            "created",      None)
+        # Retrieve the anotations
+        annotations = ro_annotation.getRoAnnotations(rodir)
+        rouri = ro_manifest.getRoUri(rodir)
+        expected_annotations = (
+            [ (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
+            , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
+            , (rouri, RDF.type,             OXDS.Grouping)
+            ])
+        def testNextAnnotation(tag):
+            next = annotations.next()
+            log.debug("Next %s"%(repr(next)))
+            if not next in expected_annotations and next[1] != DCTERMS.created:
+                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
+            return
+        testNextAnnotation("1")
+        testNextAnnotation("2")
+        testNextAnnotation("3")
+        self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    def testReplaceGetRoAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test replace RO annotation", "ro-testRoAnnotate")
+        roresource = "."
+        # Replace anotations for RO
+        ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
+            "type",         "Research Object")
+        ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
+            "description",  "Replacement description")
+        ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
+            "note",         "Research object for annotation replacement testing")
+        ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
+            "title",        "Replacement title")
+        ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
+            "created",      "2011-12-07")
+        # Retrieve the anotations
+        annotations = ro_annotation.getRoAnnotations(rodir)
+        rouri = ro_manifest.getRoUri(rodir)
+        expected_annotations = (
+            [ (rouri, DCTERMS.type,         rdflib.Literal('Research Object'))
+            , (rouri, DCTERMS.title,        rdflib.Literal('Replacement title'))
+            , (rouri, DCTERMS.description,  rdflib.Literal('Replacement description'))
+            , (rouri, ROTERMS.note,         rdflib.Literal('Research object for annotation replacement testing'))
+            , (rouri, DCTERMS.created,      rdflib.Literal('2011-12-07'))
+            , (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
+            , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
+            , (rouri, RDF.type,             OXDS.Grouping)
+            ])
+        def testNextAnnotation(tag):
+            next = annotations.next()
+            log.debug("Next %s"%(repr(next)))
+            if not next in expected_annotations and next[1] != DCTERMS.created:
+                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
+            return
+        testNextAnnotation("1")
+        testNextAnnotation("2")
+        testNextAnnotation("3")
+        testNextAnnotation("4")
+        testNextAnnotation("5")
+        testNextAnnotation("6")
+        testNextAnnotation("8")
+        testNextAnnotation("9")
+        self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddGetFileAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test file annotation", "ro-testRoAnnotate")
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "type",         "Test file")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "description",  "File in test research object")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "note",         "Research object file created for annotation testing")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "title",        "Test file in RO")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "created",      "2011-12-07")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "rdf:type",     ROTERMS.resource)
+        # Retrieve the file anotations
+        annotations = ro_annotation.getFileAnnotations(rodir, roresource)
+        resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        expected_annotations = (
+            [ (resourceuri, DCTERMS.type,         rdflib.Literal('Test file'))
+            , (resourceuri, DCTERMS.description,  rdflib.Literal('File in test research object'))
+            , (resourceuri, ROTERMS.note,         rdflib.Literal('Research object file created for annotation testing'))
+            , (resourceuri, DCTERMS.title,        rdflib.Literal('Test file in RO'))
+            , (resourceuri, DCTERMS.created,      rdflib.Literal('2011-12-07'))
+            , (resourceuri, RDF.type,             ROTERMS.resource)
+            ])
+        def testNextAnnotation(tag):
+            next = annotations.next()
+            log.debug("Next %s"%(repr(next)))
+            if not next in expected_annotations:
+                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
+            return
+        testNextAnnotation("1")
+        testNextAnnotation("2")
+        testNextAnnotation("3")
+        testNextAnnotation("4")
+        testNextAnnotation("5")
+        testNextAnnotation("6")
+        self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
         return
 
     # Sentinel/placeholder tests
@@ -269,13 +515,21 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testGetRoUri"
+            , "testGetComponentUri"
+            , "testGetComponentUriRel"
+            , "testGetGraphRoUri"
             , "testGetAnnotationByName"
             , "testGetAnnotationByUri"
             , "testGetAnnotationNameByUri"
             , "testMakeAnnotationFilename"
             , "testCreateReadRoAnnotationBody"
             , "testCreateReadFileAnnotationBody"
+            , "testGetInitialRoAnnotations"
             , "testAddGetRoAnnotations"
+            , "testRemoveGetRoAnnotations"
+            , "testReplaceGetRoAnnotations"
+            , "testAddGetFileAnnotations"
             ],
         "component":
             [ "testComponents"

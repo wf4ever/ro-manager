@@ -164,22 +164,63 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
-    rofile      names the file
+    rofile      names the file or resource to be annotated, possibly relative to the RO.
     attrname    names the attribute in a form recognized by getAnnotationByName
     attrvalue   is a value to be associated with the attribute
     """
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    subject  = ro_manifest.getComponentUriRel(ro_dir, rofile)
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    log.debug("Adding annotation predicate: %s, value %s"%(repr(predicate),repr(attrvalue)))
-    ro_graph.add(
-        ( ro_manifest.getComponentUri(ro_dir, os.path.abspath(rofile)),
-          predicate, 
-          rdflib.Literal(attrvalue) 
-        ) )
+    log.debug("Add annotation: subject %s"%(repr(subject)))
+    log.debug("                predicate %s, value %s"%(repr(predicate), repr(attrvalue)))
+    #log.debug("Add annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(attrvalue)))
+    #@@TODO: handle different attribute types
+    ro_graph.add((subject, predicate, makeAnnotationValue(attrvalue, valtype)))
+    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    return
+
+def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+    """
+    Remove a simple annotation or multiple matching annotations a research object.
+    
+    ro_config   is the research object manager configuration, supplied as a dictionary
+    ro_dir      is the research object root directory
+    rofile      names the annotated file or resource, possibly relative to the RO.
+    attrname    names the attribute in a form recognized by getAnnotationByName
+    attrvalue   is the attribute value to be deleted, or Nomne to delete all vaues
+    """
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    subject  = ro_manifest.getComponentUri(ro_dir, rofile)
+    (predicate,valtype) = getAnnotationByName(ro_config, attrname)
+    val = attrvalue and makeAnnotationValue(attrvalue, valtype)
+    log.debug("Remove annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(val)))
+    ro_graph.remove((subject, predicate, val))
+    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    return
+
+def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+    """
+    Replace a simple annotation in a research object.
+    
+    ro_config   is the research object manager configuration, supplied as a dictionary
+    ro_dir      is the research object root directory
+    rofile      names the file or resource to be annotated, possibly relative to the RO.
+    attrname    names the attribute in a form recognized by getAnnotationByName
+    attrvalue   is a new value to be associated with the attribute
+    """
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    subject  = ro_manifest.getComponentUri(ro_dir, rofile)
+    (predicate,valtype) = getAnnotationByName(ro_config, attrname)
+    log.debug("Replace annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(attrvalue)))
+    ro_graph.remove((subject, predicate, None))
+    ro_graph.add((subject, predicate, makeAnnotationValue(attrvalue, valtype)))
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
 def getRoAnnotations(ro_dir):
+    """
+    Returns iterator over annotations applied tothe RO as an entity
+    """
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
     subject     = ro_manifest.getRoUri(ro_dir)
     log.debug("getRoAnnotations %s"%str(subject))
@@ -189,27 +230,50 @@ def getRoAnnotations(ro_dir):
     return
 
 def getFileAnnotations(ro_dir, rofile):
+    """
+    Returns iterator over annotations applied to a specified component in the RO
+    """
     log.debug("getFileAnnotations: ro_dir %s, rofile %s"%(ro_dir, rofile))
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
-    subject     = ro_manifest.getComponentUri(ro_dir, os.path.join(os.getcwd(), rofile))
+    subject     = ro_manifest.getComponentUri(ro_dir, rofile)
     log.debug("getFileAnnotations: %s"%str(subject))
     for (p, v) in ro_graph.predicate_objects(subject=subject):
         yield (subject, p, v)
     return
 
 def getAllAnnotations(ro_dir):
+    """
+    Returns iterator over all annotations associated with the RO
+    """
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
-    subject     = ro_manifest.getRoUri(ro_dir)
-    log.debug("getRoAnnotations %s"%str(subject))
+    log.debug("getAllAnnotations %s"%str(subject))
     for (s, p, v) in ro_graph.triples((None, None, None)):
         log.debug("Triple: %s %s %s"%(s,p,v))
         yield (s, p, v)
     return
 
+def makeAnnotationValue(aval, atype):
+    """
+    atype is one of "string", "resurce", ...
+    
+    Returns a graph node for the supplied type and value
+    """
+    #@@TODO: construct appropriately typed RDF literals
+    if atype == "string":
+        return rdflib.Literal(aval)
+    if atype == "text":
+        return rdflib.Literal(aval)
+    if atype == "datetime":
+        return rdflib.Literal(aval)
+    if atype == "resource":
+        return rdflib.URIRef(aval)
+    return rdflib.Literal(aval)
+
 def formatAnnotationValue(aval, atype):
     """
     atype is one of "string", "resurce", ...
     """
+    #@@TODO: deal with appropriately typed RDF literals
     if atype == "string":
         return '"' + str(aval).replace('"', '\\"') + '"'
     if atype == "text":
