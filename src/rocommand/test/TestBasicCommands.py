@@ -116,7 +116,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertEqual(config["rosrs_username"],  ro_test_config.ROSRS_USERNAME)
         self.assertEqual(config["rosrs_password"],  ro_test_config.ROSRS_PASSWORD)
         self.assertEqual(config["username"],        ro_test_config.ROBOXUSERNAME)
-        self.assertEqual(config["useremail"]        ro_test_config.ROBOXEMAIL)
+        self.assertEqual(config["useremail"],       ro_test_config.ROBOXEMAIL)
         return
 
     def testConfigVerbose(self):

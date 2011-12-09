@@ -93,15 +93,12 @@ def getAnnotationByUri(ro_config, auri):
             return (atype["name"], atype["type"])
     return ("<"+str(auri)+">", "string")
 
-def getAnnotationNameByUri(ro_config, auri):
+def getAnnotationNameByUri(ro_config, uri):
     """
     Given an attribute URI from the manifest graph, returns an 
     attribute name for displaying an attribute
     """
-    for atype in ro_config["annotationTypes"]:
-        if str(atype["fullUri"]) == str(auri):
-            return atype["name"]
-    return "<"+str(auri)+">"
+    return getAnnotationByUri(ro_config, uri)[0]
 
 def makeAnnotationFilename(rodir, afile):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", afile)
@@ -182,21 +179,14 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
-def getFileNameAbs(ro_dir, rofile):
-    """
-    Return the absolute file name for a file in an RO
-    """
-    return os.path.abspath(rofile)
-
-def getFileNameRel(ro_dir, rofile):
-    """
-    Return the relative name for a file in an RO
-    """
-    if ro_dir is not None and ro_file_abs.startswith(ro_dir):
-        ro_file_rel = ro_file_abs.replace(ro_dir, "", 1)
-    else:
-        ro_file_rel = rofile
-    return ro_file_rel
+def getRoAnnotations(ro_dir):
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getRoUri(ro_dir)
+    log.debug("getRoAnnotations %s"%str(subject))
+    for (p, v) in ro_graph.predicate_objects(subject=subject):
+        log.debug("Triple: %s %s %s"%(subject,p,v))
+        yield (subject, p, v)
+    return
 
 def getFileAnnotations(ro_dir, rofile):
     log.debug("getFileAnnotations: ro_dir %s, rofile %s"%(ro_dir, rofile))
@@ -204,15 +194,6 @@ def getFileAnnotations(ro_dir, rofile):
     subject     = ro_manifest.getComponentUri(ro_dir, os.path.join(os.getcwd(), rofile))
     log.debug("getFileAnnotations: %s"%str(subject))
     for (p, v) in ro_graph.predicate_objects(subject=subject):
-        yield (subject, p, v)
-    return
-
-def getRoAnnotations(ro_dir):
-    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
-    subject     = ro_manifest.getRoUri(ro_dir)
-    log.debug("getRoAnnotations %s"%str(subject))
-    for (p, v) in ro_graph.predicate_objects(subject=subject):
-        log.debug("Triple: %s %s %s"%(subject,p,v))
         yield (subject, p, v)
     return
 
