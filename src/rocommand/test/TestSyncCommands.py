@@ -8,11 +8,19 @@ See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 
 import sys
 import filecmp
+import logging
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
 except ImportError:
     import json
+
+log = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
 
@@ -32,9 +40,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     files = ["subdir1/subdir1-file.txt"
              , "subdir2/subdir2-file.txt"
              , "README-ro-test-1"
-             , ".ro_manifest/manifest.rdf"]
+             , ro_test_config.ROMANIFESTPATH]
 
-    
     def setUp(self):
         super(TestSyncCommands, self).setUp()
         self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
