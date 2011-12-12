@@ -150,9 +150,7 @@ def createSimpleAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     s = ro_manifest.getComponentUri(ro_dir, rofile)
     for k in attrdict:
         (p,t) = getAnnotationByName(ro_config, k)
-        v = rdflib.Literal(attrdict[k])
-        #@@TODO may need to take account of type here
-        annGraph.add((s, p, v))
+        annGraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
     # Create annotation body file
     annGraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename), 
         format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
@@ -171,12 +169,19 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     subject  = ro_manifest.getComponentUriRel(ro_dir, rofile)
     log.debug("addSimpleAnnotation: ro_dir %s, rofile %s, subject %s"%(ro_dir, rofile, repr(subject)))
+
+
+
+
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
     log.debug("Add annotation: subject %s"%(repr(subject)))
     log.debug("                predicate %s, value %s"%(repr(predicate), repr(attrvalue)))
-    #log.debug("Add annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(attrvalue)))
-    #@@TODO: handle different attribute types
+
+
+
     ro_graph.add((subject, predicate, makeAnnotationValue(attrvalue, valtype)))
+
+
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
