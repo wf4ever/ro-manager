@@ -234,17 +234,17 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testPushAll"
-            , "testPushAllForce"
             , "testPushOneRO"
-            , "testCheckout"
-            , "testCheckoutAll"
             ],
         "component":
             [ "testComponents"
             ],
         "integration":
             [ "testIntegration"
+            , "testPushAll"
+            , "testPushAllForce"
+            , "testCheckout"
+            , "testCheckoutAll"
             ],
         "pending":
             [ "testPending"

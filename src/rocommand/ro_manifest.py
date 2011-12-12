@@ -92,8 +92,17 @@ def readManifest(rodir):
         }
     return manifestDict
 
+def getFileUri(path):
+    """
+    Like getComponentUri, except that path may be relative to the current directory
+    """
+    filebase = "file://"
+    if not path.startswith(filebase):
+        path = filebase+os.path.join(os.getcwd(), path)
+    return rdflib.URIRef(path)
+
 def getRoUri(ro_dir):
-    return rdflib.URIRef("file://"+os.path.abspath(ro_dir)+"/")
+    return getFileUri(os.path.abspath(ro_dir)+"/")
 
 def getComponentUri(ro_dir, path):
     #log.debug("getComponentUri: ro_dir %s, path %s"%(ro_dir, path))

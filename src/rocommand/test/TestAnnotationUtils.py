@@ -69,6 +69,17 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
+    def testGetFileUri(self):
+        self.assertEquals(ro_manifest.getFileUri("/example/a/b.txt"),
+                          rdflib.URIRef("file:///example/a/b.txt"))
+        self.assertEquals(ro_manifest.getFileUri("a/b.txt"),
+                          rdflib.URIRef("file://%s/a/b.txt"%(cwd)))
+        self.assertEquals(ro_manifest.getFileUri("/example/ro/dir/a/b/d/"),
+                          rdflib.URIRef("file:///example/ro/dir/a/b/d/"))
+        self.assertEquals(ro_manifest.getFileUri("a/b/d/"),
+                          rdflib.URIRef("file://%s/a/b/d/"%(cwd)))
+        return
+
     def testGetRoUri(self):
         self.assertEquals(ro_manifest.getRoUri("/example/ro/dir"), rdflib.URIRef("file:///example/ro/dir/"))
         self.assertEquals(ro_manifest.getRoUri("/example/ro/dir/"), rdflib.URIRef("file:///example/ro/dir/"))
@@ -145,6 +156,38 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         self.assertEquals(ro_manifest.getComponentUriRel("ro/dir", "%s/ro/dir/"%(cwd)),
                           rdflib.URIRef(""))
         self.assertEquals(ro_manifest.getComponentUriRel("ro/dir/", "%s/ro/dir/"%(cwd)),
+                          rdflib.URIRef(""))
+        # Test supplied file: URI string
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "file:///example/ro/dir/a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "file:///example/ro/dir/a/b.txt"),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "file:///example/ro/dir/a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "file:///example/ro/dir/a/b/d/"),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", "file:///example/ro/dir/"),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", "file:///example/ro/dir/"),
+                          rdflib.URIRef(""))
+        # Test supplied file: URI
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir",
+                                                         rdflib.URIRef("file:///example/ro/dir/a/b.txt")),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/",
+                                                         rdflib.URIRef("file:///example/ro/dir/a/b.txt")),
+                          rdflib.URIRef("a/b.txt"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir", 
+                                                         rdflib.URIRef("file:///example/ro/dir/a/b/d/")),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", 
+                                                         rdflib.URIRef("file:///example/ro/dir/a/b/d/")),
+                          rdflib.URIRef("a/b/d/"))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir",
+                                                         rdflib.URIRef("file:///example/ro/dir/")),
+                          rdflib.URIRef(""))
+        self.assertEquals(ro_manifest.getComponentUriRel("/example/ro/dir/", 
+                                                         rdflib.URIRef("file:///example/ro/dir/")),
                           rdflib.URIRef(""))
         return
 
@@ -460,6 +503,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         # Retrieve the file anotations
         annotations = ro_annotation.getFileAnnotations(rodir, roresource)
         resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        log.debug("resourceuri: %s"%(resourceuri))
         expected_annotations = (
             [ (resourceuri, DCTERMS.type,         rdflib.Literal('Test file'))
             , (resourceuri, DCTERMS.description,  rdflib.Literal('File in test research object'))
@@ -515,6 +559,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testGetFileUri"
             , "testGetRoUri"
             , "testGetComponentUri"
             , "testGetComponentUriRel"

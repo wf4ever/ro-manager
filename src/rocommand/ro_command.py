@@ -273,8 +273,9 @@ def annotate(progname, configbase, options, args):
     # Read and update manifest and annotations
     if options.verbose:
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+    ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
     ro_annotation.addSimpleAnnotation(ro_config, ro_dir, 
-        ro_options['rofile'], ro_options['roattribute'],  ro_options['rovalue'])
+        ro_file, ro_options['roattribute'],  ro_options['rovalue'])
     return 0
 
 def annotations(progname, configbase, options, args):
@@ -305,8 +306,9 @@ def annotations(progname, configbase, options, args):
     if not ro_dir: return 1
     # Enumerate and display annotations
     if ro_options['rofile']:
-        log.debug("Annotations for %s"%str(ro_options['rofile']))
-        annotations = ro_annotation.getFileAnnotations(ro_dir, ro_options['rofile'])
+        ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
+        log.debug("Annotations for %s"%str(ro_file))
+        annotations = ro_annotation.getFileAnnotations(ro_dir, ro_file)
     else:
         annotations = ro_annotation.getAllAnnotations(ro_dir)
     ro_annotation.showAnnotations(ro_config, ro_dir, annotations, sys.stdout)

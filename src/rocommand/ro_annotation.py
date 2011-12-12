@@ -170,6 +170,7 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     subject  = ro_manifest.getComponentUriRel(ro_dir, rofile)
+    log.debug("addSimpleAnnotation: ro_dir %s, rofile %s, subject %s"%(ro_dir, rofile, repr(subject)))
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
     log.debug("Add annotation: subject %s"%(repr(subject)))
     log.debug("                predicate %s, value %s"%(repr(predicate), repr(attrvalue)))
