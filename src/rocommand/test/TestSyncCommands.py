@@ -238,13 +238,13 @@ def getTestSuite(select="unit"):
             ],
         "component":
             [ "testComponents"
-            ],
-        "integration":
-            [ "testIntegration"
             , "testPushAll"
             , "testPushAllForce"
             , "testCheckout"
             , "testCheckoutAll"
+            ],
+        "integration":
+            [ "testIntegration"
             ],
         "pending":
             [ "testPending"

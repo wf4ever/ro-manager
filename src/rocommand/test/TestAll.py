@@ -28,6 +28,8 @@ def getTestSuite(select="unit"):
 from MiscLib import TestUtils
 
 if __name__ == "__main__":
+    print "By default, runs quick tests only."
+    print "Use \"python TestAll.py all\" to run all tests"
     TestUtils.runTests("TestAll", getTestSuite, sys.argv)
 
 # End.
