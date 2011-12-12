@@ -33,6 +33,12 @@ def makeNamespace(baseUri, names):
 oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
 roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
+ao      = rdflib.URIRef("http://purl.org/ao/")
+ore     = rdflib.URIRef("http://www.openarchives.org/ore/terms/")
+foaf    = rdflib.URIRef("http://xmlns.com/foaf/0.1/")
+ro      = rdflib.URIRef("http://purl.org/wf4ever/ro#")
+wfprov  = rdflib.URIRef("http://purl.org/wf4ever/wfprov#")
+wfdesc  = rdflib.URIRef("http://purl.org/wf4ever/wfdesc#")
 
 RDF     = makeNamespace(rdflib.namespace.RDF.uri,
             [ "Seq", "Bag", "Alt", "Statement", "Property", "XMLLiteral", "List", "PlainLiteral"
@@ -44,14 +50,29 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
             , "domain", "range", "seeAlso", "isDefinedBy", "Literal", "Container"
             , "ContainerMembershipProperty", "member", "Datatype"
             ])
-OXDS    = makeNamespace(oxds, ["Grouping"])
+#@@TODO: remove this...
+#OXDS    = makeNamespace(oxds, ["Grouping"])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"
             , "subject", "format", "type"
             ])
+#@@TODO: remove this...
 ROTERMS = makeNamespace(roterms, 
             [ "note", "resource"
             ])
+RO = makeNamespace(ro, 
+            [ "ResearchObject", "AggregatedAnnotation"
+            , "annotatesAggregatedResource"
+            ])
+ORE = makeNamespace(ore, 
+            [ "Aggregation", "AggregatedResource"
+            , "aggregates"
+            ])
+AO = makeNamespace(ao, 
+            [ "Annotation"
+            , "body"
+            ])
+
 
 def makeManifestFilename(rodir):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)
@@ -101,6 +122,16 @@ def getFileUri(path):
         path = filebase+os.path.join(os.getcwd(), path)
     return rdflib.URIRef(path)
 
+def getUriFile(uri):
+    """
+    Return file path string corresponding to supplied RO or RO component URI
+    """
+    filebase = "file://"
+    uri = str(uri)
+    if uri.startswith(filebase):
+        uri = uri[len(filebase):]
+    return uri
+
 def getRoUri(ro_dir):
     return getFileUri(os.path.abspath(ro_dir)+"/")
 
@@ -122,6 +153,6 @@ def getComponentUriRel(ro_dir, path):
     return rdflib.URIRef(file_uri_rel)
 
 def getGraphRoUri(rodir, rograph):
-    return rograph.value(None, RDF.type, OXDS.Grouping)
+    return rograph.value(None, RDF.type, RO.ResearchObject)
 
 # End.

@@ -21,7 +21,6 @@ import MiscLib.ScanDirectories
 import ro_settings
 import ro_utils
 import ro_manifest
-from ro_manifest import RDF, DCTERMS, ROTERMS
 import ro_annotation
 
 from sync.RosrsSync import RosrsSync
@@ -174,17 +173,27 @@ def create(progname, configbase, options, args):
         """<?xml version="1.0" encoding="utf-8"?>
         <rdf:RDF
           xml:base=".."
-          xmlns:dcterms="http://purl.org/dc/terms/"
-          xmlns:oxds="http://vocab.ox.ac.uk/dataset/schema#"
           xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:ro="http://purl.org/wf4ever/ro#"
+          xmlns:ore="http://www.openarchives.org/ore/terms/"
+          xmlns:ao="http://purl.org/ao/"
+          xmlns:dcterms="http://purl.org/dc/terms/"
+          xmlns:foaf="http://xmlns.com/foaf/0.1/"
         >
-          <oxds:Grouping rdf:about="">
+          <ro:ResearchObject rdf:about="">
             <dcterms:identifier>%(roident)s</dcterms:identifier>
             <dcterms:title>%(roname)s</dcterms:title>
             <dcterms:description>%(roname)s</dcterms:description>
             <dcterms:creator>%(rocreator)s</dcterms:creator>
             <dcterms:created>%(rocreated)s</dcterms:created>
-          </oxds:Grouping>
+            <!-- self-reference to include above details as annotation -->
+            <ore:aggregates>
+              <ro:AggregatedAnnotation>
+                <ro:annotatesAggregatedResource rdf:resource="" />
+                <ao:body rdf:resource=".ro/manifest.rdf" />
+              </ro:AggregatedAnnotation>
+            </ore:aggregates>
+          </ro:ResearchObject>
         </rdf:RDF>
         """%ro_options)
     log.debug("manifest: "+manifest)
