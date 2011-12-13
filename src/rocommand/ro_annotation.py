@@ -101,7 +101,7 @@ def getAnnotationNameByUri(ro_config, uri):
     return getAnnotationByUri(ro_config, uri)[0]
 
 def makeAnnotationFilename(rodir, afile):
-    log.debug("makeAnnotationFilename: %s, %s"%(rodir, afile))
+    #log.debug("makeAnnotationFilename: %s, %s"%(rodir, afile))
     return os.path.join(os.path.abspath(rodir), ro_settings.MANIFEST_DIR+"/", afile)
 
 def makeComponentFilename(rodir, rofile):
@@ -117,22 +117,21 @@ def readAnnotationBody(rodir, annotationfile):
     rdfGraph.parse(annotationfilename)
     return rdfGraph
 
-def createSimpleAnnotationBody(ro_config, ro_dir, rofile, attrdict):
+def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     """
-    Create a new annotation body for a single resource in a research object.
-    A new metadata file is created for the annotation body.
+    Create a new annotation body for a single resource in a research object, based
+    omn a supplied graph value.
 
     Existing annotations for the same resource are not touched; if an annotation is being 
     added or replaced, it is the calling program'sresponsibility to update the manifest to
     reference the active annotations.  A new name is allocated for the created annotation,
-    which is returned as the result of this function.
+    graph which is returned as the result of this function.
     
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      is the name of the Research Object component to be annotated, possibly
                 relative to the RO root directory.
-    attrdict    is a dictionary of attributes to be saved inthe annotation body.
-                Dictionary keys are attribute names that can be resolved via getAnnotationByName.
+    anngraph    is an annotation graph that is to be saved.
     
     Returns the name of the annotation body created relative to the RO
     manifest and metadata directory.
@@ -150,16 +149,72 @@ def createSimpleAnnotationBody(ro_config, ro_dir, rofile, attrdict):
                 (today.year, today.month, today.day, name_index, name_suffix))
         if not os.path.exists(makeAnnotationFilename(ro_dir, name)):
             annotation_filename = name
+    # Create annotation body file
+    log.debug("createAnnotationGraphBody: %s"%(annotation_filename))
+    anngraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename), 
+        format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
+    return annotation_filename
+
+def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
+    """
+    Create a new annotation body for a single resource in a research object.
+
+    Existing annotations for the same resource are not touched; if an annotation is being 
+    added or replaced, it is the calling program'sresponsibility to update the manifest to
+    reference the active annotations.  A new name is allocated for the created annotation,
+    which is returned as the result of this function.
+    
+    ro_config   is the research object manager configuration, supplied as a dictionary
+    ro_dir      is the research object root directory
+    rofile      is the name of the Research Object component to be annotated, possibly
+                relative to the RO root directory.
+    attrdict    is a dictionary of attributes to be saved inthe annotation body.
+                Dictionary keys are attribute names that can be resolved via getAnnotationByName.
+    
+    Returns the name of the annotation body created relative to the RO
+    manifest and metadata directory.
+    """
     # Assemble data for annotation
-    annGraph = rdflib.Graph()
+    anngraph = rdflib.Graph()
     s = ro_manifest.getComponentUriRel(ro_dir, rofile)
     for k in attrdict:
         (p,t) = getAnnotationByName(ro_config, k)
-        annGraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
-    # Create annotation body file
-    annGraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename), 
-        format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
-    return annotation_filename
+        anngraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
+    # Write graph and return filename
+    return createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph)
+
+def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
+    """
+    Add a new annotation body to an RO graph
+    
+    ro_graph    graph to which annotation is added
+    ro_dir      is the research object directory
+    rofile      is the research object file being annotated
+    annfile     is the base file name of the annotation body to be added
+    """
+    # <ore:aggregates>
+    #   <ro:AggregatedAnnotation>
+    #     <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
+    #     <ao:body rdf:resource=".ro/(annotation).rdf" />
+    #   </ro:AggregatedAnnotation>
+    # </ore:aggregates>
+    ann = rdflib.BNode()
+    ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
+    ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUriRel(ro_dir, rofile)))
+    ro_graph.add((ann, AO.body, ro_manifest.getComponentUriRel(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
+    ro_graph.add((ro_manifest.getComponentUriRel(ro_dir, "."), ORE.aggregates, ann))
+    return
+
+def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
+    """
+    Remove references to an annotation body from an RO graph
+    
+    ro_graph    graph from which annotation is removed
+    annbody     is the the annotation body node to be removed
+    """
+    ro_graph.remove((annbody, None,           None   ))
+    ro_graph.remove((None,    ORE.aggregates, annbody))
+    return
 
 def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
@@ -171,28 +226,14 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     attrname    names the attribute in a form recognized by getAnnotationByName
     attrvalue   is a value to be associated with the attribute
     """
-    #---Old logic---
-    #ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    #subject  = ro_manifest.getComponentUriRel(ro_dir, rofile)
-    #log.debug("addSimpleAnnotation: ro_dir %s, rofile %s, subject %s"%(ro_dir, rofile, repr(subject)))
-    #(predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    #log.debug("Add annotation: subject %s"%(repr(subject)))
-    #log.debug("                predicate %s, value %s"%(repr(predicate), repr(attrvalue)))
-    #ro_graph.add((subject, predicate, makeAnnotationValue(attrvalue, valtype)))
-    #---
-    annfile = createSimpleAnnotationBody(ro_config, ro_dir, rofile, { attrname: attrvalue} )
-    #<ore:aggregates>
-    #  <ro:AggregatedAnnotation>
-    #    <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
-    #    <ao:body rdf:resource=".ro/(annotation).rdf" />
-    #  </ro:AggregatedAnnotation>
-    #</ore:aggregates>
+    annfile = createAnnotationBody(ro_config, ro_dir, rofile, { attrname: attrvalue} )
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    ann = rdflib.BNode()
-    ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-    ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUriRel(ro_dir, rofile)))
-    ro_graph.add((ann, AO.body, ro_manifest.getComponentUriRel(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
-    ro_graph.add((ro_manifest.getComponentUriRel(ro_dir, "."), ORE.aggregates, ann))
+    addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile)
+    #ann = rdflib.BNode()
+    #ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
+    #ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUriRel(ro_dir, rofile)))
+    #ro_graph.add((ann, AO.body, ro_manifest.getComponentUriRel(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
+    #ro_graph.add((ro_manifest.getComponentUriRel(ro_dir, "."), ORE.aggregates, ann))
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
@@ -206,13 +247,51 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     attrname    names the attribute in a form recognized by getAnnotationByName
     attrvalue   is the attribute value to be deleted, or Nomne to delete all vaues
     """
-    ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    subject  = ro_manifest.getComponentUri(ro_dir, rofile)
+    log.debug("removeSimpleAnnotation: ro_dir %s, rofile %s, attrname %s, attrvalue %s"%
+              (ro_dir, rofile, attrname, attrvalue))
+    # Enumerate annotations
+    # For each:
+    #     if annotation is only one in graph then:
+    #         remove aggragetd annotation
+    #     else:
+    #         create new annotation graph witj annotation removed
+    #         update aggregated annotation
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getComponentUri(ro_dir, rofile)
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    val = attrvalue and makeAnnotationValue(attrvalue, valtype)
-    log.debug("Remove annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(val)))
-    ro_graph.remove((subject, predicate, val))
-    ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    val         = attrvalue and makeAnnotationValue(attrvalue, valtype)
+    #@@TODO refactor common code with getRoAnnotations, etc.
+    add_annotations = []
+    remove_annotations = []
+    for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
+        ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
+        ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
+        if (subject, predicate, val) in ann_graph:
+            ann_graph.remove((subject, predicate, val))
+            if (subject, None, None) in ann_graph:
+                # Triples remain in annotation body: write new body and update RO graph
+                ann_name = createAnnotationGraphBody(ro_config, ro_dir, rofile, ann_graph)            
+                remove_annotations.append(ann_node)
+                add_annotations.append(ann_name)
+            else:
+                # Remove annotation from RO graph
+                remove_annotations.append(ann_node)
+    # Update RO graph if needed
+    if add_annotations or remove_annotations:
+        for a in remove_annotations:
+            removeAnnotationBodyFromRoGraph(ro_graph, a)
+        for a in add_annotations:
+            addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, a)
+        ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    #--- Old logic
+    #ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    #subject  = ro_manifest.getComponentUri(ro_dir, rofile)
+    #(predicate,valtype) = getAnnotationByName(ro_config, attrname)
+    #val = attrvalue and makeAnnotationValue(attrvalue, valtype)
+    #log.debug("Remove annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(val)))
+    #ro_graph.remove((subject, predicate, val))
+    #ro_manifest.writeManifestGraph(ro_dir, ro_graph)
+    #---
     return
 
 def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
@@ -234,9 +313,28 @@ def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
+def getAnnotationValues(ro_config, ro_dir, rofile, attrname):
+    """
+    Returns iterator over annotation values for given subject and attribute
+    """
+    log.debug("getAnnotationValues: ro_dir %s, rofile %s, attrname %s"%(ro_dir, rofile, attrname))
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    subject     = ro_manifest.getComponentUri(ro_dir, rofile)
+    (predicate,valtype) = getAnnotationByName(ro_config, attrname)
+    #@@TODO refactor common code with getRoAnnotations, etc.
+    for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
+        ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
+        ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
+        for v in ann_graph.objects(subject=subject, predicate=predicate):
+            #log.debug("Triple: %s %s %s"%(subject,p,v))
+            yield v
+    return
+
 def getRoAnnotations(ro_dir):
     """
-    Returns iterator over annotations applied tothe RO as an entity
+    Returns iterator over annotations applied to the RO as an entity.
+    
+    Each value returned by the iterator is a (subject,predicate,object) triple.
     """
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     subject  = ro_manifest.getRoUri(ro_dir)
@@ -245,40 +343,43 @@ def getRoAnnotations(ro_dir):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
         for (p, v) in ann_graph.predicate_objects(subject=subject):
-            log.debug("Triple: %s %s %s"%(subject,p,v))
+            #log.debug("Triple: %s %s %s"%(subject,p,v))
             yield (subject, p, v)
     return
 
 def getFileAnnotations(ro_dir, rofile):
     """
     Returns iterator over annotations applied to a specified component in the RO
+    
+    Each value returned by the iterator is a (subject,predicate,object) triple.
     """
     log.debug("getFileAnnotations: ro_dir %s, rofile %s"%(ro_dir, rofile))
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
     subject     = ro_manifest.getComponentUri(ro_dir, rofile)
     log.debug("getFileAnnotations: %s"%str(subject))
-    #@@TODO refactor common code with getRoAnnotations
+    #@@TODO refactor common code with getRoAnnotations, etc.
     for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
         for (p, v) in ann_graph.predicate_objects(subject=subject):
-            log.debug("Triple: %s %s %s"%(subject,p,v))
+            #log.debug("Triple: %s %s %s"%(subject,p,v))
             yield (subject, p, v)
-            for (p, v) in ro_graph.predicate_objects(subject=subject):
-                yield (subject, p, v)
     return
 
 def getAllAnnotations(ro_dir):
     """
     Returns iterator over all annotations associated with the RO
+    
+    Each value returned by the iterator is a (subject,predicate,object) triple.
     """
-    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
     log.debug("getAllAnnotations %s"%str(ro_dir))
+    ro_graph    = ro_manifest.readManifestGraph(ro_dir)
+    #@@TODO refactor common code with getRoAnnotations, etc.
     for (ann_node, subject) in ro_graph.subject_objects(predicate=RO.annotatesAggregatedResource):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
         for (p, v) in ann_graph.predicate_objects(subject=subject):
-            log.debug("Triple: %s %s %s"%(subject,p,v))
+            #log.debug("Triple: %s %s %s"%(subject,p,v))
             yield (subject, p, v)
     return
 

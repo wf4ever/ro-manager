@@ -25,14 +25,17 @@ echo "--------"
 
 echo "--------"
 
-mkdir $ROBASE/test-create-RO
-cp -r $TESTRO/ro-test-1/* $ROBASE/test-create-RO
+mkdir  $ROBASE/test-create-RO
+rm -rf $ROBASE/test-create-RO/.ro
+cp -r  $TESTRO/ro-test-1/* $ROBASE/test-create-RO
 
 ./ro create -v "Test Create RO" -d $ROBASE/test-create-RO -i RO-id-testCreate
 
 ./ro status -v -d $ROBASE/test-create-RO
 
 ./ro list -v -d $ROBASE/test-create-RO
+
+./ro list -v -a -d $ROBASE/test-create-RO
 
 echo "--------"
 
@@ -50,6 +53,8 @@ echo "--------"
 ./ro annotate -v $ROBASE/test-create-RO/subdir2/subdir2-file.txt created     "20110914T12:00:00"
 
 ./ro annotations -v $ROBASE/test-create-RO/subdir2/subdir2-file.txt
+
+./ro list -v -a -d $ROBASE/test-create-RO
 
 echo "--------"
 

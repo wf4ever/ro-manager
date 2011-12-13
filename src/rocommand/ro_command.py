@@ -234,8 +234,8 @@ def list(progname, configbase, options, args):
     """
     List contents of a designated research object
 
-    ro list [ -d dir ]
-    ro ls [ -d dir ]
+    ro list [ -a ] [ -d dir ]
+    ro ls [ -a ] [ -d dir ]
     """
     # Check command arguments
     ro_config = ro_utils.readconfig(configbase)
@@ -252,6 +252,10 @@ def list(progname, configbase, options, args):
     rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
                 ro_dir, baseDir=os.path.abspath(ro_dir), 
                 listDirs=False, listFiles=True, recursive=True, appendSep=False)
+    if not options.all:
+        def notHidden(f):
+            return re.match("\.|.*/\.", f) == None
+        rofiles = filter(notHidden, rofiles)
     print "\n".join(rofiles)
     return 0
 

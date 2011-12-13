@@ -30,7 +30,7 @@ def makeNamespace(baseUri, names):
         setattr(ns, name, rdflib.URIRef(baseUri+name))
     return ns
 
-oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
+#oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
 roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
 ao      = rdflib.URIRef("http://purl.org/ao/")
@@ -99,7 +99,7 @@ def readManifest(rodir):
     Read manifest file for research object, return dictionary of manifest values.
     """
     rdfGraph = readManifestGraph(rodir)
-    subject  = rdfGraph.value(None, RDF.type, OXDS.Grouping)
+    subject  = rdfGraph.value(None, RDF.type, RO.ResearchObject)
     strsubject = ""
     if isinstance(subject, rdflib.URIRef): strsubject = str(subject)
     manifestDict = {
@@ -144,7 +144,7 @@ def getComponentUriRel(ro_dir, path):
     #log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
     file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(getComponentUri(ro_dir, path))))
     ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(str(getRoUri(ro_dir))))
-    log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
+    #log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
     if ro_uri is not None and file_uri.startswith(ro_uri):
         file_uri_rel = file_uri.replace(ro_uri, "", 1)
     else:

@@ -97,6 +97,11 @@ def parseCommandArgs(argv):
                       dest="force", 
                       default=False,
                       help="Force, depends on the context")
+    parser.add_option("-a", "--all",
+                      action="store_true",
+                      dest="all", 
+                      default=False,
+                      help="All, list all files, depends on the context")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
