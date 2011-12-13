@@ -353,21 +353,13 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
             , (rouri, RDF.type,             RO.ResearchObject)
             ])
-        def testNextAnnotation(tag):
+        for i in range(6+1):      # Annotations + aggregations
             next = annotations.next()
-            while next[1] == ORE.aggregates:
-                next = annotations.next()
             log.debug("Next %s"%(repr(next)))
             if ( next not in expected_annotations and 
-                 next[1] != DCTERMS.created       ):
-                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
-            return
-        testNextAnnotation("1")
-        testNextAnnotation("2")
-        testNextAnnotation("3")
-        testNextAnnotation("4")
-        testNextAnnotation("5")
-        testNextAnnotation("6")
+                 next[1] != DCTERMS.created       and
+                 next[1] != ORE.aggregates        ):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
         return
@@ -396,24 +388,13 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             , (rouri, ROTERMS.note,         rdflib.Literal('Research object created for annotation testing'))
             , (rouri, DCTERMS.description,  rdflib.Literal('Added description'))
             ])
-        def testNextAnnotation(tag):
+        for i in range(9+4):      # Annotations + aggregations
             next = annotations.next()
-            while next[1] == ORE.aggregates:
-                next = annotations.next()
             log.debug("Next %s"%(repr(next)))
             if ( next not in expected_annotations and 
-                 next[1] != DCTERMS.created       ):
-                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
-            return
-        testNextAnnotation("1")
-        testNextAnnotation("2")
-        testNextAnnotation("3")
-        testNextAnnotation("4")
-        testNextAnnotation("5")
-        testNextAnnotation("6")
-        testNextAnnotation("7")
-        testNextAnnotation("8")
-        testNextAnnotation("9")
+                 next[1] != DCTERMS.created       and
+                 next[1] != ORE.aggregates        ):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
         return
@@ -483,20 +464,12 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
             , (rouri, RDF.type,             RO.ResearchObject)
             ])
-        def testNextAnnotation(tag):
+        for i in range(8+1):      # Annotations + aggregations
             next = annotations.next()
             log.debug("Next %s"%(repr(next)))
-            if not next in expected_annotations and next[1] != DCTERMS.created:
-                self.assertTrue(False, "Not expected (%s) %s"%(tag, repr(next)))
-            return
-        testNextAnnotation("1")
-        testNextAnnotation("2")
-        testNextAnnotation("3")
-        testNextAnnotation("4")
-        testNextAnnotation("5")
-        testNextAnnotation("6")
-        testNextAnnotation("8")
-        testNextAnnotation("9")
+            if ( next not in expected_annotations and 
+                 next[1] != ORE.aggregates        ):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
         return
@@ -541,6 +514,54 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         testNextAnnotation("4")
         testNextAnnotation("5")
         testNextAnnotation("6")
+        self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    # @@TODO: test remove file annotation
+
+    def testAddGetAllAnnotations(self):
+        rodir = self.createTestRo("data/ro-test-1", "Test get all annotations", "ro-testRoAnnotate")
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "type",         "Test file")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "description",  "File in test research object")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "note",         "Research object file created for annotation testing")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "title",        "Test file in RO")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "created",      "2011-12-07")
+        ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
+            "rdf:type",     ROTERMS.resource)
+        # Retrieve the file anotations
+        annotations = ro_annotation.getAllAnnotations(rodir)
+        rouri       = ro_manifest.getRoUri(rodir)
+        resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        log.debug("resourceuri: %s"%(resourceuri))
+        expected_annotations = (
+            [ (rouri,       DCTERMS.description,  rdflib.Literal('Test get all annotations'))
+            , (rouri,       DCTERMS.title,        rdflib.Literal('Test get all annotations'))
+            , (rouri,       DCTERMS.created,      rdflib.Literal('unknown'))
+            , (rouri,       DCTERMS.creator,      rdflib.Literal('Test User'))
+            , (rouri,       DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
+            , (rouri,       RDF.type,             RO.ResearchObject)
+            , (resourceuri, DCTERMS.type,         rdflib.Literal('Test file'))
+            , (resourceuri, DCTERMS.description,  rdflib.Literal('File in test research object'))
+            , (resourceuri, ROTERMS.note,         rdflib.Literal('Research object file created for annotation testing'))
+            , (resourceuri, DCTERMS.title,        rdflib.Literal('Test file in RO'))
+            , (resourceuri, DCTERMS.created,      rdflib.Literal('2011-12-07'))
+            , (resourceuri, RDF.type,             ROTERMS.resource)
+            ])
+        for i in range(12+1+6):      # Annotations + aggregations
+            next = annotations.next()
+            log.debug("Next %s"%(repr(next)))
+            if ( next not in expected_annotations and 
+                 next[1] != DCTERMS.created       and
+                 next[1] != ORE.aggregates        ):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
         return
@@ -593,6 +614,7 @@ def getTestSuite(select="unit"):
             , "testRemoveGetRoAnnotations"
             , "testReplaceGetRoAnnotations"
             , "testAddGetFileAnnotations"
+            , "testAddGetAllAnnotations"
             ],
         "component":
             [ "testComponents"

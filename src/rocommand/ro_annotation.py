@@ -273,10 +273,13 @@ def getAllAnnotations(ro_dir):
     Returns iterator over all annotations associated with the RO
     """
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
-    log.debug("getAllAnnotations %s"%str(subject))
-    for (s, p, v) in ro_graph.triples((None, None, None)):
-        log.debug("Triple: %s %s %s"%(s,p,v))
-        yield (s, p, v)
+    log.debug("getAllAnnotations %s"%str(ro_dir))
+    for (ann_node, subject) in ro_graph.subject_objects(predicate=RO.annotatesAggregatedResource):
+        ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
+        ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
+        for (p, v) in ann_graph.predicate_objects(subject=subject):
+            log.debug("Triple: %s %s %s"%(subject,p,v))
+            yield (subject, p, v)
     return
 
 def makeAnnotationValue(aval, atype):
