@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 # $Id: TestAll.py 1047 2009-01-15 14:48:58Z graham $
 #
 # Unit testing for WebBrick library functions (Functions.py)
