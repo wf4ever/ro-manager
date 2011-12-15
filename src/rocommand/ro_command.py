@@ -395,7 +395,7 @@ def checkout(progname, configbase, options, args):
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
     sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
     if (ro_options["roident"]):
-        ros = { ro_options['roident'] }
+        ros = set([ ro_options['roident'] ])
         rodirs = ro_options['rodir']
     else:
         ros = sync.getRos()
