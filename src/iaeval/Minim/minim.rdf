@@ -1,0 +1,217 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY minim "http://purl.org/minim/minim#" >
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+<rdf:RDF xml:base="http://purl.org/minim/minim"
+     xmlns="&minim;"
+     xmlns:minim="&minim;"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+    <owl:Ontology rdf:about="http://purl.org/minim/minim">
+        <dc:creator>Graham Klyne</dc:creator>
+        <rdfs:comment
+          >Based on and adapted from ideas and a structure proposed by Matthew Gamble
+        </rdfs:comment>
+    </owl:Ontology>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <owl:AnnotationProperty rdf:about="&dc;creator"/>
+    <owl:AnnotationProperty rdf:about="&rdfs;comment"/>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- &minim;hasRequirement -->
+
+    <owl:ObjectProperty rdf:about="&minim;hasRequirement">
+        <rdfs:domain rdf:resource="&minim;Model"/>
+        <rdfs:range rdf:resource="&minim;Requirement"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;hasMustRequirement">
+        <rdfs:subPropertyOf rdf:resource="&minim;hasRequirement"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;hasShouldRequirement">
+        <rdfs:subPropertyOf rdf:resource="&minim;hasRequirement"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;hasMayRequirement">
+        <rdfs:subPropertyOf rdf:resource="&minim;hasRequirement"/>
+    </owl:ObjectProperty>
+
+    <!-- &minim;reports -->
+
+    <owl:ObjectProperty rdf:about="&minim;reports">
+        <rdfs:domain rdf:resource="&minim;Report"/>
+        <rdfs:range rdf:resource="&minim;Requirement"/>
+        <owl:inverseOf rdf:resource="&minim;isReportedBy"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;isReportedBy">
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <!-- &minim;derives -->
+
+    <owl:ObjectProperty rdf:about="&minim;derives">
+        <rdfs:domain rdf:resource="&minim;RequirementRule"/>
+        <rdfs:range rdf:resource="&minim;Requirement"/>
+        <owl:inverseOf rdf:resource="&minim;isDerivedFrom"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;isDerivedFrom">
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <!-- &minim;triggers -->
+
+    <owl:ObjectProperty rdf:about="&minim;triggers">
+        <rdfs:domain rdf:resource="&minim;RequirementRule"/>
+        <rdfs:range rdf:resource="&minim;Report"/>
+        <owl:inverseOf rdf:resource="&minim;isTriggeredBy"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;isTriggeredBy">
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <!-- &minim;*Satisfies -->
+
+    <owl:ObjectProperty rdf:about="&minim;potentiallySatisfies">
+        <rdfs:domain rdf:resource="&minim;Object"/>
+        <rdfs:range rdf:resource="&minim;Model"/>
+        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;minimallySatisfies">
+        <rdfs:domain rdf:resource="&minim;Object"/>
+        <rdfs:range rdf:resource="&minim;Model"/>
+        <rdfs:subPropertyOf rdf:resource="&minim;potentiallySatisfies"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;nominallySatisfies">
+        <rdfs:domain rdf:resource="&minim;Object"/>
+        <rdfs:range rdf:resource="&minim;Model"/>
+        <rdfs:subPropertyOf rdf:resource="&minim;minimallySatisfies"/>
+    </owl:ObjectProperty>
+
+    <owl:ObjectProperty rdf:about="&minim;fullySatisfies">
+        <rdfs:domain rdf:resource="&minim;Object"/>
+        <rdfs:range rdf:resource="&minim;Model"/>
+        <rdfs:subPropertyOf rdf:resource="&minim;nominallySatisfies"/>
+    </owl:ObjectProperty>
+
+    <!-- http://www.w3.org/2002/07/owl#topObjectProperty -->
+
+    <owl:ObjectProperty rdf:about="&owl;topObjectProperty"/>
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    <!-- &minim;Model -->
+
+    <owl:Class rdf:about="&minim;Model">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&minim;hasRequirement"/>
+                <owl:someValuesFrom rdf:resource="&minim;Requirement"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:comment xml:lang="en"
+          >Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- &minim;Requirement -->
+
+    <owl:Class rdf:about="&minim;Requirement">
+        <rdfs:comment xml:lang="en"
+          >A requirement is an atomic reporting requirement for a minimum information model.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- &minim;RequirementRule -->
+
+    <owl:Class rdf:about="&minim;RequirementRule">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&minim;derives"/>
+                <owl:someValuesFrom rdf:resource="&minim;Requirement"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:comment xml:lang="en"
+          >A rule (of unspecified form or mechanism) that can be applied to
+          determine that an object reports some requirement; i.e. is a minim:Report.
+          One form of requirement rule is an OWL class definition of the form:
+          Class(ReportClass); EquivalentClass(ReportClass, DefiningClass);
+            SubclassOf(ReportClass, RestrictionOn(minimReports, SomeRequirement));
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- &minim;Object -->
+
+    <owl:Class rdf:about="&minim;Object">
+        <rdfs:comment xml:lang="en"
+          >Any object that reports a minim:Requirement.
+          The fact of so reporting a requirement may be triggered by a RequirementRule.
+        </rdfs:comment>
+    </owl:Class>
+
+    <!-- &minim;Report -->
+
+    <owl:Class rdf:about="&minim;Report">
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="&minim;reports"/>
+                <owl:someValuesFrom rdf:resource="&minim;Requirement"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="&minim;Object"/>
+        <rdfs:comment xml:lang="en"
+          >Any object that reports a minim:Requirement.
+          The fact of so reporting a requirement may be triggered by a RequirementRule.
+        </rdfs:comment>
+    </owl:Class>
+
+</rdf:RDF>
