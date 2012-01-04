@@ -1,118 +1,392 @@
-Prefix(minim:=<http://purl.org/minim/minim#>)
-Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
-Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
-Prefix(:=<http://purl.org/minim/minim#>)
-Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
-Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
-Prefix(dc:=<http://purl.org/dc/elements/1.1/>)
-Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+<?xml version="1.0"?>
 
 
-Ontology(<http://purl.org/minim/minim>
-Annotation(rdfs:comment "Based on and adapted from ideas and a structure proposed by Matthew Gamble
-        ")
-Annotation(dc:creator "Graham Klyne")
+<!DOCTYPE Ontology [
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
 
-Declaration(Class(minim:Constraint))
-AnnotationAssertion(rdfs:comment minim:Constraint "Relates a Model (or Requirement?) to a target resource for some specific purpose.  The model may constrain some resource other than the target to which it is associated.")
-Declaration(Class(minim:Model))
-AnnotationAssertion(rdfs:comment minim:Model "Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.
-        "@en)
-EquivalentClasses(minim:Model ObjectSomeValuesFrom(minim:hasRequirement minim:Requirement))
-Declaration(Class(minim:Object))
-AnnotationAssertion(rdfs:comment minim:Object "Any object that reports a minim:Requirement.
+
+<Ontology xmlns="http://www.w3.org/2002/07/owl#"
+     xml:base="http://purl.org/minim/minim"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     ontologyIRI="http://purl.org/minim/minim">
+    <Prefix name="minim" IRI="http://purl.org/minim/minim#"/>
+    <Prefix name="xsd" IRI="http://www.w3.org/2001/XMLSchema#"/>
+    <Prefix name="owl" IRI="http://www.w3.org/2002/07/owl#"/>
+    <Prefix name="" IRI="http://purl.org/minim/minim#"/>
+    <Prefix name="rdf" IRI="http://www.w3.org/1999/02/22-rdf-syntax-ns#"/>
+    <Prefix name="rdfs" IRI="http://www.w3.org/2000/01/rdf-schema#"/>
+    <Prefix name="dc" IRI="http://purl.org/dc/elements/1.1/"/>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Based on and adapted from ideas and a structure proposed by Matthew Gamble
+        </Literal>
+    </Annotation>
+    <Annotation>
+        <AnnotationProperty abbreviatedIRI="dc:creator"/>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Graham Klyne</Literal>
+    </Annotation>
+    <Declaration>
+        <Class IRI="#Constraint"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Model"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Object"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Report"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#Requirement"/>
+    </Declaration>
+    <Declaration>
+        <Class IRI="#RequirementRule"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#aggregatePresent"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#derives"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#derivesRequirement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#fullySatisfies"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasConstraint"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasMayRequirement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasMustRequirement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasRequirement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#hasShouldRequirement"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isDerivedBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isReportedBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#isTriggeredBy"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#minimallySatisfies"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#nominallySatisfies"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#onResource"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#potentiallySatisfies"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#reports"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty IRI="#toModel"/>
+    </Declaration>
+    <Declaration>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty IRI="#forPurpose"/>
+    </Declaration>
+    <Declaration>
+        <DataProperty abbreviatedIRI="rdfs:label"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="dc:creator"/>
+    </Declaration>
+    <Declaration>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+    </Declaration>
+    <EquivalentClasses>
+        <Class IRI="#Model"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#hasRequirement"/>
+            <Class IRI="#Requirement"/>
+        </ObjectSomeValuesFrom>
+    </EquivalentClasses>
+    <EquivalentClasses>
+        <Class IRI="#Report"/>
+        <ObjectSomeValuesFrom>
+            <ObjectProperty IRI="#reports"/>
+            <Class IRI="#Requirement"/>
+        </ObjectSomeValuesFrom>
+    </EquivalentClasses>
+    <SubClassOf>
+        <Class IRI="#Report"/>
+        <Class IRI="#RequirementRule"/>
+    </SubClassOf>
+    <SubClassOf>
+        <Class IRI="#RequirementRule"/>
+        <Class IRI="#Object"/>
+    </SubClassOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#derives"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#fullySatisfies"/>
+        <ObjectProperty IRI="#nominallySatisfies"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasMayRequirement"/>
+        <ObjectProperty IRI="#hasRequirement"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasMustRequirement"/>
+        <ObjectProperty IRI="#hasRequirement"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasRequirement"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#hasShouldRequirement"/>
+        <ObjectProperty IRI="#hasRequirement"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#isDerivedBy"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#isTriggeredBy"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#minimallySatisfies"/>
+        <ObjectProperty IRI="#potentiallySatisfies"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#nominallySatisfies"/>
+        <ObjectProperty IRI="#minimallySatisfies"/>
+    </SubObjectPropertyOf>
+    <SubObjectPropertyOf>
+        <ObjectProperty IRI="#potentiallySatisfies"/>
+        <ObjectProperty abbreviatedIRI="owl:topObjectProperty"/>
+    </SubObjectPropertyOf>
+    <InverseObjectProperties>
+        <ObjectProperty IRI="#reports"/>
+        <ObjectProperty IRI="#isReportedBy"/>
+    </InverseObjectProperties>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="#onResource"/>
+    </FunctionalObjectProperty>
+    <FunctionalObjectProperty>
+        <ObjectProperty IRI="#toModel"/>
+    </FunctionalObjectProperty>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#aggregatePresent"/>
+        <Class IRI="#RequirementRule"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#derives"/>
+        <Class IRI="#RequirementRule"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#derivesRequirement"/>
+        <Class IRI="#RequirementRule"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#fullySatisfies"/>
+        <Class IRI="#Object"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#hasRequirement"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#isDerivedBy"/>
+        <Class IRI="#Requirement"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#minimallySatisfies"/>
+        <Class IRI="#Object"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#nominallySatisfies"/>
+        <Class IRI="#Object"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#onResource"/>
+        <Class IRI="#Constraint"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#potentiallySatisfies"/>
+        <Class IRI="#Object"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#reports"/>
+        <Class IRI="#Report"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyDomain>
+        <ObjectProperty IRI="#toModel"/>
+        <Class IRI="#Constraint"/>
+    </ObjectPropertyDomain>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#derives"/>
+        <Class IRI="#Requirement"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#derivesRequirement"/>
+        <Class IRI="#Requirement"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#fullySatisfies"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasConstraint"/>
+        <Class IRI="#Constraint"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#hasRequirement"/>
+        <Class IRI="#Requirement"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isDerivedBy"/>
+        <Class IRI="#RequirementRule"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#isReportedBy"/>
+        <Class IRI="#Report"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#minimallySatisfies"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#nominallySatisfies"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#potentiallySatisfies"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#reports"/>
+        <Class IRI="#Requirement"/>
+    </ObjectPropertyRange>
+    <ObjectPropertyRange>
+        <ObjectProperty IRI="#toModel"/>
+        <Class IRI="#Model"/>
+    </ObjectPropertyRange>
+    <SubDataPropertyOf>
+        <DataProperty IRI="#forPurpose"/>
+        <DataProperty abbreviatedIRI="rdfs:label"/>
+    </SubDataPropertyOf>
+    <DataPropertyDomain>
+        <DataProperty IRI="#forPurpose"/>
+        <Class IRI="#Constraint"/>
+    </DataPropertyDomain>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Constraint</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">Relates a Model (or Requirement?) to a target resource for some specific purpose.  The model may constrain some resource other than the target to which it is associated.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Model</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Object</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">Any object that reports a minim:Requirement.
           The fact of so reporting a requirement may be triggered by a RequirementRule.
-        "@en)
-Declaration(Class(minim:Report))
-AnnotationAssertion(rdfs:comment minim:Report "Any object that reports a minim:Requirement.
-          The fact of so reporting a requirement may be triggered by a RequirementRule.
-        "@en)
-EquivalentClasses(minim:Report ObjectSomeValuesFrom(minim:reports minim:Requirement))
-SubClassOf(minim:Report minim:RequirementRule)
-Declaration(Class(minim:Requirement))
-AnnotationAssertion(rdfs:comment minim:Requirement "A requirement is an atomic reporting requirement for a minimum information model.
-        "@en)
-Declaration(Class(minim:RequirementRule))
-AnnotationAssertion(rdfs:comment minim:RequirementRule "A rule (of unspecified form or mechanism) that can be applied to
+        </Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Report</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">Any object that reports a minim:Requirement.
+
+minim:Reports are a subset of minim:RequirementRules that actually generate a report.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#Requirement</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">A requirement is an atomic reporting requirement for a minimum information model.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#RequirementRule</IRI>
+        <Literal xml:lang="en" datatypeIRI="&rdf;PlainLiteral">A rule (of unspecified form or mechanism) that can be applied to
           determine that an object reports some requirement; i.e. is a minim:Report.
           One form of requirement rule is an OWL class definition of the form:
           Class(ReportClass); EquivalentClass(ReportClass, DefiningClass);
             SubclassOf(ReportClass, RestrictionOn(minimReports, SomeRequirement));
-        "@en)
-EquivalentClasses(minim:RequirementRule ObjectSomeValuesFrom(minim:derives minim:Requirement))
-SubClassOf(minim:RequirementRule minim:Object)
-Declaration(ObjectProperty(minim:derives))
-SubObjectPropertyOf(minim:derives owl:topObjectProperty)
-InverseObjectProperties(minim:derives minim:isDerivedFrom)
-ObjectPropertyDomain(minim:derives minim:RequirementRule)
-ObjectPropertyRange(minim:derives minim:Requirement)
-Declaration(ObjectProperty(minim:fullySatisfies))
-SubObjectPropertyOf(minim:fullySatisfies minim:nominallySatisfies)
-ObjectPropertyDomain(minim:fullySatisfies minim:Object)
-ObjectPropertyRange(minim:fullySatisfies minim:Model)
-Declaration(ObjectProperty(minim:hasConstraint))
-AnnotationAssertion(rdfs:comment minim:hasConstraint "Associates a constraint with a target resource.")
-ObjectPropertyRange(minim:hasConstraint minim:Constraint)
-Declaration(ObjectProperty(minim:hasMayRequirement))
-SubObjectPropertyOf(minim:hasMayRequirement minim:hasRequirement)
-Declaration(ObjectProperty(minim:hasMustRequirement))
-SubObjectPropertyOf(minim:hasMustRequirement minim:hasRequirement)
-Declaration(ObjectProperty(minim:hasRequirement))
-SubObjectPropertyOf(minim:hasRequirement owl:topObjectProperty)
-ObjectPropertyDomain(minim:hasRequirement minim:Model)
-ObjectPropertyRange(minim:hasRequirement minim:Requirement)
-Declaration(ObjectProperty(minim:hasShouldRequirement))
-SubObjectPropertyOf(minim:hasShouldRequirement minim:hasRequirement)
-Declaration(ObjectProperty(minim:isDerivedFrom))
-SubObjectPropertyOf(minim:isDerivedFrom owl:topObjectProperty)
-InverseObjectProperties(minim:derives minim:isDerivedFrom)
-ObjectPropertyDomain(minim:isDerivedFrom minim:Requirement)
-Declaration(ObjectProperty(minim:isReportedBy))
-SubObjectPropertyOf(minim:isReportedBy minim:isDerivedFrom)
-InverseObjectProperties(minim:reports minim:isReportedBy)
-ObjectPropertyRange(minim:isReportedBy minim:Report)
-Declaration(ObjectProperty(minim:isTriggeredBy))
-SubObjectPropertyOf(minim:isTriggeredBy owl:topObjectProperty)
-InverseObjectProperties(minim:triggers minim:isTriggeredBy)
-Declaration(ObjectProperty(minim:minimallySatisfies))
-SubObjectPropertyOf(minim:minimallySatisfies minim:potentiallySatisfies)
-ObjectPropertyDomain(minim:minimallySatisfies minim:Object)
-ObjectPropertyRange(minim:minimallySatisfies minim:Model)
-Declaration(ObjectProperty(minim:nominallySatisfies))
-SubObjectPropertyOf(minim:nominallySatisfies minim:minimallySatisfies)
-ObjectPropertyDomain(minim:nominallySatisfies minim:Object)
-ObjectPropertyRange(minim:nominallySatisfies minim:Model)
-Declaration(ObjectProperty(minim:onResource))
-AnnotationAssertion(rdfs:comment minim:onResource "A resource to which a constraint is applied.  This mat be different from the target resource with whichthe constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.")
-FunctionalObjectProperty(minim:onResource)
-ObjectPropertyDomain(minim:onResource minim:Constraint)
-Declaration(ObjectProperty(minim:potentiallySatisfies))
-SubObjectPropertyOf(minim:potentiallySatisfies owl:topObjectProperty)
-ObjectPropertyDomain(minim:potentiallySatisfies minim:Object)
-ObjectPropertyRange(minim:potentiallySatisfies minim:Model)
-Declaration(ObjectProperty(minim:reports))
-SubObjectPropertyOf(minim:reports minim:derives)
-InverseObjectProperties(minim:reports minim:isReportedBy)
-ObjectPropertyDomain(minim:reports minim:Report)
-ObjectPropertyRange(minim:reports minim:Requirement)
-Declaration(ObjectProperty(minim:toModel))
-AnnotationAssertion(rdfs:comment minim:toModel "Indicates a minimum information model that a constraint requires some resource to conform with.")
-FunctionalObjectProperty(minim:toModel)
-ObjectPropertyDomain(minim:toModel minim:Constraint)
-ObjectPropertyRange(minim:toModel minim:Model)
-Declaration(ObjectProperty(minim:triggers))
-SubObjectPropertyOf(minim:triggers owl:topObjectProperty)
-InverseObjectProperties(minim:triggers minim:isTriggeredBy)
-ObjectPropertyDomain(minim:triggers minim:RequirementRule)
-ObjectPropertyRange(minim:triggers minim:Report)
-Declaration(ObjectProperty(owl:topObjectProperty))
-Declaration(DataProperty(minim:forPurpose))
-AnnotationAssertion(rdfs:comment minim:forPurpose "Associates a descriptive label of the purpose the constraint serves to enable.
+        </Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#aggregatePresent</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">This relation is true when the RO to which the subject RequirementRule is applied aggregates the indicated resource (via ore:aggregates), and the resource is physically present in the local RO structure.
 
-Note that a purpose is implicit in the constraint object itself, so the prupose is not treated as a separate resource, or given a separate URI.")
-SubDataPropertyOf(minim:forPurpose rdfs:label)
-DataPropertyDomain(minim:forPurpose minim:Constraint)
-Declaration(DataProperty(rdfs:label))
-Declaration(AnnotationProperty(dc:creator))
-Declaration(AnnotationProperty(rdfs:comment))
-)
+The latter condition cannot be evaluated logically from the metadata alone, but requires some test of the RO environment.  Roughly, it means that if the RO is copied or cloned, the referenced resource becomes part of the new RO thus created.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#derives</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Relates a requirement rule to a requirement for which it may generate a report.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#derivesRequirement</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Allows a requirement report to be inferred when all conditions on the subject RequirementRule are satisfied.
+
+This, if S derivesRequirement R, and all conditions on S are satisfied, then S reports R can be inferred.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#forPurpose</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Associates a descriptive label of the purpose the constraint serves to enable.
+
+Note that a purpose is implicit in the constraint object itself, so the prupose is not treated as a separate resource, or given a separate URI.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#hasConstraint</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Associates a constraint with a target resource.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#isDerivedBy</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Relates a requirement to a rule which may generate a report for that requirement.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#onResource</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">A resource to which a constraint is applied.  This mat be different from the target resource with whichthe constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.</Literal>
+    </AnnotationAssertion>
+    <AnnotationAssertion>
+        <AnnotationProperty abbreviatedIRI="rdfs:comment"/>
+        <IRI>#toModel</IRI>
+        <Literal datatypeIRI="&rdf;PlainLiteral">Indicates a minimum information model that a constraint requires some resource to conform with.</Literal>
+    </AnnotationAssertion>
+</Ontology>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+

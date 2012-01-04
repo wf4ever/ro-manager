@@ -60,13 +60,36 @@
     
 
 
+    <!-- http://purl.org/minim/minim#aggregatePresent -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#aggregatePresent">
+        <rdfs:comment>This relation is true when the RO to which the subject RequirementRule is applied aggregates the indicated resource (via ore:aggregates), and the resource is physically present in the local RO structure.
+
+The latter condition cannot be evaluated logically from the metadata alone, but requires some test of the RO environment.  Roughly, it means that if the RO is copied or cloned, the referenced resource becomes part of the new RO thus created.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
+    </owl:ObjectProperty>
+    
+
+
     <!-- http://purl.org/minim/minim#derives -->
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#derives">
+        <rdfs:comment>Relates a requirement rule to a requirement for which it may generate a report.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Requirement"/>
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
-        <owl:inverseOf rdf:resource="http://purl.org/minim/minim#isDerivedFrom"/>
         <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#derivesRequirement -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#derivesRequirement">
+        <rdfs:comment>Allows a requirement report to be inferred when all conditions on the subject RequirementRule are satisfied.
+
+This, if S derivesRequirement R, and all conditions on S are satisfied, then S reports R can be inferred.</rdfs:comment>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Requirement"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
     </owl:ObjectProperty>
     
 
@@ -124,10 +147,12 @@
     
 
 
-    <!-- http://purl.org/minim/minim#isDerivedFrom -->
+    <!-- http://purl.org/minim/minim#isDerivedBy -->
 
-    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#isDerivedFrom">
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#isDerivedBy">
+        <rdfs:comment>Relates a requirement to a rule which may generate a report for that requirement.</rdfs:comment>
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Requirement"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
         <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
     </owl:ObjectProperty>
     
@@ -137,7 +162,6 @@
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#isReportedBy">
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Report"/>
-        <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#isDerivedFrom"/>
     </owl:ObjectProperty>
     
 
@@ -195,7 +219,6 @@
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#reports">
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Report"/>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Requirement"/>
-        <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#derives"/>
         <owl:inverseOf rdf:resource="http://purl.org/minim/minim#isReportedBy"/>
     </owl:ObjectProperty>
     
@@ -208,17 +231,6 @@
         <rdfs:comment>Indicates a minimum information model that a constraint requires some resource to conform with.</rdfs:comment>
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Constraint"/>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#triggers -->
-
-    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#triggers">
-        <rdfs:range rdf:resource="http://purl.org/minim/minim#Report"/>
-        <rdfs:domain rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
-        <owl:inverseOf rdf:resource="http://purl.org/minim/minim#isTriggeredBy"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
     </owl:ObjectProperty>
     
 
@@ -272,7 +284,7 @@ Note that a purpose is implicit in the constraint object itself, so the prupose 
     <!-- http://purl.org/minim/minim#Constraint -->
 
     <owl:Class rdf:about="http://purl.org/minim/minim#Constraint">
-        <rdfs:comment>Relates a Model (or Requirement?) to a target resource for some specific purpose.  The model may constrain some resource other than the target to which it is associated.</rdfs:comment>
+        <rdfs:comment xml:lang="en">Relates a Model (or Requirement?) to a target resource for some specific purpose.  The model may constrain some resource other than the target to which it is associated.</rdfs:comment>
     </owl:Class>
     
 
@@ -286,8 +298,7 @@ Note that a purpose is implicit in the constraint object itself, so the prupose 
                 <owl:someValuesFrom rdf:resource="http://purl.org/minim/minim#Requirement"/>
             </owl:Restriction>
         </owl:equivalentClass>
-        <rdfs:comment xml:lang="en">Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.
-        </rdfs:comment>
+        <rdfs:comment xml:lang="en">Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.</rdfs:comment>
     </owl:Class>
     
 
@@ -313,8 +324,8 @@ Note that a purpose is implicit in the constraint object itself, so the prupose 
         </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#RequirementRule"/>
         <rdfs:comment xml:lang="en">Any object that reports a minim:Requirement.
-          The fact of so reporting a requirement may be triggered by a RequirementRule.
-        </rdfs:comment>
+
+minim:Reports are a subset of minim:RequirementRules that actually generate a report.</rdfs:comment>
     </owl:Class>
     
 
@@ -322,8 +333,7 @@ Note that a purpose is implicit in the constraint object itself, so the prupose 
     <!-- http://purl.org/minim/minim#Requirement -->
 
     <owl:Class rdf:about="http://purl.org/minim/minim#Requirement">
-        <rdfs:comment xml:lang="en">A requirement is an atomic reporting requirement for a minimum information model.
-        </rdfs:comment>
+        <rdfs:comment xml:lang="en">A requirement is an atomic reporting requirement for a minimum information model.</rdfs:comment>
     </owl:Class>
     
 
@@ -331,12 +341,6 @@ Note that a purpose is implicit in the constraint object itself, so the prupose 
     <!-- http://purl.org/minim/minim#RequirementRule -->
 
     <owl:Class rdf:about="http://purl.org/minim/minim#RequirementRule">
-        <owl:equivalentClass>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="http://purl.org/minim/minim#derives"/>
-                <owl:someValuesFrom rdf:resource="http://purl.org/minim/minim#Requirement"/>
-            </owl:Restriction>
-        </owl:equivalentClass>
         <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#Object"/>
         <rdfs:comment xml:lang="en">A rule (of unspecified form or mechanism) that can be applied to
           determine that an object reports some requirement; i.e. is a minim:Report.
