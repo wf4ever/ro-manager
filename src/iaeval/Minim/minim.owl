@@ -1,274 +1,118 @@
-<?xml version="1.0"?>
-
-
-<!DOCTYPE rdf:RDF [
-    <!ENTITY minim "http://purl.org/minim/minim#" >
-    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
-    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
-    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
-    <!ENTITY owl2xml "http://www.w3.org/2006/12/owl2-xml#" >
-    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
-    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-]>
-
-
-<rdf:RDF xmlns="http://purl.org/minim/minim#"
-     xml:base="http://purl.org/minim/minim"
-     xmlns:dc="http://purl.org/dc/elements/1.1/"
-     xmlns:minim="http://purl.org/minim/minim#"
-     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
-     xmlns:owl2xml="http://www.w3.org/2006/12/owl2-xml#"
-     xmlns:owl="http://www.w3.org/2002/07/owl#"
-     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
-     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
-    <owl:Ontology rdf:about="">
-        <rdfs:comment
-            >Based on and adapted from ideas and a structure proposed by Matthew Gamble</rdfs:comment>
-        <dc:creator>Graham Klyne</dc:creator>
-    </owl:Ontology>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Annotation properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    <owl:AnnotationProperty rdf:about="&dc;creator"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Object Properties
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://purl.org/minim/minim#derives -->
-
-    <owl:ObjectProperty rdf:about="#derives">
-        <rdfs:range rdf:resource="#Requirement"/>
-        <rdfs:domain rdf:resource="#RequirementRule"/>
-        <owl:inverseOf rdf:resource="#isDerivedFrom"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#fullySatisfies -->
-
-    <owl:ObjectProperty rdf:about="#fullySatisfies">
-        <rdfs:range rdf:resource="#Model"/>
-        <rdfs:domain rdf:resource="#Object"/>
-        <rdfs:subPropertyOf rdf:resource="#nominallySatisfies"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#hasMayRequirement -->
-
-    <owl:ObjectProperty rdf:about="#hasMayRequirement">
-        <rdfs:subPropertyOf rdf:resource="#hasRequirement"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#hasMustRequirement -->
-
-    <owl:ObjectProperty rdf:about="#hasMustRequirement">
-        <rdfs:subPropertyOf rdf:resource="#hasRequirement"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#hasRequirement -->
-
-    <owl:ObjectProperty rdf:about="#hasRequirement">
-        <rdfs:domain rdf:resource="#Model"/>
-        <rdfs:range rdf:resource="#Requirement"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#hasShouldRequirement -->
-
-    <owl:ObjectProperty rdf:about="#hasShouldRequirement">
-        <rdfs:subPropertyOf rdf:resource="#hasRequirement"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#isDerivedFrom -->
-
-    <owl:ObjectProperty rdf:about="#isDerivedFrom">
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#isReportedBy -->
-
-    <owl:ObjectProperty rdf:about="#isReportedBy">
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#isTriggeredBy -->
-
-    <owl:ObjectProperty rdf:about="#isTriggeredBy">
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#minimallySatisfies -->
-
-    <owl:ObjectProperty rdf:about="#minimallySatisfies">
-        <rdfs:range rdf:resource="#Model"/>
-        <rdfs:domain rdf:resource="#Object"/>
-        <rdfs:subPropertyOf rdf:resource="#potentiallySatisfies"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#nominallySatisfies -->
-
-    <owl:ObjectProperty rdf:about="#nominallySatisfies">
-        <rdfs:range rdf:resource="#Model"/>
-        <rdfs:domain rdf:resource="#Object"/>
-        <rdfs:subPropertyOf rdf:resource="#minimallySatisfies"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#potentiallySatisfies -->
-
-    <owl:ObjectProperty rdf:about="#potentiallySatisfies">
-        <rdfs:range rdf:resource="#Model"/>
-        <rdfs:domain rdf:resource="#Object"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#reports -->
-
-    <owl:ObjectProperty rdf:about="#reports">
-        <rdfs:domain rdf:resource="#Report"/>
-        <rdfs:range rdf:resource="#Requirement"/>
-        <owl:inverseOf rdf:resource="#isReportedBy"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#triggers -->
-
-    <owl:ObjectProperty rdf:about="#triggers">
-        <rdfs:range rdf:resource="#Report"/>
-        <rdfs:domain rdf:resource="#RequirementRule"/>
-        <owl:inverseOf rdf:resource="#isTriggeredBy"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://www.w3.org/2002/07/owl#topObjectProperty -->
-
-    <owl:ObjectProperty rdf:about="&owl;topObjectProperty"/>
-    
-
-
-    <!-- 
-    ///////////////////////////////////////////////////////////////////////////////////////
-    //
-    // Classes
-    //
-    ///////////////////////////////////////////////////////////////////////////////////////
-     -->
-
-    
-
-
-    <!-- http://purl.org/minim/minim#Model -->
-
-    <owl:Class rdf:about="#Model">
-        <owl:equivalentClass>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="#hasRequirement"/>
-                <owl:someValuesFrom rdf:resource="#Requirement"/>
-            </owl:Restriction>
-        </owl:equivalentClass>
-        <rdfs:comment xml:lang="en"
-            >Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://purl.org/minim/minim#Object -->
-
-    <owl:Class rdf:about="#Object">
-        <rdfs:comment xml:lang="en"
-            >Any object that reports a minim:Requirement.
-          The fact of so reporting a requirement may be triggered by a RequirementRule.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://purl.org/minim/minim#Report -->
-
-    <owl:Class rdf:about="#Report">
-        <owl:equivalentClass>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="#reports"/>
-                <owl:someValuesFrom rdf:resource="#Requirement"/>
-            </owl:Restriction>
-        </owl:equivalentClass>
-        <rdfs:subClassOf rdf:resource="#Object"/>
-        <rdfs:comment xml:lang="en"
-            >Any object that reports a minim:Requirement.
-          The fact of so reporting a requirement may be triggered by a RequirementRule.</rdfs:comment>
-    </owl:Class>
-    
-
-
-    <!-- http://purl.org/minim/minim#Requirement -->
-
-    <owl:Class rdf:about="#Requirement">
-        <rdfs:comment xml:lang="en"
-            >A requirement is an atomic reporting requirement for a minimum information model.</rdfs:comment>
-    </owl:Class>
-
-
-    <!-- http://purl.org/minim/minim#RequirementRule -->
-
-    <owl:Class rdf:about="#RequirementRule">
-        <owl:equivalentClass>
-            <owl:Restriction>
-                <owl:onProperty rdf:resource="#derives"/>
-                <owl:someValuesFrom rdf:resource="#Requirement"/>
-            </owl:Restriction>
-        </owl:equivalentClass>
-        <rdfs:comment xml:lang="en"
-            >A rule (of unspecified form or mechanism) that can be applied to
+Prefix(minim:=<http://purl.org/minim/minim#>)
+Prefix(xsd:=<http://www.w3.org/2001/XMLSchema#>)
+Prefix(owl:=<http://www.w3.org/2002/07/owl#>)
+Prefix(:=<http://purl.org/minim/minim#>)
+Prefix(xml:=<http://www.w3.org/XML/1998/namespace>)
+Prefix(rdf:=<http://www.w3.org/1999/02/22-rdf-syntax-ns#>)
+Prefix(dc:=<http://purl.org/dc/elements/1.1/>)
+Prefix(rdfs:=<http://www.w3.org/2000/01/rdf-schema#>)
+
+
+Ontology(<http://purl.org/minim/minim>
+Annotation(rdfs:comment "Based on and adapted from ideas and a structure proposed by Matthew Gamble
+        ")
+Annotation(dc:creator "Graham Klyne")
+
+Declaration(Class(minim:Constraint))
+AnnotationAssertion(rdfs:comment minim:Constraint "Relates a Model (or Requirement?) to a target resource for some specific purpose.  The model may constrain some resource other than the target to which it is associated.")
+Declaration(Class(minim:Model))
+AnnotationAssertion(rdfs:comment minim:Model "Model denotes a Minimum Information Model.  Objects potentially satisfying the model are related by one of the *Satisfies properties.
+        "@en)
+EquivalentClasses(minim:Model ObjectSomeValuesFrom(minim:hasRequirement minim:Requirement))
+Declaration(Class(minim:Object))
+AnnotationAssertion(rdfs:comment minim:Object "Any object that reports a minim:Requirement.
+          The fact of so reporting a requirement may be triggered by a RequirementRule.
+        "@en)
+Declaration(Class(minim:Report))
+AnnotationAssertion(rdfs:comment minim:Report "Any object that reports a minim:Requirement.
+          The fact of so reporting a requirement may be triggered by a RequirementRule.
+        "@en)
+EquivalentClasses(minim:Report ObjectSomeValuesFrom(minim:reports minim:Requirement))
+SubClassOf(minim:Report minim:RequirementRule)
+Declaration(Class(minim:Requirement))
+AnnotationAssertion(rdfs:comment minim:Requirement "A requirement is an atomic reporting requirement for a minimum information model.
+        "@en)
+Declaration(Class(minim:RequirementRule))
+AnnotationAssertion(rdfs:comment minim:RequirementRule "A rule (of unspecified form or mechanism) that can be applied to
           determine that an object reports some requirement; i.e. is a minim:Report.
           One form of requirement rule is an OWL class definition of the form:
           Class(ReportClass); EquivalentClass(ReportClass, DefiningClass);
-            SubclassOf(ReportClass, RestrictionOn(minimReports, SomeRequirement));</rdfs:comment>
-    </owl:Class>
-</rdf:RDF>
+            SubclassOf(ReportClass, RestrictionOn(minimReports, SomeRequirement));
+        "@en)
+EquivalentClasses(minim:RequirementRule ObjectSomeValuesFrom(minim:derives minim:Requirement))
+SubClassOf(minim:RequirementRule minim:Object)
+Declaration(ObjectProperty(minim:derives))
+SubObjectPropertyOf(minim:derives owl:topObjectProperty)
+InverseObjectProperties(minim:derives minim:isDerivedFrom)
+ObjectPropertyDomain(minim:derives minim:RequirementRule)
+ObjectPropertyRange(minim:derives minim:Requirement)
+Declaration(ObjectProperty(minim:fullySatisfies))
+SubObjectPropertyOf(minim:fullySatisfies minim:nominallySatisfies)
+ObjectPropertyDomain(minim:fullySatisfies minim:Object)
+ObjectPropertyRange(minim:fullySatisfies minim:Model)
+Declaration(ObjectProperty(minim:hasConstraint))
+AnnotationAssertion(rdfs:comment minim:hasConstraint "Associates a constraint with a target resource.")
+ObjectPropertyRange(minim:hasConstraint minim:Constraint)
+Declaration(ObjectProperty(minim:hasMayRequirement))
+SubObjectPropertyOf(minim:hasMayRequirement minim:hasRequirement)
+Declaration(ObjectProperty(minim:hasMustRequirement))
+SubObjectPropertyOf(minim:hasMustRequirement minim:hasRequirement)
+Declaration(ObjectProperty(minim:hasRequirement))
+SubObjectPropertyOf(minim:hasRequirement owl:topObjectProperty)
+ObjectPropertyDomain(minim:hasRequirement minim:Model)
+ObjectPropertyRange(minim:hasRequirement minim:Requirement)
+Declaration(ObjectProperty(minim:hasShouldRequirement))
+SubObjectPropertyOf(minim:hasShouldRequirement minim:hasRequirement)
+Declaration(ObjectProperty(minim:isDerivedFrom))
+SubObjectPropertyOf(minim:isDerivedFrom owl:topObjectProperty)
+InverseObjectProperties(minim:derives minim:isDerivedFrom)
+ObjectPropertyDomain(minim:isDerivedFrom minim:Requirement)
+Declaration(ObjectProperty(minim:isReportedBy))
+SubObjectPropertyOf(minim:isReportedBy minim:isDerivedFrom)
+InverseObjectProperties(minim:reports minim:isReportedBy)
+ObjectPropertyRange(minim:isReportedBy minim:Report)
+Declaration(ObjectProperty(minim:isTriggeredBy))
+SubObjectPropertyOf(minim:isTriggeredBy owl:topObjectProperty)
+InverseObjectProperties(minim:triggers minim:isTriggeredBy)
+Declaration(ObjectProperty(minim:minimallySatisfies))
+SubObjectPropertyOf(minim:minimallySatisfies minim:potentiallySatisfies)
+ObjectPropertyDomain(minim:minimallySatisfies minim:Object)
+ObjectPropertyRange(minim:minimallySatisfies minim:Model)
+Declaration(ObjectProperty(minim:nominallySatisfies))
+SubObjectPropertyOf(minim:nominallySatisfies minim:minimallySatisfies)
+ObjectPropertyDomain(minim:nominallySatisfies minim:Object)
+ObjectPropertyRange(minim:nominallySatisfies minim:Model)
+Declaration(ObjectProperty(minim:onResource))
+AnnotationAssertion(rdfs:comment minim:onResource "A resource to which a constraint is applied.  This mat be different from the target resource with whichthe constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.")
+FunctionalObjectProperty(minim:onResource)
+ObjectPropertyDomain(minim:onResource minim:Constraint)
+Declaration(ObjectProperty(minim:potentiallySatisfies))
+SubObjectPropertyOf(minim:potentiallySatisfies owl:topObjectProperty)
+ObjectPropertyDomain(minim:potentiallySatisfies minim:Object)
+ObjectPropertyRange(minim:potentiallySatisfies minim:Model)
+Declaration(ObjectProperty(minim:reports))
+SubObjectPropertyOf(minim:reports minim:derives)
+InverseObjectProperties(minim:reports minim:isReportedBy)
+ObjectPropertyDomain(minim:reports minim:Report)
+ObjectPropertyRange(minim:reports minim:Requirement)
+Declaration(ObjectProperty(minim:toModel))
+AnnotationAssertion(rdfs:comment minim:toModel "Indicates a minimum information model that a constraint requires some resource to conform with.")
+FunctionalObjectProperty(minim:toModel)
+ObjectPropertyDomain(minim:toModel minim:Constraint)
+ObjectPropertyRange(minim:toModel minim:Model)
+Declaration(ObjectProperty(minim:triggers))
+SubObjectPropertyOf(minim:triggers owl:topObjectProperty)
+InverseObjectProperties(minim:triggers minim:isTriggeredBy)
+ObjectPropertyDomain(minim:triggers minim:RequirementRule)
+ObjectPropertyRange(minim:triggers minim:Report)
+Declaration(ObjectProperty(owl:topObjectProperty))
+Declaration(DataProperty(minim:forPurpose))
+AnnotationAssertion(rdfs:comment minim:forPurpose "Associates a descriptive label of the purpose the constraint serves to enable.
 
-
-
-<!-- Generated by the OWL API (version 2.2.1.1138) http://owlapi.sourceforge.net -->
-
+Note that a purpose is implicit in the constraint object itself, so the prupose is not treated as a separate resource, or given a separate URI.")
+SubDataPropertyOf(minim:forPurpose rdfs:label)
+DataPropertyDomain(minim:forPurpose minim:Constraint)
+Declaration(DataProperty(rdfs:label))
+Declaration(AnnotationProperty(dc:creator))
+Declaration(AnnotationProperty(rdfs:comment))
+)
