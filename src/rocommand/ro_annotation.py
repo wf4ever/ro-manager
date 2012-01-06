@@ -176,7 +176,7 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     """
     # Assemble data for annotation
     anngraph = rdflib.Graph()
-    s = ro_manifest.getComponentUriRel(ro_dir, rofile)
+    s = ro_manifest.getComponentUri(ro_dir, rofile)
     for k in attrdict:
         (p,t) = getAnnotationByName(ro_config, k)
         anngraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
@@ -200,9 +200,9 @@ def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
     # </ore:aggregates>
     ann = rdflib.BNode()
     ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-    ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUriRel(ro_dir, rofile)))
-    ro_graph.add((ann, AO.body, ro_manifest.getComponentUriRel(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
-    ro_graph.add((ro_manifest.getComponentUriRel(ro_dir, "."), ORE.aggregates, ann))
+    ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUri(ro_dir, rofile)))
+    ro_graph.add((ann, AO.body, ro_manifest.getComponentUri(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
+    ro_graph.add((ro_manifest.getComponentUri(ro_dir, "."), ORE.aggregates, ann))
     return
 
 def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
@@ -229,11 +229,6 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     annfile = createAnnotationBody(ro_config, ro_dir, rofile, { attrname: attrvalue} )
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile)
-    #ann = rdflib.BNode()
-    #ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-    #ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUriRel(ro_dir, rofile)))
-    #ro_graph.add((ann, AO.body, ro_manifest.getComponentUriRel(ro_dir, ro_settings.MANIFEST_DIR+"/"+annfile)))
-    #ro_graph.add((ro_manifest.getComponentUriRel(ro_dir, "."), ORE.aggregates, ann))
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 

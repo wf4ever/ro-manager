@@ -31,6 +31,8 @@ def run(configbase, options, args):
         status = ro_command.config(progname, configbase, options, args)
     elif args[1] == "create":
         status = ro_command.create(progname, configbase, options, args)
+    elif args[1] == "add":
+        status = ro_command.add(progname, configbase, options, args)
     elif args[1] == "status":
         status = ro_command.status(progname, configbase, options, args)
     elif args[1] == "list" or args[1] == "ls":
@@ -39,6 +41,8 @@ def run(configbase, options, args):
         status = ro_command.annotate(progname, configbase, options, args)
     elif args[1] == "annotations":
         status = ro_command.annotations(progname, configbase, options, args)
+    elif args[1] == "evaluate" or args[1] == "eval":
+        status = ro_command.evaluate(progname, configbase, options, args)
     elif args[1] == "push":
         status = ro_command.push(progname, configbase, options, args)
     elif args[1] == "checkout":

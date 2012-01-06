@@ -42,6 +42,11 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Local ro_config for testing
+#ro_config = {
+#    "annotationTypes": ro_annotation.annotationTypes
+#    }
+
 class TestManifest(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
@@ -73,6 +78,51 @@ class TestManifest(TestROSupport.TestROSupport):
         g.add( (s, DCTERMS.description, rdflib.Literal("RO test annotation")         ) )
         g.add( (s, DCTERMS.title,       rdflib.Literal("RO test annotation")         ) )
         g.add( (s, DCTERMS.identifier,  rdflib.Literal("ro-testRoAnnotate")          ) )
+        self.checkManifestGraph(rodir, g)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddAggregatedResources(self):
+        """
+        Test function that adds aggregated resources to a research object manifest
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        ro_manifest.addAggregatedResources(rodir, rodir, recurse=True)
+        def URIRef(path):
+            return ro_manifest.getComponentUri(rodir, path)
+        s = ro_manifest.getComponentUri(rodir, "")
+        g = rdflib.Graph()
+        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
+        self.checkManifestGraph(rodir, g)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddAggregatedResourcesCommand(self):
+        """
+        Test function that adds aggregated resources to a research object manifest
+        """
+        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        args = [
+            "ro", "add", "-v", "-a",
+            "-d", rodir,
+            rodir
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        log.debug("outtxt %s"%outtxt)
+        def URIRef(path):
+            return ro_manifest.getComponentUri(rodir, path)
+        s = ro_manifest.getComponentUri(rodir, "")
+        g = rdflib.Graph()
+        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
         self.checkManifestGraph(rodir, g)
         self.deleteTestRo(rodir)
         return
@@ -109,7 +159,8 @@ def getTestSuite(select="unit"):
             [ "testUnits"
             , "testNull"
             , "testManifestContent"
-            # , "testAddAggregatedResources"
+            , "testAddAggregatedResources"
+            , "testAddAggregatedResourcesCommand"
             ],
         "component":
             [ "testComponents"

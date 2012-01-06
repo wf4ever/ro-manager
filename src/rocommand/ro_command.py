@@ -80,6 +80,7 @@ def help(progname, args):
         , "  %(progname)s help"
         , "  %(progname)s config -b <robase> -r <roboxuri> -p <roboxpass> -u <username> -e <useremail>"
         , "  %(progname)s create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"
+        , "  %(progname)s add [ -d <dir> ] [ -a ] [ file | directory ]"
         , "  %(progname)s status [ -d <dir> ]"
         , "  %(progname)s list [ -d <dir> ]"
         , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
@@ -200,6 +201,41 @@ def create(progname, configbase, options, args):
     manifestfile = open(manifestfilename, 'w')
     manifestfile.write(manifest)
     manifestfile.close()
+    return 0
+
+def add(progname, configbase, options, args):
+    """
+    Add files to a research object manifest
+    
+    ro add [ -d dir ] file
+    ro add [ -d dir ] [-a] [directory]
+
+    Use -a/--all to add subdirectories recursively
+
+    If no file or directory specified, defaults to current directory.
+    """
+    # Check command arguments
+    if len(args) not in [2, 3]:
+        print ("%s add: wrong number of arguments provided"%
+               (progname))
+        print ("Usage: %s add [ -a ] [ file | directory ]"%
+               (progname))
+        return 1
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":        options.rodir or "",
+        "rofile":       args[2] if len(args) == 3 else ".",
+        "recurse":      options.all,
+        "recurseopt":   "-a" if options.all else ""
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    # Find RO root directory
+    ro_dir = ro_root_directory(progname+" add", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    # Read and update manifest
+    if options.verbose:
+        print "ro add -d %(rodir)s %(recurseopt)s %(rofile)s"%ro_options
+    ro_manifest.addAggregatedResources(ro_dir, ro_options['rofile'], ro_options['recurse'])
     return 0
 
 def status(progname, configbase, options, args):

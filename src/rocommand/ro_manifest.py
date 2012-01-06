@@ -7,10 +7,13 @@ Research Object manifest read, write, decode functions
 import sys
 import os
 import os.path
+import re
 import urlparse
 import logging
 
 log = logging.getLogger(__name__)
+
+import MiscLib.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -112,6 +115,42 @@ def readManifest(rodir):
         'rodescription':  rdfGraph.value(subject, DCTERMS.description, None),
         }
     return manifestDict
+
+def notHidden(f):
+    return re.match("\.|.*/\.", f) == None
+
+def addAggregatedResources(ro_dir, ro_file, recurse=True):
+    log.debug("addAggregatedResources: dir %s, file %s"%(ro_dir, ro_file))
+    ro_graph = readManifestGraph(ro_dir)
+    if ro_file.endswith(os.path.sep):
+        ro_file = ro_file[0:-1]
+    rofiles = [ro_file]
+    if os.path.isdir(ro_file):
+        rofiles = filter( notHidden,
+                            MiscLib.ScanDirectories.CollectDirectoryContents(
+                                os.path.abspath(ro_file), baseDir=os.path.abspath(ro_dir), 
+                                listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
+                        )
+    s = getComponentUri(ro_dir, ".")
+    for f in rofiles:
+        log.debug("- file %s"%f)
+        stmt = (s, ORE.aggregates, getComponentUri(ro_dir, f))
+        if stmt not in ro_graph: ro_graph.add(stmt)
+    writeManifestGraph(ro_dir, ro_graph)
+    return
+
+def getAggregatedResources(ro_dir):
+    """
+    Returns iterator over all resources aggregated by a manifest.
+    
+    Each value returned by the iterator is a (subject,predicate,object) triple.
+    """
+    ro_graph = ro_manifest.readManifestGraph(ro_dir)
+    subject  = ro_manifest.getRoUri(ro_dir)
+    log.debug("getAggregatedResources %s"%str(subject))
+    for r in ro_graph.objects(subject=subject, predicate=ORE.aggregates):
+        yield r
+    return
 
 def getFileUri(path):
     """
