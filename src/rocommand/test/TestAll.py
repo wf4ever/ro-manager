@@ -13,6 +13,7 @@ if __name__ == "__main__":
 
 import TestBasicCommands
 import TestAnnotationUtils
+import TestManifest
 import TestAnnotations
 import TestSyncCommands
 
@@ -21,6 +22,7 @@ def getTestSuite(select="unit"):
     suite = unittest.TestSuite()
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
+    suite.addTest(TestManifest.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite

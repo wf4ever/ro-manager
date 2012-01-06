@@ -23,6 +23,8 @@ if __name__ == "__main__":
     sys.path.append("../..")
     sys.path.append("..")
 
+import rdflib
+
 from MiscLib import TestUtils
 
 from rocommand import ro, ro_utils, ro_manifest
@@ -88,6 +90,17 @@ class TestROSupport(unittest.TestCase):
             "Unexpected created datetime: %s, expected about %s"%
                 (manifest['rocreated'],timenow.isoformat()))
         self.assertEqual(manifest['rodescription'], roname,  "RO name")
+        return
+
+    def checkManifestGraph(self, rodir, rograph):
+        """
+        Check manifest file contains all statements from supplied graph
+        """
+        m_graph = ro_manifest.readManifestGraph(rodir)
+        for (s,p,o) in rograph:
+            if isinstance(s, rdflib.BNode): s = None 
+            if isinstance(o, rdflib.BNode): o = None
+            self.assertIn((s,p,o), m_graph, "Not found in manifest: "+repr((s, p, o)))
         return
 
     def deleteRoFixture(self, rodir):
