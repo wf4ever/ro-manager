@@ -42,6 +42,9 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__name__)
+
 # Local ro_config for testing
 ro_config = {
     "annotationTypes": ro_annotation.annotationTypes
@@ -70,7 +73,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
 
         ro annotate file attribute-name [ attribute-value ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
             "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", "title", "subdir1-file title",
             "-v",
@@ -90,7 +93,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     def annotationTest(self, anntype, annvalue, anntypeuri, annexpect):
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
             "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
             "-v",
@@ -157,7 +160,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     def testAnnotateMultiple(self):
-        rodir  = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         define_annotations = (
             [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
@@ -190,7 +193,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
     # Test annotation display
     def testAnnotationDisplayRo(self):
         # Construct annotated RO
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         # Display annotations
         args = [ "ro", "annotations", rodir+"/"
@@ -214,7 +217,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
 
     def testAnnotationDisplayFile(self):
         # Construct annotated RO
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         annotations = (
             [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }

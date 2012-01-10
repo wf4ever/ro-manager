@@ -42,6 +42,9 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__name__)
+
 # Local ro_config for testing
 #ro_config = {
 #    "annotationTypes": ro_annotation.annotationTypes
@@ -68,7 +71,7 @@ class TestManifest(TestROSupport.TestROSupport):
         """
         Test content of newly created manifest
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         ro_graph = ro_manifest.readManifestGraph(rodir)
         self.checkManifestGraph(rodir, ro_graph)
         s = ro_manifest.getComponentUri(rodir, "")
@@ -86,7 +89,7 @@ class TestManifest(TestROSupport.TestROSupport):
         """
         Test function that adds aggregated resources to a research object manifest
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         ro_manifest.addAggregatedResources(rodir, rodir, recurse=True)
         def URIRef(path):
             return ro_manifest.getComponentUri(rodir, path)
@@ -104,7 +107,7 @@ class TestManifest(TestROSupport.TestROSupport):
         """
         Test function that adds aggregated resources to a research object manifest
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
             "ro", "add", "-v", "-a",
             "-d", rodir,

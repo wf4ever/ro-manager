@@ -43,6 +43,9 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__name__)
+
 # Local ro_config for testing
 ro_config = {
     "annotationTypes": ro_annotation.annotationTypes
@@ -198,7 +201,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testGetGraphRoUri(self):
-        rodir = self.createTestRo("data/ro-test-1", "RO test graph", "ro-testRoGraph")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test graph", "ro-testRoGraph")
         rograph = ro_manifest.readManifestGraph(rodir)
         self.assertEquals(ro_manifest.getGraphRoUri(rodir, rograph),
                           rdflib.URIRef("file://%s/RO_test_graph/"%(robase_abs)))
@@ -257,7 +260,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         """
         Test function to create simple annotation body
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "."
         attrdict = {
             "type":         "Research Object",
@@ -302,7 +305,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         """
         Test function to create simple annotation body
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         attrdict = {
             "type":         "Test file",
@@ -340,7 +343,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testGetInitialRoAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test init RO annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test init RO annotation", "ro-testRoAnnotate")
         roresource = "."
         # Retrieve the anotations
         annotations = ro_annotation.getRoAnnotations(rodir)
@@ -365,7 +368,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testAddGetRoAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test add RO annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test add RO annotation", "ro-testRoAnnotate")
         roresource = "."
         # Add anotations for RO
         ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
@@ -400,7 +403,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testRemoveGetRoAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test remove RO annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test remove RO annotation", "ro-testRoAnnotate")
         roresource = "."
         # Remove some anotations for RO
         ro_annotation.removeSimpleAnnotation(ro_config, rodir, roresource, 
@@ -433,7 +436,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testReplaceGetRoAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test replace RO annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test replace RO annotation", "ro-testRoAnnotate")
         roresource = "."
         # Replace anotations for RO
         ro_annotation.replaceSimpleAnnotation(ro_config, rodir, roresource, 
@@ -470,7 +473,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testAddGetFileAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test add file annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test add file annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
         ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
@@ -507,7 +510,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testRemoveGetFileAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test remove file annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test remove file annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
         ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
@@ -547,7 +550,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testAddGetAllAnnotations(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test get all annotations", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test get all annotations", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
         ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 
@@ -593,7 +596,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         return
 
     def testAddGetAnnotationValues(self):
-        rodir = self.createTestRo("data/ro-test-1", "Test get annotation values", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "Test get annotation values", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
         ro_annotation.addSimpleAnnotation(ro_config, rodir, roresource, 

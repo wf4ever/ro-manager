@@ -48,7 +48,7 @@ class TestROSupport(unittest.TestCase):
         os.chdir(self.save_cwd)
         return
 
-    def createRoFixture(self, src, robase, roname):
+    def createRoFixture(self, testbase, src, robase, roname):
         """
         Create test fixture research object - this is a set of directories
         and files that will be used as a research object, but not actually
@@ -56,7 +56,7 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
-        rodir = robase+"/"+ roname
+        rodir = testbase + robase + "/" + roname
         manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
         manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
         shutil.rmtree(rodir, ignore_errors=True)
@@ -103,6 +103,16 @@ class TestROSupport(unittest.TestCase):
             self.assertIn((s,p,o), m_graph, "Not found in manifest: "+repr((s, p, o)))
         return
 
+    def checkTargetGraph(self, targetgraph, expectgraph, msg="Not found in target graph"):
+        """
+        Check target graph contains all statements from supplied graph
+        """
+        for (s,p,o) in expectgraph:
+            if isinstance(s, rdflib.BNode): s = None 
+            if isinstance(o, rdflib.BNode): o = None
+            self.assertIn((s,p,o), targetgraph, msg+": "+repr((s, p, o)))
+        return
+
     def deleteRoFixture(self, rodir):
         """
         Delete test fixture research object
@@ -110,13 +120,13 @@ class TestROSupport(unittest.TestCase):
         shutil.rmtree(rodir, ignore_errors=True)
         return
 
-    def createTestRo(self, src, roname, roident):
+    def createTestRo(self, testbase, src, roname, roident):
         """
         Create test research object
         
         Returns name of research object directory
         """
-        rodir = self.createRoFixture(src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
+        rodir = self.createRoFixture(testbase, src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
         args = [
             "ro", "create", roname,
             "-v", 
