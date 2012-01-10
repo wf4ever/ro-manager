@@ -1,0 +1,90 @@
+{
+    "username": "Test User", 
+    "useremail": "testuser@example.org", 
+    "rosrs_password": "pass", 
+    "annotationTypes": [
+        {
+            "fullUri": "http://purl.org/dc/terms/type", 
+            "prefix": "dcterms", 
+            "name": "type", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "type", 
+            "description": "Word or brief phrase describing type of Research Object component", 
+            "type": "string", 
+            "label": "Type"
+        }, 
+        {
+            "fullUri": "http://purl.org/dc/terms/subject", 
+            "prefix": "dcterms", 
+            "name": "keywords", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "subject", 
+            "description": "List of key words or phrases associated with a Research Object component", 
+            "type": "termlist", 
+            "label": "Keywords"
+        }, 
+        {
+            "fullUri": "http://purl.org/dc/terms/description", 
+            "prefix": "dcterms", 
+            "name": "description", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "description", 
+            "description": "Extended description of Research Object component", 
+            "type": "text", 
+            "label": "Description"
+        }, 
+        {
+            "fullUri": "http://purl.org/dc/terms/format", 
+            "prefix": "dcterms", 
+            "name": "format", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "format", 
+            "description": "String indicating the data format of a Research Object component", 
+            "type": "string", 
+            "label": "Data format"
+        }, 
+        {
+            "fullUri": "http://ro.example.org/ro/terms/note", 
+            "prefix": "dcterms", 
+            "name": "note", 
+            "baseUri": "http://ro.example.org/ro/terms/", 
+            "localName": "format", 
+            "description": "String indicating some information about a Research Object component", 
+            "type": "text", 
+            "label": "Note"
+        }, 
+        {
+            "fullUri": "http://purl.org/dc/terms/title", 
+            "prefix": "dcterms", 
+            "name": "title", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "title", 
+            "description": "Title of Research Object component", 
+            "type": "string", 
+            "label": "Title"
+        }, 
+        {
+            "fullUri": "http://purl.org/dc/terms/created", 
+            "prefix": "dcterms", 
+            "name": "created", 
+            "baseUri": "http://purl.org/dc/terms/", 
+            "localName": "created", 
+            "description": "Date and time that Research Object component was created", 
+            "type": "datetime", 
+            "label": "Creation time"
+        }, 
+        {
+            "fullUri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", 
+            "prefix": "rdf", 
+            "name": "rdf:type", 
+            "baseUri": "http://www.w3.org/1999/02/22-rdf-syntax-ns#", 
+            "localName": "type", 
+            "description": "RDF type of the annotated object", 
+            "type": "resource", 
+            "label": "RDF type"
+        }
+    ], 
+    "robase": "/usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase", 
+    "rosrs_username": "test-423435r4353t543t5323", 
+    "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs3"
+}
