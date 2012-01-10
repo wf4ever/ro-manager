@@ -48,6 +48,12 @@ class TestROSupport(unittest.TestCase):
         os.chdir(self.save_cwd)
         return
 
+    def getConfigDir(self, testbase):
+        return os.path.join(testbase, ro_test_config.CONFIGDIR)
+
+    def getRoBaseDir(self, testbase):
+        return os.path.join(testbase, ro_test_config.ROBASEDIR)
+
     def createRoFixture(self, testbase, src, robase, roname):
         """
         Create test fixture research object - this is a set of directories
@@ -56,11 +62,12 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
+        if testbase != "" and not testbase.endswith("/"): testbase += "/"
         rodir = testbase + robase + "/" + roname
         manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
         manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
         shutil.rmtree(rodir, ignore_errors=True)
-        shutil.copytree(src, rodir)
+        shutil.copytree(testbase+src, rodir)
         # Confirm non-existence of manifest directory
         self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
         self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
@@ -134,8 +141,11 @@ class TestROSupport(unittest.TestCase):
             "-i", roident,
             ]
         with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
         return rodir
 
     def deleteTestRo(self, rodir):

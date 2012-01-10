@@ -43,7 +43,7 @@ from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__name__)
+testbase = os.path.dirname(os.path.abspath(__file__))
 
 class TestMinimAccess(TestROSupport.TestROSupport):
     """
@@ -59,9 +59,8 @@ class TestMinimAccess(TestROSupport.TestROSupport):
 
     # Setup local config for Minim tests
     def setupConfig(self):
-        basedir   = os.path.dirname(__name__)
-        configdir = os.path.join(basedir, TestConfig.ro_test_config.CONFIGDIR)
-        robasedir = os.path.join(basedir, TestConfig.ro_test_config.ROBASEDIR)
+        configdir = self.getConfigDir(testbase)
+        robasedir = self.getRoBaseDir(testbase)
         ro_utils.resetconfig(configdir)
         args = [
             "ro", "config",
@@ -118,6 +117,9 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.checkTargetGraph(g, expected_minim, msg="Not found in Minim")
         self.deleteTestRo(rodir)
         return
+
+
+
 
 
 

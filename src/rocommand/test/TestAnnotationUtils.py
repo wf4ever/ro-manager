@@ -44,7 +44,7 @@ from StdoutContext import SwitchStdout
 import TestROSupport
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__name__)
+testbase = os.path.dirname(__file__)
 
 # Local ro_config for testing
 ro_config = {

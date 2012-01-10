@@ -34,7 +34,7 @@ from sync.RosrsSync import RosrsSync
 import TestROSupport
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__name__)
+testbase = os.path.dirname(__file__)
 
 class TestSyncCommands(TestROSupport.TestROSupport):
     """
