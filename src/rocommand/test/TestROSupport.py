@@ -54,6 +54,29 @@ class TestROSupport(unittest.TestCase):
     def getRoBaseDir(self, testbase):
         return os.path.join(testbase, ro_test_config.ROBASEDIR)
 
+    def setupTestBaseConfig(self, testbase):
+        """
+        Test helper creates RO config for designated test base directory
+        and returns configuration and base RO storage directories. 
+        """
+        configdir = self.getConfigDir(testbase)
+        robasedir = self.getRoBaseDir(testbase)
+        ro_utils.resetconfig(configdir)
+        args = [
+            "ro", "config",
+            "-b", robasedir,
+            "-r", ro_test_config.ROSRS_URI,
+            "-u", ro_test_config.ROSRS_USERNAME,
+            "-p", ro_test_config.ROSRS_PASSWORD,
+            "-n", ro_test_config.ROBOXUSERNAME,
+            "-e", ro_test_config.ROBOXEMAIL
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(configdir, robasedir, args)
+            assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("ro config"), 0)
+        return (configdir, robasedir)
+
     def createRoFixture(self, testbase, src, robase, roname):
         """
         Create test fixture research object - this is a set of directories

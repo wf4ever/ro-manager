@@ -58,31 +58,16 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         return
 
     # Setup local config for Minim tests
+
     def setupConfig(self):
-        configdir = self.getConfigDir(testbase)
-        robasedir = self.getRoBaseDir(testbase)
-        ro_utils.resetconfig(configdir)
-        args = [
-            "ro", "config",
-            "-b", robasedir,
-            "-r", TestConfig.ro_test_config.ROSRS_URI,
-            "-u", TestConfig.ro_test_config.ROSRS_USERNAME,
-            "-p", TestConfig.ro_test_config.ROSRS_PASSWORD,
-            "-n", TestConfig.ro_test_config.ROBOXUSERNAME,
-            "-e", TestConfig.ro_test_config.ROBOXEMAIL
-            ]
-        with StdoutContext.SwitchStdout(self.outstr):
-            status = ro.runCommand(configdir, robasedir, args)
-            assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro config"), 0)
-        return (configdir, robasedir)
+        return self.setupTestBaseConfig(testbase)
 
     # Actual tests follow
 
     def testNull(self):
         assert True, 'Null test failed'
 
-    def TestSetupConfig(self):
+    def testSetupConfig(self):
         (configdir, robasedir) = self.setupConfig()
         config = ro_utils.readconfig(configdir)
         self.assertEqual(config["robase"],          os.path.abspath(robasedir))
@@ -93,11 +78,11 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.assertEqual(config["useremail"],       TestConfig.ro_test_config.ROBOXEMAIL)
         return
 
-    def TestMinimRead(self):
+    def testMinimRead(self):
         """
         Basic test that Minim test file can be read
         """
-        (configdir, robasedir) = self.setupConfig()
+        self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
@@ -105,8 +90,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         g = ro_minim.readMinimGraph(minimbase)
-        for stmt in g:
-            log.debug("-- %s"%(repr(stmt)))
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                                          )
             , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-gen.csv')   )
@@ -118,10 +101,55 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testGetConstraints(self):
+        self.setupConfig()
+        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rouri      = ro_manifest.getRoUri(rodir)
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
+        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
+        # Read Minim as graph, scan constraints and look for expected value
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        constraints = ro_minim.getConstraints(minimgraph)
+        expected_found = False
+        for c in constraints:
+            if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-gen.csv") and
+                 c['purpose']  == rdflib.Literal("create UserRequirements-gen.csv")                   and
+                 c['resource'] == rouri                                                               and
+                 c['model']    == model                                                               and
+                 c['uri']      == constraint ) :
+                expected_found = True
+                break
+        self.assertTrue(expected_found, "Expected constraint not found in minim")
+        return
 
+    def testGetConstraint(self):
+        self.setupConfig()
+        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rouri      = ro_manifest.getRoUri(rodir)
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
+        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
+        # Read Minim as graph, scan constraints and look for expected value
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        c = ro_minim.getConstraint(minimgraph, rodir,
+            "docs/UserRequirements-gen.csv",
+            r"create.*UserRequirements-gen\.csv")
+        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-gen.csv"))
+        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-gen.csv"))
+        self.assertEquals(c['resource'], rouri)
+        self.assertEquals(c['model'],    model)
+        self.assertEquals(c['uri'],      constraint)
+        return
 
+    def testGetModels(self):
+        return
+    
+    def testGetModel(self):
+        return
 
-
+    def testGetRequirements(self):
+        return
 
     def ZZZtestAddAggregatedResources(self):
         """
@@ -172,8 +200,10 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "TestSetupConfig"
-            , "TestMinimRead"
+            , "testSetupConfig"
+            , "testMinimRead"
+            , "testGetConstraints"
+            , "testGetConstraint"
             ],
         "component":
             [ "testComponents"

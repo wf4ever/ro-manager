@@ -7,7 +7,7 @@ Research Object manifest read, write, decode functions
 #import sys
 #import os
 #import os.path
-#import re
+import re
 import urlparse
 import logging
 
@@ -54,5 +54,23 @@ def readMinimGraph(minimuri):
     minimgraph = rdflib.Graph()
     minimgraph.parse(minimuri)
     return minimgraph
+
+def getConstraints(minimgraph):
+    for (target, constraint) in minimgraph.subject_objects(predicate=MINIM.hasConstraint):
+        c = {'target': target, 'uri': constraint}
+        c['purpose']  = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
+        c['resource'] = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
+        c['model']    = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
+        yield c
+    return
+
+def getConstraint(minimgraph, rodir, target_string, purpose_regex_string):
+    target  = target_string and ro_manifest.getComponentUri(rodir, target_string)
+    purpose = purpose_regex_string and re.compile(purpose_regex_string)
+    for c in getConstraints(minimgraph):
+        if ( ( not target  or target == c['target'] ) and
+             ( not purpose or purpose.match(c['purpose']) ) ):
+            return c
+    return None
 
 # End.
