@@ -17,6 +17,7 @@ import TestAnnotationUtils
 import TestManifest
 import TestAnnotations
 import TestMinimAccess
+import TestEvalCompleteness
 import TestSyncCommands
 
 # Code to run unit tests from all library test modules
@@ -27,6 +28,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestManifest.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
+    suite.addTest(TestEvalCompleteness.getTestSuite(select=select))
     suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 

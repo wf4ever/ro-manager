@@ -171,6 +171,25 @@ class TestROSupport(unittest.TestCase):
         assert status == 0, outtxt
         return rodir
 
+    def populateTestRo(self, testbase, rodir):
+        """
+        Create test research object
+        
+        Returns name of research object directory
+        """
+        args = [
+            "ro", "add", "-v", "-a",
+            "-d", rodir,
+            rodir
+            ]
+        with SwitchStdout(self.outstr):
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        return rodir
+
     def deleteTestRo(self, rodir):
         """
         Delete test research object

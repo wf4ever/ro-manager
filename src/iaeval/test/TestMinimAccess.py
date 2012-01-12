@@ -85,14 +85,14 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
-        target     = ro_manifest.getComponentUri(rodir, "docs/UserRequirements-gen.csv")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        target     = ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv")
+        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         g = ro_minim.readMinimGraph(minimbase)
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                                          )
-            , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-gen.csv')   )
+            , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.csv') )
             , (constraint, MINIM.onResource,    rouri                                               )
             , (constraint, MINIM.toModel,       model                                               )
             , (model,      RDF.type,            MINIM.Model                                         )
@@ -105,16 +105,16 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
+        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
         # Read Minim as graph, scan constraints and look for expected value
         minimgraph = ro_minim.readMinimGraph(minimbase)
         constraints = ro_minim.getConstraints(minimgraph)
         expected_found = False
         for c in constraints:
-            if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-gen.csv") and
-                 c['purpose']  == rdflib.Literal("create UserRequirements-gen.csv")                   and
+            if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv") and
+                 c['purpose']  == rdflib.Literal("create UserRequirements-astro.csv")                   and
                  c['resource'] == rouri                                                               and
                  c['model']    == model                                                               and
                  c['uri']      == constraint ) :
@@ -127,15 +127,15 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
+        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
         minimgraph = ro_minim.readMinimGraph(minimbase)
         c = ro_minim.getConstraint(minimgraph, rodir,
-            "docs/UserRequirements-gen.csv",
-            r"create.*UserRequirements-gen\.csv")
-        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-gen.csv"))
-        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-gen.csv"))
+            "docs/UserRequirements-astro.csv",
+            r"create.*UserRequirements-astro\.csv")
+        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv"))
+        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.csv"))
         self.assertEquals(c['resource'], rouri)
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
@@ -145,7 +145,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         minimgraph = ro_minim.readMinimGraph(minimbase)
         models     = ro_minim.getModels(minimgraph)
@@ -162,7 +162,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         minimgraph = ro_minim.readMinimGraph(minimbase)
         m = ro_minim.getModel(minimgraph, model)
@@ -171,10 +171,21 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         return
 
     def testGetRequirements(self):
+        def compare_reqs(req_expect, req_found):
+            for k in req_expect:
+                if not k in req_found:
+                    log.debug("- not found: %s"%(k))
+                    return False
+                elif isinstance(req_expect[k], dict) and isinstance(req_found[k], dict):
+                    if not compare_reqs(req_expect[k], req_found[k]): return False
+                elif req_found[k] != req_expect[k]:
+                    log.debug("- not found: %s: %s != %s "%(k,req_expect[k],req_found[k]))
+                    return False
+            return True
         self.setupConfig()
         rodir        = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         rouri        = ro_manifest.getRoUri(rodir)
-        minimbase    = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        minimbase    = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model        = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         minimgraph   = ro_minim.readMinimGraph(minimbase)
         requirements = ro_minim.getRequirements(minimgraph, model)
@@ -207,26 +218,15 @@ class TestMinimAccess(TestROSupport.TestROSupport):
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css") 
             })
-        def compare_reqs(req_expect, req_found):
-            for k in req_expect:
-                if not k in req_found:
-                    log.debug("- not found: %s"%(k))
-                    return False
-                elif isinstance(req_expect[k], dict) and isinstance(req_found[k], dict):
-                    if not compare_reqs(req_expect[k], req_found[k]): return False
-                elif req_found[k] != req_expect[k]:
-                    log.debug("- not found: %s: %s != %s "%(k,req_expect[k],req_found[k]))
-                    return False
-            return True
         r1_found = r2_found = r3_found = False
         for r in requirements:
             log.debug("requirement: %s"%(repr(r)))
-            if compare_reqs(r1, r ): r1_found = True
-            if compare_reqs(r2, r ): r2_found = True
-            if compare_reqs(r3, r ): r3_found = True
-        self.assertTrue(r1_found, "Expected requirements not found in minim")
-        self.assertTrue(r2_found, "Expected requirements not found in minim")
-        self.assertTrue(r3_found, "Expected requirements not found in minim")
+            if compare_reqs(r1, r): r1_found = True
+            if compare_reqs(r2, r): r2_found = True
+            if compare_reqs(r3, r): r3_found = True
+        self.assertTrue(r1_found, "Expected requirement(1) not found in minim")
+        self.assertTrue(r2_found, "Expected requirement(2) not found in minim")
+        self.assertTrue(r3_found, "Expected requirement(3) not found in minim")
         return
 
     # Sentinel/placeholder tests
