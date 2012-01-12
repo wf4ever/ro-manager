@@ -68,43 +68,42 @@
 
     <!-- # Environment needs lpod-show -->
     <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="#isPresent/data/UserRequirements-astro.ods">
+      <minim:Requirement rdf:about="#environment-software/lpod-show">
+        <rdfs:label>lpod-show command</rdfs:label>
         <rdfs:comment>
           Require that lpod-show.py command is present (from http://lpod-project.org/).
           This command dumps CSV data from an OpenOffice Calc spreadsheet document.
         </rdfs:comment>
         <minim:isDerivedBy>
-          <minim:RequirementRule>
-            <minim:environment>
-              <minim:SoftwareSupport>
-                <minim:command>lpod-show.py --version</minim:command>
-                <minim:response>0.9.3</minim:response>
-              </minim:SoftwareSupport>
-            </minim:environment>
-            <minim:derivesRequirement rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
-          </minim:RequirementRule>
+          <minim:SoftwareEnvironmentRule>
+            <minim:command>lpod-show.py --version</minim:command>
+            <minim:response>0.9.3</minim:response>
+            <minim:derives rdf:resource="#environment-software/lpod-show" />
+          </minim:SoftwareEnvironmentRule>
         </minim:isDerivedBy>
       </minim:Requirement>
     </minim:hasMustRequirement>
        
     <minim:hasMustRequirement>
       <minim:Requirement rdf:about="#isPresent/data/UserRequirements-astro.ods">
+        <rdfs:label>aggregates data/UserRequirements-astro.ods</rdfs:label>
         <minim:isDerivedBy>
-          <minim:RequirementRule>
-            <minim:aggregatePresent rdf:resource="data/UserRequirements-astro.ods" />
-            <minim:derivesRequirement rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
-          </minim:RequirementRule>
+          <minim:DataRequirementRule>
+            <minim:aggregates rdf:resource="data/UserRequirements-astro.ods" />
+            <minim:derives rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
+          </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
     </minim:hasMustRequirement>
 
     <minim:hasShouldRequirement>
       <minim:Requirement rdf:about="#isPresent/docs/reqs.css">
+        <rdfs:label>aggregates docs/reqs.css</rdfs:label>
         <minim:isDerivedBy>
-          <minim:RequirementRule>
-            <minim:aggregatePresent rdf:resource="data/docs/reqs.css" />
-            <minim:derivesRequirement rdf:resource="#isPresent/docs/reqs.css" />
-          </minim:RequirementRule>
+          <minim:DataRequirementRule>
+            <minim:aggregates rdf:resource="docs/reqs.css" />
+            <minim:derives rdf:resource="#isPresent/docs/reqs.css" />
+          </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
     </minim:hasShouldRequirement>
