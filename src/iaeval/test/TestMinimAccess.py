@@ -130,7 +130,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
         constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-gen.csv")
-        # Read Minim as graph, scan constraints and look for expected value
         minimgraph = ro_minim.readMinimGraph(minimbase)
         c = ro_minim.getConstraint(minimgraph, rodir,
             "docs/UserRequirements-gen.csv",
@@ -143,30 +142,91 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         return
 
     def testGetModels(self):
+        self.setupConfig()
+        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rouri      = ro_manifest.getRoUri(rodir)
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        models     = ro_minim.getModels(minimgraph)
+        expected_found = False
+        for m in models:
+            if ( m['label']  == rdflib.Literal("Runnable Requirements RO") and
+                 m['uri']    == model ) :
+                expected_found = True
+                break
+        self.assertTrue(expected_found, "Expected model not found in minim")
         return
     
     def testGetModel(self):
+        self.setupConfig()
+        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rouri      = ro_manifest.getRoUri(rodir)
+        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        m = ro_minim.getModel(minimgraph, model)
+        self.assertEquals(m['label'], rdflib.Literal("Runnable Requirements RO"))
+        self.assertEquals(m['uri'],   model)
         return
 
     def testGetRequirements(self):
-        return
-
-    def ZZZtestAddAggregatedResources(self):
-        """
-        Test function that adds aggregated resources to a research object manifest
-        """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
-        ro_manifest.addAggregatedResources(rodir, rodir, recurse=True)
-        def URIRef(path):
-            return ro_manifest.getComponentUri(rodir, path)
-        s = ro_manifest.getComponentUri(rodir, "")
-        g = rdflib.Graph()
-        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
-        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
-        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
-        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
-        self.checkManifestGraph(rodir, g)
-        self.deleteTestRo(rodir)
+        self.setupConfig()
+        rodir        = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rouri        = ro_manifest.getRoUri(rodir)
+        minimbase    = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements-gen.json.rdf")
+        model        = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
+        minimgraph   = ro_minim.readMinimGraph(minimbase)
+        requirements = ro_minim.getRequirements(minimgraph, model)
+        expected_found = False
+        r1 = (
+            { 'level': "MUST"
+            , 'label': rdflib.Literal("lpod-show command")
+            , 'softwarerule':
+              { 'command':  rdflib.Literal("lpod-show.py --version")
+              , 'response': rdflib.Literal("0.9.3")
+              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/lpod-show")
+              }
+            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/lpod-show") 
+            })
+        r2 = (
+            { 'level': "MUST"
+            , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
+            , 'datarule':
+              { 'aggregates': ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods")
+              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods")
+              }
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods") 
+            })
+        r3 = (
+            { 'level': "SHOULD"
+            , 'label': rdflib.Literal("aggregates docs/reqs.css")
+            , 'datarule':
+              { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/reqs.css") 
+              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css")
+              }
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css") 
+            })
+        def compare_reqs(req_expect, req_found):
+            for k in req_expect:
+                if not k in req_found:
+                    log.debug("- not found: %s"%(k))
+                    return False
+                elif isinstance(req_expect[k], dict) and isinstance(req_found[k], dict):
+                    if not compare_reqs(req_expect[k], req_found[k]): return False
+                elif req_found[k] != req_expect[k]:
+                    log.debug("- not found: %s: %s != %s "%(k,req_expect[k],req_found[k]))
+                    return False
+            return True
+        r1_found = r2_found = r3_found = False
+        for r in requirements:
+            log.debug("requirement: %s"%(repr(r)))
+            if compare_reqs(r1, r ): r1_found = True
+            if compare_reqs(r2, r ): r2_found = True
+            if compare_reqs(r3, r ): r3_found = True
+        self.assertTrue(r1_found, "Expected requirements not found in minim")
+        self.assertTrue(r2_found, "Expected requirements not found in minim")
+        self.assertTrue(r3_found, "Expected requirements not found in minim")
         return
 
     # Sentinel/placeholder tests
@@ -204,6 +264,9 @@ def getTestSuite(select="unit"):
             , "testMinimRead"
             , "testGetConstraints"
             , "testGetConstraint"
+            , "testGetModels"
+            , "testGetModel"
+            , "testGetRequirements"
             ],
         "component":
             [ "testComponents"
