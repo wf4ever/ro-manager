@@ -509,7 +509,7 @@ def evaluate(progname, configbase, options, args):
             return 1
         ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
-        ro_options["target"]  = ((len(args) > 5) and args[5]) or ro_dir
+        ro_options["target"]  = ((len(args) > 5) and args[5]) or "."
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
         evalresult = ro_eval_completeness.evaluate(ro_dir, 

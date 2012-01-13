@@ -28,8 +28,8 @@ def getTestSuite(select="unit"):
     suite.addTest(TestManifest.getTestSuite(select=select))
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
-    suite.addTest(TestEvalCompleteness.getTestSuite(select=select))
     suite.addTest(TestSyncCommands.getTestSuite(select=select))
+    suite.addTest(TestEvalCompleteness.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils

@@ -31,6 +31,8 @@ cp -r  $TESTRO/ro-test-1/* $ROBASE/test-create-RO
 
 ./ro create -v "Test Create RO" -d $ROBASE/test-create-RO -i RO-id-testCreate
 
+./ro add -v -a -d $ROBASE/test-create-RO $ROBASE/test-create-RO
+
 ./ro status -v -d $ROBASE/test-create-RO
 
 ./ro list -v -d $ROBASE/test-create-RO
@@ -57,5 +59,10 @@ echo "--------"
 ./ro list -v -a -d $ROBASE/test-create-RO
 
 echo "--------"
+
+./ro evaluate completeness -a -v -d $ROBASE/test-create-RO minim.rdf test
+
+echo "--------"
+
 
 # End.

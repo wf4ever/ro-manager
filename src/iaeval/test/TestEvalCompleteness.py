@@ -327,8 +327,8 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.outstr.seek(0)
         with StdoutContext.SwitchStdout(self.outstr):
             status = ro.runCommand(
-                TestConfig.ro_test_config.CONFIGDIR, 
-                TestConfig.ro_test_config.ROBASEDIR, 
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
                 args)
         outtxt = self.outstr.getvalue()
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
