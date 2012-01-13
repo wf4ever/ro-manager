@@ -27,8 +27,22 @@ def evaluate(rodir, minim, target, purpose):
     """
     Evaluate a RO against a minimuminformation model for a particular
     purpose with respect to a particular targetresource.
+
+    rodir       is the name of a directory containing the RO to be analyzed
+    minim       is a URI-reference (relative to the RO, or absolute) of the
+                minim description to be used.
+    target      is a URI-reference (relative to the RO, or absolute) of a 
+                target resource with respect to which the evaluation is
+                performed.
+    purpose     is a string that identifies a purpose w.r.t. the target for
+                which completeness will be evaluated.
+                
+    'target' and 'purpose' are ued together to select a particular minim Model
+    that will be used for the evaluation.  For example, to evaluate whether an 
+    RO is sufficiently complete to support creation (a purpose) of a specified
+    output file (a target).
     
-    There are two main steps top this process:
+    There are two main steps to the evaluation process:
     1. locate the minim model constraint for the target resource and purpose
     2. evaluate the RO against the selected model.
     
@@ -37,6 +51,12 @@ def evaluate(rodir, minim, target, purpose):
     , 'missingMust':   []
     , 'missingShould': []
     , 'missingMay':    []
+    , 'rouri':          rouri
+    , 'minimuri':       minim
+    , 'target':         target
+    , 'purpose':        purpose
+    , 'constrainturi':  constraint['uri']
+    , 'modeluri':       model['uri']
     }
     """
     # Locate the constraint model requirements
@@ -63,10 +83,17 @@ def evaluate(rodir, minim, target, purpose):
         , 'MAY':    MINIM.fullySatisfies
         })
     eval_result = (
-        { 'summary':       []
-        , 'missingMust':   []
-        , 'missingShould': []
-        , 'missingMay':    []
+        { 'summary':        []
+        , 'missingMust':    []
+        , 'missingShould':  []
+        , 'missingMay':     []
+        , 'rodir':          rodir
+        , 'rouri':          rouri
+        , 'minimuri':       minimuri
+        , 'target':         target
+        , 'purpose':        purpose
+        , 'constrainturi':  constraint['uri']
+        , 'modeluri':       model['uri']
         })
     for (r, satisfied) in reqeval:
         if not satisfied:
@@ -84,5 +111,41 @@ def evaluate(rodir, minim, target, purpose):
                 sat_levels['MAY'] = False
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
     return eval_result
+
+def format(eval_result, options, ostr):
+    """
+    Formats a completeness evaluation report, and writes it to the supplied stream.
+    
+    eval_result is the result of evaluation from ro_eval_completeness.evaluate
+    options     a dictionary that provides options to control the formatting (see below)
+    ostr        is a stream to which the formatted result is written
+
+    options currently has just one field:
+    options['detail'] = "summary" or "full"
+    
+    More options may be introduced later.
+    """
+    any  = ["summary","full"]
+    full = ["full"]
+    def put(detail, line):
+        if options['detail'] in detail:
+            ostr.write(line)
+            ostr.write("\n")
+        return
+    put(any, "Research Object %(rodir)s:"%eval_result)
+    summary_text= ( "Fully complete"     if MINIM.fullySatisfies     in eval_result['summary'] else
+                    "Nominally complete" if MINIM.nominallySatisfies in eval_result['summary'] else
+                    "Minimally complete" if MINIM.minimallySatisfies in eval_result['summary'] else
+                    "Incomplete")
+    put(any, summary_text+" for %(purpose)s of resource %(target)s"%(eval_result))
+    for m in eval_result['missingMust']:
+        put(full, "Missing MUST resource:   %s"%(m['datarule']['aggregates']))
+    for m in eval_result['missingShould']:
+        put(full, "Missing SHOULD resource: %s"%(m['datarule']['aggregates']))
+    for m in eval_result['missingMay']:
+        put(full, "Missing MAY resource:    %s"%(m['datarule']['aggregates']))
+    put(full, "Research object URI:     %(rouri)s"%(eval_result))
+    put(full, "Minimum information URI: %(minimuri)s"%(eval_result))
+    return
 
 # End.

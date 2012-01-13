@@ -23,6 +23,8 @@ import ro_utils
 import ro_manifest
 import ro_annotation
 
+from iaeval import ro_eval_completeness
+
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
 
@@ -87,6 +89,7 @@ def help(progname, args):
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
+        , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
         , ""
         , "Supported annotation type names are: "
         , "\n".join([ "  %(name)s - %(description)s"%atype for atype in ro_annotation.annotationTypes ])
@@ -475,6 +478,51 @@ def checkout(progname, configbase, options, args):
         shutil.move(rodir + "/" + ro_settings.MANIFEST_FILE, rodir + "/" + ro_settings.MANIFEST_DIR + "/" + ro_settings.MANIFEST_FILE)
         
         print "%d files checked out" % len(zipfile.namelist())
+    return 0
+
+def evaluate(progname, configbase, options, args):
+    """
+    Evaluate RO
+    
+    ro evaluate completeness [ -d <dir> ] [ <purpose> ] [ <target> ]"
+    """
+    log.debug("evaluate: progname %s, configbase %s, args %s"%
+              (progname, configbase, repr(args)))
+    # Check command arguments
+    if len(args) < 3:
+        print ("%s evaluate: wrong number of arguments provided"%(progname))
+        print ("Usage: %s evaluate <function> [ -d <dir> ] ..."%(progname))
+        return 1
+    ro_config  = ro_utils.readconfig(configbase)
+    ro_options = (
+        { "rodir":        options.rodir or ""
+        , "function":     args[2]
+        })
+    log.debug("ro_options: "+repr(ro_options))
+    ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    # Evaluate...
+    if ro_options["function"] == "completeness":
+        if len(args) not in [3,4,5,6]:
+            print ("%s evaluate completeness: wrong number of arguments provided"%(progname))
+            print ("Usage: %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+            return 1
+        ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
+        ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
+        ro_options["target"]  = ((len(args) > 5) and args[5]) or ro_dir
+        if options.verbose:
+            print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
+        evalresult = ro_eval_completeness.evaluate(ro_dir, 
+            ro_options["minim"], ro_options["target"], ro_options["purpose"])
+        ro_eval_completeness.format(evalresult, 
+            { "detail" : "full" if options.all else "summary" }, 
+            sys.stdout)
+    # elif ... other functions here
+    else:
+        print ("%s evaluate: unrecognized function provided"%(progname))
+        print ("Usage:")
+        print ("  %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+        return 1
     return 0
 
 # End.
