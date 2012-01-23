@@ -25,14 +25,19 @@ echo "--------"
 
 echo "--------"
 
-mkdir $ROBASE/test-create-RO
-cp -r $TESTRO/ro-test-1/* $ROBASE/test-create-RO
+mkdir  $ROBASE/test-create-RO
+rm -rf $ROBASE/test-create-RO/.ro
+cp -r  $TESTRO/ro-test-1/* $ROBASE/test-create-RO
 
 ./ro create -v "Test Create RO" -d $ROBASE/test-create-RO -i RO-id-testCreate
+
+./ro add -v -a -d $ROBASE/test-create-RO $ROBASE/test-create-RO
 
 ./ro status -v -d $ROBASE/test-create-RO
 
 ./ro list -v -d $ROBASE/test-create-RO
+
+./ro list -v -a -d $ROBASE/test-create-RO
 
 echo "--------"
 
@@ -51,6 +56,13 @@ echo "--------"
 
 ./ro annotations -v $ROBASE/test-create-RO/subdir2/subdir2-file.txt
 
+./ro list -v -a -d $ROBASE/test-create-RO
+
 echo "--------"
+
+./ro evaluate completeness -a -v -d $ROBASE/test-create-RO minim.rdf test
+
+echo "--------"
+
 
 # End.

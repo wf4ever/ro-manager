@@ -17,7 +17,7 @@ from os.path import exists
 
 class Test(unittest.TestCase):
     
-    files1 = { 'data/ro-test-1/.ro_manifest/manifest.rdf', 
+    files1 = { 'data/ro-test-1/'+ro_test_config.ROMANIFESTPATH, 
              'data/ro-test-1/file1.txt',
              'data/ro-test-1/file3.jpg',
              'data/ro-test-1/file with spaces.txt',
@@ -28,7 +28,7 @@ class Test(unittest.TestCase):
     fileToTouch = 'data/ro-test-1/file with spaces.txt'
     fileToModify = 'data/ro-test-1/subdir1/file2.txt'
 
-    filesAll = { 'data/ro-test-1/.ro_manifest/manifest.rdf',
+    filesAll = { 'data/ro-test-1/'+ro_test_config.ROMANIFESTPATH,
                  'data/ro-test-1/file1.txt',
                  'data/ro-test-1/file3.jpg',
                  'data/ro-test-1/file with spaces.txt',

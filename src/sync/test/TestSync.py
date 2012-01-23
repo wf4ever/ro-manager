@@ -43,7 +43,8 @@ class Test(unittest.TestCase):
         sync.postWorkspace()
         sync.postRo(ro_test_config.RO_ID)
         sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
-        res = sync.putManifest(ro_test_config.RO_ID, ro_test_config.VER_ID, open("data/ro-test-1/.ro_manifest/manifest.rdf"))
+        res = sync.putManifest(ro_test_config.RO_ID, ro_test_config.VER_ID,
+                               open("data/"+ro_test_config.ROMANIFESTPATH))
         self.assertIsNotNone(res, "Put manifest must be implemented")
         sync.deleteWorkspace()
         return

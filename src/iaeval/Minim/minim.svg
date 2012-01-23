@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg height="961" version="1.1" width="788" xmlns="http://www.w3.org/2000/svg">
+<rect fill="#ffffff" height="67" stroke="#ffffff" stroke-width="1" width="128" x="42" y="272"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="42" y="272"/>
+<text font-family="Lucida Grande" font-size="13" x="87" y="286">
+Model</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="296"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="317"/>
+<rect fill="#ffffff" height="67" stroke="#ffffff" stroke-width="1" width="128" x="458" y="272"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="458" y="272"/>
+<text font-family="Lucida Grande" font-size="13" x="482" y="286">
+Requirement</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="296"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="317"/>
+<rect fill="#c8ffff" height="67" stroke="#c8ffff" stroke-width="1" width="128" x="458" y="432"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="458" y="432"/>
+<text font-family="Lucida Grande" font-size="13" x="469" y="446">
+RequirementRule</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="456"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="477"/>
+<rect fill="#ffffff" height="67" stroke="#ffffff" stroke-width="1" width="128" x="330" y="560"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="330" y="560"/>
+<text font-family="Lucida Grande" font-size="13" x="373" y="574">
+Report</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="330" y="584"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="330" y="605"/>
+<rect fill="#ffffff" height="80" stroke="#ffffff" stroke-width="1" width="128" x="42" y="576"/>
+<rect fill="none" height="80" stroke="#000000" stroke-width="1" width="128" x="42" y="576"/>
+<text font-family="Lucida Grande" font-size="13" x="85" y="590">
+Object</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="600"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="627"/>
+<rect fill="#ffffff" height="80" stroke="#ffffff" stroke-width="1" width="128" x="42" y="752"/>
+<rect fill="none" height="80" stroke="#000000" stroke-width="1" width="128" x="42" y="752"/>
+<text font-family="Lucida Grande" font-size="13" x="97" y="766">
+RO</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="776"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="803"/>
+<rect fill="#ffffff" height="80" stroke="#ffffff" stroke-width="1" width="128" x="298" y="752"/>
+<rect fill="none" height="80" stroke="#000000" stroke-width="1" width="128" x="298" y="752"/>
+<text font-family="Lucida Grande" font-size="13" x="311" y="766">
+(AggregatedRes)</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="298" y="776"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="298" y="803"/>
+<polyline fill="none" points="442,560 442,528 490,528 490,499" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="490,499 497,511 483,511" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="490,499 497,511 483,511" stroke="#000000" stroke-width="1"/>
+<polyline fill="none" points="330,752 330,720 138,720 138,656" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="138,656 145,668 131,668" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="138,656 145,668 131,668" stroke="#000000" stroke-width="1"/>
+<polyline fill="none" points="106,752 106,656" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="106,656 113,668 99,668" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="106,656 113,668 99,668" stroke="#000000" stroke-width="1"/>
+<polyline fill="none" points="394,560 394,320 458,320" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="310" y="548">
+isReportedBy</text>
+<text font-family="Lucida Grande" font-size="13" x="404" y="341">
+reports</text>
+<polyline fill="none" points="170,792 298,792" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="204" y="812">
+ore:aggregates</text>
+<polyline fill="none" points="106,576 106,339" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="118" y="364">
+*Satisfies</text>
+<polyline fill="none" points="170,304 458,304" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="347" y="298">
+hasRequirement</text>
+<ellipse cx="314" cy="302" fill="#000000" rx="0.5" ry="0.5" stroke="#000000" stroke-width="1"/>
+<ellipse cx="315" cy="303" fill="#ffffff" rx="-0.5" ry="-0.5" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="522,339 522,432" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="531" y="360">
+derives</text>
+<text font-family="Lucida Grande" font-size="13" x="529" y="421">
+isDerivedBy</text>
+<rect fill="#ffc8ff" height="67" stroke="#ffc8ff" stroke-width="1" width="128" x="42" y="16"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="42" y="16"/>
+<text font-family="Lucida Grande" font-size="13" x="85" y="30">
+Object</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="40"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="42" y="61"/>
+<rect fill="#ffc8ff" height="67" stroke="#ffc8ff" stroke-width="1" width="128" x="298" y="16"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="298" y="16"/>
+<text font-family="Lucida Grande" font-size="13" x="329" y="30">
+Constraint</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="298" y="40"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="298" y="61"/>
+<polyline fill="none" points="170,48 298,48" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="208" y="64">
+hasConstraint</text>
+<rect fill="#ffc8ff" height="67" stroke="#ffc8ff" stroke-width="1" width="128" x="554" y="16"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="554" y="16"/>
+<text font-family="Lucida Grande" font-size="13" x="597" y="30">
+Object</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="554" y="40"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="554" y="61"/>
+<polyline fill="none" points="426,48 554,48" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="476" y="64">
+onResource</text>
+<polyline fill="none" points="362,83 362,128 106,128 106,272" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="48" y="254">
+toModel</text>
+<rect fill="#ffc8ff" height="67" stroke="#ffc8ff" stroke-width="1" width="128" x="554" y="144"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="554" y="144"/>
+<text font-family="Lucida Grande" font-size="13" x="599" y="158">
+String</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="554" y="168"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="554" y="189"/>
+<polyline fill="none" points="426,72 466,72 522,160 554,160" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="481" y="181">
+forPurpose</text>
+<polygon fill="#ffffff" points="138,400 262,400 272,410 272,458 138,458 138,400" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="138,400 262,400 272,410 272,458 138,458 138,400" stroke="#000000" stroke-width="1"/>
+<polygon fill="#b2b2b2" points="262,400 272,410 262,410 262,400" stroke="#b2b2b2" stroke-width="1"/>
+<polyline fill="none" points="262,400 272,410 262,410 262,400" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="141" y="416">
+fullySatisfies </text>
+<text font-family="Lucida Grande" font-size="13" x="141" y="432">
+nominallySatisfies </text>
+<text font-family="Lucida Grande" font-size="13" x="141" y="448">
+minimallySatisfies</text>
+<polygon fill="#ffffff" points="258,216 417,216 427,226 427,274 258,274 258,216" stroke="#ffffff" stroke-width="1"/>
+<polyline fill="none" points="258,216 417,216 427,226 427,274 258,274 258,216" stroke="#000000" stroke-width="1"/>
+<polygon fill="#b2b2b2" points="417,216 427,226 417,226 417,216" stroke="#b2b2b2" stroke-width="1"/>
+<polyline fill="none" points="417,216 427,226 417,226 417,216" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="261" y="232">
+hasMustRequirement</text>
+<text font-family="Lucida Grande" font-size="13" x="261" y="248">
+hasShouldRewquirement</text>
+<text font-family="Lucida Grande" font-size="13" x="261" y="264">
+hasMayrequirement</text>
+<rect fill="#c8ffff" height="67" stroke="#c8ffff" stroke-width="1" width="128" x="458" y="656"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="458" y="656"/>
+<text font-family="Lucida Grande" font-size="13" x="480" y="670">
+DataReqtRule</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="680"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="458" y="701"/>
+<polyline fill="none" points="522,656 522,499" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="522,499 529,511 515,511" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="522,499 529,511 515,511" stroke="#000000" stroke-width="1"/>
+<rect fill="#c8ffff" height="67" stroke="#c8ffff" stroke-width="1" width="128" x="586" y="752"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="586" y="752"/>
+<text font-family="Lucida Grande" font-size="13" x="595" y="766">
+SoftwareReqtRule</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="586" y="776"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="586" y="797"/>
+<polyline fill="none" points="650,752 650,560 554,560 554,499" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="554,499 561,511 547,511" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="554,499 561,511 547,511" stroke="#000000" stroke-width="1"/>
+<polyline fill="none" points="330,592 170,592" stroke="#000000" stroke-width="1"/>
+<polygon fill="#ffffff" points="170,592 182,585 182,599" stroke="#ffffff" stroke-width="1"/>
+<polygon fill="none" points="170,592 182,585 182,599" stroke="#000000" stroke-width="1"/>
+<polyline fill="none" points="458,672 298,672 266,616 170,616" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="180" y="631">
+aggregates</text>
+<rect fill="#c8ffff" height="67" stroke="#c8ffff" stroke-width="1" width="128" x="586" y="880"/>
+<rect fill="none" height="67" stroke="#000000" stroke-width="1" width="128" x="586" y="880"/>
+<text font-family="Lucida Grande" font-size="13" x="631" y="894">
+String</text>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="586" y="904"/>
+<rect fill="#000000" height="1" stroke="#000000" stroke-width="1" width="128" x="586" y="925"/>
+<polyline fill="none" points="626,819 626,880" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="558" y="868">
+command</text>
+<polyline fill="none" points="682,819 682,880" stroke="#000000" stroke-width="1"/>
+<text font-family="Lucida Grande" font-size="13" x="690" y="868">
+response</text>
+</svg>

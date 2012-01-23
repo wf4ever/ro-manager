@@ -15,15 +15,20 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
+* ro eval completeness
+** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
+** Test that aggregated files actually exist - part of liveness?
+** Target specification is very error prone
+** Error handling when target not found is poor
+
 * ro show config
 * ro create to fail if RO already created
+
 * option to change ro manifest details - ro modify?
 
 * ro link
 * ro links
 * ro users
-* ro add
-** Maintain list of files in manifest, treat like git staging?
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
 * Options for RO logging of changes, etc
@@ -38,6 +43,10 @@ DONE
 * ro status: display status of RO
 * ro list / ro ls: list contents of research object
 * ro annotate, ro annotations: annotate research object contents
+
+* ro add [file]
+* ro add [-a] [directory]
+* ro eval completeness minim
 
 
 Client id = 5248c9c2-e7a2-4e8f-8

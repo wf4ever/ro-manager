@@ -111,7 +111,7 @@ def runTests(logname, getSuite, args):
             # Use this formatter to display timing information:
             filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
             fileloghandler.setFormatter(filelogformatter)
-            #logging.getLogger('').addHandler(fileloghandler)
+            logging.getLogger('').addHandler(fileloghandler)
             vrb = 2
         runner = unittest.TextTestRunner(verbosity=vrb)
         tests  = getSuite(select=sel)

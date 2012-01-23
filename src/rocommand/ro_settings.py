@@ -4,10 +4,10 @@
 RO manager parameter settings
 """
 
-VERSION       = "0.1 (ROBOX)"
-MANIFEST_DIR  = ".ro_manifest"
+VERSION       = "0.2 (RODL)"
+MANIFEST_DIR  = ".ro"
 MANIFEST_FILE = "manifest.rdf"
 
-RO_VERSION    = "v1"
+RO_VERSION    = "v0.1"
 
 # End.

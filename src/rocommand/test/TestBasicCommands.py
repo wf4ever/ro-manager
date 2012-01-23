@@ -34,6 +34,9 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__file__)
+
 class TestBasicCommands(TestROSupport.TestROSupport):
     """
     Test basic ro commands
@@ -164,7 +167,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreate")
+        rodir = self.createRoFixture(testbase, "data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreate")
         args = [
             "ro", "create", "Test Create RO",
             "-v", 
@@ -186,7 +189,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreateDefaults")
+        rodir = self.createRoFixture(testbase, "data/ro-test-1", ro_test_config.ROBASEDIR, "ro-testCreateDefaults")
         args = [
             "ro", "create", "Test Create RO_+_defaults",
             "-v"
@@ -209,7 +212,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro create RO-name [ -d dir ] [ -i RO-ident ]
         """
-        rodir = self.createRoFixture("data/ro-test-1", ro_test_config.NOBASEDIR, "ro-testCreateBadDir")
+        rodir = self.createRoFixture(testbase, "data/ro-test-1", ro_test_config.NOBASEDIR, "ro-testCreateBadDir")
         args = [
             "ro", "create", "Test Create RO bad directory",
             "-d", rodir,
@@ -230,7 +233,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro status -d rodir
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoStatus")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test status", "ro-testRoStatus")
         args = [
             "ro", "status",
             "-d", rodir,
@@ -255,7 +258,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro status 
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test status", "ro-testRoStatus")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test status", "ro-testRoStatus")
         args = [
             "ro", "status",
             "-v"
@@ -283,7 +286,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro ls -d rodir
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test list", "ro-testRoList")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
         args = [
             "ro", "ls",
             "-d", rodir,
@@ -306,7 +309,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
 
         ro ls
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test list", "ro-testRoList")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
         args = [
             "ro", "ls",
             "-v"

@@ -7,12 +7,21 @@ See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
 import sys
+import os.path
 import filecmp
+import logging
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
 except ImportError:
     import json
+
+log = logging.getLogger(__name__)
+
+if __name__ == "__main__":
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
 
@@ -24,6 +33,9 @@ from sync.RosrsSync import RosrsSync
 
 import TestROSupport
 
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__file__)
+
 class TestSyncCommands(TestROSupport.TestROSupport):
     """
     Test sync ro commands
@@ -32,9 +44,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     files = ["subdir1/subdir1-file.txt"
              , "subdir2/subdir2-file.txt"
              , "README-ro-test-1"
-             , ".ro_manifest/manifest.rdf"]
+             , ro_test_config.ROMANIFESTPATH]
 
-    
     def setUp(self):
         super(TestSyncCommands, self).setUp()
         self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
@@ -63,7 +74,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
         
         args = [
             "ro", "push",
@@ -85,8 +96,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         
         args = [
             "ro", "push"
@@ -106,12 +117,12 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
-        rodir = self.createTestRo("data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo("data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
+        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         
         args = [
             "ro", "push",
@@ -132,7 +143,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
         args = [
             "ro", "push",
             "-d", rodir,
@@ -171,7 +182,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
         args = [
             "ro", "push",
             "-d", rodir,

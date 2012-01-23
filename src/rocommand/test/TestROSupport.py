@@ -23,6 +23,8 @@ if __name__ == "__main__":
     sys.path.append("../..")
     sys.path.append("..")
 
+import rdflib
+
 from MiscLib import TestUtils
 
 from rocommand import ro, ro_utils, ro_manifest
@@ -46,7 +48,36 @@ class TestROSupport(unittest.TestCase):
         os.chdir(self.save_cwd)
         return
 
-    def createRoFixture(self, src, robase, roname):
+    def getConfigDir(self, testbase):
+        return os.path.join(testbase, ro_test_config.CONFIGDIR)
+
+    def getRoBaseDir(self, testbase):
+        return os.path.join(testbase, ro_test_config.ROBASEDIR)
+
+    def setupTestBaseConfig(self, testbase):
+        """
+        Test helper creates RO config for designated test base directory
+        and returns configuration and base RO storage directories. 
+        """
+        configdir = self.getConfigDir(testbase)
+        robasedir = self.getRoBaseDir(testbase)
+        ro_utils.resetconfig(configdir)
+        args = [
+            "ro", "config",
+            "-b", robasedir,
+            "-r", ro_test_config.ROSRS_URI,
+            "-u", ro_test_config.ROSRS_USERNAME,
+            "-p", ro_test_config.ROSRS_PASSWORD,
+            "-n", ro_test_config.ROBOXUSERNAME,
+            "-e", ro_test_config.ROBOXEMAIL
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(configdir, robasedir, args)
+            assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("ro config"), 0)
+        return (configdir, robasedir)
+
+    def createRoFixture(self, testbase, src, robase, roname):
         """
         Create test fixture research object - this is a set of directories
         and files that will be used as a research object, but not actually
@@ -54,11 +85,12 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
-        rodir = robase+"/"+ roname
+        if testbase != "" and not testbase.endswith("/"): testbase += "/"
+        rodir = testbase + robase + "/" + roname
         manifestdir  = rodir+"/"+ro_test_config.ROMANIFESTDIR
         manifestfile = manifestdir+"/"+ro_test_config.ROMANIFESTFILE
         shutil.rmtree(rodir, ignore_errors=True)
-        shutil.copytree(src, rodir)
+        shutil.copytree(testbase+src, rodir)
         # Confirm non-existence of manifest directory
         self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
         self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
@@ -90,6 +122,27 @@ class TestROSupport(unittest.TestCase):
         self.assertEqual(manifest['rodescription'], roname,  "RO name")
         return
 
+    def checkManifestGraph(self, rodir, rograph):
+        """
+        Check manifest file contains all statements from supplied graph
+        """
+        m_graph = ro_manifest.readManifestGraph(rodir)
+        for (s,p,o) in rograph:
+            if isinstance(s, rdflib.BNode): s = None 
+            if isinstance(o, rdflib.BNode): o = None
+            self.assertIn((s,p,o), m_graph, "Not found in manifest: "+repr((s, p, o)))
+        return
+
+    def checkTargetGraph(self, targetgraph, expectgraph, msg="Not found in target graph"):
+        """
+        Check target graph contains all statements from supplied graph
+        """
+        for (s,p,o) in expectgraph:
+            if isinstance(s, rdflib.BNode): s = None 
+            if isinstance(o, rdflib.BNode): o = None
+            self.assertIn((s,p,o), targetgraph, msg+": "+repr((s, p, o)))
+        return
+
     def deleteRoFixture(self, rodir):
         """
         Delete test fixture research object
@@ -97,13 +150,13 @@ class TestROSupport(unittest.TestCase):
         shutil.rmtree(rodir, ignore_errors=True)
         return
 
-    def createTestRo(self, src, roname, roident):
+    def createTestRo(self, testbase, src, roname, roident):
         """
         Create test research object
         
         Returns name of research object directory
         """
-        rodir = self.createRoFixture(src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
+        rodir = self.createRoFixture(testbase, src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
         args = [
             "ro", "create", roname,
             "-v", 
@@ -111,8 +164,30 @@ class TestROSupport(unittest.TestCase):
             "-i", roident,
             ]
         with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        return rodir
+
+    def populateTestRo(self, testbase, rodir):
+        """
+        Create test research object
+        
+        Returns name of research object directory
+        """
+        args = [
+            "ro", "add", "-v", "-a",
+            "-d", rodir,
+            rodir
+            ]
+        with SwitchStdout(self.outstr):
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
         return rodir
 
     def deleteTestRo(self, rodir):

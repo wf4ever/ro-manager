@@ -34,12 +34,21 @@ from MiscLib import TestUtils
 from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
-from rocommand.ro_manifest import DCTERMS
+from rocommand import ro_annotation
+from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
 import TestROSupport
+
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__file__)
+
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes": ro_annotation.annotationTypes
+    }
 
 class TestAnnotations(TestROSupport.TestROSupport):
     """
@@ -64,7 +73,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
 
         ro annotate file attribute-name [ attribute-value ]
         """
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
             "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", "title", "subdir1-file title",
             "-v",
@@ -76,17 +85,15 @@ class TestAnnotations(TestROSupport.TestROSupport):
         log.debug("outtxt %s"%outtxt)
         #self.assertRegexpMatches(outtxt, "annotation.*dc:title")
         # Read manifest and check for annotation
-        manifestgraph = ro_manifest.readManifestGraph(rodir)
-        filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
-        log.debug("filesubj %s"%filesubj)
-        filetitle = manifestgraph.value(filesubj, DCTERMS.title, None),
-        self.assertEqual(len(filetitle), 1, "Singleton result expected")
-        self.assertEqual(filetitle[0], "subdir1-file title")
+        values = ro_annotation.getAnnotationValues(ro_config, rodir, "subdir1/subdir1-file.txt", "title")
+        self.assertEquals(values.next(), rdflib.Literal("subdir1-file title"))
+        self.assertRaises(StopIteration, values.next)
+        # Clean up
         self.deleteTestRo(rodir)
         return
 
     def annotationTest(self, anntype, annvalue, anntypeuri, annexpect):
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
             "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
             "-v",
@@ -97,12 +104,17 @@ class TestAnnotations(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         self.assertEqual(outtxt.count("ro annotate"), 1)
         # Read manifest and check for annotation
-        manifestgraph = ro_manifest.readManifestGraph(rodir)
-        filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
-        fileann   = manifestgraph.value(filesubj, anntypeuri, None),
-        #@@TODO: deal with case that expected result is a list
-        self.assertEqual(len(fileann), 1, "Singleton result expected")
-        self.assertEqual(fileann[0], annexpect)
+        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
+        expected_annotations = (
+            [ (resourceuri, anntypeuri, rdflib.Literal(annexpect))
+            ])
+        for i in range(1):
+            next = annotations.next()
+            #log.debug("Next %s"%(repr(next)))
+            if ( next not in expected_annotations):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
+        self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
         return
 
@@ -148,9 +160,9 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     def testAnnotateMultiple(self):
-        rodir  = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
-        annotations = (
+        define_annotations = (
             [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
             , {"atypename": "keywords",    "avalue":"asubj",    "atypeuri":DCTERMS.subject,     "aexpect":"asubj" }
             , {"atypename": "description", "avalue":"adesc",    "atypeuri":DCTERMS.description, "aexpect":"adesc" }
@@ -160,21 +172,28 @@ class TestAnnotations(TestROSupport.TestROSupport):
             #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
             #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
             ])
-        self.annotateMultiple(rodir, rofile, annotations)
+        self.annotateMultiple(rodir, rofile, define_annotations)
         # Read manifest and check for annotation
-        manifestgraph = ro_manifest.readManifestGraph(rodir)
-        filesubj  = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
-        for a in annotations:
-            fileann   = manifestgraph.value(filesubj, a["atypeuri"], None),
-            self.assertEqual(len(fileann), 1, "Singleton result expected")
-            self.assertEqual(fileann[0], a["aexpect"])
+        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
+        expected_annotations = (
+            [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
+                for a in define_annotations
+            ])
+        for i in range(6):
+            next = annotations.next()
+            #log.debug("Next %s"%(repr(next)))
+            if ( next not in expected_annotations):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
+        self.assertRaises(StopIteration, annotations.next)
+        # Clean up
         self.deleteTestRo(rodir)
         return
 
     # Test annotation display
     def testAnnotationDisplayRo(self):
         # Construct annotated RO
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         # Display annotations
         args = [ "ro", "annotations", rodir+"/"
@@ -190,7 +209,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.assertRegexpMatches(outtxt, "title.*RO test annotation")
         self.assertRegexpMatches(outtxt, "created.*\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d")
         self.assertRegexpMatches(outtxt, "description.*RO test annotation")
-        self.assertRegexpMatches(outtxt, "rdf:type.*http://vocab.ox.ac.uk/dataset/schema#Grouping")
+        self.assertRegexpMatches(outtxt, "rdf:type.*<%s>"%(RO.ResearchObject))
         self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/identifier>.*ro-testRoAnnotate")
         self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/creator>.*Test User")
         self.deleteTestRo(rodir)
@@ -198,7 +217,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
 
     def testAnnotationDisplayFile(self):
         # Construct annotated RO
-        rodir = self.createTestRo("data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         annotations = (
             [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
