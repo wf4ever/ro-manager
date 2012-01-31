@@ -44,7 +44,7 @@ annotationTypes = (
       , "label": "Data format"
       , "description": "String indicating the data format of a Research Object component" 
       }
-    , { "name": "note", "prefix": "dcterms", "localName": "format", "type": "text"
+    , { "name": "note", "prefix": "dcterms", "localName": "note", "type": "text"
       , "baseUri": ROTERMS.baseUri, "fullUri": ROTERMS.note
       , "label": "Note"
       , "description": "String indicating some information about a Research Object component" 
@@ -120,7 +120,7 @@ def readAnnotationBody(rodir, annotationfile):
 def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     """
     Create a new annotation body for a single resource in a research object, based
-    omn a supplied graph value.
+    on a supplied graph value.
 
     Existing annotations for the same resource are not touched; if an annotation is being 
     added or replaced, it is the calling program'sresponsibility to update the manifest to
@@ -278,15 +278,6 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
         for a in add_annotations:
             addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, a)
         ro_manifest.writeManifestGraph(ro_dir, ro_graph)
-    #--- Old logic
-    #ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    #subject  = ro_manifest.getComponentUri(ro_dir, rofile)
-    #(predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    #val = attrvalue and makeAnnotationValue(attrvalue, valtype)
-    #log.debug("Remove annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(val)))
-    #ro_graph.remove((subject, predicate, val))
-    #ro_manifest.writeManifestGraph(ro_dir, ro_graph)
-    #---
     return
 
 def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
