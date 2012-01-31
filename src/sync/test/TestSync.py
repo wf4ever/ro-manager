@@ -8,12 +8,12 @@ import sys
 if __name__ == "__main__":
     sys.path.append("../..")
 
+from MiscLib import TestUtils
+from os.path import getsize
+from rocommand.test import TestROSupport
 from sync.RosrsSync import RosrsSync
 from sync.test.TestConfig import ro_test_config
 from zipfile import ZipFile
-import os
-from rocommand.test import TestROSupport
-from MiscLib import TestUtils
 
 class TestSync(TestROSupport.TestROSupport):
     
@@ -56,7 +56,7 @@ class TestSync(TestROSupport.TestROSupport):
         sync.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
         verzip = sync.getRoAsZip(ro_test_config.RO_ID)
         zipfile = ZipFile(verzip)
-        self.assertEquals(len(zipfile.read("folderX/fileY.txt")), os.path.getsize("data/ro-test-1/file1.txt"), "FileY size must be the same")
+        self.assertEquals(len(zipfile.read("folderX/fileY.txt")), getsize("data/ro-test-1/file1.txt"), "FileY size must be the same")
         self.assertTrue(len(zipfile.read(".ro/manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
         sync.deleteRo(ro_test_config.RO_ID)
         return
@@ -88,6 +88,7 @@ def getTestSuite(select="unit"):
             , "testNull"
             , "testROCreation"
             , "testGetRoAsZip"
+            , "testGetRos"
             ],
         "component":
             [ "testComponents"

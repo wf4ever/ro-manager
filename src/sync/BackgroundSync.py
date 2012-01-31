@@ -10,7 +10,8 @@ import logging
 from os.path import isdir, exists, join, basename
 from os import listdir, walk
 import pickle
-from rocommand import ro_settings, ro_manifest
+from rocommand import ro_manifest
+import urllib2
 
 log = logging.getLogger(__name__)
 
@@ -34,10 +35,10 @@ class BackgroundResourceSync(object):
         
     def pushAllResourcesInWorkspace(self, srcDirectory, createRO = False):
         '''
-        Scans all directories in srcDirectory as RO versions. A version id "v1" (taken from settings) 
-        is assumed. For each RO version pushes all changes to ROSRS.
+        Scans all directories in srcDirectory as RO versions. 
+        For each RO pushes all changes to ROSRS.
         
-        If createRO is True, this method will try to create RO and versions before pushing
+        If createRO is True, this method will try to create RO before pushing
         the resources. Otherwise, an exception will be raised if a directory is found without its
         corresponding RO in ROSRS.
         '''
@@ -46,6 +47,11 @@ class BackgroundResourceSync(object):
         for ro in listdir(srcDirectory):
             roDirectory = join(srcDirectory, ro)
             if isdir(roDirectory):
+                try:
+                    ro_manifest.readManifest(roDirectory)
+                except:
+                    log.debug("Not a valid RO: %s" % roDirectory)
+                    continue
                 (s, d) = self.pushAllResources(roDirectory, createRO)
                 sentFiles = sentFiles.union(s)
                 deletedFiles = deletedFiles.union(d)
@@ -58,44 +64,30 @@ class BackgroundResourceSync(object):
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
         '''
-        versionId = ro_settings.RO_VERSION
-        roId = self.getRoId(roDirectory) or basename(roDirectory)
+        roId = urllib2.quote(basename(roDirectory)) 
+        ro_manifest.readManifest(roDirectory)
         if createRO:
             try:
                 self.rosrsSync.postRo(roId)
             except:
                 log.debug("Failed to create RO %s" % roId)
-            try:
-                self.rosrsSync.postVersion(roId, versionId)
-            except:
-                log.debug("Failed to create version %s" % versionId)
-        sentFiles = self.__scanDirectories4Put(roId, versionId, roDirectory)
-        deletedFiles = self.__scanRegistries4Delete(roId, versionId, roDirectory)
+        sentFiles = self.__scanDirectories4Put(roId, roDirectory)
+        deletedFiles = self.__scanRegistries4Delete(roId, roDirectory)
         self.__saveRegistries()
         return (sentFiles, deletedFiles)
     
-    def getRoId(self, roDirectory):
-        try:
-            manifest = ro_manifest.readManifest(roDirectory)
-            log.debug("Returning %(roident)s" % manifest)
-            return manifest['roident']
-        except IOError as err:
-            log.debug("Caught exception %s" % err)
-            return None
-    
-    def __scanDirectories4Put(self, roId, versionId, srcdir):
+    def __scanDirectories4Put(self, roId, srcdir):
         sentFiles = set()
         for root, dirs, files in walk(srcdir):
             for f in files:
                 filepath = join(root, f)
-                isManifest = (root == join(srcdir, ro_settings.MANIFEST_DIR) and f == ro_settings.MANIFEST_FILE) 
-                if self.__checkFile4Put(roId, versionId, srcdir, filepath, isManifest):
+                if self.__checkFile4Put(roId, srcdir, filepath):
                     sentFiles.add(filepath)
         return sentFiles
     
-    def __checkFile4Put(self, roId, versionId, versiondir, filepath, isManifest = False):
-        assert filepath.startswith(versiondir)
-        rosrsFilepath = filepath[len(versiondir) + 1:]
+    def __checkFile4Put(self, roId, srcdir, filepath):
+        assert filepath.startswith(srcdir)
+        rosrsFilepath = filepath[len(srcdir) + 1:]
         put = True
         if (filepath in self.syncRegistries):
             put = self.syncRegistries[filepath].hasBeenModified()
@@ -103,14 +95,11 @@ class BackgroundResourceSync(object):
             contentType = mimetypes.guess_type(filepath)[0]
             fileObject = open(filepath)
             log.debug("Put file %s" % filepath)
-            if isManifest:
-                self.rosrsSync.putManifest(roId, versionId, filepath)
-            else:
-                self.rosrsSync.putFile(roId, versionId, rosrsFilepath, contentType, fileObject)
+            self.rosrsSync.putFile(roId, rosrsFilepath, contentType, fileObject)
             self.syncRegistries[filepath] = SyncRegistry(filepath)
         return put
     
-    def __scanRegistries4Delete(self, roId, versionId, srcdir):
+    def __scanRegistries4Delete(self, roId, srcdir):
         deletedFiles = set()
         for r in self.syncRegistries.viewvalues():
             if r.filename.startswith(srcdir):
@@ -119,7 +108,7 @@ class BackgroundResourceSync(object):
                     deletedFiles.add(r.filename)
                     rosrsFilepath = r.filename[len(srcdir) + 1:]
                     try:
-                        self.rosrsSync.deleteFile(roId, versionId, rosrsFilepath)
+                        self.rosrsSync.deleteFile(roId, rosrsFilepath)
                     except:
                         log.debug("File %s did not exist in ROSRS" % r.filename)
         for f in deletedFiles:

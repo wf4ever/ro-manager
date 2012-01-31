@@ -7,17 +7,18 @@ import sys
 if __name__ == "__main__":
     sys.path.append("../..")
 
-import unittest
+import logging
+from MiscLib import TestUtils
+from os import rename, utime
+from os.path import exists
+from rocommand.test import TestROSupport
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
 from sync.test.TestConfig import ro_test_config
-import logging
-from os import rename, utime
-from os.path import exists
 
-class Test(unittest.TestCase):
+class TestBackgroundSync(TestROSupport.TestROSupport):
     
-    files1 = { 'data/ro-test-1/'+ro_test_config.ROMANIFESTPATH, 
+    files1 = { 'data/ro-test-1/.ro/manifest.rdf',
              'data/ro-test-1/file1.txt',
              'data/ro-test-1/file3.jpg',
              'data/ro-test-1/file with spaces.txt',
@@ -28,39 +29,45 @@ class Test(unittest.TestCase):
     fileToTouch = 'data/ro-test-1/file with spaces.txt'
     fileToModify = 'data/ro-test-1/subdir1/file2.txt'
 
-    filesAll = { 'data/ro-test-1/'+ro_test_config.ROMANIFESTPATH,
+    filesAll = { 'data/ro-test-1/.ro/manifest.rdf',
                  'data/ro-test-1/file1.txt',
                  'data/ro-test-1/file3.jpg',
                  'data/ro-test-1/file with spaces.txt',
                  'data/ro-test-1/subdir1/file2.txt',
-                 'data/ro-test-1/README-ro-test-1',
-                 'data/ro-test-2/file4.txt' }
+                 'data/ro-test-1/README-ro-test-1' }
     
     modifiedFileContent = """lorem ipsum
 ora et labora"""
 
     def setUp(self):
-        self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
-        self.__sync.postWorkspace()
-        self.__sync.postRo(ro_test_config.RO_ID)
-        self.__sync.postVersion(ro_test_config.RO_ID, ro_test_config.VER_ID)
+        try:
+            self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        except:
+            pass
         logging.basicConfig()
         logging.getLogger("sync.BackgroundSync").setLevel(logging.INFO)
         return
 
     def tearDown(self):
-        self.__sync.deleteWorkspace()
+        try:
+            self.__sync.deleteRo(ro_test_config.RO_ID)
+        except:
+            pass
         if (exists(self.fileToReplace)):
             rename(self.fileToReplace, self.fileToDelete)
         with open(self.fileToModify, 'w') as f:
             f.write(self.modifiedFileContent)
             f.close()
         return
+    
+    def testNull(self):
+        assert True, 'Null test failed'
 
     def testSyncRecources(self):
+        self.__sync.postRo(ro_test_config.RO_ID)
         back = BackgroundResourceSync(self.__sync, True)
         
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
 
@@ -70,11 +77,11 @@ ora et labora"""
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_DIR)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
         rename(self.fileToReplace, self.fileToDelete)
@@ -105,15 +112,36 @@ ora et labora"""
         self.assertEquals(deleted, set())
         return
     
-    def testGetRoId(self):
-        back = BackgroundResourceSync(self.__sync)
-        roId = back.getRoId("data/ro-test-1")
-        self.assertEquals(roId, "ro1-identifier", "Wrong RO id read from manifest")
-        roId = back.getRoId("data/ro-test-2")
-        self.assertIsNone(roId, "RO id should be None when there is no manifest")
-        pass
-    
+def getTestSuite(select="unit"):
+    """
+    Get test suite
+
+    select  is one of the following:
+            "unit"      return suite of unit tests only
+            "component" return suite of unit and component tests
+            "all"       return suite of unit, component and integration tests
+            "pending"   return suite of pending tests
+            name        a single named test to be run
+    """
+    testdict = {
+        "unit":
+            [ "testUnits"
+            , "testNull"
+            , "testSyncRecources"
+            , "testSyncWorkspace"
+            , "testSaveLoadRegistries"
+            ],
+        "component":
+            [ "testComponents"
+            ],
+        "integration":
+            [ "testIntegration"
+            ],
+        "pending":
+            [ "testPending"
+            ]
+        }
+    return TestUtils.getTestSuite(TestBackgroundSync, testdict, select=select)
 
 if __name__ == "__main__":
-    #import sys;sys.argv = ['', 'Test.testSyncRecources']
-    unittest.main()
+    TestUtils.runTests("TestBackgroundSync.log", getTestSuite, sys.argv)
