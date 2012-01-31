@@ -84,7 +84,7 @@
             "label": "RDF type"
         }
     ], 
-    "robase": "/usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase", 
+    "robase": "/home/piotrhol/Workspace/ro-manager/src/iaeval/test/robase", 
     "rosrs_username": "test-423435r4353t543t5323", 
     "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs3"
 }

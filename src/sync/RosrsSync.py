@@ -5,7 +5,6 @@ Created on 13-09-2011
 '''
 
 from httplib import HTTPConnection, CREATED, NO_CONTENT, OK, responses
-import base64
 import logging
 import urllib2
 import urlparse
@@ -16,84 +15,36 @@ log = logging.getLogger(__name__)
 class RosrsSync:
 
 
-    URI_WORKSPACES = "/workspaces"
-    URI_WORKSPACE_ID = URI_WORKSPACES + "/%s"
-    URI_ROS = URI_WORKSPACE_ID + "/ROs"
-    URI_RO_ID = URI_ROS + "/%s"
-    URI_VERSION_ID = URI_RO_ID + "/%s"
-    URI_RESOURCE = URI_VERSION_ID + "/%s"
+    URI_ROS = "/ROs/"
+    URI_RO_ID = URI_ROS + "%s/"
+    URI_RESOURCE = URI_RO_ID + "%s"
     
-    ADMIN_USERNAME = "wfadmin"
-    ADMIN_PASSWORD = "wfadmin!!!"
-    
-    def __init__(self, rosrs_uri, username, password):
+    def __init__(self, rosrs_uri, accesstoken = None):
         parsed = urlparse.urlparse(rosrs_uri)
         self.rosrs_path = parsed.path
         self.rosrs_host = parsed.netloc
         self.rosrs_uri = rosrs_uri
-        self.username = username
-        self.password = password
+        self.accesstoken = accesstoken
     
-    def postWorkspace(self):
-        """
-        Create a new workspace in ROSRS. This complies to ROSRS 3, which means that 
-        the workspace id will be the same as username.
-        
-        Parameters: ROSRS URL, username, password
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + self.URI_WORKSPACES
-        body = (
-"""%s
-%s""" % (self.username, self.password))
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.ADMIN_USERNAME, self.ADMIN_PASSWORD))[:-1],
-                   "Content-Type": "text/plain"}
-        conn.request("POST", url, body, headers)
-        res = conn.getresponse()
-        if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Workspace %s created: %s" % (self.username, res.msg["location"]))
-        return res.msg["location"]
-    
-    def deleteWorkspace(self):
-        """
-        Delete a workspace in ROSRS. This complies to ROSRS 3, which means that 
-        the workspace id is the same as username.
-        
-        Parameters: ROSRS URL, username
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_WORKSPACE_ID % self.username)
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.ADMIN_USERNAME, self.ADMIN_PASSWORD))[:-1]}
-        conn.request("DELETE", url, None, headers)
-        res = conn.getresponse()
-        if res.status != NO_CONTENT:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Workspace %s deleted" % self.username)
-        return None
     
     def getRos(self):
         """
-        Create a new Research Object in ROSRS.
+        Get a list of RO URIs. If called with an access token, returns 
+        only ROs that belong to the user.
         
-        Parameters: ROSRS URL, username, password
+        Parameters: ROSRS URL, [access token]
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_ROS % self.username)
+        url = self.rosrs_path + urllib2.quote(self.URI_ROS)
         body = None
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": "text/plain"}
+        headers = self.__getAuthHeader()
         conn.request("GET", url, body, headers)
         res = conn.getresponse()
         if res.status != OK:
             raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        roUris = res.read().split("\n")
-        ros = set()
-        for roUri in roUris:
-            if roUri.strip() != '':
-                ros.add(roUri.rpartition("/")[2])
-        log.debug("RO list retrieved: %d items" % len(ros))
-        return ros
+        roUris = res.read().splitlines()
+        log.debug("RO list retrieved: %d items" % len(roUris))
+        return roUris
     
     def postRo(self, roId):
         """
@@ -102,10 +53,10 @@ class RosrsSync:
         Parameters: ROSRS URL, username, password, RO id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_ROS % self.username)
+        url = self.rosrs_path + urllib2.quote(self.URI_ROS)
         body = roId
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": "text/plain"}
+        headers = self.__getAuthHeader()
+        headers["Content-Type"] = "text/plain"
         conn.request("POST", url, body, headers)
         res = conn.getresponse()
         if res.status != CREATED:
@@ -117,11 +68,11 @@ class RosrsSync:
         """
         Deletes a Research Object from ROSRS.
         
-        Parameters: ROSRS URL, username, password, RO id
+        Parameters: ROSRS URL, access token, RO id
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RO_ID % (self.username, roId))
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
+        url = self.rosrs_path + urllib2.quote(self.URI_RO_ID % roId)
+        headers = self.__getAuthHeader()
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
@@ -129,69 +80,14 @@ class RosrsSync:
         log.debug("RO %s deleted" % roId)
         return None 
     
-    def postVersion(self, roId, versionId):
-        """
-        Create a new Research Object version in ROSRS.
-        
-        Parameters: ROSRS URL, username, password, RO id, version id
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RO_ID % (self.username, roId))
-        body = versionId
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": "text/plain"}
-        conn.request("POST", url, body, headers)
-        res = conn.getresponse()
-        if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Version %s created: %s" % (versionId, res.msg["location"]))
-        return res.msg["location"]
-    
-    def postVersionAsCopy(self, roId, versionId, oldVersionUri):
-        """
-        Create a new Research Object version in ROSRS as a copy of another version of the same RO.
-        
-        Parameters: ROSRS URL, username, password, RO id, version id, old version URL
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RO_ID % (self.username, roId))
-        body = """%s
-%s""" % (versionId, oldVersionUri)
-        versionId
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": "text/plain"}
-        conn.request("POST", url, body, headers)
-        res = conn.getresponse()
-        if res.status != CREATED:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Version %s created as a copy of %s: %s" % (versionId, oldVersionUri, res.msg["location"]))
-        return res.msg["location"]
-    
-    def deleteVersion(self, roId, versionId):
-        """
-        Deletes a Research Object version from ROSRS.
-        
-        Parameters: ROSRS URL, username, password, RO id, version id
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
-        conn.request("DELETE", url, None, headers)
-        res = conn.getresponse()
-        if res.status != NO_CONTENT:
-            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("Version %s deleted" % versionId)
-        return None 
-
-    def getVersionAsZip(self, roId, versionId):
+    def getRoAsZip(self, roId):
         """
         Retrieves a Research Object version from ROSRS as a zip.
         
         Parameters: ROSRS URL, username, password, RO id, version id
         """
-        url = self.rosrs_uri + urllib2.quote(self.URI_VERSION_ID % (self.username, roId, versionId)) + "?content=true"
+        url = self.rosrs_uri + urllib2.quote(self.URI_RO_ID % roId)
         req = urllib2.Request(url)
-        req.add_header("Authorization", "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1])
         res = urllib2.urlopen(req)
         
         tmp = tempfile.TemporaryFile()
@@ -202,40 +98,21 @@ class RosrsSync:
             tmp.write(packet)
         res.close()
 
-        log.debug("Version %s retrieved as zip" % versionId)
+        log.debug("Ro %s retrieved as zip" % roId)
         return tmp
 
-    def putManifest(self, roId, versionId, manifestFile):
+    def putFile(self, roId, filePath, contentType, fileObject):
         """
-        Updates the manifest of a RO version.
+        Creates or updates a file in ROSRS. This includes all metadata.
         
-        Parameters: ROSRS URL, username, password, RO id, version id, file with the manifest as XML/RDF
-        """
-        conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_VERSION_ID % (self.username, roId, versionId))
-        body = manifestFile
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": "application/rdf+xml"}
-#        conn.request("PUT", url, body, headers)
-#        res = conn.getresponse()
-#        if res.status != OK:
-#            raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-#        log.debug("Manifest updated: %s" % res.msg["location"])
-#        return res.msg["location"]
-        return None
-        
-    def putFile(self, roId, versionId, filePath, contentType, fileObject):
-        """
-        Creates or updates a file in ROSRS
-        
-        Parameters: ROSRS URL, username, password, RO id, version id, file path (without trailing slash!),
+        Parameters: ROSRS URL, access token, RO id, file path (without trailing slash!),
         content type, file object
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
+        url = self.rosrs_path + urllib2.quote(self.URI_RESOURCE % (roId, filePath))
         body = fileObject
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1],
-                   "Content-Type": contentType or "text/plain"}
+        headers = self.__getAuthHeader()
+        headers["Content-Type"] = contentType or "text/plain"
         conn.request("PUT", url, body, headers)
         res = conn.getresponse()
         if res.status != OK:
@@ -243,21 +120,28 @@ class RosrsSync:
         log.debug("File created/updated: %s" % filePath)
         return None
     
-    def deleteFile(self, roId, versionId, filePath):
+    def deleteFile(self, roId, filePath):
         """
-        Deletes a file from ROSRS.
+        Deletes a file from ROSRS. This includes all metadata.
         
-        Parameters: ROSRS URL, username, password, RO id, version id, file path
+        Parameters: ROSRS URL, access token, RO id, file path
         """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RESOURCE % (self.username, roId, versionId, filePath))
-        headers = {"Authorization": "Basic %s" % base64.encodestring('%s:%s' % (self.username, self.password))[:-1]}
+        url = self.rosrs_path + urllib2.quote(self.URI_RESOURCE % (roId, filePath))
+        headers = self.__getAuthHeader()
         conn.request("DELETE", url, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
             raise Exception("%d %s: %s" % (res.status, responses[res.status], res.reason))
         log.debug("File %s deleted" % filePath)
         return None
+    
+    def __getAuthHeader(self):
+        if self.accesstoken == None:
+            return dict()
+        else:
+            return {"Authorization": "Bearer %s" % self.accesstoken}
+ 
     
 
 if __name__ == '__main__':
