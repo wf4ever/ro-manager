@@ -15,6 +15,15 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
+
+* Refactor ro_manifest to be a class creating a manifest object.  Revise code accordingly; don't depend on rodir.
+** Define class that reads manifest and encapsulates both the graph and the base URI (done)
+** Define relativization method that works with the new class
+** Modify annotation display to use new class - see if it works with new RO
+** Roll out use of new class to all other functions
+** Remove old references to graph access
+
+
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** Test that aggregated files actually exist - part of liveness?
@@ -33,6 +42,7 @@ TODO:
 * Options to return JSON/RDF info for use by other apps?
 * Options for RO logging of changes, etc
 * ro list currently shows only files: want to show directories too?
+
 
 ----
 
