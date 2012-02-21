@@ -23,7 +23,7 @@ TODO:
 ** Create ro_metadata methods to replace direct references to ro_manifest functions (addAggregatedResources) (done)
 ** Remove direct references to ro_manifest in ro_command; use ro_metadata methods, in:
 *** ro_command (done)
-*** ro_eval_completeness
+*** ro_eval_completeness (done)
 *** BackgroundSync
 *** TestEvalCompleteness
 *** ro_metadata(?)
