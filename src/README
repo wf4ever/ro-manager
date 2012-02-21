@@ -53,7 +53,7 @@ To run this program:
       uri:         file:///usr/workspace/wf4ever-ro-manager/src/rocommand/test/robase/test-create-RO/#
       description: Test Create RO
     ro list -d "rocommand/test/robase/test-create-RO"
-    test-create-RO/.ro_manifest/manifest.rdf
+    test-create-RO/.ro/manifest.rdf
     test-create-RO/README-ro-test-1
     test-create-RO/subdir1/subdir1-file.txt
     test-create-RO/subdir2/subdir2-file.txt

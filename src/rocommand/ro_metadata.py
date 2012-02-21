@@ -17,13 +17,10 @@ import MiscLib.ScanDirectories
 
 import rdflib
 import rdflib.namespace
-#from rdflib import URIRef, Namespace, BNode
-#from rdflib import Literal
+#from rdflib import Namespace, URIRef, BNode, Literal
 
 import ro_settings
-import ro_manifest
 from ro_manifest import RDF, RO, ORE, DCTERMS
-#from ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
 import ro_annotation
 
 class ro_metadata(object):
@@ -37,8 +34,8 @@ class ro_metadata(object):
         """
         self.roconfig = roconfig
         self.rodir    = rodir
-        self.rouri    = ro_manifest.getRoUri(rodir)
-        self.manifestfilename = ro_manifest.makeManifestFilename(rodir)
+        self.rouri    = self.getRoUri()
+        self.manifestfilename = self.getManifestFilename()
         self.manifestgraph    = rdflib.Graph()
         if dummysetupfortest:
             # Fake minimal manifest graph for testing
@@ -48,7 +45,7 @@ class ro_metadata(object):
             self.manifestgraph.parse(self.manifestfilename)
         # RO URI from manifest
         # May be different from computed value if manifest has absolute URI
-        self.rouri = ro_manifest.getGraphRoUri(rodir, self.manifestgraph)
+        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
 
     def updateManifest(self):
@@ -274,6 +271,9 @@ class ro_metadata(object):
         Returns RO directory string
         """
         return self.rodir
+
+    def getManifestFilename(self):
+        return os.path.join(self.rodir, ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)
 
     def getFileUri(self, path):
         """
