@@ -15,21 +15,9 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
-* Refactor ro_manifest+ro_annotation to be a class creating a manifest object.  Revise code accordingly; don't depend on rodir from calling code.
-** Define class ro_metadata that reads manifest and encapsulates both the graph and the base URI (done)
-** Define relativization method that works with the new class (done)
-** Modify ro_command functions to use new class for annotations, not ro_annotation module directly (done)
-** Check that modified ro_command works with new RO (done)
-** Create ro_metadata methods to replace direct references to ro_manifest functions (addAggregatedResources) (done)
-** Remove direct references to ro_manifest in ro_command; use ro_metadata methods, in:
-*** ro_command (done)
-*** ro_eval_completeness (done)
-*** BackgroundSync
-*** TestEvalCompleteness (done)
-*** ro_metadata (done)
-*** TestROMetadata(?)
-
 * Refactor namespace definitions into separate module (from ro_manifest)
+
+* Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
 
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
@@ -64,6 +52,20 @@ DONE
 * ro add [file]
 * ro add [-a] [directory]
 * ro eval completeness minim
+
+* Refactor ro_manifest+ro_annotation to be a class creating a manifest object.  Revise code accordingly; don't depend on rodir from calling code.
+** Define class ro_metadata that reads manifest and encapsulates both the graph and the base URI (done)
+** Define relativization method that works with the new class (done)
+** Modify ro_command functions to use new class for annotations, not ro_annotation module directly (done)
+** Check that modified ro_command works with new RO (done)
+** Create ro_metadata methods to replace direct references to ro_manifest functions (addAggregatedResources) (done)
+** Remove direct references to ro_manifest in ro_command; use ro_metadata methods, in:
+*** ro_command (done)
+*** ro_eval_completeness (done)
+*** BackgroundSync (recshceduled)
+*** TestEvalCompleteness (done)
+*** ro_metadata (done)
+*** TestROMetadata (done)
 
 
 Client id = 5248c9c2-e7a2-4e8f-8
