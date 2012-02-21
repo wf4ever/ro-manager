@@ -33,7 +33,9 @@ from MiscLib import TestUtils
 from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
-from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from rocommand.ro_manifest   import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from rocommand.ro_annotation import annotationTypes
+from rocommand.ro_metadata   import ro_metadata
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
@@ -46,6 +48,11 @@ from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
 
 from iaeval import ro_eval_completeness
+
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes": annotationTypes
+    }
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
@@ -94,8 +101,8 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        evalresult = ro_eval_completeness.evaluate(
-            rodir,                                      # RO location
+        rometa = ro_metadata(ro_config, rodir)
+        evalresult = ro_eval_completeness.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-astro.csv",          # Target resource
             "create")                                   # Purpose
@@ -123,11 +130,10 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        rometa = ro_metadata(ro_config, rodir)
+        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingMustRequirement")
-        evalresult = ro_eval_completeness.evaluate(
-            rodir,                                      # RO location
+        evalresult = ro_eval_completeness.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.csv",            # Target resource
             "create")                                   # Purpose
@@ -136,7 +142,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "data/UserRequirements-bio.ods")
+              { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
@@ -156,11 +162,10 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        rometa = ro_metadata(ro_config, rodir)
+        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
-        evalresult = ro_eval_completeness.evaluate(
-            rodir,                                      # RO location
+        evalresult = ro_eval_completeness.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.html",           # Target resource
             "create")                                   # Purpose
@@ -169,7 +174,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/missing.css")
+              { 'aggregates': rometa.getComponentUri("docs/missing.css")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -189,11 +194,10 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        rometa = ro_metadata(ro_config, rodir)
+        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
-        evalresult = ro_eval_completeness.evaluate(
-            rodir,                                      # RO location
+        evalresult = ro_eval_completeness.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.pdf",            # Target resource
             "create")                                   # Purpose
@@ -202,7 +206,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/missing.css")
+              { 'aggregates': rometa.getComponentUri("docs/missing.css")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -228,15 +232,15 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
     def setupEvalFormat(self):
         self.setupConfig()
         rodir       = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
-        rouri       = ro_manifest.getRoUri(rodir)
-        minimbase   = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        rometa = ro_metadata(ro_config, rodir)
+        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri    = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
         self.missing_must = (
             { 'level': "MUST"
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "data/UserRequirements-bio.ods")
+              { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
@@ -246,7 +250,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/missing.css")
+              { 'aggregates': rometa.getComponentUri("docs/missing.css")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -256,7 +260,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'model': modeluri 
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
-              { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/missing.css")
+              { 'aggregates': rometa.getComponentUri("docs/missing.css")
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -267,7 +271,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'missingShould':  [self.missing_should]
             , 'missingMay':     [self.missing_may]
             , 'rodir':          rodir
-            , 'rouri':          rouri
+            , 'rouri':          rometa.getRoUri()
             , 'minimuri':       minimbase
             , 'target':         "test-formatting-target"
             , 'purpose':        "test formatting"

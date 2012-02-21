@@ -20,7 +20,6 @@ import MiscLib.ScanDirectories
 
 import ro_settings
 import ro_utils
-#import ro_manifest   # @@TODO: remove this
 from ro_annotation import annotationTypes
 from ro_metadata   import ro_metadata
 
@@ -502,7 +501,8 @@ def evaluate(progname, configbase, options, args):
         ro_options["target"]  = ((len(args) > 5) and args[5]) or "."
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
-        evalresult = ro_eval_completeness.evaluate(ro_dir, 
+        rometa = ro_metadata(ro_config, ro_dir)
+        evalresult = ro_eval_completeness.evaluate(rometa, 
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
         ro_eval_completeness.format(evalresult, 
             { "detail" : "full" if options.all else "summary" }, 

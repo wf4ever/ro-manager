@@ -226,6 +226,18 @@ class ro_metadata(object):
 
     # Support methods for accessing the manifest graph
 
+    def _getRoManifestGraph(self):
+        """
+        Returns RDF graph containing RO manifest
+        """
+        return self.manifestgraph
+
+    def roManifestContains(self, stmt):
+        """
+        Returns True if the RO manifest contains a statement matching the supplied triple.
+        """
+        return stmt in self.manifestgraph
+
     def getResourceValue(self, resource, predicate):
         """
         Returns value for resource whose URI is supplied assocfiated with indicated predicate
@@ -256,6 +268,12 @@ class ro_metadata(object):
         return manifestDict
 
     # Support methods for accessing RO and component URIs
+
+    def getRoDir(self):
+        """
+        Returns RO directory string
+        """
+        return self.rodir
 
     def getFileUri(self, path):
         """

@@ -18,17 +18,18 @@ log = logging.getLogger(__name__)
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
-from rocommand import ro_manifest
+###from rocommand import ro_manifest
 from rocommand.ro_manifest import RDF, RDFS, ORE
+from rocommand.ro_metadata import ro_metadata
 import ro_minim
 from ro_minim import MINIM
 
-def evaluate(rodir, minim, target, purpose):
+def evaluate(rometa, minim, target, purpose):
     """
     Evaluate a RO against a minimuminformation model for a particular
     purpose with respect to a particular targetresource.
 
-    rodir       is the name of a directory containing the RO to be analyzed
+    rometa      is an ro_metadata object used to access the RO being evaluated
     minim       is a URI-reference (relative to the RO, or absolute) of the
                 minim description to be used.
     target      is a URI-reference (relative to the RO, or absolute) of a 
@@ -60,11 +61,10 @@ def evaluate(rodir, minim, target, purpose):
     }
     """
     # Locate the constraint model requirements
-    rouri        = ro_manifest.getRoUri(rodir)
-    rograph      = ro_manifest.readManifestGraph(rodir)
-    minimuri     = ro_manifest.getComponentUri(rodir, minim)
+    rouri        = rometa.getRoUri()
+    minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
-    constraint   = ro_minim.getConstraint(minimgraph, rodir, target, purpose)
+    constraint   = ro_minim.getConstraint(minimgraph, rometa.getRoDir(), target, purpose)
     assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
     model        = ro_minim.getModel(minimgraph, constraint['model'])
     assert model != None, "Missing minim:Model for target %s, purpose %s"%(target, purpose)
@@ -73,7 +73,7 @@ def evaluate(rodir, minim, target, purpose):
     reqeval = []
     for r in requirements:
         if 'datarule' in r:
-            satisfied = (rouri, ORE.aggregates, r['datarule']['aggregates']) in rograph
+            satisfied = rometa.roManifestContains( (rouri, ORE.aggregates, r['datarule']['aggregates']) )
             reqeval.append((r,satisfied))
             log.debug("- %s: %s"%(repr((rouri, ORE.aggregates, r['datarule']['aggregates'])), satisfied))
     # Evaluate overall satisfaction of model
@@ -87,7 +87,7 @@ def evaluate(rodir, minim, target, purpose):
         , 'missingMust':    []
         , 'missingShould':  []
         , 'missingMay':     []
-        , 'rodir':          rodir
+        , 'rodir':          rometa.getRoDir()
         , 'rouri':          rouri
         , 'minimuri':       minimuri
         , 'target':         target

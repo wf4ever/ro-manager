@@ -32,8 +32,8 @@ from MiscLib import TestUtils
 from rocommand import ro_settings
 from rocommand import ro_manifest
 from rocommand import ro_metadata
+from rocommand.ro_manifest   import RDF, DCTERMS, ROTERMS, RO, ORE
 from rocommand.ro_annotation import annotationTypes
-from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS, RO, ORE
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
