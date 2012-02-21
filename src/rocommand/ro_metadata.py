@@ -22,14 +22,16 @@ import rdflib.namespace
 
 import ro_settings
 import ro_manifest
+from ro_manifest import RDF, RO
+#from ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
 import ro_annotation
 
 class ro_metadata(object):
     """
     Class for accessing RO metadata
     """
-    
-    def __init__(self, roconfig, rodir):
+
+    def __init__(self, roconfig, rodir, dummysetupfortest=False):
         """
         Initialize: read manifest from object at given directory into local RDF graph
         """
@@ -38,7 +40,12 @@ class ro_metadata(object):
         self.rouri    = ro_manifest.getRoUri(rodir)
         self.manifestfilename = ro_manifest.makeManifestFilename(rodir)
         self.manifestgraph    = rdflib.Graph()
-        self.manifestgraph.parse(self.manifestfilename)
+        if dummysetupfortest:
+            # Fake minimal manifest graph for testing
+            self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
+        else:
+            # Read manifest ghraph
+            self.manifestgraph.parse(self.manifestfilename)
         # RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = ro_manifest.getGraphRoUri(rodir, self.manifestgraph)
@@ -183,6 +190,33 @@ class ro_metadata(object):
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.rodir, annotations, outstr)
         return 
+
+    # Support methods for accessing RO and component URIs
+
+    def _getFileUri(self, path):
+        """
+        Like getComponentUri, except that path may be relative to the current directory,
+        and returned URI string includes file:// scheme
+        """
+        filebase = "file://"
+        if not path.startswith(filebase):
+            path = filebase+os.path.join(os.getcwd(), path)
+        return rdflib.URIRef(path)
+
+    def getRoUri(self):
+        return self._getFileUri(os.path.abspath(self.rodir)+"/")
+
+    def getComponentUri(self, path):
+        return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+
+    def getComponentUriRel(self, path):
+        file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(self.getComponentUri(path))))
+        ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(str(self.getRoUri())))
+        if ro_uri is not None and file_uri.startswith(ro_uri):
+            file_uri_rel = file_uri.replace(ro_uri, "", 1)
+        else:
+            file_uri_rel = path
+        return rdflib.URIRef(file_uri_rel)
 
 # End.
 

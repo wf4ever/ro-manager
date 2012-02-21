@@ -69,7 +69,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testGetGraphRoUri(self):
+    def testCreateGraphRoUri(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test graph", "ro-testRoGraph")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         self.assertEquals(romd.rouri, rdflib.URIRef("file://%s/RO_test_graph/"%(robase_abs)))
@@ -426,6 +426,119 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    # URI tests
+
+    def testGetRoUri(self):
+        def testUri(rodir, uristring):
+            romd  = ro_metadata.ro_metadata(ro_config, rodir, dummysetupfortest=True)
+            self.assertEquals(romd.getRoUri(), rdflib.URIRef(uristring))
+            return
+        testUri("/example/ro/dir",  "file:///example/ro/dir/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/" )
+        testUri("ro/dir",           "file://%s/ro/dir/"%(cwd) )
+        testUri("ro/dir/",          "file://%s/ro/dir/"%(cwd) )
+        testUri(robase+"/ro/dir",   "file://%s/ro/dir/"%(robase_abs) )
+        testUri(robase+"/ro/dir/",  "file://%s/ro/dir/"%(robase_abs) )
+        return
+
+    def testGetComponentUri(self):
+        def testUri(rodir, path, uristring):
+            romd  = ro_metadata.ro_metadata(ro_config, rodir, dummysetupfortest=True)
+            self.assertEquals(romd.getComponentUri(path), rdflib.URIRef(uristring))
+            return
+        testUri("/example/ro/dir",  "a/b.txt", "file:///example/ro/dir/a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt", "file:///example/ro/dir/a/b.txt" )
+        testUri("ro/dir",           "a/b.txt", "file://%s/ro/dir/a/b.txt"%(cwd) )
+        testUri("ro/dir/",          "a/b.txt", "file://%s/ro/dir/a/b.txt"%(cwd) )
+        testUri("/example/ro/dir",  "a/b/d/",  "file:///example/ro/dir/a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",  "file:///example/ro/dir/a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",  "file://%s/ro/dir/a/b/d/"%(cwd)  )
+        testUri("ro/dir/",          "a/b/d/",  "file://%s/ro/dir/a/b/d/"%(cwd)  )
+        return
+
+    def testGetComponentUriRel(self):
+        def testUri(rodir, path, uristring):
+            romd  = ro_metadata.ro_metadata(ro_config, rodir, dummysetupfortest=True)
+            self.assertEquals(romd.getComponentUriRel(path), rdflib.URIRef(uristring))
+            return
+
+        testUri("/example/ro/dir",  "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir/",          "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir",  "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir/",          "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir",  "",         ""        )
+        testUri("/example/ro/dir/", "",         ""        )
+        testUri("ro/dir",           "",         ""        )
+        testUri("ro/dir/",          "",         ""        )
+
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("ro/dir",           "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("/example/ro/dir",  "/example/ro/dir/",         "" )
+        testUri("/example/ro/dir/", "/example/ro/dir/",         "" )
+        testUri("ro/dir",           "%s/ro/dir/"%(cwd),         "" )
+        testUri("ro/dir/",          "%s/ro/dir/"%(cwd),         "" )
+
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/",          "" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/",          "" )
+        return
+
+    def testGetComponentUriRelUri(self):
+        """
+        Same as previous tests, but with path supplied as rdflib.URIRef value rather than string
+        """
+        def testUri(rodir, path, uristring):
+            romd  = ro_metadata.ro_metadata(ro_config, rodir, dummysetupfortest=True)
+            self.assertEquals(romd.getComponentUriRel(rdflib.URIRef(path)), rdflib.URIRef(uristring))
+            return
+
+        testUri("/example/ro/dir",  "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir/",          "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir",  "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir/",          "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir",  "",         ""        )
+        testUri("/example/ro/dir/", "",         ""        )
+        testUri("ro/dir",           "",         ""        )
+        testUri("ro/dir/",          "",         ""        )
+
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("ro/dir",           "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("/example/ro/dir",  "/example/ro/dir/",         "" )
+        testUri("/example/ro/dir/", "/example/ro/dir/",         "" )
+        testUri("ro/dir",           "%s/ro/dir/"%(cwd),         "" )
+        testUri("ro/dir/",          "%s/ro/dir/"%(cwd),         "" )
+
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/",          "" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/",          "" )
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -457,7 +570,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testGetGraphRoUri"
+            , "testCreateGraphRoUri"
             , "testCreateReadRoAnnotationBody"
             , "testCreateReadFileAnnotationBody"
             , "testGetInitialRoAnnotations"
@@ -468,6 +581,10 @@ def getTestSuite(select="unit"):
             , "testRemoveGetFileAnnotations"
             , "testAddGetAllAnnotations"
             , "testAddGetAnnotationValues"
+            , "testGetRoUri"
+            , "testGetComponentUri"
+            , "testGetComponentUriRel"
+            , "testGetComponentUriRelUri"
             ],
         "component":
             [ "testComponents"

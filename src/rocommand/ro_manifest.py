@@ -192,6 +192,9 @@ def getComponentUriRel(ro_dir, path):
     return rdflib.URIRef(file_uri_rel)
 
 def getGraphRoUri(rodir, rograph):
+    """
+    Extract graph URI from supplied manifest graph
+    """
     return rograph.value(None, RDF.type, RO.ResearchObject)
 
 # End.
