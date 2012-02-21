@@ -20,8 +20,10 @@ import MiscLib.ScanDirectories
 
 import ro_settings
 import ro_utils
-import ro_manifest
-import ro_annotation
+import ro_manifest   # @@TODO: remove this
+import ro_annotation # @@TODO: remove this
+from ro_annotation import annotationTypes
+from ro_metadata   import ro_metadata
 
 from iaeval import ro_eval_completeness
 
@@ -92,7 +94,7 @@ def help(progname, args):
         , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
         , ""
         , "Supported annotation type names are: "
-        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in ro_annotation.annotationTypes ])
+        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
         , ""
         , "See also:"
         , ""
@@ -115,7 +117,7 @@ def config(progname, configbase, options, args):
         "username":       getoptionvalue(options.username,       "Name of research object owner: "),
         "useremail":      getoptionvalue(options.useremail,      "Email address of owner:        "),
         # Built-in annotation types
-        "annotationTypes": ro_annotation.annotationTypes
+        "annotationTypes": annotationTypes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
@@ -325,9 +327,9 @@ def annotate(progname, configbase, options, args):
     # Read and update manifest and annotations
     if options.verbose:
         print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
-    ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
-    ro_annotation.addSimpleAnnotation(ro_config, ro_dir, 
-        ro_file, ro_options['roattribute'],  ro_options['rovalue'])
+    rometa = ro_metadata(ro_config, ro_dir)
+    rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+    rometa.addSimpleAnnotation(rofile, ro_options['roattribute'],  ro_options['rovalue'])
     return 0
 
 def annotations(progname, configbase, options, args):

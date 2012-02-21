@@ -193,7 +193,7 @@ class ro_metadata(object):
 
     # Support methods for accessing RO and component URIs
 
-    def _getFileUri(self, path):
+    def getFileUri(self, path):
         """
         Like getComponentUri, except that path may be relative to the current directory,
         and returned URI string includes file:// scheme
@@ -204,7 +204,7 @@ class ro_metadata(object):
         return rdflib.URIRef(path)
 
     def getRoUri(self):
-        return self._getFileUri(os.path.abspath(self.rodir)+"/")
+        return self.getFileUri(os.path.abspath(self.rodir)+"/")
 
     def getComponentUri(self, path):
         return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
