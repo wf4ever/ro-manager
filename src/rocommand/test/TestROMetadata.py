@@ -426,6 +426,49 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testAddAggregatedResources(self):
+        """
+        Test function that adds aggregated resources to a research object manifest
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test aggregation", "ro-testRoAggregation")
+        romd  = ro_metadata.ro_metadata(ro_config, rodir)
+        romd.addAggregatedResources(rodir, recurse=True)
+        def URIRef(path):
+            return romd.getComponentUri(path)
+        s = romd.getRoUri()
+        g = rdflib.Graph()
+        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
+        self.checkManifestGraph(rodir, g)
+        self.deleteTestRo(rodir)
+        return
+
+    def testGetAggregatedResources(self):
+        """
+        Test function that enumerates aggregated resources to a research object manifest
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test aggregation", "ro-testRoAggregation")
+        romd  = ro_metadata.ro_metadata(ro_config, rodir)
+        romd.addAggregatedResources(rodir, recurse=True)
+        def URIRef(path):
+            return romd.getComponentUri(path)
+        resources = (
+          [ URIRef("README-ro-test-1")
+          , URIRef("minim.rdf")
+          , URIRef("subdir1/subdir1-file.txt")
+          , URIRef("subdir2/subdir2-file.txt")
+          ])
+        c = 0
+        for r in romd.getAggregatedResources():
+            if romd.getResourceType(r) != RO.AggregatedAnnotation:
+                c += 1
+                self.assertIn(r, resources)
+        self.assertEqual(c, len(resources))
+        self.deleteTestRo(rodir)
+        return
+
     # URI tests
 
     def testGetFileUri(self):
@@ -597,6 +640,8 @@ def getTestSuite(select="unit"):
             , "testGetComponentUri"
             , "testGetComponentUriRel"
             , "testGetComponentUriRelUri"
+            , "testAddAggregatedResources"
+            , "testGetAggregatedResources"
             ],
         "component":
             [ "testComponents"

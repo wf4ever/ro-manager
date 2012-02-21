@@ -13,7 +13,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-#import MiscLib.ScanDirectories
+import MiscLib.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -22,7 +22,7 @@ import rdflib.namespace
 
 import ro_settings
 import ro_manifest
-from ro_manifest import RDF, RO
+from ro_manifest import RDF, RO, ORE, DCTERMS
 #from ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
 import ro_annotation
 
@@ -58,6 +58,39 @@ class ro_metadata(object):
         self.manifestgraph.serialize(
             destination=self.manifestfilename, format='xml',
             base=self.rouri, xml_base="..")
+        return
+
+    def addAggregatedResources(self, ro_file, recurse=True):
+        def notHidden(f):
+            return re.match("\.|.*/\.", f) == None
+        log.debug("addAggregatedResources: dir %s, file %s"%(self.rodir, ro_file))
+        if ro_file.endswith(os.path.sep):
+            ro_file = ro_file[0:-1]
+        rofiles = [ro_file]
+        if os.path.isdir(ro_file):
+            rofiles = filter( notHidden,
+                                MiscLib.ScanDirectories.CollectDirectoryContents(
+                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.rodir), 
+                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
+                            )
+        #s = self.getComponentUri(".")
+        s = self.getRoUri()
+        for f in rofiles:
+            log.debug("- file %s"%f)
+            stmt = (s, ORE.aggregates, self.getComponentUri(f))
+            if stmt not in self.manifestgraph: self.manifestgraph.add(stmt)
+        self.updateManifest()
+        return
+
+    def getAggregatedResources(self):
+        """
+        Returns iterator over all resources aggregated by a manifest.
+    
+        Each value returned by the iterator is an aggregated resource URI
+        """
+        log.debug("getAggregatedResources: dir %s"%(self.rodir))
+        for r in self.manifestgraph.objects(subject=self.rouri, predicate=ORE.aggregates):
+            yield r
         return
 
     def createAnnotationBody(self, roresource, anngraph):
@@ -190,6 +223,37 @@ class ro_metadata(object):
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.rodir, annotations, outstr)
         return 
+
+    # Support methods for accessing the manifest graph
+
+    def getResourceValue(self, resource, predicate):
+        """
+        Returns value for resource whose URI is supplied assocfiated with indicated predicate
+        """
+        return self.manifestgraph.value(subject=resource, predicate=predicate, object=None)
+
+    def getResourceType(self, resource):
+        """
+        Returns type of resource whose URI is supplied
+        """
+        return self.getResourceValue(resource, RDF.type)
+
+    def getRoMetadataDict(self):
+        """
+        Returns dictionary of metadata about the RO from the manifest graph
+        """
+        strsubject = ""
+        if isinstance(self.rouri, rdflib.URIRef): strsubject = str(self.rouri)
+        manifestDict = {
+            'ropath':         self.rodir,
+            'rouri':          strsubject,
+            'roident':        self.getResourceValue(self.rouri, DCTERMS.identifier  ),
+            'rotitle':        self.getResourceValue(self.rouri, DCTERMS.title       ),
+            'rocreator':      self.getResourceValue(self.rouri, DCTERMS.creator     ),
+            'rocreated':      self.getResourceValue(self.rouri, DCTERMS.created     ),
+            'rodescription':  self.getResourceValue(self.rouri, DCTERMS.description ),
+            }
+        return manifestDict
 
     # Support methods for accessing RO and component URIs
 

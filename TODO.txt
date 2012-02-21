@@ -18,10 +18,18 @@ TODO:
 * Refactor ro_manifest+ro_annotation to be a class creating a manifest object.  Revise code accordingly; don't depend on rodir from calling code.
 ** Define class ro_metadata that reads manifest and encapsulates both the graph and the base URI (done)
 ** Define relativization method that works with the new class (done)
-** Modify ro_command functions to use new class for annotations, not ro_annotation module directly
-** Check that modified ro_command works with new RO
-** Create ro_metadata methods to replace direct references to ro_manifest functions
-** Remove direct references to ro_manifest; use ro_metadata methods
+** Modify ro_command functions to use new class for annotations, not ro_annotation module directly (done)
+** Check that modified ro_command works with new RO (done)
+** Create ro_metadata methods to replace direct references to ro_manifest functions (addAggregatedResources) (done)
+** Remove direct references to ro_manifest in ro_command; use ro_metadata methods, in:
+*** ro_command
+*** ro_eval_completeness
+*** ro_minim
+*** BackgroundSync
+*** TestEvalCompleteness
+*** TestMinimAccess
+*** ro_metadata(?)
+*** TestROMetadata(?)
 
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component

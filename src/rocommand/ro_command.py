@@ -20,8 +20,7 @@ import MiscLib.ScanDirectories
 
 import ro_settings
 import ro_utils
-import ro_manifest   # @@TODO: remove this
-import ro_annotation # @@TODO: remove this
+#import ro_manifest   # @@TODO: remove this
 from ro_annotation import annotationTypes
 from ro_metadata   import ro_metadata
 
@@ -240,7 +239,8 @@ def add(progname, configbase, options, args):
     # Read and update manifest
     if options.verbose:
         print "ro add -d %(rodir)s %(recurseopt)s %(rofile)s"%ro_options
-    ro_manifest.addAggregatedResources(ro_dir, ro_options['rofile'], ro_options['recurse'])
+    rometa = ro_metadata(ro_config, ro_dir)
+    rometa.addAggregatedResources(ro_options['rofile'], ro_options['recurse'])
     return 0
 
 def status(progname, configbase, options, args):
@@ -261,14 +261,15 @@ def status(progname, configbase, options, args):
     # Read manifest and display status
     if options.verbose: 
         print "ro status -d \"%(rodir)s\""%ro_options
-    ro_dict = ro_manifest.readManifest(ro_dir)
+    rometa = ro_metadata(ro_config, ro_dir)
+    rodict = rometa.getRoMetadataDict()
     print "Research Object status"
-    print "  identifier:  %(roident)s, title: %(rotitle)s"%ro_dict
-    print "  creator:     %(rocreator)s, created: %(rocreated)s"%ro_dict
-    print "  path:        %(ropath)s"%ro_dict
-    if ro_dict['rouri']:
-        print "  uri:         %(rouri)s"%ro_dict
-    print "  description: %(rodescription)s"%ro_dict
+    print "  identifier:  %(roident)s, title: %(rotitle)s"%rodict
+    print "  creator:     %(rocreator)s, created: %(rocreated)s"%rodict
+    print "  path:        %(ropath)s"%rodict
+    if rodict['rouri']:
+        print "  uri:         %(rouri)s"%rodict
+    print "  description: %(rodescription)s"%rodict
     return 0
 
 def list(progname, configbase, options, args):

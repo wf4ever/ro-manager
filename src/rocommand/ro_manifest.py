@@ -143,7 +143,7 @@ def getAggregatedResources(ro_dir):
     """
     Returns iterator over all resources aggregated by a manifest.
     
-    Each value returned by the iterator is a (subject,predicate,object) triple.
+    Each value returned by the iterator is a resource URI.
     """
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
     subject  = ro_manifest.getRoUri(ro_dir)
