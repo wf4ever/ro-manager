@@ -337,7 +337,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             [ "Research Object %s:"%rodir
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
             , "Missing SHOULD resource: %s"%(rometa.getComponentUri("docs/missing.css"))
-            , "Research object URI:     %s"%(rouri)
+            , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])
         self.outstr.seek(0)

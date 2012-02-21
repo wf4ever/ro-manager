@@ -26,7 +26,7 @@ TODO:
 *** ro_eval_completeness (done)
 *** BackgroundSync
 *** TestEvalCompleteness (done)
-*** ro_metadata(?)
+*** ro_metadata (done)
 *** TestROMetadata(?)
 
 * Refactor namespace definitions into separate module (from ro_manifest)
