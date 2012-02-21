@@ -145,8 +145,8 @@ def getAggregatedResources(ro_dir):
     
     Each value returned by the iterator is a resource URI.
     """
-    ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    subject  = ro_manifest.getRoUri(ro_dir)
+    ro_graph = readManifestGraph(ro_dir)
+    subject  = getRoUri(ro_dir)
     log.debug("getAggregatedResources %s"%str(subject))
     for r in ro_graph.objects(subject=subject, predicate=ORE.aggregates):
         yield r
