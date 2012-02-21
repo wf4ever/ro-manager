@@ -20,7 +20,7 @@ import rdflib.namespace
 #from rdflib import Namespace, URIRef, BNode, Literal
 
 import ro_settings
-from ro_manifest import RDF, RO, ORE, DCTERMS
+from ro_namespaces import RDF, RO, ORE, DCTERMS
 import ro_annotation
 
 class ro_metadata(object):

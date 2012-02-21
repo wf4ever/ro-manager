@@ -18,8 +18,8 @@ log = logging.getLogger(__name__)
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
-from rocommand.ro_manifest import RDF, RDFS, ORE
-from rocommand.ro_metadata import ro_metadata
+from rocommand.ro_namespaces import RDF, RDFS, ORE
+from rocommand.ro_metadata  import ro_metadata
 import ro_minim
 from ro_minim import MINIM
 

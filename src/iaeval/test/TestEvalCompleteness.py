@@ -32,7 +32,7 @@ from MiscLib import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils
-from rocommand.ro_manifest   import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 from rocommand.ro_annotation import annotationTypes
 from rocommand.ro_metadata   import ro_metadata
 

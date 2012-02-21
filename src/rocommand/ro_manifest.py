@@ -16,66 +16,12 @@ log = logging.getLogger(__name__)
 import MiscLib.ScanDirectories
 
 import rdflib
-import rdflib.namespace
+###import rdflib.namespace
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
 import ro_settings
-
-class Namespace(object):
-    def __init__(self, baseUri):
-        self.baseUri = baseUri
-        return
-
-def makeNamespace(baseUri, names):
-    ns = Namespace(baseUri)
-    for name in names:
-        setattr(ns, name, rdflib.URIRef(baseUri+name))
-    return ns
-
-#oxds    = rdflib.URIRef("http://vocab.ox.ac.uk/dataset/schema#")
-dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
-roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
-ao      = rdflib.URIRef("http://purl.org/ao/")
-ore     = rdflib.URIRef("http://www.openarchives.org/ore/terms/")
-foaf    = rdflib.URIRef("http://xmlns.com/foaf/0.1/")
-ro      = rdflib.URIRef("http://purl.org/wf4ever/ro#")
-wfprov  = rdflib.URIRef("http://purl.org/wf4ever/wfprov#")
-wfdesc  = rdflib.URIRef("http://purl.org/wf4ever/wfdesc#")
-
-RDF     = makeNamespace(rdflib.namespace.RDF.uri,
-            [ "Seq", "Bag", "Alt", "Statement", "Property", "XMLLiteral", "List", "PlainLiteral"
-            , "subject", "predicate", "object", "type", "value", "first", "rest"
-            , "nil"
-            ])
-RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
-            [ "Resource", "Class", "subClassOf", "subPropertyOf", "comment", "label"
-            , "domain", "range", "seeAlso", "isDefinedBy", "Literal", "Container"
-            , "ContainerMembershipProperty", "member", "Datatype"
-            ])
-#@@TODO: remove this...
-#OXDS    = makeNamespace(oxds, ["Grouping"])
-DCTERMS = makeNamespace(dcterms, 
-            [ "identifier", "description", "title", "creator", "created"
-            , "subject", "format", "type"
-            ])
-#@@TODO: remove this...
-ROTERMS = makeNamespace(roterms, 
-            [ "note", "resource"
-            ])
-RO = makeNamespace(ro, 
-            [ "ResearchObject", "AggregatedAnnotation"
-            , "annotatesAggregatedResource"
-            ])
-ORE = makeNamespace(ore, 
-            [ "Aggregation", "AggregatedResource"
-            , "aggregates"
-            ])
-AO = makeNamespace(ao, 
-            [ "Annotation"
-            , "body"
-            ])
-
+from ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 def makeManifestFilename(rodir):
     return os.path.join(rodir, ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)

@@ -19,7 +19,7 @@ from rdflib.namespace import RDF
 
 import ro_settings
 import ro_manifest
-from ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
 
 #   Default list of annotation types
 annotationTypes = (

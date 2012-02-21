@@ -14,11 +14,12 @@ import rdflib
 import rdflib.namespace
 
 from rocommand import ro_manifest
-from rocommand.ro_manifest import RDF, RDFS
+from rocommand import ro_namespaces
+from rocommand.ro_namespaces import RDF, RDFS
 
 minim   = rdflib.URIRef("http://purl.org/minim/minim#")
 
-MINIM   = ro_manifest.makeNamespace(minim,
+MINIM   = ro_namespaces.makeNamespace(minim,
             [ "Constraint", "Model", "Requirement", "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule"
             , "hasConstraint", "forPurpose", "onResource", "toModel"
