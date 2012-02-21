@@ -359,27 +359,14 @@ def annotations(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, ro_dir)
     if ro_options['rofile']:
-        ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
-        log.debug("Annotations for %s"%str(ro_file))
-        annotations = ro_annotation.getFileAnnotations(ro_dir, ro_file)
+        rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+        log.debug("Annotations for %s"%str(rofile))
+        annotations = rometa.getFileAnnotations(rofile)
     else:
-        annotations = ro_annotation.getAllAnnotations(ro_dir)
-    ro_annotation.showAnnotations(ro_config, ro_dir, annotations, sys.stdout)
-
-    sname_prev = None
-    for (asubj,apred,aval) in annotations:
-        #log.debug("Annotations: asubj %s, apred %s, aval %s"%
-        #          (repr(asubj), repr(apred), repr(aval)))
-        aname = ro_annotation.getAnnotationNameByUri(ro_config, apred)
-        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
-        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
-        if sname == "":
-            sname = ro_manifest.getRoUri(ro_dir)
-        if sname != sname_prev:
-            print sname
-            sname_prev = sname
-        print "  %s %s"%(aname,str(aval))
+        annotations = rometa.getAllAnnotations(ro_dir)
+    rometa.showAnnotations(annotations, sys.stdout)
     return 0
 
 def push(progname, configbase, options, args):
