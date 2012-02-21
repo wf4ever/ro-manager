@@ -15,8 +15,6 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
-* Refactor namespace definitions into separate module (from ro_manifest)
-
 * Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
 
 * ro eval completeness
@@ -28,7 +26,7 @@ TODO:
 * ro show config
 * ro create to fail if RO already created
 
-* option to change ro manifest details - ro modify?
+* option to change ro manifest aggregation details - ro modify?
 
 * ro link
 * ro links
@@ -66,6 +64,8 @@ DONE
 *** TestEvalCompleteness (done)
 *** ro_metadata (done)
 *** TestROMetadata (done)
+
+* Refactor namespace definitions into separate module (from ro_manifest) (DONE)
 
 
 Client id = 5248c9c2-e7a2-4e8f-8
