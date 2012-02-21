@@ -25,9 +25,11 @@ TODO:
 *** ro_command (done)
 *** ro_eval_completeness (done)
 *** BackgroundSync
-*** TestEvalCompleteness
+*** TestEvalCompleteness (done)
 *** ro_metadata(?)
 *** TestROMetadata(?)
+
+* Refactor namespace definitions into separate module (from ro_manifest)
 
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component

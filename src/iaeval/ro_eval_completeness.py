@@ -1,4 +1,4 @@
-# ro_manifest.py
+# ro_eval_completeness.py
 
 """
 Research Object manifest read, write, decode functions
@@ -18,7 +18,6 @@ log = logging.getLogger(__name__)
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
-###from rocommand import ro_manifest
 from rocommand.ro_manifest import RDF, RDFS, ORE
 from rocommand.ro_metadata import ro_metadata
 import ro_minim

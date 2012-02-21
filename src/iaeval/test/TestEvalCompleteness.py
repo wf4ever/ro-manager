@@ -32,7 +32,6 @@ from MiscLib import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils
-from rocommand import ro_manifest
 from rocommand.ro_manifest   import RDF, DCTERMS, ROTERMS, RO, AO, ORE
 from rocommand.ro_annotation import annotationTypes
 from rocommand.ro_metadata   import ro_metadata
@@ -56,10 +55,6 @@ ro_config = {
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
-
-# Helper function to construct URI of item in RO
-def _getUri(rodir, rocomponent=""):
-    return ro_manifest.getComponentUri(rodir, str(rocomponent))
 
 class TestEvalCompleteness(TestROSupport.TestROSupport):
     """
@@ -112,14 +107,14 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMust'],    [])
         self.assertEquals(evalresult['missingShould'],  [])
         self.assertEquals(evalresult['missingMay'],     [])
-        self.assertEquals(evalresult['rouri'],          _getUri(rodir))
-        self.assertEquals(evalresult['minimuri'],       _getUri(rodir, "Minim-UserRequirements.rdf"))
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements.rdf"))
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],  
-                          _getUri(rodir, "Minim-UserRequirements.rdf#create/docs/UserRequirements-astro.csv"))
+            rometa.getComponentUri("Minim-UserRequirements.rdf#create/docs/UserRequirements-astro.csv"))
         self.assertEquals(evalresult['modeluri'],
-                          _getUri(rodir, "Minim-UserRequirements.rdf#runnableRequirementRO"))
+            rometa.getComponentUri("Minim-UserRequirements.rdf#runnableRequirementRO"))
         self.deleteTestRo(rodir)
         return
 
@@ -217,14 +212,14 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingShould'],  [])
         self.assertEquals(evalresult['missingMay'],     [missing_may])
         self.assertEquals(evalresult['rodir'],          rodir)
-        self.assertEquals(evalresult['rouri'],          _getUri(rodir))
-        self.assertEquals(evalresult['minimuri'],       _getUri(rodir, "Minim-UserRequirements.rdf"))
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements.rdf"))
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-bio.pdf")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],  
-                          _getUri(rodir, "Minim-UserRequirements.rdf#create/docs/UserRequirements-bio.pdf"))
+            rometa.getComponentUri("Minim-UserRequirements.rdf#create/docs/UserRequirements-bio.pdf"))
         self.assertEquals(evalresult['modeluri'],
-                          _getUri(rodir, "Minim-UserRequirements.rdf#missingMayRequirement"))
+            rometa.getComponentUri("Minim-UserRequirements.rdf#missingMayRequirement"))
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir)
         return
@@ -275,8 +270,8 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
             , 'minimuri':       minimbase
             , 'target':         "test-formatting-target"
             , 'purpose':        "test formatting"
-            , 'constrainturi':  _getUri(rodir, "Minim-UserRequirements.rdf#test-formatting-constraint")
-            , 'modeluri':       _getUri(rodir, "Minim-UserRequirements.rdf#test-formatting-constraint")
+            , 'constrainturi':  rometa.getComponentUri("Minim-UserRequirements.rdf#test-formatting-constraint")
+            , 'modeluri':       rometa.getComponentUri("Minim-UserRequirements.rdf#test-formatting-constraint")
             })
         self.deleteTestRo(rodir)
         return rodir
@@ -318,8 +313,8 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         self.setupConfig()
         rodir = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rouri    = ro_manifest.getRoUri(rodir)
-        minimuri = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
+        rometa   = ro_metadata(ro_config, rodir)
+        minimuri = rometa.getComponentUri("Minim-UserRequirements.rdf")
         # Evaluate annotations
         args = [ "ro", "evaluate", "completeness"
                , "-v", "-a"
@@ -341,7 +336,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         expect = (
             [ "Research Object %s:"%rodir
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
-            , "Missing SHOULD resource: %s"%(ro_manifest.getComponentUri(rodir, "docs/missing.css"))
+            , "Missing SHOULD resource: %s"%(rometa.getComponentUri("docs/missing.css"))
             , "Research object URI:     %s"%(rouri)
             , "Minimum information URI: %s"%(minimuri)
             ])
