@@ -30,7 +30,6 @@ import rdflib
 from MiscLib import TestUtils
 
 from rocommand import ro_settings
-from rocommand import ro_manifest
 from rocommand import ro_metadata
 from rocommand.ro_manifest   import RDF, DCTERMS, ROTERMS, RO, ORE
 from rocommand.ro_annotation import annotationTypes
@@ -111,7 +110,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             "title":        DCTERMS.title,
             "created":      DCTERMS.created
             }
-        s = ro_manifest.getComponentUri(rodir, roresource)
+        s = romd.getComponentUri(roresource)
         log.debug("annotation subject %s"%repr(s))
         for k in attrpropdict:
             p = attrpropdict[k]
@@ -151,7 +150,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             "title":        DCTERMS.title,
             "created":      DCTERMS.created
             }
-        s = ro_manifest.getComponentUri(rodir, roresource)
+        s = romd.getComponentUri(roresource)
         log.debug("annotation subject %s"%repr(s))
         for k in attrpropdict:
             p = attrpropdict[k]
@@ -171,7 +170,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         roresource = "."
         # Retrieve the anotations
         annotations = romd.getRoAnnotations()
-        rouri = ro_manifest.getRoUri(rodir)
+        rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
             , (rouri, DCTERMS.title,        rdflib.Literal('Test init RO annotation'))
@@ -202,7 +201,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.addSimpleAnnotation(roresource, "description", "Added description")
         # Retrieve the anotations
         annotations = romd.getRoAnnotations()
-        rouri = ro_manifest.getRoUri(rodir)
+        rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, DCTERMS.description,  rdflib.Literal('Test add RO annotation'))
             , (rouri, DCTERMS.title,        rdflib.Literal('Test add RO annotation'))
@@ -238,7 +237,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.removeSimpleAnnotation(roresource, "created", None)
         # Retrieve the anotations
         annotations = romd.getRoAnnotations()
-        rouri = ro_manifest.getRoUri(rodir)
+        rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
             , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
@@ -268,7 +267,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.replaceSimpleAnnotation(roresource, "created",     "2011-12-07")
         # Retrieve the anotations
         annotations = romd.getRoAnnotations()
-        rouri = ro_manifest.getRoUri(rodir)
+        rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, DCTERMS.type,         rdflib.Literal('Research Object'))
             , (rouri, DCTERMS.title,        rdflib.Literal('Replacement title'))
@@ -302,7 +301,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.addSimpleAnnotation(roresource, "rdf:type",    ROTERMS.resource)
         # Retrieve the file anotations
         annotations = romd.getFileAnnotations(roresource)
-        resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        resourceuri = romd.getComponentUri(roresource)
         log.debug("resourceuri: %s"%(resourceuri))
         expected_annotations = (
             [ (resourceuri, DCTERMS.type,         rdflib.Literal('Test file'))
@@ -338,7 +337,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.removeSimpleAnnotation(roresource, "note",        None)
         # Retrieve the file anotations
         annotations = romd.getFileAnnotations(roresource)
-        resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        resourceuri = romd.getComponentUri(roresource)
         log.debug("resourceuri: %s"%(resourceuri))
         expected_annotations = (
             [ (resourceuri, DCTERMS.type,         rdflib.Literal('Test file'))
@@ -369,8 +368,8 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.addSimpleAnnotation(roresource, "rdf:type",    ROTERMS.resource)
         # Retrieve the file anotations
         annotations = romd.getAllAnnotations()
-        rouri       = ro_manifest.getRoUri(rodir)
-        resourceuri = ro_manifest.getComponentUri(rodir, roresource)
+        rouri       = romd.getRoUri()
+        resourceuri = romd.getComponentUri(roresource)
         log.debug("resourceuri: %s"%(resourceuri))
         expected_annotations = (
             [ (rouri,       DCTERMS.description,  rdflib.Literal('Test get all annotations'))
