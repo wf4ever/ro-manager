@@ -234,7 +234,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         log.debug("outtxt: %s"%(outtxt))
         self.assertEqual(outtxt.count("ro annotations"), 1)
-        self.assertRegexpMatches(outtxt, "\nsubdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "\n<subdir1/subdir1-file.txt>")
         self.assertRegexpMatches(outtxt, "type.*atype")
         self.assertRegexpMatches(outtxt, "title.*atitle")
         self.deleteTestRo(rodir)

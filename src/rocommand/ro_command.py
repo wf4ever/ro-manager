@@ -50,8 +50,8 @@ def ro_root_directory(cmdname, ro_config, rodir):
     #log.debug("                   ro_config %s"%(repr(ro_config)))
     ro_dir = ro_utils.ropath(ro_config, rodir)
     if not ro_dir:
-        print ("%s: indicated directory not in configured research object directory tree: %s"%
-               (cmdname, rodir))
+        print ("%s: indicated directory not in configured research object directory tree: %s (%s)"%
+               (cmdname, rodir, ro_config['robase']))
         return None
     if not os.path.isdir(ro_dir):
         print ("%s: indicated directory does not exist: %s"%
@@ -108,7 +108,7 @@ def config(progname, configbase, options, args):
     Update RO repository access configuration
     """
     ro_config = {
-        "robase":         getoptionvalue(options.roboxdir,       "ROBOX service base directory:  "),
+        "robase":         getoptionvalue(options.robasedir,      "RO local base directory:       "),
         "rosrs_uri":      getoptionvalue(options.rosrs_uri,      "URI for ROSRS service:         "),
         "rosrs_username": getoptionvalue(options.rosrs_username, "Username for ROSRS service:    "),
         "rosrs_password": getoptionvalue(options.rosrs_password, "Password for ROSRS service:    "),

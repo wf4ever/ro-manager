@@ -82,9 +82,9 @@ def parseCommandArgs(argv):
     parser.add_option("-p", "--rosrs-password",
                       dest="rosrs_password", 
                       help="ROSRS password")
-    parser.add_option("-b", "--robox-base",
-                      dest="roboxdir", 
-                      help="Base of local directory tree monitored by ROBOX")
+    parser.add_option("-b", "--ro-base",
+                      dest="robasedir", 
+                      help="Base of local directory tree used for ROs")
     parser.add_option("-n", "--user-name",
                       dest="username", 
                       help="Full name of research objects owner")
