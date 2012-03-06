@@ -365,7 +365,7 @@ def annotations(progname, configbase, options, args):
         log.debug("Annotations for %s"%str(rofile))
         annotations = rometa.getFileAnnotations(rofile)
     else:
-        annotations = rometa.getAllAnnotations(ro_dir)
+        annotations = rometa.getAllAnnotations()
     rometa.showAnnotations(annotations, sys.stdout)
     return 0
 
