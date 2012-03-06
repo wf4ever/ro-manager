@@ -69,7 +69,6 @@ def parseCommandArgs(argv):
     # version option
     parser.add_option("-d", "--ro-directory",
                       dest="rodir", 
-                      default=os.getcwd(),
                       help="Directory of Research Object to process (defaults to current directory)")
     parser.add_option("-i", "--ro-identifier",
                       dest="roident", 
