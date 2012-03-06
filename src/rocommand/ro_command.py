@@ -107,8 +107,9 @@ def config(progname, configbase, options, args):
     """
     Update RO repository access configuration
     """
+    robase = os.path.realpath(options.robasedir)
     ro_config = {
-        "robase":         getoptionvalue(options.robasedir,      "RO local base directory:       "),
+        "robase":         getoptionvalue(robase,                 "RO local base directory:       "),
         "rosrs_uri":      getoptionvalue(options.rosrs_uri,      "URI for ROSRS service:         "),
         "rosrs_username": getoptionvalue(options.rosrs_username, "Username for ROSRS service:    "),
         "rosrs_password": getoptionvalue(options.rosrs_password, "Password for ROSRS service:    "),
