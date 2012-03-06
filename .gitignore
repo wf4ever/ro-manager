@@ -1,2 +1,34 @@
+# ----
+# OS X
+
+# Desktop Service Store files
+# See: http://en.wikipedia.org/wiki/.DS_Store
+.DS_Store
+
+# --------
+# TextMate
+#
+
+# Ignore TextMate project files.
+*.tmproj
+
+# ------
+# Python
+#
+
+# Compiled Python file
+*.pyc
+
+# Eclipse/Pydev files
 /.pydevproject
 /.project
+
+# ---------
+# Mercurial
+
+# Repository directory
+.hg
+
+# Ignore file
+.hgignore
+
