@@ -17,6 +17,8 @@ TODO:
 
 * Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
 
+* ro annotate (-g|--graph) rdf-resource [ file ] -- use RDF file already present as annotation for the named file.  Defaults to annotations for the entire RO.
+
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** Test that aggregated files actually exist - part of liveness?
