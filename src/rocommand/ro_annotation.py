@@ -407,15 +407,16 @@ def showAnnotations(ro_config, ro_dir, annotations, outstr):
     for (asubj,apred,aval) in annotations:
         #log.debug("Annotations: asubj %s, apred %s, aval %s"%
         #          (repr(asubj), repr(apred), repr(aval)))
-        (aname, atype) = getAnnotationByUri(ro_config, apred)
-        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
-        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
-        if sname == "":
-            sname = ro_manifest.getRoUri(ro_dir)
-        if sname != sname_prev:
-            print "\n<"+sname+">"
-            sname_prev = sname
-        outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
+        if apred != ORE.aggregates:
+            (aname, atype) = getAnnotationByUri(ro_config, apred)
+            sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
+            log.debug("Annotations: sname %s, aname %s"%(sname, aname))
+            if sname == "":
+                sname = ro_manifest.getRoUri(ro_dir)
+            if sname != sname_prev:
+                print "\n<"+sname+">"
+                sname_prev = sname
+            outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
     return
 
 # End.
