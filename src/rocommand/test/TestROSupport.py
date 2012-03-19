@@ -169,6 +169,8 @@ class TestROSupport(unittest.TestCase):
             status = ro.runCommand(configdir, robasedir, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
+        # @@TODO: is this helpful? Reset output stream buffer closed
+        self.outstr = StringIO.StringIO()
         return rodir
 
     def populateTestRo(self, testbase, rodir):

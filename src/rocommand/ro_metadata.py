@@ -20,7 +20,8 @@ import rdflib.namespace
 #from rdflib import Namespace, URIRef, BNode, Literal
 
 import ro_settings
-from ro_namespaces import RDF, RO, ORE, DCTERMS
+from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
+import ro_manifest
 import ro_annotation
 
 class ro_metadata(object):
@@ -152,6 +153,28 @@ class ro_metadata(object):
         attrvalue   is a new value to be associated with the attribute
         """
         ro_annotation.replaceSimpleAnnotation(self.roconfig, self.rodir, rofile, attrname, attrvalue)
+        return
+
+    def addGraphAnnotation(self, rofile, graph):
+        """
+        Add an annotation graph for a named resource.  Unlike addSimpleAnnotation, this
+        method adds an annotation to the manifest using an existing RDF graph (which is
+        presumably itself in the RO structure).
+        
+        rofile      names the file or resource to be annotated, possibly relative to the RO.
+                    Note that no checks are performed to ensure that the graph itself actually
+                    refers to this resource - that's up the the creator of the graph.  This
+                    identifies the resourfce with which the annotation body is associated in
+                    the RO manifest.
+        graph       names the file or resource containing the annotation body.
+        """
+        ro_graph = ro_manifest.readManifestGraph(self.rodir)
+        ann = rdflib.BNode()
+        ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
+        ro_graph.add((ann, RO.annotatesAggregatedResource, ro_manifest.getComponentUri(self.rodir, rofile)))
+        ro_graph.add((ann, AO.body, ro_manifest.getComponentUri(self.rodir, graph)))
+        ro_graph.add((ro_manifest.getComponentUri(self.rodir, "."), ORE.aggregates, ann))
+        ro_manifest.writeManifestGraph(self.rodir, ro_graph)
         return
 
     def getRoAnnotations(self):

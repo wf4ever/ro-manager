@@ -85,7 +85,8 @@ def help(progname, args):
         , "  %(progname)s add [ -d <dir> ] [ -a ] [ file | directory ]"
         , "  %(progname)s status [ -d <dir> ]"
         , "  %(progname)s list [ -d <dir> ]"
-        , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
+        , "  %(progname)s annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
+        , "  %(progname)s annotate [ -d <dir> ] <file> -g <RDF-graph>"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
@@ -308,29 +309,49 @@ def annotate(progname, configbase, options, args):
     ro annotate file attribute-name [ attribute-value ]
     """
     # Check command arguments
-    if len(args) not in [4,5]:
+    if not (len(args) in [4,5]) and not (len(args) == 3 and options.graph):
         print ("%s annotate: wrong number of arguments provided"%
                (progname))
         print ("Usage: %s annotate file attribute-name [ attribute-value ]"%
                (progname))
+        print ("       %s annotate file -g rdf-filename"%
+               (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
-    ro_options = {
-        "rofile":       args[2],
-        "rodir":        os.path.dirname(args[2]),
-        "roattribute":  args[3],
-        "rovalue":      args[4] or None
-        }
+    rodir = options.rodir or os.path.dirname(args[2])
+    if len(args) == 3:
+        # Using graph form
+        ro_options = {
+            # Usding graph annotation form
+            "rofile":       args[2],
+            "rodir":        rodir,
+            "graph":        options.graph or None
+            }
+    else:
+        ro_options = {
+            # Usding explicit annotation form
+            "rofile":       args[2],
+            "rodir":        rodir,
+            "roattribute":  args[3],
+            "rovalue":      args[4] or None
+            }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
-    ro_dir = ro_root_directory(progname+" attribute", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory(progname+" annotate", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read and update manifest and annotations
-    if options.verbose:
-        print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     rometa = ro_metadata(ro_config, ro_dir)
     rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
-    rometa.addSimpleAnnotation(rofile, ro_options['roattribute'],  ro_options['rovalue'])
+    if len(args) == 3:
+        # Add existing graph as annotation
+        if options.verbose:
+            print "ro annotate -d %(rodir)s %(rofile)s -g %(graph)s"%ro_options
+        rometa.addGraphAnnotation(rofile, ro_options['graph'])
+    else:
+        # Create new annotation graph
+        if options.verbose:
+            print "ro annotate -d %(rodir)s %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+        rometa.addSimpleAnnotation(rofile, ro_options['roattribute'],  ro_options['rovalue'])
     return 0
 
 def annotations(progname, configbase, options, args):

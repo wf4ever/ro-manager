@@ -68,8 +68,11 @@ def parseCommandArgs(argv):
                 version="%prog "+ro_settings.VERSION)
     # version option
     parser.add_option("-d", "--ro-directory",
-                      dest="rodir", 
+                      dest="rodir",
                       help="Directory of Research Object to process (defaults to current directory)")
+    parser.add_option("-g", "--graph",
+                      dest="graph", 
+                      help="Name of existing RDF graph used for annotation")
     parser.add_option("-i", "--ro-identifier",
                       dest="roident", 
                       help="Identifier of Research Object (defaults to value based on name)")

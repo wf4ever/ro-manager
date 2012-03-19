@@ -113,6 +113,7 @@ def readAnnotationBody(rodir, annotationfile):
     Read annotation body from indicated file, return RDF Graph of annotation values.
     """
     annotationfilename = makeComponentFilename(rodir, annotationfile)
+    if not os.path.exists(annotationfilename): return None
     rdfGraph = rdflib.Graph()
     rdfGraph.parse(annotationfilename)
     return rdfGraph
@@ -328,9 +329,10 @@ def getRoAnnotations(ro_dir):
     for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
-        for (p, v) in ann_graph.predicate_objects(subject=subject):
-            #log.debug("Triple: %s %s %s"%(subject,p,v))
-            yield (subject, p, v)
+        if ann_graph:
+            for (p, v) in ann_graph.predicate_objects(subject=subject):
+                #log.debug("Triple: %s %s %s"%(subject,p,v))
+                yield (subject, p, v)
     return
 
 def getFileAnnotations(ro_dir, rofile):
@@ -347,9 +349,10 @@ def getFileAnnotations(ro_dir, rofile):
     for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
-        for (p, v) in ann_graph.predicate_objects(subject=subject):
-            #log.debug("Triple: %s %s %s"%(subject,p,v))
-            yield (subject, p, v)
+        if ann_graph:
+            for (p, v) in ann_graph.predicate_objects(subject=subject):
+                #log.debug("Triple: %s %s %s"%(subject,p,v))
+                yield (subject, p, v)
     return
 
 def getAllAnnotations(ro_dir):
