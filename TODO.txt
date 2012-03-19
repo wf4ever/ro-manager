@@ -21,6 +21,8 @@ TODO:
 ** Test that aggregated files actually exist - part of liveness?
 ** Target specification is very error prone
 ** Error handling when target not found is poor
+** Test case for software environment rule
+** Test case for content match rule
 
 * Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
 

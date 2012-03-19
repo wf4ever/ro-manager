@@ -21,12 +21,13 @@ minim   = rdflib.URIRef("http://purl.org/minim/minim#")
 
 MINIM   = ro_namespaces.makeNamespace(minim,
             [ "Constraint", "Model", "Requirement", "RequirementRule"
-            , "SoftwareEnvironmentRule", "DataRequirementRule"
+            , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
             , "hasConstraint", "forPurpose", "onResource", "toModel"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             , "derives", "reports", "isDerivedBy"
             , "aggregates"
             , "command", "response"
+            , "forall", "exists", "aggregatesTemplate"
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             ])
 
@@ -99,6 +100,11 @@ def getRequirements(minimgraph, modeluri):
                 rule['command']  = minimgraph.value(subject=ruleuri, predicate=MINIM.command)
                 rule['response'] = minimgraph.value(subject=ruleuri, predicate=MINIM.response)
                 req['softwarerule'] = rule
+            elif ruletype == MINIM.ContentMatchRequirementRule:
+                rule['forall']   = minimgraph.value(subject=ruleuri, predicate=MINIM.forall)
+                rule['exists']   = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
+                req['contentmatchrule'] = rule
             else:
                 assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
         return req

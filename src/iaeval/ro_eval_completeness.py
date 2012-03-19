@@ -7,8 +7,9 @@ Research Object manifest read, write, decode functions
 #import sys
 #import os
 #import os.path
-#import re
 #import urlparse
+import re
+import subprocess
 import logging
 
 log = logging.getLogger(__name__)
@@ -72,9 +73,24 @@ def evaluate(rometa, minim, target, purpose):
     reqeval = []
     for r in requirements:
         if 'datarule' in r:
+            # @@TODO: factor to separate function?
             satisfied = rometa.roManifestContains( (rouri, ORE.aggregates, r['datarule']['aggregates']) )
             reqeval.append((r,satisfied))
             log.debug("- %s: %s"%(repr((rouri, ORE.aggregates, r['datarule']['aggregates'])), satisfied))
+        elif 'softwarerule' in r:
+            # @@TODO: factor to separate function
+            cmnd = r['softwarerule']['command']
+            resp = r['softwarerule']['response']
+            out = unicode(subprocess.check_output(cmnd.split(), stderr=subprocess.STDOUT))
+            exp = re.compile(resp)
+            satisfied = exp.match(out)
+            reqeval.append((r,satisfied))
+            log.debug("- Software %s: response %s,  satisfied %s"%(cmnd, resp, "OK" if satisfied else "Fail"))
+        elif 'contentmatchrule' in r:
+            satisfied = evalContentMatch(rometa, r['contentmatchrule'])
+            reqeval.append((r,satisfied))
+        else:
+            raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
     # Evaluate overall satisfaction of model
     sat_levels = (
         { 'MUST':   MINIM.minimallySatisfies
@@ -110,6 +126,46 @@ def evaluate(rometa, minim, target, purpose):
                 sat_levels['MAY'] = False
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
     return eval_result
+
+def evalContentMatch(rometa, rule):
+    querytemplate = """
+        @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+        @prefix owl:        <http://www.w3.org/2002/07/owl#>
+        @prefix xsd:        <http://www.w3.org/2001/XMLSchema#>
+        @prefix xml:        <http://www.w3.org/XML/1998/namespace>
+        @prefix ro:         <http://purl.org/wf4ever/ro#>
+        @prefix wfprov:     <http://purl.org/wf4ever/wfprov#>
+        @prefix wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+        @prefix rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
+        @prefix ore:        <http://www.openarchives.org/ore/terms/>
+        @prefix ao:         <http://purl.org/ao/>
+        @prefix dcterms:    <http://purl.org/dc/terms/>
+        @prefix foaf:       <http://xmlns.com/foaf/0.1/>
+
+        %(queryverb)s
+        {
+          %(querypattern)s
+        }
+        """
+    if rule['exists']:
+        queryparams = (
+            { 'queryverb': "ASK"
+            , 'querypattern': rule['exists']
+            })
+
+@@@@@@ add query methods to ro_metadata; manifest, annotations, all?  @@@@@@@@
+
+    elif rule['forall']:
+        queryparams = (
+            { 'queryverb': "SELECT * WHERE"
+            , 'querypattern': rule['exists']
+            })
+        ...
+    else:
+        raise ValueError("Unrecognized content match rule: %s"%repr(rule))
+    assert False, "@@TODO implement evalContentMatch"
+    return satisfied
 
 def format(eval_result, options, ostr):
     """
