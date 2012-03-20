@@ -297,9 +297,9 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         expect = (
             [ "Research Object %s:"%rodir
             , "Nominally complete for %(purpose)s of resource %(target)s"%(self.eval_result)
-            , "Missing MUST resource:   %s"%(self.eval_result['missingMust'][0]['datarule']['aggregates'])
-            , "Missing SHOULD resource: %s"%(self.eval_result['missingShould'][0]['datarule']['aggregates'])
-            , "Missing MAY resource:    %s"%(self.eval_result['missingMay'][0]['datarule']['aggregates'])
+            , "Unsatisfied MUST requirement:   Resource %s"%(self.eval_result['missingMust'][0]['datarule']['aggregates'])
+            , "Unsatisfied SHOULD requirement: Resource %s"%(self.eval_result['missingShould'][0]['datarule']['aggregates'])
+            , "Unsatisfied MAY requirement:    Resource %s"%(self.eval_result['missingMay'][0]['datarule']['aggregates'])
             , "Research object URI:     %(rouri)s"%(self.eval_result)
             , "Minimum information URI: %(minimuri)s"%(self.eval_result)
             ])
@@ -336,7 +336,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         expect = (
             [ "Research Object %s:"%rodir
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
-            , "Missing SHOULD resource: %s"%(rometa.getComponentUri("docs/missing.css"))
+            , "Unsatisfied SHOULD requirement: Resource %s"%(rometa.getComponentUri("docs/missing.css"))
             , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])

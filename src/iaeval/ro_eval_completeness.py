@@ -241,10 +241,10 @@ def formatRule(rule):
     Format a rule for a missing/satisfied report
     """
     if 'datarule' in rule:
-        return "Resource %s"%rulr['datarule']['aggregates']
+        return "Resource %s"%rule['datarule']['aggregates']
     elif 'softwarerule' in rule:
         cmnd = rule['softwarerule']['command']
-        resp = rulr['softwarerule']['response']
+        resp = rule['softwarerule']['response']
         return "Environment '%s' matches '%s'"%(cmnd,resp)
     elif 'contentmatchrule' in rule:
         exists = rule['contentmatchrule']['exists']
