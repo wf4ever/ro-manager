@@ -26,6 +26,10 @@ TODO:
 
 * Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
 
+* Refactor ro_metadata to handle manifest access and updates locally, rather than via ro_annotations.
+  Also, add logic to cache roannotation graph.
+  (Keep ro_annotations for annotation support methods)
+
 * ro annotate/annnotations
 ** Test display of annotations for entire RO
 ** Test annotations shown in RO listing

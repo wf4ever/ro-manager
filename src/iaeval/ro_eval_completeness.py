@@ -14,10 +14,11 @@ import logging
 
 log = logging.getLogger(__name__)
 
-#import rdflib
+import rdflib
 #import rdflib.namespace
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
+from uritemplate import uritemplate
 
 from rocommand.ro_namespaces import RDF, RDFS, ORE
 from rocommand.ro_metadata  import ro_metadata
@@ -129,19 +130,19 @@ def evaluate(rometa, minim, target, purpose):
 
 def evalContentMatch(rometa, rule):
     querytemplate = """
-        @prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        @prefix rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-        @prefix owl:        <http://www.w3.org/2002/07/owl#>
-        @prefix xsd:        <http://www.w3.org/2001/XMLSchema#>
-        @prefix xml:        <http://www.w3.org/XML/1998/namespace>
-        @prefix ro:         <http://purl.org/wf4ever/ro#>
-        @prefix wfprov:     <http://purl.org/wf4ever/wfprov#>
-        @prefix wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-        @prefix rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-        @prefix ore:        <http://www.openarchives.org/ore/terms/>
-        @prefix ao:         <http://purl.org/ao/>
-        @prefix dcterms:    <http://purl.org/dc/terms/>
-        @prefix foaf:       <http://xmlns.com/foaf/0.1/>
+        PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+        PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+        PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+        PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
+        PREFIX ro:         <http://purl.org/wf4ever/ro#>
+        PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
+        PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+        PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
+        PREFIX ore:        <http://www.openarchives.org/ore/terms/>
+        PREFIX ao:         <http://purl.org/ao/>
+        PREFIX dcterms:    <http://purl.org/dc/terms/>
+        PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
 
         %(queryverb)s
         {
@@ -153,18 +154,50 @@ def evalContentMatch(rometa, rule):
             { 'queryverb': "ASK"
             , 'querypattern': rule['exists']
             })
-
-@@@@@@ add query methods to ro_metadata; manifest, annotations, all?  @@@@@@@@
-
+        query = querytemplate%queryparams
+        satisfied = rometa.queryAnnotations(query)
     elif rule['forall']:
         queryparams = (
             { 'queryverb': "SELECT * WHERE"
-            , 'querypattern': rule['exists']
+            , 'querypattern': rule['forall']
             })
-        ...
+        query = querytemplate%queryparams
+        resp  = rometa.queryAnnotations(query)
+        satisfied = True
+        ###print rometa.manifestgraph.serialize(format='xml')
+        ###print "forall query: "+query
+        ###print "forall response: "+repr(resp)
+        for binding in resp:
+            # Extract keys and values from query result
+            simplebinding = {}
+            for k in binding:
+                ###print "key: "+repr(k) 
+                if not isinstance(k,rdflib.BNode):
+                    simplebinding[str(k)] = str(binding[k])
+                    if str(k) in ['if', 'of'] and str(binding[k])[:5] != "file:":
+                        # Houston, we have a problem...
+                        agraph = rometa.roannotations
+                        print "--------------------"
+                        print "Graph: "+agraph.serialize(format="xml")
+                        print "Query: "+query
+                        print "Response bindings: "+repr(resp)
+                        print "--------------------"
+                        assert False, "Aborted"
+            # Construct URI for file from template
+            # Uses code copied from http://code.google.com/p/uri-templates
+            template = rule['template']
+            fileref = uritemplate.expand(rule['template'], simplebinding)
+            fileuri = rometa.getComponentUri(fileref)
+            ###print "forall test: binding %s"%(repr(simplebinding))
+            ###print "...........: template %s, fileref %s"%(template, fileref)
+            ###print "...........: fileuri %s"%(repr(fileuri))
+            ###print "...........: RO uri  %s"%(repr(rometa.getRoUri()))
+            # Test if URI is aggregated
+            satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
+            ###print "...........: satisfied %s"%(satisfied)
+            if not satisfied: break
     else:
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
-    assert False, "@@TODO implement evalContentMatch"
     return satisfied
 
 def format(eval_result, options, ostr):
@@ -194,13 +227,33 @@ def format(eval_result, options, ostr):
                     "Incomplete")
     put(any, summary_text+" for %(purpose)s of resource %(target)s"%(eval_result))
     for m in eval_result['missingMust']:
-        put(full, "Missing MUST resource:   %s"%(m['datarule']['aggregates']))
+        put(full, "Unsatisfied MUST requirement:   %s"%(formatRule(m)))
     for m in eval_result['missingShould']:
-        put(full, "Missing SHOULD resource: %s"%(m['datarule']['aggregates']))
+        put(full, "Unsatisfied SHOULD requirement: %s"%(formatRule(m)))
     for m in eval_result['missingMay']:
-        put(full, "Missing MAY resource:    %s"%(m['datarule']['aggregates']))
+        put(full, "Unsatisfied MAY requirement:    %s"%(formatRule(m)))
     put(full, "Research object URI:     %(rouri)s"%(eval_result))
     put(full, "Minimum information URI: %(minimuri)s"%(eval_result))
     return
+
+def formatRule(rule):
+    """
+    Format a rule for a missing/satisfied report
+    """
+    if 'datarule' in rule:
+        return "Resource %s"%rulr['datarule']['aggregates']
+    elif 'softwarerule' in rule:
+        cmnd = rule['softwarerule']['command']
+        resp = rulr['softwarerule']['response']
+        return "Environment '%s' matches '%s'"%(cmnd,resp)
+    elif 'contentmatchrule' in rule:
+        exists = rule['contentmatchrule']['exists']
+        forall = rule['contentmatchrule']['forall']
+        uritem = rule['contentmatchrule']['template']
+        if exists:
+            return "Match for %s"%exists
+        else:
+            return "Aggregate %s for matching %s"%(uritem,forall)
+    return "Unrecognized rule %s"%repr(rule)
 
 # End.
