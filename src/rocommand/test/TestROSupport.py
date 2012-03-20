@@ -59,6 +59,7 @@ class TestROSupport(unittest.TestCase):
         Test helper creates RO config for designated test base directory
         and returns configuration and base RO storage directories. 
         """
+        # @@refactor to use method from rocommand
         configdir = self.getConfigDir(testbase)
         robasedir = self.getRoBaseDir(testbase)
         ro_utils.resetconfig(configdir)
@@ -156,6 +157,7 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
+        # @@refactor to use method from rocommand
         rodir = self.createRoFixture(testbase, src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
         args = [
             "ro", "create", roname,
@@ -179,6 +181,7 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
+        # @@refactor to use method from rocommand
         args = [
             "ro", "add", "-v", "-a",
             "-d", rodir,

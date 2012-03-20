@@ -233,42 +233,18 @@ class ro_metadata(object):
         self._loadManifest()
         self.roannotations = rdflib.Graph()
         for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
-            ###print "\nann_node %s, body %s"%(repr(ann_node), repr(subject))
             ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             ann_file  = os.path.join(self.rodir, ro_manifest.getComponentUriRel(self.rodir, ann_uri))
             if os.path.exists(ann_file):
-                ###print "Parse file; "+ann_file
                 self.roannotations.parse(ann_file)
-        ###print self.roannotations.serialize(
-        ###    format='xml', base=ro_manifest.getRoUri(self.rodir))
-
         # Run query against assembled annotation graph
-        print "query: "+query
         resp = self.roannotations.query(query)
-        print "response:       "+repr(resp)
-        print "resp.type:      "+repr(resp.type)
-        print "resp.vars:      "+repr(resp.vars)
-        print "resp.bindings:  "+repr(resp.bindings)
-        print "resp.askAnswer: "+repr(resp.askAnswer)
-        print "resp.graph:     "+repr(resp.graph)
         if resp.type == 'ASK':
             return resp.askAnswer
         elif resp.type == 'SELECT':
             return resp.bindings
         else:
-            assert(False, "Unexpected query response type %s"%resp.type)
-
-
-
-
-
-
-
-
-
-        #################################
-
-
+            assert False, "Unexpected query response type %s"%resp.type
         return None
 
     def showAnnotations(self, annotations, outstr):
