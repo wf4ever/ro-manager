@@ -18,6 +18,13 @@ import MiscLib.ScanDirectories
 import rdflib
 import rdflib.namespace
 #from rdflib import Namespace, URIRef, BNode, Literal
+# Set up to use SPARQL
+rdflib.plugin.register(
+    'sparql', rdflib.query.Processor,
+    'rdfextras.sparql.processor', 'Processor')
+rdflib.plugin.register(
+    'sparql', rdflib.query.Result,
+    'rdfextras.sparql.query', 'SPARQLQueryResult')
 
 import ro_settings
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
@@ -37,16 +44,21 @@ class ro_metadata(object):
         self.rodir    = rodir
         self.rouri    = self.getRoUri()
         self.manifestfilename = self.getManifestFilename()
+        self.dummyfortest     = dummysetupfortest
+        self._loadManifest()
+        # Get RO URI from manifest
+        # May be different from computed value if manifest has absolute URI
+        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        return
+
+    def _loadManifest(self):
         self.manifestgraph    = rdflib.Graph()
-        if dummysetupfortest:
+        if self.dummyfortest:
             # Fake minimal manifest graph for testing
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
         else:
-            # Read manifest ghraph
+            # Read manifest graph
             self.manifestgraph.parse(self.manifestfilename)
-        # RO URI from manifest
-        # May be different from computed value if manifest has absolute URI
-        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
 
     def updateManifest(self):
@@ -103,7 +115,7 @@ class ro_metadata(object):
     
         roresource  is the name of the Research Object component to be annotated, possibly
                     relative to the RO root directory.
-        attrdict    is a dictionary of attributes to be saved inthe annotation body.
+        attrdict    is a dictionary of attributes to be saved in the annotation body.
                     Dictionary keys are attribute names that can be resolved via 
                     ro_annotation.getAnnotationByName.
     
@@ -130,6 +142,7 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is a value to be associated with the attribute
         """
+        # @@TODO bring inline and update manifest graph
         ro_annotation.addSimpleAnnotation(self.roconfig, self.rodir, rofile, attrname, attrvalue)
         return
 
@@ -141,6 +154,7 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is the attribute value to be deleted, or Nomne to delete all vaues
         """
+        # @@TODO bring inline and update manifest graph
         ro_annotation.removeSimpleAnnotation(self.roconfig, self.rodir, rofile, attrname, attrvalue)
         return
 
@@ -152,6 +166,7 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is a new value to be associated with the attribute
         """
+        # @@TODO bring inline and update manifest graph
         ro_annotation.replaceSimpleAnnotation(self.roconfig, self.rodir, rofile, attrname, attrvalue)
         return
 
@@ -207,38 +222,54 @@ class ro_metadata(object):
         """
         return ro_annotation.getAnnotationValues(self.roconfig, self.rodir, rofile, attrname)
 
-    def _makeAnnotationValue(self, aval, atype):
+    def queryAnnotations(self, query):
         """
-        atype is one of "string", "resurce", ...
-    
-        Returns a graph node for the supplied type and value
+        Runs a query over the combined annotation graphs (including the manifest)
+        and returns True or False (for ASK queries) or a list of doctionaries of 
+        query results (for SELECT queries).
         """
-        #@@TODO: construct appropriately typed RDF literals
-        if atype == "string":
-            return rdflib.Literal(aval)
-        if atype == "text":
-            return rdflib.Literal(aval)
-        if atype == "datetime":
-            return rdflib.Literal(aval)
-        if atype == "resource":
-            return rdflib.URIRef(aval)
-        return rdflib.Literal(aval)
+        # @@TODO: cache annotation graph; invalidate when annotations updated.
+        # Assemble annotation graph
+        self._loadManifest()
+        self.roannotations = rdflib.Graph()
+        for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+            ###print "\nann_node %s, body %s"%(repr(ann_node), repr(subject))
+            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            ann_file  = os.path.join(self.rodir, ro_manifest.getComponentUriRel(self.rodir, ann_uri))
+            if os.path.exists(ann_file):
+                ###print "Parse file; "+ann_file
+                self.roannotations.parse(ann_file)
+        ###print self.roannotations.serialize(
+        ###    format='xml', base=ro_manifest.getRoUri(self.rodir))
 
-    def _formatAnnotationValue(self, aval, atype):
-        """
-        atype is one of "string", "resurce", ...
-        """
-        #@@TODO: deal with appropriately typed RDF literals
-        if atype == "string":
-            return '"' + str(aval).replace('"', '\\"') + '"'
-        if atype == "text":
-            # multiline
-            return '"""' + str(aval) + '"""'
-        if atype == "datetime":
-            return '"' + str(aval) + '"'
-        if atype == "resource":
-            return '<' + str(aval) + '>'
-        return str(aval)
+        # Run query against assembled annotation graph
+        print "query: "+query
+        resp = self.roannotations.query(query)
+        print "response:       "+repr(resp)
+        print "resp.type:      "+repr(resp.type)
+        print "resp.vars:      "+repr(resp.vars)
+        print "resp.bindings:  "+repr(resp.bindings)
+        print "resp.askAnswer: "+repr(resp.askAnswer)
+        print "resp.graph:     "+repr(resp.graph)
+        if resp.type == 'ASK':
+            return resp.askAnswer
+        elif resp.type == 'SELECT':
+            return resp.bindings
+        else:
+            assert(False, "Unexpected query response type %s"%resp.type)
+
+
+
+
+
+
+
+
+
+        #################################
+
+
+        return None
 
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.rodir, annotations, outstr)
