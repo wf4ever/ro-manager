@@ -19,7 +19,7 @@ import TestManifest
 import TestAnnotations
 import TestROMetadata
 import TestMinimAccess
-import TestEvalCompleteness
+import TestEvalChecklist
 import TestSyncCommands
 
 # Code to run unit tests from all library test modules
@@ -31,8 +31,8 @@ def getTestSuite(select="unit"):
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestROMetadata.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
-    suite.addTest(TestSyncCommands.getTestSuite(select=select))
-    suite.addTest(TestEvalCompleteness.getTestSuite(select=select))
+    ###suite.addTest(TestSyncCommands.getTestSuite(select=select))
+    suite.addTest(TestEvalChecklist.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils
