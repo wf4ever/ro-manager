@@ -67,48 +67,52 @@ def parseCommandArgs(argv):
                 usage="%prog [options] command [args...]\n\n",
                 version="%prog "+ro_settings.VERSION)
     # version option
+    parser.add_option("-a", "--all",
+                      action="store_true",
+                      dest="all", 
+                      default=False,
+                      help="All, list all files, depends on the context")
+    parser.add_option("-b", "--ro-base",
+                      dest="robasedir", 
+                      help="Base of local directory tree used for ROs")
     parser.add_option("-d", "--ro-directory",
                       dest="rodir",
                       help="Directory of Research Object to process (defaults to current directory)")
+    parser.add_option("-e", "--user-email",
+                      dest="useremail", 
+                      help="Email address of research objects owner")
+    parser.add_option("-f", "--force",
+                      action="store_true",
+                      dest="force", 
+                      default=False,
+                      help="Force, depends on the context")
     parser.add_option("-g", "--graph",
                       dest="graph", 
                       help="Name of existing RDF graph used for annotation")
     parser.add_option("-i", "--ro-identifier",
                       dest="roident", 
                       help="Identifier of Research Object (defaults to value based on name)")
+    parser.add_option("-l", "--report-level",
+                      dest="level",
+                      default="may",
+                      help="Level of report detail to generate (summary, must, should, may or full)")
+    parser.add_option("-n", "--user-name",
+                      dest="username", 
+                      help="Full name of research objects owner")
+    parser.add_option("-p", "--rosrs-password",
+                      dest="rosrs_password", 
+                      help="ROSRS password")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri", 
                       help="URI of ROSRS service")
     parser.add_option("-u", "--rosrs-username",
                       dest="rosrs_username", 
                       help="ROSRS username")
-    parser.add_option("-p", "--rosrs-password",
-                      dest="rosrs_password", 
-                      help="ROSRS password")
-    parser.add_option("-b", "--ro-base",
-                      dest="robasedir", 
-                      help="Base of local directory tree used for ROs")
-    parser.add_option("-n", "--user-name",
-                      dest="username", 
-                      help="Full name of research objects owner")
-    parser.add_option("-e", "--user-email",
-                      dest="useremail", 
-                      help="Email address of research objects owner")
     parser.add_option("-v", "--verbose",
                       action="store_true", 
                       dest="verbose", 
                       default=False,
                       help="display verbose output")
-    parser.add_option("-f", "--force",
-                      action="store_true",
-                      dest="force", 
-                      default=False,
-                      help="Force, depends on the context")
-    parser.add_option("-a", "--all",
-                      action="store_true",
-                      dest="all", 
-                      default=False,
-                      help="All, list all files, depends on the context")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")

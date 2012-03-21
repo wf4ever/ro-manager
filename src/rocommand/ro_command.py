@@ -23,7 +23,7 @@ import ro_utils
 from ro_annotation import annotationTypes
 from ro_metadata   import ro_metadata
 
-from iaeval import ro_eval_completeness
+from iaeval import ro_eval_minim
 
 from sync.RosrsSync import RosrsSync
 from sync.BackgroundSync import BackgroundResourceSync
@@ -90,15 +90,14 @@ def help(progname, args):
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
-        , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
+        , "  %(progname)s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"
         , ""
         , "Supported annotation type names are: "
         , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
         , ""
         , "See also:"
-        , ""
         , "  %(progname)s --help"
-        ""
+        , ""
         ])
     for h in helptext:
         print h%{'progname': progname}
@@ -495,7 +494,7 @@ def evaluate(progname, configbase, options, args):
     """
     Evaluate RO
     
-    ro evaluate completeness [ -d <dir> ] [ <purpose> ] [ <target> ]"
+    ro evaluate checklist [ -d <dir> ] <minim> <purpose> [ <target> ]"
     """
     log.debug("evaluate: progname %s, configbase %s, args %s"%
               (progname, configbase, repr(args)))
@@ -513,10 +512,14 @@ def evaluate(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Evaluate...
-    if ro_options["function"] == "completeness":
-        if len(args) not in [3,4,5,6]:
-            print ("%s evaluate completeness: wrong number of arguments provided"%(progname))
-            print ("Usage: %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+    if ro_options["function"] == "checklist":
+        if len(args) not in [5,6]:
+            print ("%s evaluate checklist: wrong number of arguments provided"%(progname))
+            print ("Usage: %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"%(progname))
+            return 1
+        levels = ["summary", "must", "should", "may", "full"]
+        if options.level not in ["summary", "must", "should", "may", "full"]:
+            print ("%s evaluate checklist: invalid reporting level %s, must be one of %s"%(progname, options.level, repr(levels)))
             return 1
         ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
@@ -524,16 +527,16 @@ def evaluate(progname, configbase, options, args):
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
         rometa = ro_metadata(ro_config, ro_dir)
-        evalresult = ro_eval_completeness.evaluate(rometa, 
+        evalresult = ro_eval_minim.evaluate(rometa, 
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
-        ro_eval_completeness.format(evalresult, 
-            { "detail" : "full" if options.all else "summary" }, 
+        ro_eval_minim.format(evalresult, 
+            { "detail" : "full" if options.all else options.level }, 
             sys.stdout)
     # elif ... other functions here
     else:
         print ("%s evaluate: unrecognized function provided"%(progname))
         print ("Usage:")
-        print ("  %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+        print ("  %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"%(progname))
         return 1
     return 0
 

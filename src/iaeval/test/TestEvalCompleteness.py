@@ -316,7 +316,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         rometa   = ro_metadata(ro_config, rodir)
         minimuri = rometa.getComponentUri("Minim-UserRequirements.rdf")
         # Evaluate annotations
-        args = [ "ro", "evaluate", "completeness"
+        args = [ "ro", "evaluate", "checklist"
                , "-v", "-a"
                , "-d", rodir+"/"
                , "Minim-UserRequirements.rdf"

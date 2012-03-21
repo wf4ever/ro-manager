@@ -50,6 +50,13 @@ TODO:
 * Options for RO logging of changes, etc
 * ro list currently shows only files: want to show directories too?
 
+Other functions:
+- display serialization of manifest graph
+- display serialization of annotation graph
+- read RO from web server
+
+Technical debt:
+- Clean up handling command analysis; factor out usage summaries
 
 ----
 
@@ -83,3 +90,33 @@ DONE
 
 * ro annotate (-g|--graph) rdf-resource [ file ] -- use RDF file already present as annotation for the named file.  Defaults to annotations for the entire RO.
 
+----
+
+Option table
+
+("-a", "--all",             help="All, list all files, depends on the context")
+("-b", "--ro-base",         help="Base of local directory tree used for ROs")
+  -c
+("-d", "--ro-directory",    help="Directory of Research Object to process (defaults to current directory)")
+("-e", "--user-email",      help="Email address of research objects owner")
+("-f", "--force",           help="Force, depends on the context")
+("-g", "--graph",           help="Name of existing RDF graph used for annotation")
+  -h    --help
+("-i", "--ro-identifier",   help="Identifier of Research Object (defaults to value based on name)")
+  -j
+  -k
+  -l,  "--report-level",    help="Reporting level of detail to generate (summary, must, should, may or full)"
+  -m
+("-n", "--user-name",       help="Full name of research objects owner")
+  -o
+("-p", "--rosrs-password",  help="ROSRS password")
+  -q
+("-r", "--rosrs-uri",       help="URI of ROSRS service")
+  -s
+  -t
+("-u", "--rosrs-username",  help="ROSRS username")
+("-v", "--verbose",         help="display verbose output")
+  -w
+  -x
+  -y
+  -z
