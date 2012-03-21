@@ -317,7 +317,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         minimuri = rometa.getComponentUri("Minim-UserRequirements.rdf")
         # Evaluate annotations
         args = [ "ro", "evaluate", "checklist"
-               , "-v", "-a"
+               , "-a"
                , "-d", rodir+"/"
                , "Minim-UserRequirements.rdf"
                , "create"
@@ -336,15 +336,17 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         expect = (
             [ "Research Object %s:"%rodir
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
-            , "Unsatisfied SHOULD requirement: Resource %s"%(rometa.getComponentUri("docs/missing.css"))
+            , "Unsatisfied SHOULD requirements:"
+            , "  Resource %s"%(rometa.getComponentUri("docs/missing.css"))
+            , "Satisfied requirements:"
+            , "  Resource file:///usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase/RO_test_minim/data/UserRequirements-astro.ods"
+            , "  Environment 'lpod-show.py --version' matches '0.9.3'"
             , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])
         self.outstr.seek(0)
-        line = self.outstr.readline()   # Skip first line
-        for expect_line in expect:
-            line = self.outstr.readline()
-            self.assertEquals(str(line), str(expect_line+"\n"))
+        for line in self.outstr:
+            self.assertIn(str(line)[:-1], expect)
         self.deleteTestRo(rodir)
         return
 

@@ -216,10 +216,10 @@ def format(eval_result, options, ostr):
     options currently has just one field:
     options['detail'] = "summary", "must", "should", "may" or "full"
     """
-    s_any     = ["full", "must", "should", "may", "summary"]
-    s_may     = ["full", "must", "should", "may"]
-    s_should  = ["full", "must", "should"]
-    s_must    = ["full", "must"]
+    s_any     = ["full", "may", "should", "must", "summary"]
+    s_must    = ["full", "may", "should", "must"]
+    s_should  = ["full", "may", "should"]
+    s_may     = ["full", "may"]
     s_full    = ["full"]
     def put(detail, line):
         if options['detail'] in detail:
@@ -232,12 +232,22 @@ def format(eval_result, options, ostr):
                     "Minimally complete" if MINIM.minimallySatisfies in eval_result['summary'] else
                     "Incomplete")
     put(s_any, summary_text+" for %(purpose)s of resource %(target)s"%(eval_result))
-    for m in eval_result['missingMust']:
-        put(s_must,   "Unsatisfied MUST requirement:   %s"%(formatRule(m)))
-    for m in eval_result['missingShould']:
-        put(s_should, "Unsatisfied SHOULD requirement: %s"%(formatRule(m)))
-    for m in eval_result['missingMay']:
-        put(s_may,    "Unsatisfied MAY requirement:    %s"%(formatRule(m)))
+    if eval_result['missingMust']:
+        put(s_must, "Unsatisfied MUST requirements:")
+        for m in eval_result['missingMust']:
+            put(s_must, "  "+formatRule(m))
+    if eval_result['missingShould']:
+        put(s_should, "Unsatisfied SHOULD requirements:")
+        for m in eval_result['missingShould']:
+            put(s_should, "  "+formatRule(m))
+    if eval_result['missingMay']:
+        put(s_may, "Unsatisfied MAY requirements:")
+        for m in eval_result['missingMay']:
+            put(s_may, "  "+formatRule(m))
+    if eval_result['satisfied']:
+        put(s_full, "Satisfied requirements:")
+        for m in eval_result['satisfied']:
+            put(s_full, "  "+formatRule(m))
     put(s_full, "Research object URI:     %(rouri)s"%(eval_result))
     put(s_full, "Minimum information URI: %(minimuri)s"%(eval_result))
     return
