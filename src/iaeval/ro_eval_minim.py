@@ -235,29 +235,34 @@ def format(eval_result, options, ostr):
     if eval_result['missingMust']:
         put(s_must, "Unsatisfied MUST requirements:")
         for m in eval_result['missingMust']:
-            put(s_must, "  "+formatRule(m))
+            put(s_must, "  "+formatRule(False, *m))
     if eval_result['missingShould']:
         put(s_should, "Unsatisfied SHOULD requirements:")
         for m in eval_result['missingShould']:
-            put(s_should, "  "+formatRule(m))
+            put(s_should, "  "+formatRule(False, *m))
     if eval_result['missingMay']:
         put(s_may, "Unsatisfied MAY requirements:")
         for m in eval_result['missingMay']:
-            put(s_may, "  "+formatRule(m))
+            put(s_may, "  "+formatRule(False, *m))
     if eval_result['satisfied']:
         put(s_full, "Satisfied requirements:")
         for m in eval_result['satisfied']:
-            put(s_full, "  "+formatRule(m))
+            put(s_full, "  "+formatRule(True, *m))
     put(s_full, "Research object URI:     %(rouri)s"%(eval_result))
     put(s_full, "Minimum information URI: %(minimuri)s"%(eval_result))
     return
 
-def formatRule((rule,bindings)):
+def formatRule(satisfied, rule, bindings):
     """
     Format a rule for a missing/satisfied report
     """
+    templateindex = "showpass" if satisfied else "showfail"
     if 'datarule' in rule:
-        return "Resource %s"%rule['datarule']['aggregates']
+        ruledict = rule['datarule']
+        templatedefault = "Aggregates resource %(aggregates)s"
+        template = ruledict[templateindex] or ruledict["show"] or templatedefault
+        bindings.update(ruledict)
+        return template%bindings
     elif 'softwarerule' in rule:
         cmnd = rule['softwarerule']['command']
         resp = rule['softwarerule']['response']

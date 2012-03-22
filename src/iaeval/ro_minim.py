@@ -25,6 +25,7 @@ MINIM   = ro_namespaces.makeNamespace(minim,
             , "hasConstraint", "forPurpose", "onResource", "toModel"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             , "derives", "reports", "isDerivedBy"
+            , "show", "showpass", "showfail"
             , "aggregates"
             , "command", "response"
             , "forall", "exists", "aggregatesTemplate"
@@ -84,14 +85,19 @@ def getRequirements(minimgraph, modeluri):
         req = None
         if p == reqp:
             req = (
-                { 'uri':   o
-                , 'model': s
-                , 'level': reqval
-                , 'label': minimgraph.value(subject=o, predicate=RDFS.label)
+                { 'uri':    o
+                , 'model':  s
+                , 'level':  reqval
+                , 'label':  minimgraph.value(subject=o, predicate=RDFS.label)
                 })
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
-            rule = { 'derives': minimgraph.value(subject=ruleuri, predicate=MINIM.derives) }
+            rule = (
+                { 'derives':    minimgraph.value(subject=ruleuri, predicate=MINIM.derives) 
+                , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
+                , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
+                , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
+                })
             ruletype = minimgraph.value(subject=ruleuri, predicate=RDF.type)
             if ruletype == MINIM.DataRequirementRule:
                 rule['aggregates']  = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregates)
