@@ -260,21 +260,20 @@ def formatRule(satisfied, rule, bindings):
     if 'datarule' in rule:
         ruledict = rule['datarule']
         templatedefault = "Aggregates resource %(aggregates)s"
-        template = ruledict[templateindex] or ruledict["show"] or templatedefault
-        bindings.update(ruledict)
-        return template%bindings
     elif 'softwarerule' in rule:
-        cmnd = rule['softwarerule']['command']
-        resp = rule['softwarerule']['response']
-        return "Environment '%s' matches '%s'"%(cmnd,resp)
+        ruledict = rule['softwarerule']
+        templatedefault = "Environment '%(command)s' matches '%(response)s'"
     elif 'contentmatchrule' in rule:
-        exists = rule['contentmatchrule']['exists']
-        forall = rule['contentmatchrule']['forall']
-        uritem = rule['contentmatchrule']['template']
-        if exists:
-            return "Match for %s"%exists
+        ruledict = rule['contentmatchrule']
+        if ruledict['exists']:
+            templatedefault = "Match for %(exists)s"
         else:
-            return "Aggregate %s for matching %s"%(uritem,forall)
-    return "Unrecognized rule %s"%repr(rule)
+            templatedefault = "Aggregate %(template)s for matching %(forall)s"
+    else:
+        ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
+        templatedefault = "Unrecognized rule: %(rule)s"
+    template = ruledict[templateindex] or ruledict["show"] or templatedefault
+    bindings.update(ruledict)
+    return template%bindings
 
 # End.

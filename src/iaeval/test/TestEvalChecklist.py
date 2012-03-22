@@ -372,6 +372,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    # @@ Add test cases for software environment rule pass/faiul, based on previous
+
+    # @@ Add test cases for content match rule pass/fail, based on previous
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
