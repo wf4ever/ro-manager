@@ -15,7 +15,7 @@ import urllib2
 
 log = logging.getLogger(__name__)
 
-class BackgroundResourceSync(object):
+class ResourceSync(object):
     '''
     classdocs
     '''

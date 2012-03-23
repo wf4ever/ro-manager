@@ -1,7 +1,6 @@
 {
     "username": "Test User", 
     "useremail": "testuser@example.org", 
-    "rosrs_password": "pass", 
     "annotationTypes": [
         {
             "fullUri": "http://purl.org/dc/terms/type", 
@@ -85,6 +84,6 @@
         }
     ], 
     "robase": "/home/piotrhol/Workspace/ro-manager/src/iaeval/test/robase", 
-    "rosrs_username": "test-423435r4353t543t5323", 
-    "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs3"
+    "rosrs_access_token": "32801fc0-1df1-4e34-b", 
+    "rosrs_uri": "http://sandbox.wf4ever-project.org/rosrs5"
 }

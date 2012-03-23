@@ -25,8 +25,8 @@ import ro_annotation
 
 from iaeval import ro_eval_completeness
 
-from sync.RosrsSync import RosrsSync
-from sync.BackgroundSync import BackgroundResourceSync
+from sync.RosrsApi import RosrsApi
+from sync.ResourceSync import ResourceSync
 
 from zipfile import ZipFile
 
@@ -87,7 +87,7 @@ def help(progname, args):
         , "  %(progname)s list [ -d <dir> ]"
         , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
-        , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
+        , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
         , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
         , ""
@@ -108,12 +108,11 @@ def config(progname, configbase, options, args):
     Update RO repository access configuration
     """
     ro_config = {
-        "robase":         getoptionvalue(options.roboxdir,       "ROBOX service base directory:  "),
-        "rosrs_uri":      getoptionvalue(options.rosrs_uri,      "URI for ROSRS service:         "),
-        "rosrs_username": getoptionvalue(options.rosrs_username, "Username for ROSRS service:    "),
-        "rosrs_password": getoptionvalue(options.rosrs_password, "Password for ROSRS service:    "),
-        "username":       getoptionvalue(options.username,       "Name of research object owner: "),
-        "useremail":      getoptionvalue(options.useremail,      "Email address of owner:        "),
+        "robase":         getoptionvalue(options.roboxdir,              "ROBOX service base directory:  "),
+        "rosrs_uri":      getoptionvalue(options.rosrs_uri,             "URI for ROSRS service:         "),
+        "rosrs_access_token": getoptionvalue(options.rosrs_access_token,"Access token for ROSRS service:"),
+        "username":       getoptionvalue(options.username,              "Name of research object owner: "),
+        "useremail":      getoptionvalue(options.useremail,             "Email address of owner:        "),
         # Built-in annotation types
         "annotationTypes": ro_annotation.annotationTypes
         }
@@ -121,8 +120,7 @@ def config(progname, configbase, options, args):
     if options.verbose: 
         print "ro config -b %(robase)s"%ro_config
         print "          -r %(rosrs_uri)s"%ro_config
-        print "          -u %(rosrs_username)s"%ro_config
-        print "          -p %(rosrs_password)s"%ro_config
+        print "          -t %(rosrs_access_token)s"%ro_config
         print "          -n %(username)s -e %(useremail)s"%ro_config
     ro_utils.writeconfig(configbase, ro_config)
     if options.verbose:
@@ -384,28 +382,27 @@ def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
     
-    ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6, 7]:
+    if len(args) not in [2, 3, 4, 5, 6]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "rodir":          options.rodir or None,
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
-        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
-        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], "Access token for ROSRS service:    "),
         "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
-        print "ro push %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
-    sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
-    back = BackgroundResourceSync(sync, ro_options['force'])
+        print "ro push %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
+    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
+    back = ResourceSync(api, ro_options['force'])
     if not ro_options['rodir']:
         (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True)
     else:
@@ -424,13 +421,13 @@ def checkout(progname, configbase, options, args):
     """
     Checkout a RO from ROSRS
     
-    ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+    ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6, 7]:
+    if len(args) not in [2, 3, 4, 5, 6]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"%
+        print ("Usage: %s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
@@ -438,45 +435,34 @@ def checkout(progname, configbase, options, args):
         "roident":        args[2] if len(args) > 2 else None,
         "rodir":          options.rodir or (args[2] if len(args) > 2 else None),
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
-        "rosrs_username": options.rosrs_username or getoptionvalue(ro_config['rosrs_username'], "Username for ROSRS service:    "),
-        "rosrs_password": options.rosrs_password or getoptionvalue(ro_config['rosrs_password'], "Password for ROSRS service:    "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], "Access token for ROSRS service:    "),
         "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
-        print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_username)s %(rosrs_password)s"%ro_options
-    sync = RosrsSync(ro_options['rosrs_uri'], ro_options['rosrs_username'], ro_options['rosrs_password'])
+        print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
+    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
     if (ro_options["roident"]):
         ros = set([ro_options['roident']])
         rodirs = ro_options['rodir']
     else:
-        ros = sync.getRos()
+        ros = api.getRos()
         rodirs = None
     
     for ro in ros:
         print "Checking out %s" % ro
         rodir = os.path.join(ro_config["robase"], rodirs if rodirs else ro)
-        verzip = sync.getVersionAsZip(ro, ro_settings.RO_VERSION)
+        verzip = api.getRoAsZip(ro)
         zipfile = ZipFile(verzip)
         
         if options.verbose:
-            # HACK for moving the manifest
-            #        zipfile.printdir()
             for l in zipfile.namelist():
-                if l == ro_settings.MANIFEST_FILE:
-                    print ro_settings.MANIFEST_DIR + "/" + l
-                else:
-                    print l
+                print l
                     
         if not os.path.exists(rodir) or not os.path.isdir(rodir):
             os.mkdir(rodir)
         zipfile.extractall(rodir)
             
-        # HACK for moving the manifest
-        if not os.path.exists(rodir + "/" + ro_settings.MANIFEST_DIR):
-            os.mkdir(rodir + "/" + ro_settings.MANIFEST_DIR)
-        shutil.move(rodir + "/" + ro_settings.MANIFEST_FILE, rodir + "/" + ro_settings.MANIFEST_DIR + "/" + ro_settings.MANIFEST_FILE)
-        
         print "%d files checked out" % len(zipfile.namelist())
     return 0
 

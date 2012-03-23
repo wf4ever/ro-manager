@@ -81,8 +81,7 @@ class TestEvalCompleteness(TestROSupport.TestROSupport):
         config = ro_utils.readconfig(configdir)
         self.assertEqual(config["robase"],          os.path.abspath(robasedir))
         self.assertEqual(config["rosrs_uri"],       TestConfig.ro_test_config.ROSRS_URI)
-        self.assertEqual(config["rosrs_username"],  TestConfig.ro_test_config.ROSRS_USERNAME)
-        self.assertEqual(config["rosrs_password"],  TestConfig.ro_test_config.ROSRS_PASSWORD)
+        self.assertEqual(config["rosrs_access_token"],  TestConfig.ro_test_config.ROSRS_ACCESS_TOKEN)
         self.assertEqual(config["username"],        TestConfig.ro_test_config.ROBOXUSERNAME)
         self.assertEqual(config["useremail"],       TestConfig.ro_test_config.ROBOXEMAIL)
         return

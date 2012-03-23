@@ -29,7 +29,7 @@ from rocommand import ro
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
-from sync.RosrsSync import RosrsSync
+from sync.RosrsApi import RosrsApi
 
 import TestROSupport
 
@@ -44,13 +44,12 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     files = ["subdir1/subdir1-file.txt"
              , "subdir2/subdir2-file.txt"
              , "README-ro-test-1"
-             , ro_test_config.ROMANIFESTPATH]
+             , ".ro/manifest.rdf" ]
 
     def setUp(self):
         super(TestSyncCommands, self).setUp()
-        self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_USERNAME, ro_test_config.ROSRS_PASSWORD)
         try:
-            self.__sync.postWorkspace()
+            self.__sync = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         except:
             pass
         return
@@ -58,7 +57,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
         try:
-            self.__sync.deleteWorkspace()
+            self.__sync.deleteRo("ro-test-1")
         except:
             pass
         return
@@ -117,10 +116,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
-        self.deleteTestRo(rodir)
-        self.deleteTestRo(rodir2)
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
         rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
         

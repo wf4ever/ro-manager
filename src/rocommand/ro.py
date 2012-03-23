@@ -76,12 +76,9 @@ def parseCommandArgs(argv):
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri", 
                       help="URI of ROSRS service")
-    parser.add_option("-u", "--rosrs-username",
-                      dest="rosrs_username", 
-                      help="ROSRS username")
-    parser.add_option("-p", "--rosrs-password",
-                      dest="rosrs_password", 
-                      help="ROSRS password")
+    parser.add_option("-t", "--rosrs-access-token",
+                      dest="rosrs_access_token", 
+                      help="ROSRS access token")
     parser.add_option("-b", "--robox-base",
                       dest="roboxdir", 
                       help="Base of local directory tree monitored by ROBOX")

@@ -66,8 +66,7 @@ class TestROSupport(unittest.TestCase):
             "ro", "config",
             "-b", robasedir,
             "-r", ro_test_config.ROSRS_URI,
-            "-u", ro_test_config.ROSRS_USERNAME,
-            "-p", ro_test_config.ROSRS_PASSWORD,
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-n", ro_test_config.ROBOXUSERNAME,
             "-e", ro_test_config.ROBOXEMAIL
             ]

@@ -53,8 +53,7 @@ def resetconfig(configbase):
     ro_config = {
         "robase":         None,
         "rosrs_uri":      None,
-        "rosrs_username": None,
-        "rosrs_password": None,
+        "rosrs_access_token": None,
         "username":       None,
         "useremail":      None
         }
@@ -68,8 +67,7 @@ def readconfig(configbase):
     ro_config = {
         "robase":         None,
         "rosrs_uri":      None,
-        "rosrs_username": None,
-        "rosrs_password": None,
+        "rosrs_access_token": None,
         "username":       None,
         "useremail":      None
         }

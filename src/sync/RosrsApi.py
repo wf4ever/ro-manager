@@ -12,7 +12,7 @@ import tempfile
 
 log = logging.getLogger(__name__)
 
-class RosrsSync:
+class RosrsApi:
 
 
     URI_ROS = "/ROs/"
@@ -70,16 +70,24 @@ class RosrsSync:
         
         Parameters: ROSRS URL, access token, RO id
         """
+        roUrl = self.rosrs_path + urllib2.quote(self.URI_RO_ID % roId)
+        return self.deleteRoByUrl(roUrl) 
+    
+    def deleteRoByUrl(self, roUrl):
+        """
+        Deletes a Research Object from ROSRS.
+        
+        Parameters: ROSRS URL, access token, RO URL
+        """
         conn = HTTPConnection(self.rosrs_host)
-        url = self.rosrs_path + urllib2.quote(self.URI_RO_ID % roId)
         headers = self.__getAuthHeader()
-        conn.request("DELETE", url, None, headers)
+        conn.request("DELETE", roUrl, None, headers)
         res = conn.getresponse()
         if res.status != NO_CONTENT:
             raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
-        log.debug("RO %s deleted" % roId)
+        log.debug("RO %s deleted" % roUrl)
         return None 
-    
+
     def getRoAsZip(self, roId):
         """
         Retrieves a Research Object version from ROSRS as a zip.

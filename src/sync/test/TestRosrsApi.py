@@ -11,31 +11,29 @@ if __name__ == "__main__":
 from MiscLib import TestUtils
 from os.path import getsize
 from rocommand.test import TestROSupport
-from sync.RosrsSync import RosrsSync
+from sync.RosrsApi import RosrsApi
 from sync.test.TestConfig import ro_test_config
 from zipfile import ZipFile
 
-class TestSync(TestROSupport.TestROSupport):
+class TestRosrsApi(TestROSupport.TestROSupport):
     
     """
     Test ro annotation commands
     """
     def setUp(self):
-        super(TestSync, self).setUp()
+        super(TestRosrsApi, self).setUp()
         return
 
     def tearDown(self):
-        super(TestSync, self).tearDown()
+        super(TestRosrsApi, self).tearDown()
         try:
-            sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-            try:
-                sync.deleteRo(ro_test_config.RO_ID)
-            except:
-                pass
-            try:
-                sync.deleteRo(ro_test_config.RO_ID_2)
-            except:
-                pass
+            api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+            ros = api.getRos()
+            for ro in ros:
+                try:
+                    api.deleteRoByUrl(ro)
+                except:
+                    pass
         except:
             pass
         return
@@ -44,31 +42,31 @@ class TestSync(TestROSupport.TestROSupport):
         assert True, 'Null test failed'
 
     def testROCreation(self):
-        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        sync.postRo(ro_test_config.RO_ID)
-        sync.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
-        sync.deleteFile(ro_test_config.RO_ID, "folderX/fileY.txt")
-        sync.deleteRo(ro_test_config.RO_ID)
+        api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        api.postRo(ro_test_config.RO_ID)
+        api.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
+        api.deleteFile(ro_test_config.RO_ID, "folderX/fileY.txt")
+        api.deleteRo(ro_test_config.RO_ID)
         
     def testGetRoAsZip(self):
-        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        sync.postRo(ro_test_config.RO_ID)
-        sync.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
-        verzip = sync.getRoAsZip(ro_test_config.RO_ID)
+        api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        api.postRo(ro_test_config.RO_ID)
+        api.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open("data/ro-test-1/file1.txt"))
+        verzip = api.getRoAsZip(ro_test_config.RO_ID)
         zipfile = ZipFile(verzip)
         self.assertEquals(len(zipfile.read("folderX/fileY.txt")), getsize("data/ro-test-1/file1.txt"), "FileY size must be the same")
         self.assertTrue(len(zipfile.read(".ro/manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
-        sync.deleteRo(ro_test_config.RO_ID)
+        api.deleteRo(ro_test_config.RO_ID)
         return
     
     def testGetRos(self):
-        sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        sync.postRo(ro_test_config.RO_ID)
-        sync.postRo(ro_test_config.RO_ID_2)
-        ros = sync.getRos()
+        api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        api.postRo(ro_test_config.RO_ID)
+        api.postRo(ro_test_config.RO_ID_2)
+        ros = api.getRos()
         self.assertSetEqual(set(ros), { ro_test_config.ROSRS_URI + "/ROs/" + ro_test_config.RO_ID + "/", ro_test_config.ROSRS_URI + "/ROs/" + ro_test_config.RO_ID_2 + "/" }, "Returned ROs are not correct")
-        sync.deleteRo(ro_test_config.RO_ID)
-        sync.deleteRo(ro_test_config.RO_ID_2)
+        api.deleteRo(ro_test_config.RO_ID)
+        api.deleteRo(ro_test_config.RO_ID_2)
         return
         
 def getTestSuite(select="unit"):
@@ -100,7 +98,7 @@ def getTestSuite(select="unit"):
             [ "testPending"
             ]
         }
-    return TestUtils.getTestSuite(TestSync, testdict, select=select)
+    return TestUtils.getTestSuite(TestRosrsApi, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestSync.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestRosrsApi.log", getTestSuite, sys.argv)
