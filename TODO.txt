@@ -57,6 +57,7 @@ Other functions:
 
 Technical debt:
 - Clean up handling command analysis; factor out usage summaries
+- When adding an annotation graph, check that it exists.  Also when displaying annotations.
 
 ----
 

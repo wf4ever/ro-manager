@@ -9,6 +9,7 @@ import os
 import os.path
 import datetime
 import logging
+import re
 
 log = logging.getLogger(__name__)
 
@@ -114,8 +115,11 @@ def readAnnotationBody(rodir, annotationfile):
     """
     annotationfilename = makeComponentFilename(rodir, annotationfile)
     if not os.path.exists(annotationfilename): return None
+    annotationformat   = "xml"
+    # Look at file extension to figure format
+    if re.search("\.(ttl|n3)$", annotationfile): annotationformat="n3"
     rdfGraph = rdflib.Graph()
-    rdfGraph.parse(annotationfilename)
+    rdfGraph.parse(annotationfilename, format=annotationformat)
     return rdfGraph
 
 def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
@@ -141,7 +145,7 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     annotation_filename = None
     name_index = 0
     name_suffix = os.path.basename(rofile)
-    if name_suffix == ".":
+    if name_suffix in [".",""]:
         name_suffix = os.path.basename(ro_dir)
     today = datetime.date.today()
     while annotation_filename == None:
@@ -367,6 +371,8 @@ def getAllAnnotations(ro_dir):
     for (ann_node, subject) in ro_graph.subject_objects(predicate=RO.annotatesAggregatedResource):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
+        if ann_graph == None:
+            print "No annotation graph: ann_uri: "+str(ann_uri)
         for (p, v) in ann_graph.predicate_objects(subject=subject):
             #log.debug("Triple: %s %s %s"%(subject,p,v))
             yield (subject, p, v)
