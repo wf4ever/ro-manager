@@ -88,7 +88,7 @@ def help(progname, args):
         , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
-        , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]"
+        , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
         , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
         , ""
         , "Supported annotation type names are: "
@@ -443,27 +443,33 @@ def checkout(progname, configbase, options, args):
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
     api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
     if (ro_options["roident"]):
-        ros = set([ro_options['roident']])
-        rodirs = ro_options['rodir']
+        roident = ro_options["roident"]
+        print "Checking out %s:" % roident
+        rodir = os.path.join(ro_config["robase"], ro_options['rodir'] or roident)
+        verzip = api.getRoAsZip(roident)
+        __unpackZip(verzip, rodir, options.verbose)
     else:
         ros = api.getRos()
-        rodirs = None
+        for ro in ros:
+            roident = os.path.basename(os.path.dirname(ro))
+            print "Checking out %s:" % roident
+            rodir = os.path.join(ro_config["robase"], ro_options['rodir'] or roident)
+            verzip = api.getRoAsZipByUrl(ro)
+            __unpackZip(verzip, rodir, options.verbose)
+    return 0
+
+def __unpackZip(verzip, rodir, verbose):
+    zipfile = ZipFile(verzip)
     
-    for ro in ros:
-        print "Checking out %s" % ro
-        rodir = os.path.join(ro_config["robase"], rodirs if rodirs else ro)
-        verzip = api.getRoAsZip(ro)
-        zipfile = ZipFile(verzip)
+    if verbose:
+        for l in zipfile.namelist():
+            print os.path.join(rodir, l)
+                
+    if not os.path.exists(rodir) or not os.path.isdir(rodir):
+        os.mkdir(rodir)
+    zipfile.extractall(rodir)
         
-        if options.verbose:
-            for l in zipfile.namelist():
-                print l
-                    
-        if not os.path.exists(rodir) or not os.path.isdir(rodir):
-            os.mkdir(rodir)
-        zipfile.extractall(rodir)
-            
-        print "%d files checked out" % len(zipfile.namelist())
+    print "%d files checked out" % len(zipfile.namelist())
     return 0
 
 def evaluate(progname, configbase, options, args):

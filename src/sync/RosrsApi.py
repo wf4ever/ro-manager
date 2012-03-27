@@ -95,7 +95,15 @@ class RosrsApi:
         Parameters: ROSRS URL, username, password, RO id, version id
         """
         url = self.rosrs_uri + urllib2.quote(self.URI_RO_ID % roId)
-        req = urllib2.Request(url)
+        return self.getRoAsZipByUrl(url)
+
+    def getRoAsZipByUrl(self, roUrl):
+        """
+        Retrieves a Research Object version from ROSRS as a zip.
+        
+        Parameters: ROSRS URL, username, password, RO id, version id
+        """
+        req = urllib2.Request(roUrl)
         res = urllib2.urlopen(req)
         
         tmp = tempfile.TemporaryFile()
@@ -106,7 +114,7 @@ class RosrsApi:
             tmp.write(packet)
         res.close()
 
-        log.debug("Ro %s retrieved as zip" % roId)
+        log.debug("Ro %s retrieved as zip" % roUrl)
         return tmp
 
     def putFile(self, roId, filePath, contentType, fileObject):

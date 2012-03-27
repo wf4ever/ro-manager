@@ -216,7 +216,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        rodir2 = os.path.join(ro_test_config.ROBASEDIR, "ro-testRoCheckoutIdentifier")
+        rodir2 = os.path.join(ro_test_config.ROBASEDIR, ro_command.ro_utils.ronametoident("RO test sync 2"))
         args = [
             "ro", "checkout", 
             "-v"
@@ -226,11 +226,11 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
         for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(f), 1)
-        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
+            self.assertEqual(self.outstr.getvalue().count(f), 2)
+        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 2)
         
         cmpres = filecmp.dircmp(self.rodir, rodir2)
-        self.assertEquals(cmpres.left_only, [])
+        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
@@ -272,10 +272,10 @@ def getTestSuite(select="unit"):
             ],
         "component":
             [ "testComponents"
-#            , "testPushAll"
-#            , "testPushAllForce"
+            , "testPushAll"
+            , "testPushAllForce"
             , "testCheckout"
-#            , "testCheckoutAll"
+            , "testCheckoutAll"
             ],
         "integration":
             [ "testIntegration"
