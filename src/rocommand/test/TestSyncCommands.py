@@ -31,8 +31,6 @@ from rocommand import ro
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
-from sync.RosrsApi import RosrsApi
-
 import TestROSupport
 
 # Base directory for RO tests in this module
@@ -73,7 +71,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push all Research Objects to ROSRS, even unchanged.
 
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         
         args = [
@@ -94,7 +92,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push all Research Objects to ROSRS.
 
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
 
         # first, send all        
@@ -105,7 +103,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
         
         # touch one file in 1st RO
         with open(path.join(self.rodir, self.fileToModify), 'a') as f:
@@ -116,7 +113,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         # push again
         args = [
-            "ro", "push"
+            "ro", "push",
+            "-v"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -129,7 +127,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Push a Research Object to ROSRS.
 
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         # first, send all        
         args = [
@@ -156,7 +154,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        print self.outstr.getvalue()
         self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
         self.assertEqual(self.outstr.getvalue().count("Deleted:"), 0)
         return
@@ -165,8 +162,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Checkout a Research Object from ROSRS.
 
-        ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
+        # push an RO
         args = [
             "ro", "push",
             "-d", self.rodir,
@@ -176,7 +174,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        rodir2 = ro_test_config.ROBASEDIR + "/RO_test_checkout_copy"
+        # check it out as a copy
+        rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
         args = [
             "ro", "checkout", "ro-testRoCheckoutIdentifier",
             "-d", "RO_test_checkout_copy",
@@ -190,11 +189,13 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             self.assertEqual(self.outstr.getvalue().count(f), 1)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
+        # compare they're identical
         cmpres = filecmp.dircmp(self.rodir, rodir2)
         self.assertEquals(cmpres.left_only, [])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
+        # delete the checked out copy
         self.deleteTestRo(rodir2)
         return
 
@@ -202,7 +203,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Checkout a Research Object from ROSRS.
 
-        ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
+        ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         args = [
             "ro", "push",
@@ -213,7 +214,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        rodir2 = ro_test_config.ROBASEDIR + "/ro-testRoCheckoutIdentifier"
+        rodir2 = os.path.join(ro_test_config.ROBASEDIR, "ro-testRoCheckoutIdentifier")
         args = [
             "ro", "checkout", 
             "-v"
@@ -271,8 +272,8 @@ def getTestSuite(select="unit"):
             [ "testComponents"
             , "testPushAll"
             , "testPushAllForce"
-            , "testCheckout"
-            , "testCheckoutAll"
+#            , "testCheckout"
+#            , "testCheckoutAll"
             ],
         "integration":
             [ "testIntegration"
