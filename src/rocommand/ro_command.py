@@ -402,12 +402,12 @@ def push(progname, configbase, options, args):
     if options.verbose:
         print "ro push %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
     api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
-    back = ResourceSync(api, ro_options['force'])
+    back = ResourceSync(api)
     if not ro_options['rodir']:
-        (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True)
+        (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True, ro_options['force'])
     else:
         roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
-        (sent, deleted) = back.pushAllResources(roDir, True)
+        (sent, deleted) = back.pushAllResources(roDir, True, ro_options['force'])
     if not options.verbose:
         print "%d files updated, %d files deleted" % (len(sent), len(deleted))
     else:

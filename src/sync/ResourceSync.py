@@ -20,20 +20,16 @@ class ResourceSync(object):
     classdocs
     '''
    
-    REGISTRIES_FILE = "registries.json"
+    REGISTRIES_FILE = "registries.pickle"
 
-    def __init__(self, rosrsSync, resetRegistries = False):
+    def __init__(self, rosrsSync):
         '''
         Constructor
         '''
         self.rosrsSync = rosrsSync
-        if resetRegistries:
-            self.syncRegistries = dict()
-        else:
-            self.syncRegistries = self.__loadRegistries()
         mimetypes.init()
         
-    def pushAllResourcesInWorkspace(self, srcDirectory, createRO = False):
+    def pushAllResourcesInWorkspace(self, srcDirectory, createRO = False, force = False):
         '''
         Scans all directories in srcDirectory as RO versions. 
         For each RO pushes all changes to ROSRS.
@@ -52,20 +48,24 @@ class ResourceSync(object):
                 except:
                     log.debug("Not a valid RO: %s" % roDirectory)
                     continue
-                (s, d) = self.pushAllResources(roDirectory, createRO)
+                (s, d) = self.pushAllResources(roDirectory, createRO, force)
                 sentFiles = sentFiles.union(s)
                 deletedFiles = deletedFiles.union(d)
             else:
                 log.warn("%s is a file in workspace, it should probably be moved somewhere" % roDirectory)
         return (sentFiles, deletedFiles)
         
-    def pushAllResources(self, roDirectory, createRO = False):
+    def pushAllResources(self, roDirectory, createRO = False, force = False):
         '''
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
         '''
         roId = urllib2.quote(basename(roDirectory)) 
         ro_manifest.readManifest(roDirectory)
+        if force:
+            self.syncRegistries = dict()
+        else:
+            self.syncRegistries = self.__loadRegistries(roDirectory)
         if createRO:
             try:
                 self.rosrsSync.postRo(roId)
@@ -73,21 +73,21 @@ class ResourceSync(object):
                 log.debug("Failed to create RO %s" % roId)
         sentFiles = self.__scanDirectories4Put(roId, roDirectory)
         deletedFiles = self.__scanRegistries4Delete(roId, roDirectory)
-        self.__saveRegistries()
+        self.__saveRegistries(roDirectory)
         return (sentFiles, deletedFiles)
     
-    def __scanDirectories4Put(self, roId, srcdir):
+    def __scanDirectories4Put(self, roId, roDirectory):
         sentFiles = set()
-        for root, dirs, files in walk(srcdir):
+        for root, dirs, files in walk(roDirectory):
             for f in files:
                 filepath = join(root, f)
-                if self.__checkFile4Put(roId, srcdir, filepath):
+                if filepath != join(roDirectory, self.REGISTRIES_FILE) and self.__checkFile4Put(roId, roDirectory, filepath):
                     sentFiles.add(filepath)
         return sentFiles
     
-    def __checkFile4Put(self, roId, srcdir, filepath):
-        assert filepath.startswith(srcdir)
-        rosrsFilepath = filepath[len(srcdir) + 1:]
+    def __checkFile4Put(self, roId, roDirectory, filepath):
+        assert filepath.startswith(roDirectory)
+        rosrsFilepath = filepath[len(roDirectory) + 1:]
         put = True
         if (filepath in self.syncRegistries):
             put = self.syncRegistries[filepath].hasBeenModified()
@@ -99,14 +99,14 @@ class ResourceSync(object):
             self.syncRegistries[filepath] = SyncRegistry(filepath)
         return put
     
-    def __scanRegistries4Delete(self, roId, srcdir):
+    def __scanRegistries4Delete(self, roId, roDirectory):
         deletedFiles = set()
         for r in self.syncRegistries.viewvalues():
-            if r.filename.startswith(srcdir):
+            if r.filename.startswith(roDirectory):
                 if not exists(r.filename):
                     log.debug("Delete file %s" % r.filename)
                     deletedFiles.add(r.filename)
-                    rosrsFilepath = r.filename[len(srcdir) + 1:]
+                    rosrsFilepath = r.filename[len(roDirectory) + 1:]
                     try:
                         self.rosrsSync.deleteFile(roId, rosrsFilepath)
                     except:
@@ -115,15 +115,15 @@ class ResourceSync(object):
             del self.syncRegistries[f]
         return deletedFiles
     
-    def __loadRegistries(self):
+    def __loadRegistries(self, roDirectory):
         try:
-            rf = open(self.REGISTRIES_FILE, 'r')
+            rf = open(join(roDirectory, self.REGISTRIES_FILE), 'r')
             return pickle.load(rf)
         except:
             return dict()
         
-    def __saveRegistries(self):
-        rf = open(self.REGISTRIES_FILE, 'w')
+    def __saveRegistries(self, roDirectory):
+        rf = open(join(roDirectory, self.REGISTRIES_FILE), 'w')
         pickle.dump(self.syncRegistries, rf)
         return
         

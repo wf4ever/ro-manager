@@ -15,6 +15,8 @@ try:
     import simplejson as json
 except ImportError:
     import json
+    
+from os import remove, path
 
 log = logging.getLogger(__name__)
 
@@ -46,20 +48,20 @@ class TestSyncCommands(TestROSupport.TestROSupport):
              , "README-ro-test-1"
              , ".ro/manifest.rdf" ]
 
+    fileToModify = "subdir1/subdir1-file.txt"
+    fileToDelete = "README-ro-test-1"
+
+
     def setUp(self):
         super(TestSyncCommands, self).setUp()
-        try:
-            self.__sync = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        except:
-            pass
+        self.rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test sync", "ro-testRoSync")
+        self.rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test sync 2", "ro-testRoSync2")
         return
 
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
-        try:
-            self.__sync.deleteRo("ro-test-1")
-        except:
-            pass
+        self.deleteTestRo(self.rodir)
+        self.deleteTestRo(self.rodir2)
         return
 
     # Actual tests follow
@@ -73,7 +75,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
         
         args = [
             "ro", "push",
@@ -84,9 +85,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
+        # must send each file exactly once
         for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(rodir + "/" + f), 1)
-        self.deleteTestRo(rodir)
+            self.assertEqual(self.outstr.getvalue().count(self.rodir + "/" + f), 1)
         return
 
     def testPushAll(self):
@@ -95,19 +96,33 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
+
+        # first, send all        
+        args = [
+            "ro", "push",
+            "-f"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
         
+        # touch one file in 1st RO
+        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
+            f.write("foobar")
+            f.close()
+        # delete one file in 2nd RO
+        remove(path.join(self.rodir2, self.fileToDelete))
+
+        # push again
         args = [
             "ro", "push"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("files updated"), 1)
-        self.assertEqual(self.outstr.getvalue().count("files deleted"), 1)
-        self.deleteTestRo(rodir)
-        self.deleteTestRo(rodir2)
+        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
+        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 1)
         return
 
     def testPushOneRO(self):
@@ -116,20 +131,34 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
-        rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test push 2", "ro-testRoPush2")
-        
+        # first, send all        
         args = [
             "ro", "push",
-            "-d", rodir,
             "-f"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("%d files updated" % len(self.files)), 1)
-        self.deleteTestRo(rodir)
-        self.deleteTestRo(rodir2)
+        
+        # touch one file in 1st RO
+        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
+            f.write("foobar")
+            f.close()
+        # delete one file in 2nd RO
+        remove(path.join(self.rodir2, self.fileToDelete))
+
+        # push again, only 1st
+        args = [
+            "ro", "push",
+            "-d", self.rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        print self.outstr.getvalue()
+        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
+        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 0)
         return
 
     def testCheckout(self):
@@ -138,10 +167,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
         args = [
             "ro", "push",
-            "-d", rodir,
+            "-d", self.rodir,
             "-f"
             ]
         with SwitchStdout(self.outstr):
@@ -162,12 +190,11 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             self.assertEqual(self.outstr.getvalue().count(f), 1)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
-        cmpres = filecmp.dircmp(rodir, rodir2)
+        cmpres = filecmp.dircmp(self.rodir, rodir2)
         self.assertEquals(cmpres.left_only, [])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
-        self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
         return
 
@@ -177,10 +204,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout <RO-identifier> [ -d <dir>] [ -r <rosrs_uri> ] [ -u <username> ] [ -p <password> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test checkout origin", "ro-testRoCheckoutIdentifier")
         args = [
             "ro", "push",
-            "-d", rodir,
+            "-d", self.rodir,
             "-f"
             ]
         with SwitchStdout(self.outstr):
@@ -200,12 +226,11 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             self.assertEqual(self.outstr.getvalue().count(f), 1)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
-        cmpres = filecmp.dircmp(rodir, rodir2)
+        cmpres = filecmp.dircmp(self.rodir, rodir2)
         self.assertEquals(cmpres.left_only, [])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
-        self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
         return
 

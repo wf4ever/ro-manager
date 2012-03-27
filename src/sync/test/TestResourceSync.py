@@ -12,11 +12,11 @@ from MiscLib import TestUtils
 from os import rename, utime
 from os.path import exists
 from rocommand.test import TestROSupport
-from sync.RosrsSync import RosrsSync
-from sync.BackgroundSync import BackgroundResourceSync
+from sync.RosrsApi import RosrsApi
+from sync.ResourceSync import ResourceSync
 from sync.test.TestConfig import ro_test_config
 
-class TestBackgroundSync(TestROSupport.TestROSupport):
+class TestResourceSync(TestROSupport.TestROSupport):
     
     files1 = { 'data/ro-test-1/.ro/manifest.rdf',
              'data/ro-test-1/file1.txt',
@@ -41,11 +41,11 @@ ora et labora"""
 
     def setUp(self):
         try:
-            self.__sync = RosrsSync(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+            self.__sync = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         except:
             pass
         logging.basicConfig()
-        logging.getLogger("sync.BackgroundSync").setLevel(logging.INFO)
+        logging.getLogger("sync.ResourceSync").setLevel(logging.INFO)
         return
 
     def tearDown(self):
@@ -65,9 +65,9 @@ ora et labora"""
 
     def testSyncRecources(self):
         self.__sync.postRo(ro_test_config.RO_ID)
-        back = BackgroundResourceSync(self.__sync, True)
+        back = ResourceSync(self.__sync)
         
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID, force = True)
         self.assertEquals(sent, self.files1, "Sent files1 are not equal")
         self.assertEquals(deleted, set())
 
@@ -88,10 +88,10 @@ ora et labora"""
         return
     
     def testSyncWorkspace(self):
-        back = BackgroundResourceSync(self.__sync, True)
-        self.assertRaises(Exception, back.pushAllResourcesInWorkspace, "data")
-        back = BackgroundResourceSync(self.__sync, True)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
+        back = ResourceSync(self.__sync)
+        self.assertRaises(Exception, back.pushAllResourcesInWorkspace, "data", force = True)
+        back = ResourceSync(self.__sync)
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
         self.assertSetEqual(sent, self.filesAll, "Send all workspace resource")
         self.assertSetEqual(deleted, set())
         self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
@@ -99,15 +99,15 @@ ora et labora"""
         return
     
     def testSaveLoadRegistries(self):
-        back = BackgroundResourceSync(self.__sync, True)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
+        back = ResourceSync(self.__sync)
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
-        back = BackgroundResourceSync(self.__sync, False)
+        back = ResourceSync(self.__sync)
         self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
                               "Sync workspace after loading registries")
-        back = BackgroundResourceSync(self.__sync, True)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True)
+        back = ResourceSync(self.__sync)
+        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
         self.assertEquals(sent, self.filesAll, "Send all workspace resource")
         self.assertEquals(deleted, set())
         return
@@ -141,7 +141,7 @@ def getTestSuite(select="unit"):
             [ "testPending"
             ]
         }
-    return TestUtils.getTestSuite(TestBackgroundSync, testdict, select=select)
+    return TestUtils.getTestSuite(TestResourceSync, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestBackgroundSync.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestResourceSync.log", getTestSuite, sys.argv)
