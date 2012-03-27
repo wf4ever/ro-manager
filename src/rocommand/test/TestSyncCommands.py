@@ -26,8 +26,9 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
+from sync.ResourceSync import ResourceSync
 
-from rocommand import ro
+from rocommand import ro, ro_command
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -44,7 +45,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     files = ["subdir1/subdir1-file.txt"
              , "subdir2/subdir2-file.txt"
              , "README-ro-test-1"
-             , ".ro/manifest.rdf" ]
+             , ".ro/manifest.rdf"
+             , "minim.rdf" ]
 
     fileToModify = "subdir1/subdir1-file.txt"
     fileToDelete = "README-ro-test-1"
@@ -177,7 +179,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         # check it out as a copy
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
         args = [
-            "ro", "checkout", "ro-testRoCheckoutIdentifier",
+            "ro", "checkout", ro_command.ro_utils.ronametoident("RO test sync"),
             "-d", "RO_test_checkout_copy",
             "-v"
             ]
@@ -189,9 +191,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             self.assertEqual(self.outstr.getvalue().count(f), 1)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
-        # compare they're identical
+        # compare they're identical, with the exception of registries.pickle
         cmpres = filecmp.dircmp(self.rodir, rodir2)
-        self.assertEquals(cmpres.left_only, [])
+        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
@@ -270,9 +272,9 @@ def getTestSuite(select="unit"):
             ],
         "component":
             [ "testComponents"
-            , "testPushAll"
-            , "testPushAllForce"
-#            , "testCheckout"
+#            , "testPushAll"
+#            , "testPushAllForce"
+            , "testCheckout"
 #            , "testCheckoutAll"
             ],
         "integration":

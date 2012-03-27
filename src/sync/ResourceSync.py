@@ -20,7 +20,7 @@ class ResourceSync(object):
     classdocs
     '''
    
-    REGISTRIES_FILE = "registries.pickle"
+    REGISTRIES_FILE = ".registries.pickle"
 
     def __init__(self, rosrsSync):
         '''
