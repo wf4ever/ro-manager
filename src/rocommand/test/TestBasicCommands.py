@@ -27,7 +27,7 @@ if __name__ == "__main__":
 
 from MiscLib import TestUtils
 
-from rocommand import ro, ro_utils, ro_manifest
+from rocommand import ro, ro_utils
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout

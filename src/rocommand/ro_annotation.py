@@ -9,6 +9,7 @@ import os
 import os.path
 import datetime
 import logging
+import re
 
 log = logging.getLogger(__name__)
 
@@ -19,7 +20,7 @@ from rdflib.namespace import RDF
 
 import ro_settings
 import ro_manifest
-from ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
 
 #   Default list of annotation types
 annotationTypes = (
@@ -44,7 +45,7 @@ annotationTypes = (
       , "label": "Data format"
       , "description": "String indicating the data format of a Research Object component" 
       }
-    , { "name": "note", "prefix": "dcterms", "localName": "format", "type": "text"
+    , { "name": "note", "prefix": "dcterms", "localName": "note", "type": "text"
       , "baseUri": ROTERMS.baseUri, "fullUri": ROTERMS.note
       , "label": "Note"
       , "description": "String indicating some information about a Research Object component" 
@@ -113,14 +114,18 @@ def readAnnotationBody(rodir, annotationfile):
     Read annotation body from indicated file, return RDF Graph of annotation values.
     """
     annotationfilename = makeComponentFilename(rodir, annotationfile)
+    if not os.path.exists(annotationfilename): return None
+    annotationformat   = "xml"
+    # Look at file extension to figure format
+    if re.search("\.(ttl|n3)$", annotationfile): annotationformat="n3"
     rdfGraph = rdflib.Graph()
-    rdfGraph.parse(annotationfilename)
+    rdfGraph.parse(annotationfilename, format=annotationformat)
     return rdfGraph
 
 def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     """
     Create a new annotation body for a single resource in a research object, based
-    omn a supplied graph value.
+    on a supplied graph value.
 
     Existing annotations for the same resource are not touched; if an annotation is being 
     added or replaced, it is the calling program'sresponsibility to update the manifest to
@@ -140,7 +145,7 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     annotation_filename = None
     name_index = 0
     name_suffix = os.path.basename(rofile)
-    if name_suffix == ".":
+    if name_suffix in [".",""]:
         name_suffix = os.path.basename(ro_dir)
     today = datetime.date.today()
     while annotation_filename == None:
@@ -278,15 +283,6 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
         for a in add_annotations:
             addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, a)
         ro_manifest.writeManifestGraph(ro_dir, ro_graph)
-    #--- Old logic
-    #ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    #subject  = ro_manifest.getComponentUri(ro_dir, rofile)
-    #(predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    #val = attrvalue and makeAnnotationValue(attrvalue, valtype)
-    #log.debug("Remove annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(val)))
-    #ro_graph.remove((subject, predicate, val))
-    #ro_manifest.writeManifestGraph(ro_dir, ro_graph)
-    #---
     return
 
 def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
@@ -337,9 +333,10 @@ def getRoAnnotations(ro_dir):
     for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
-        for (p, v) in ann_graph.predicate_objects(subject=subject):
-            #log.debug("Triple: %s %s %s"%(subject,p,v))
-            yield (subject, p, v)
+        if ann_graph:
+            for (p, v) in ann_graph.predicate_objects(subject=subject):
+                #log.debug("Triple: %s %s %s"%(subject,p,v))
+                yield (subject, p, v)
     return
 
 def getFileAnnotations(ro_dir, rofile):
@@ -356,9 +353,10 @@ def getFileAnnotations(ro_dir, rofile):
     for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
-        for (p, v) in ann_graph.predicate_objects(subject=subject):
-            #log.debug("Triple: %s %s %s"%(subject,p,v))
-            yield (subject, p, v)
+        if ann_graph:
+            for (p, v) in ann_graph.predicate_objects(subject=subject):
+                #log.debug("Triple: %s %s %s"%(subject,p,v))
+                yield (subject, p, v)
     return
 
 def getAllAnnotations(ro_dir):
@@ -373,6 +371,8 @@ def getAllAnnotations(ro_dir):
     for (ann_node, subject) in ro_graph.subject_objects(predicate=RO.annotatesAggregatedResource):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
+        if ann_graph == None:
+            print "No annotation graph: ann_uri: "+str(ann_uri)
         for (p, v) in ann_graph.predicate_objects(subject=subject):
             #log.debug("Triple: %s %s %s"%(subject,p,v))
             yield (subject, p, v)
@@ -416,15 +416,16 @@ def showAnnotations(ro_config, ro_dir, annotations, outstr):
     for (asubj,apred,aval) in annotations:
         #log.debug("Annotations: asubj %s, apred %s, aval %s"%
         #          (repr(asubj), repr(apred), repr(aval)))
-        (aname, atype) = getAnnotationByUri(ro_config, apred)
-        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
-        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
-        if sname == "":
-            sname = ro_manifest.getRoUri(ro_dir)
-        if sname != sname_prev:
-            print sname
-            sname_prev = sname
-        outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
+        if apred != ORE.aggregates:
+            (aname, atype) = getAnnotationByUri(ro_config, apred)
+            sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
+            log.debug("Annotations: sname %s, aname %s"%(sname, aname))
+            if sname == "":
+                sname = ro_manifest.getRoUri(ro_dir)
+            if sname != sname_prev:
+                print "\n<"+sname+">"
+                sname_prev = sname
+            outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
     return
 
 # End.

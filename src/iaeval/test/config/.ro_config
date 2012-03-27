@@ -47,7 +47,7 @@
             "prefix": "dcterms", 
             "name": "note", 
             "baseUri": "http://ro.example.org/ro/terms/", 
-            "localName": "format", 
+            "localName": "note", 
             "description": "String indicating some information about a Research Object component", 
             "type": "text", 
             "label": "Note"

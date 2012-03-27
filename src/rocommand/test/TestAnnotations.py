@@ -35,7 +35,7 @@ from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand import ro_annotation
-from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS, RO, AO, ORE
+from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -234,9 +234,49 @@ class TestAnnotations(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         log.debug("outtxt: %s"%(outtxt))
         self.assertEqual(outtxt.count("ro annotations"), 1)
-        self.assertRegexpMatches(outtxt, "\nsubdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "\n<subdir1/subdir1-file.txt>")
         self.assertRegexpMatches(outtxt, "type.*atype")
         self.assertRegexpMatches(outtxt, "title.*atitle")
+        self.deleteTestRo(rodir)
+        return
+
+    # Test annotate with graph
+    def testAnnotateWithGraph(self):
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        define_annotations = (
+            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
+            , {"atypename": "keywords",    "avalue":"asubj",    "atypeuri":DCTERMS.subject,     "aexpect":"asubj" }
+            , {"atypename": "description", "avalue":"adesc",    "atypeuri":DCTERMS.description, "aexpect":"adesc" }
+            , {"atypename": "format",      "avalue":"aformat",  "atypeuri":DCTERMS.format,      "aexpect":"aformat" }
+            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
+            , {"atypename": "created",     "avalue":"acreated", "atypeuri":DCTERMS.created,     "aexpect":"acreated" }
+            ])
+        # Create annotation graph file and apply annotations
+        annotation_graph = rdflib.Graph()
+        resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
+        for ann in define_annotations:
+            annotation_graph.add( (resourceuri, ann["atypeuri"], rdflib.Literal(ann["aexpect"])) )
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-subdir1-file.txt.rdf") 
+        annotation_graph.serialize(annotation_graph_filename,
+            format='xml', base=ro_manifest.getRoUri(rodir), xml_base="")
+        args = ["ro", "annotate", rofile, "-g", annotation_graph_filename ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        # Read manifest and check for annotation
+        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        expected_annotations = (
+            [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
+                for a in define_annotations
+            ])
+        for i in range(6):
+            next = annotations.next()
+            if ( next not in expected_annotations):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
+        self.assertRaises(StopIteration, annotations.next)
+        # Clean up
         self.deleteTestRo(rodir)
         return
 
@@ -290,6 +330,7 @@ def getTestSuite(select="unit"):
             , "testAnnotateMultiple"
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"
+            , "testAnnotateWithGraph"
             ],
         "component":
             [ "testComponents"

@@ -31,12 +31,10 @@ import rdflib
 
 from MiscLib import TestUtils
 
-#from rocommand import ro
-#from rocommand import ro_utils
 from rocommand import ro_settings
 from rocommand import ro_manifest
 from rocommand import ro_annotation
-from rocommand.ro_manifest import RDF, DCTERMS, ROTERMS, RO, ORE
+from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -57,7 +55,7 @@ robase_abs = os.path.abspath(ro_test_config.ROBASEDIR)
 
 class TestAnnotationUtils(TestROSupport.TestROSupport):
     """
-    Test ro annotation commands
+    Test ro annotation support functions
     """
     def setUp(self):
         super(TestAnnotationUtils, self).setUp()

@@ -26,10 +26,10 @@ def progname(args):
 
 def ropath(ro_config, dir):
     rodir  = os.path.abspath(dir)
-    robase = os.path.abspath(ro_config['robase'])
+    robase = os.path.realpath(ro_config['robase'])
     log.debug("ropath: rodir  %s"%(rodir))
     log.debug("ropath: robase %s"%(robase))
-    if os.path.isdir(rodir) and os.path.commonprefix([robase, rodir]) == robase:
+    if os.path.isdir(rodir) and os.path.commonprefix([robase, os.path.realpath(rodir)]) == robase:
        return rodir
     return None
     

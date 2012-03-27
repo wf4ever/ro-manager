@@ -20,10 +20,10 @@ import MiscLib.ScanDirectories
 
 import ro_settings
 import ro_utils
-import ro_manifest
-import ro_annotation
+from ro_annotation import annotationTypes
+from ro_metadata   import ro_metadata
 
-from iaeval import ro_eval_completeness
+from iaeval import ro_eval_minim
 
 from sync.RosrsApi import RosrsApi
 from sync.ResourceSync import ResourceSync
@@ -50,8 +50,8 @@ def ro_root_directory(cmdname, ro_config, rodir):
     #log.debug("                   ro_config %s"%(repr(ro_config)))
     ro_dir = ro_utils.ropath(ro_config, rodir)
     if not ro_dir:
-        print ("%s: indicated directory not in configured research object directory tree: %s"%
-               (cmdname, rodir))
+        print ("%s: indicated directory not in configured research object directory tree: %s (%s)"%
+               (cmdname, rodir, ro_config['robase']))
         return None
     if not os.path.isdir(ro_dir):
         print ("%s: indicated directory does not exist: %s"%
@@ -85,19 +85,19 @@ def help(progname, args):
         , "  %(progname)s add [ -d <dir> ] [ -a ] [ file | directory ]"
         , "  %(progname)s status [ -d <dir> ]"
         , "  %(progname)s list [ -d <dir> ]"
-        , "  %(progname)s annotate <file> <attribute-name> [ <attribute-value> ]"
+        , "  %(progname)s annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
+        , "  %(progname)s annotate [ -d <dir> ] <file> -g <RDF-graph>"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
         , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
-        , "  %(progname)s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"
+        , "  %(progname)s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"
         , ""
         , "Supported annotation type names are: "
-        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in ro_annotation.annotationTypes ])
+        , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
         , ""
         , "See also:"
-        , ""
         , "  %(progname)s --help"
-        ""
+        , ""
         ])
     for h in helptext:
         print h%{'progname': progname}
@@ -107,14 +107,15 @@ def config(progname, configbase, options, args):
     """
     Update RO repository access configuration
     """
+    robase = os.path.realpath(options.robasedir)
     ro_config = {
-        "robase":         getoptionvalue(options.roboxdir,              "ROBOX service base directory:  "),
+        "robase":         getoptionvalue(robase,                 "RO local base directory:       "),
         "rosrs_uri":      getoptionvalue(options.rosrs_uri,             "URI for ROSRS service:         "),
         "rosrs_access_token": getoptionvalue(options.rosrs_access_token,"Access token for ROSRS service:"),
-        "username":       getoptionvalue(options.username,              "Name of research object owner: "),
-        "useremail":      getoptionvalue(options.useremail,             "Email address of owner:        "),
+        "username":       getoptionvalue(options.username,       "Name of research object owner: "),
+        "useremail":      getoptionvalue(options.useremail,      "Email address of owner:        "),
         # Built-in annotation types
-        "annotationTypes": ro_annotation.annotationTypes
+        "annotationTypes": annotationTypes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose: 
@@ -236,7 +237,8 @@ def add(progname, configbase, options, args):
     # Read and update manifest
     if options.verbose:
         print "ro add -d %(rodir)s %(recurseopt)s %(rofile)s"%ro_options
-    ro_manifest.addAggregatedResources(ro_dir, ro_options['rofile'], ro_options['recurse'])
+    rometa = ro_metadata(ro_config, ro_dir)
+    rometa.addAggregatedResources(ro_options['rofile'], ro_options['recurse'])
     return 0
 
 def status(progname, configbase, options, args):
@@ -257,14 +259,15 @@ def status(progname, configbase, options, args):
     # Read manifest and display status
     if options.verbose: 
         print "ro status -d \"%(rodir)s\""%ro_options
-    ro_dict = ro_manifest.readManifest(ro_dir)
+    rometa = ro_metadata(ro_config, ro_dir)
+    rodict = rometa.getRoMetadataDict()
     print "Research Object status"
-    print "  identifier:  %(roident)s, title: %(rotitle)s"%ro_dict
-    print "  creator:     %(rocreator)s, created: %(rocreated)s"%ro_dict
-    print "  path:        %(ropath)s"%ro_dict
-    if ro_dict['rouri']:
-        print "  uri:         %(rouri)s"%ro_dict
-    print "  description: %(rodescription)s"%ro_dict
+    print "  identifier:  %(roident)s, title: %(rotitle)s"%rodict
+    print "  creator:     %(rocreator)s, created: %(rocreated)s"%rodict
+    print "  path:        %(ropath)s"%rodict
+    if rodict['rouri']:
+        print "  uri:         %(rouri)s"%rodict
+    print "  description: %(rodescription)s"%rodict
     return 0
 
 def list(progname, configbase, options, args):
@@ -303,29 +306,49 @@ def annotate(progname, configbase, options, args):
     ro annotate file attribute-name [ attribute-value ]
     """
     # Check command arguments
-    if len(args) not in [4,5]:
+    if not (len(args) in [4,5]) and not (len(args) == 3 and options.graph):
         print ("%s annotate: wrong number of arguments provided"%
                (progname))
         print ("Usage: %s annotate file attribute-name [ attribute-value ]"%
                (progname))
+        print ("       %s annotate file -g rdf-filename"%
+               (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
-    ro_options = {
-        "rofile":       args[2],
-        "rodir":        os.path.dirname(args[2]),
-        "roattribute":  args[3],
-        "rovalue":      args[4] or None
-        }
+    rodir = options.rodir or os.path.dirname(args[2])
+    if len(args) == 3:
+        # Using graph form
+        ro_options = {
+            # Usding graph annotation form
+            "rofile":       args[2],
+            "rodir":        rodir,
+            "graph":        options.graph or None
+            }
+    else:
+        ro_options = {
+            # Usding explicit annotation form
+            "rofile":       args[2],
+            "rodir":        rodir,
+            "roattribute":  args[3],
+            "rovalue":      args[4] or None
+            }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
-    ro_dir = ro_root_directory(progname+" attribute", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory(progname+" annotate", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read and update manifest and annotations
-    if options.verbose:
-        print "ro annotate %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
-    ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
-    ro_annotation.addSimpleAnnotation(ro_config, ro_dir, 
-        ro_file, ro_options['roattribute'],  ro_options['rovalue'])
+    rometa = ro_metadata(ro_config, ro_dir)
+    rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+    if len(args) == 3:
+        # Add existing graph as annotation
+        if options.verbose:
+            print "ro annotate -d %(rodir)s %(rofile)s -g %(graph)s"%ro_options
+        rometa.addGraphAnnotation(rofile, ro_options['graph'])
+    else:
+        # Create new annotation graph
+        if options.verbose:
+            print "ro annotate -d %(rodir)s %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+        rometa.addSimpleAnnotation(rofile, ro_options['roattribute'],  ro_options['rovalue'])
     return 0
 
 def annotations(progname, configbase, options, args):
@@ -355,27 +378,14 @@ def annotations(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, ro_dir)
     if ro_options['rofile']:
-        ro_file = ro_manifest.getFileUri(ro_options['rofile'])   # Relative to CWD
-        log.debug("Annotations for %s"%str(ro_file))
-        annotations = ro_annotation.getFileAnnotations(ro_dir, ro_file)
+        rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+        log.debug("Annotations for %s"%str(rofile))
+        annotations = rometa.getFileAnnotations(rofile)
     else:
-        annotations = ro_annotation.getAllAnnotations(ro_dir)
-    ro_annotation.showAnnotations(ro_config, ro_dir, annotations, sys.stdout)
-
-    sname_prev = None
-    for (asubj,apred,aval) in annotations:
-        #log.debug("Annotations: asubj %s, apred %s, aval %s"%
-        #          (repr(asubj), repr(apred), repr(aval)))
-        aname = ro_annotation.getAnnotationNameByUri(ro_config, apred)
-        sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))
-        log.debug("Annotations: sname %s, aname %s"%(sname, aname))
-        if sname == "":
-            sname = ro_manifest.getRoUri(ro_dir)
-        if sname != sname_prev:
-            print sname
-            sname_prev = sname
-        print "  %s %s"%(aname,str(aval))
+        annotations = rometa.getAllAnnotations()
+    rometa.showAnnotations(annotations, sys.stdout)
     return 0
 
 def push(progname, configbase, options, args):
@@ -476,7 +486,7 @@ def evaluate(progname, configbase, options, args):
     """
     Evaluate RO
     
-    ro evaluate completeness [ -d <dir> ] [ <purpose> ] [ <target> ]"
+    ro evaluate checklist [ -d <dir> ] <minim> <purpose> [ <target> ]"
     """
     log.debug("evaluate: progname %s, configbase %s, args %s"%
               (progname, configbase, repr(args)))
@@ -494,26 +504,31 @@ def evaluate(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" annotations", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Evaluate...
-    if ro_options["function"] == "completeness":
-        if len(args) not in [3,4,5,6]:
-            print ("%s evaluate completeness: wrong number of arguments provided"%(progname))
-            print ("Usage: %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+    if ro_options["function"] == "checklist":
+        if len(args) not in [5,6]:
+            print ("%s evaluate checklist: wrong number of arguments provided"%(progname))
+            print ("Usage: %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"%(progname))
+            return 1
+        levels = ["summary", "must", "should", "may", "full"]
+        if options.level not in ["summary", "must", "should", "may", "full"]:
+            print ("%s evaluate checklist: invalid reporting level %s, must be one of %s"%(progname, options.level, repr(levels)))
             return 1
         ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
         ro_options["target"]  = ((len(args) > 5) and args[5]) or "."
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
-        evalresult = ro_eval_completeness.evaluate(ro_dir, 
+        rometa = ro_metadata(ro_config, ro_dir)
+        evalresult = ro_eval_minim.evaluate(rometa, 
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
-        ro_eval_completeness.format(evalresult, 
-            { "detail" : "full" if options.all else "summary" }, 
+        ro_eval_minim.format(evalresult, 
+            { "detail" : "full" if options.all else options.level }, 
             sys.stdout)
     # elif ... other functions here
     else:
         print ("%s evaluate: unrecognized function provided"%(progname))
         print ("Usage:")
-        print ("  %s evaluate completeness [ -d <dir> ] [ -a ] [ <minim> ] [ <purpose> ] [ <target> ]"%(progname))
+        print ("  %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"%(progname))
         return 1
     return 0
 

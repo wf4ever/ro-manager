@@ -17,14 +17,30 @@ TODO:
 
 * ro eval completeness
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
+** See: https://www.pivotaltracker.com/story/show/26123933
 ** Test that aggregated files actually exist - part of liveness?
 ** Target specification is very error prone
 ** Error handling when target not found is poor
+** Test case for software environment rule
+** Test case for content match rule
+
+* Fix problem with ROSRS sync, and refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
+
+* Refactor ro_metadata to handle manifest access and updates locally, rather than via ro_annotations.
+  Also, add logic to cache roannotation graph.
+  (Keep ro_annotations for annotation support methods)
+
+* ro annotate/annnotations
+** Test display of annotations for entire RO
+** Test annotations shown in RO listing
+** Test interactive/multiline update (how?)
+** Test use of CURIE as type
+** Test use of URI as type
 
 * ro show config
-* ro create to fail if RO already created
+* ro create should fail if RO already created
 
-* option to change ro manifest details - ro modify?
+* option to change ro manifest aggregation details - ro modify?
 
 * ro link
 * ro links
@@ -33,6 +49,15 @@ TODO:
 * Options to return JSON/RDF info for use by other apps?
 * Options for RO logging of changes, etc
 * ro list currently shows only files: want to show directories too?
+
+Other functions:
+- display serialization of manifest graph
+- display serialization of annotation graph
+- read RO from web server
+
+Technical debt:
+- Clean up handling command analysis; factor out usage summaries
+- When adding an annotation graph, check that it exists.  Also when displaying annotations.
 
 ----
 
@@ -48,5 +73,51 @@ DONE
 * ro add [-a] [directory]
 * ro eval completeness minim
 
+* Refactor ro_manifest+ro_annotation to be a class creating a manifest object.  Revise code accordingly; don't depend on rodir from calling code.
+** Define class ro_metadata that reads manifest and encapsulates both the graph and the base URI (done)
+** Define relativization method that works with the new class (done)
+** Modify ro_command functions to use new class for annotations, not ro_annotation module directly (done)
+** Check that modified ro_command works with new RO (done)
+** Create ro_metadata methods to replace direct references to ro_manifest functions (addAggregatedResources) (done)
+** Remove direct references to ro_manifest in ro_command; use ro_metadata methods, in:
+*** ro_command (done)
+*** ro_eval_completeness (done)
+*** BackgroundSync (recshceduled)
+*** TestEvalCompleteness (done)
+*** ro_metadata (done)
+*** TestROMetadata (done)
 
-Client id = 5248c9c2-e7a2-4e8f-8
+* Refactor namespace definitions into separate module (from ro_manifest) (DONE)
+
+* ro annotate (-g|--graph) rdf-resource [ file ] -- use RDF file already present as annotation for the named file.  Defaults to annotations for the entire RO.
+
+----
+
+Option table
+
+("-a", "--all",             help="All, list all files, depends on the context")
+("-b", "--ro-base",         help="Base of local directory tree used for ROs")
+  -c
+("-d", "--ro-directory",    help="Directory of Research Object to process (defaults to current directory)")
+("-e", "--user-email",      help="Email address of research objects owner")
+("-f", "--force",           help="Force, depends on the context")
+("-g", "--graph",           help="Name of existing RDF graph used for annotation")
+  -h    --help
+("-i", "--ro-identifier",   help="Identifier of Research Object (defaults to value based on name)")
+  -j
+  -k
+  -l,  "--report-level",    help="Reporting level of detail to generate (summary, must, should, may or full)"
+  -m
+("-n", "--user-name",       help="Full name of research objects owner")
+  -o
+("-p", "--rosrs-password",  help="ROSRS password")
+  -q
+("-r", "--rosrs-uri",       help="URI of ROSRS service")
+  -s
+  -t
+("-u", "--rosrs-username",  help="ROSRS username")
+("-v", "--verbose",         help="display verbose output")
+  -w
+  -x
+  -y
+  -z
