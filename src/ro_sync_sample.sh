@@ -9,23 +9,20 @@ echo "--------"
 
 ./ro config -v \
   -b $ROBASE \
-  -r http://sandbox.wf4ever-project.org/rosrs3 \
-  -u "OpenID-1318340111490" \
-  -p "2ae55d36-de48-444c-a" \
-  -n "Test user" \
-  -e "testuser@example.org"
+  -r http://sandbox.wf4ever-project.org/rosrs5 \
+  -t "47d5423c-b507-4e1c-8" 
 
 echo "--------"
 
-./ro checkout A_sample_pack -v 
+./ro checkout -v 219 
 
 echo "--------"
 
-touch $ROBASE/a_sample_pack/file1.txt
+touch $ROBASE/219/file1.txt
 
 echo "touched file1.txt"
 
-echo "`date`: This line is appended" >> $ROBASE/A_sample_pack/file2.txt
+echo "`date`: This line is appended" >> $ROBASE/219/file2.txt
 
 echo "appended a line to file2.txt"
 

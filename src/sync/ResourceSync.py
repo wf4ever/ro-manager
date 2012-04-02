@@ -78,6 +78,9 @@ class ResourceSync(object):
     
     def __scanDirectories4Put(self, roId, roDirectory):
         sentFiles = set()
+        manifest = join(roDirectory, ".ro/manifest.rdf")
+        if self.__checkFile4Put(roId, roDirectory, manifest):
+            sentFiles.add(manifest)
         for root, dirs, files in walk(roDirectory):
             for f in files:
                 filepath = join(root, f)
