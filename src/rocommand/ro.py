@@ -99,9 +99,6 @@ def parseCommandArgs(argv):
     parser.add_option("-n", "--user-name",
                       dest="username", 
                       help="Full name of research objects owner")
-    parser.add_option("-p", "--rosrs-password",
-                      dest="rosrs_password", 
-                      help="ROSRS password")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri", 
                       help="URI of ROSRS service")

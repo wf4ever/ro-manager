@@ -82,7 +82,7 @@ def help(progname, args):
         [ "Available commands are:"
         , ""
         , "  %(progname)s help"
-        , "  %(progname)s config -b <robase> -r <roboxuri> -p <roboxpass> -u <username> -e <useremail>"
+        , "  %(progname)s config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"
         , "  %(progname)s create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"
         , "  %(progname)s add [ -d <dir> ] [ -a ] [ file | directory ]"
         , "  %(progname)s status [ -d <dir> ]"
@@ -91,7 +91,7 @@ def help(progname, args):
         , "  %(progname)s annotate [ -d <dir> ] <file> -g <RDF-graph>"
         , "  %(progname)s annotations [ <file> | -d <dir> ]"
         , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
-        , "  %(progname)s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
+        , "  %(progname)s checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
         , "  %(progname)s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"
         , ""
         , "Supported annotation type names are: "
@@ -443,19 +443,19 @@ def checkout(progname, configbase, options, args):
     """
     Checkout a RO from ROSRS
     
-    ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+    ro checkout [ <RO-identifier> ] [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6]:
+    if len(args) not in [2, 3, 4, 5]:
         print ("%s push: wrong number of arguments provided"%
                (progname))
-        print ("Usage: %s checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
+        print ("Usage: %s checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
                (progname))
         return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "roident":        args[2] if len(args) > 2 else None,
-        "rodir":          options.rodir or (args[2] if len(args) > 2 else None),
+        "rodir":          options.rodir or "",
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
         "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], "Access token for ROSRS service:    "),
         "force":          options.force
@@ -467,7 +467,7 @@ def checkout(progname, configbase, options, args):
     if (ro_options["roident"]):
         roident = ro_options["roident"]
         print "Checking out %s..." % roident
-        rodir = os.path.join(ro_config["robase"], ro_options['rodir'] or roident)
+        rodir = os.path.join(ro_options['rodir'], roident)
         try:
             verzip = api.getRoAsZip(roident)
             __unpackZip(verzip, rodir, options.verbose)
@@ -475,10 +475,12 @@ def checkout(progname, configbase, options, args):
             print "Could not checkout %s: %s" % (roident, e)
     else:
         ros = api.getRos()
+        print "Checking out %d Research Objects..." % len(ros)
         for ro in ros:
             roident = os.path.basename(os.path.dirname(ro))
+            print "---"
             print "Checking out %s..." % roident
-            rodir = os.path.join(ro_config["robase"], ro_options['rodir'] or roident)
+            rodir = os.path.join(ro_options['rodir'], roident)
             verzip = api.getRoAsZipByUrl(ro)
             __unpackZip(verzip, rodir, options.verbose)
     return 0
