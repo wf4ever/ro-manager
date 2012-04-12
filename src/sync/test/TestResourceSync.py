@@ -5,110 +5,116 @@ Created on 15-09-2011
 '''
 import sys
 if __name__ == "__main__":
-    sys.path.append("../..")
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "..")
 
 import logging
+import os.path
 from MiscLib import TestUtils
-from os import rename, utime
-from os.path import exists
 from rocommand.test import TestROSupport
+from rocommand.test.TestConfig import ro_test_config
 from sync.RosrsApi import RosrsApi
 from sync.ResourceSync import ResourceSync
-from sync.test.TestConfig import ro_test_config
+
+# Base directory for RO tests in this module
+testbase = os.path.dirname(__file__)
 
 class TestResourceSync(TestROSupport.TestROSupport):
     
-    files1 = { 'data/ro-test-1/.ro/manifest.rdf',
-             'data/ro-test-1/file1.txt',
-             'data/ro-test-1/file3.jpg',
-             'data/ro-test-1/file with spaces.txt',
-             'data/ro-test-1/subdir1/file2.txt',
-             'data/ro-test-1/README-ro-test-1' }
-    fileToDelete = 'data/ro-test-1/file1.txt'
-    fileToReplace = 'data/ro-test-1/file1beta.txt'
-    fileToTouch = 'data/ro-test-1/file with spaces.txt'
-    fileToModify = 'data/ro-test-1/subdir1/file2.txt'
+    files = ["subdir1/subdir1-file.txt"
+             , "subdir2/subdir2-file.txt"
+             , "README-ro-test-1"
+             , ".ro/manifest.rdf"
+             , "minim.rdf" ]
 
-    filesAll = { 'data/ro-test-1/.ro/manifest.rdf',
-                 'data/ro-test-1/file1.txt',
-                 'data/ro-test-1/file3.jpg',
-                 'data/ro-test-1/file with spaces.txt',
-                 'data/ro-test-1/subdir1/file2.txt',
-                 'data/ro-test-1/README-ro-test-1' }
+    fileToModify = "subdir1/subdir1-file.txt"
+    fileToDelete = "README-ro-test-1"
+    fileToReplace = "README-ro-test-2"
+    fileToTouch = 'subdir2/subdir2-file.txt'
     
     modifiedFileContent = """lorem ipsum
 ora et labora"""
 
     def setUp(self):
+        super(TestResourceSync, self).setUp()
+        self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", "RO test resource sync", "ro-testResourceSync")
+        self.workspacedir = os.path.join(testbase, ro_test_config.ROBASEDIR)
         try:
             self.__sync = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         except:
             pass
         logging.basicConfig()
         logging.getLogger("sync.ResourceSync").setLevel(logging.INFO)
+        
+        tmpFiles = set()
+        for f in self.files:
+            tmpFiles.add(os.path.join(self.rodir, f))
+        self.files = tmpFiles
+        self.fileToModify = os.path.join(self.rodir, self.fileToModify)
+        self.fileToDelete = os.path.join(self.rodir, self.fileToDelete)
+        self.fileToReplace = os.path.join(self.rodir, self.fileToReplace)
+        self.fileToTouch = os.path.join(self.rodir, self.fileToTouch)
         return
 
     def tearDown(self):
+        super(TestResourceSync, self).tearDown()
+        self.deleteTestRo(self.rodir)
         try:
-            self.__sync.deleteRo(ro_test_config.RO_ID)
+            self.__sync.deleteRo("RO_test_resource_sync")
         except:
             pass
-        if (exists(self.fileToReplace)):
-            rename(self.fileToReplace, self.fileToDelete)
-        with open(self.fileToModify, 'w') as f:
-            f.write(self.modifiedFileContent)
-            f.close()
         return
     
     def testNull(self):
         assert True, 'Null test failed'
 
     def testSyncRecources(self):
-        self.__sync.postRo(ro_test_config.RO_ID)
+        self.__sync.postRo("RO_test_resource_sync")
         back = ResourceSync(self.__sync)
         
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID, force = True)
-        self.assertEquals(sent, self.files1, "Sent files1 are not equal")
+        (sent, deleted) = back.pushAllResources(self.rodir, force = True)
+        self.assertEquals(sent, self.files, "Sent files are not equal")
         self.assertEquals(deleted, set())
 
-        rename(self.fileToDelete, self.fileToReplace)
-        utime(self.fileToTouch, None)
+        os.rename(self.fileToDelete, self.fileToReplace)
+        os.utime(self.fileToTouch, None)
         with open(self.fileToModify, 'a') as f:
             f.write("foobar")
             f.close()
         
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources(self.rodir)
         self.assertEquals(sent, {self.fileToReplace, self.fileToModify}, "New sent file")
         self.assertEquals(deleted, {self.fileToDelete}, "Deleted file")
 
-        (sent, deleted) = back.pushAllResources("data/%s" % ro_test_config.RO_ID)
+        (sent, deleted) = back.pushAllResources(self.rodir)
         self.assertEquals(sent, set())
         self.assertEquals(deleted, set())
-        rename(self.fileToReplace, self.fileToDelete)
+        os.rename(self.fileToReplace, self.fileToDelete)
         return
     
     def testSyncWorkspace(self):
         back = ResourceSync(self.__sync)
-        self.assertRaises(Exception, back.pushAllResourcesInWorkspace, "data", force = True)
+        self.assertRaises(Exception, back.pushAllResourcesInWorkspace, self.workspacedir, force = True)
         back = ResourceSync(self.__sync)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
-        self.assertSetEqual(sent, self.filesAll, "Send all workspace resource")
+        (sent, deleted) = back.pushAllResourcesInWorkspace(self.workspacedir, True, True)
+        self.assertSetEqual(sent, self.files, "Send all workspace resource")
         self.assertSetEqual(deleted, set())
-        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
+        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace(self.workspacedir), 
                               "Sync workspace after creating RO")
         return
     
     def testSaveLoadRegistries(self):
         back = ResourceSync(self.__sync)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
-        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
+        (sent, deleted) = back.pushAllResourcesInWorkspace(self.workspacedir, True, True)
+        self.assertEquals(sent, self.files, "Send all workspace resource")
         self.assertEquals(deleted, set())
         back = ResourceSync(self.__sync)
-        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace("data"), 
+        self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace(self.workspacedir), 
                               "Sync workspace after loading registries")
         back = ResourceSync(self.__sync)
-        (sent, deleted) = back.pushAllResourcesInWorkspace("data", True, True)
-        self.assertEquals(sent, self.filesAll, "Send all workspace resource")
+        (sent, deleted) = back.pushAllResourcesInWorkspace(self.workspacedir, True, True)
+        self.assertEquals(sent, self.files, "Send all workspace resource")
         self.assertEquals(deleted, set())
         return
     

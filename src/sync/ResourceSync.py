@@ -52,7 +52,7 @@ class ResourceSync(object):
                 sentFiles = sentFiles.union(s)
                 deletedFiles = deletedFiles.union(d)
             else:
-                log.warn("%s is a file in workspace, it should probably be moved somewhere" % roDirectory)
+                log.debug("%s is a file in workspace, it should probably be moved somewhere" % roDirectory)
         return (sentFiles, deletedFiles)
         
     def pushAllResources(self, roDirectory, createRO = False, force = False):
