@@ -164,7 +164,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Checkout a Research Object from ROSRS.
 
-        ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+        ro checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         # push an RO
         args = [
@@ -178,9 +178,10 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         # check it out as a copy
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
+        os.rename(self.rodir, rodir2)
         args = [
             "ro", "checkout", ro_command.ro_utils.ronametoident("RO test sync"),
-            "-d", "RO_test_checkout_copy",
+            "-d", ro_test_config.ROBASEDIR,
             "-v"
             ]
         with SwitchStdout(self.outstr):
@@ -192,7 +193,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
         # compare they're identical, with the exception of registries.pickle
-        cmpres = filecmp.dircmp(self.rodir, rodir2)
+        cmpres = filecmp.dircmp(rodir2, self.rodir)
         self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
@@ -205,7 +206,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         """
         Checkout a Research Object from ROSRS.
 
-        ro checkout [ <RO-identifier> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+        ro checkout [ <RO-identifier> ] [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         args = [
             "ro", "push",
@@ -218,7 +219,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, ro_command.ro_utils.ronametoident("RO test sync 2"))
         args = [
-            "ro", "checkout", 
+            "ro", "checkout",
+            "-d", ro_test_config.ROBASEDIR,
             "-v"
             ]
         with SwitchStdout(self.outstr):

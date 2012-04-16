@@ -5,16 +5,20 @@
 
 ROBASE="myworkspace"
 
+mkdir $ROBASE
+
 echo "--------"
 
 ./ro config -v \
   -b $ROBASE \
   -r http://sandbox.wf4ever-project.org/rosrs5 \
-  -t "47d5423c-b507-4e1c-8" 
+  -t "47d5423c-b507-4e1c-8" \
+  -n "Test User" \
+  -e "user@example.com"
 
 echo "--------"
 
-./ro checkout -v 219 
+./ro checkout -v -d $ROBASE 219 
 
 echo "--------"
 
@@ -22,12 +26,8 @@ touch $ROBASE/219/file1.txt
 
 echo "touched file1.txt"
 
-echo "`date`: This line is appended" >> $ROBASE/219/file2.txt
-
-echo "appended a line to file2.txt"
-
 echo "--------"
 
-./ro push -v
+./ro push -v -d $ROBASE/219
 
 # End.
