@@ -5,7 +5,11 @@ Research Object management supporting utility functions
 """
 
 import os.path
-import json
+try:
+    # Running Python 2.5 with simplejson?
+    import simplejson as json
+except ImportError:
+    import json
 import re
 import logging
 
