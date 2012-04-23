@@ -228,8 +228,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
         for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(f), 2)
-        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 2)
+            self.assertGreaterEqual(self.outstr.getvalue().count(f), 2, "counting %s" % f)
+        self.assertGreaterEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 2)
         
         cmpres = filecmp.dircmp(self.rodir, rodir2)
         self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
