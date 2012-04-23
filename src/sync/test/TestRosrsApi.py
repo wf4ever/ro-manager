@@ -16,7 +16,7 @@ from rocommand.test.TestConfig import ro_test_config
 from zipfile import ZipFile
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__file__)
+testbase = os.path.dirname(os.path.abspath(__file__))
 
 class TestRosrsApi(TestROSupport.TestROSupport):
     
@@ -25,6 +25,7 @@ class TestRosrsApi(TestROSupport.TestROSupport):
     """
     def setUp(self):
         super(TestRosrsApi, self).setUp()
+        self.setupConfig()
         self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", "RO test resource sync", "ro-testResourceSync")
         return
 
@@ -43,6 +44,11 @@ class TestRosrsApi(TestROSupport.TestROSupport):
             pass
         return
 
+    # Setup local config for local tests
+
+    def setupConfig(self):
+        return self.setupTestBaseConfig(testbase)
+    
     def testNull(self):
         assert True, 'Null test failed'
 

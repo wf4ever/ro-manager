@@ -18,7 +18,7 @@ from sync.RosrsApi import RosrsApi
 from sync.ResourceSync import ResourceSync
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__file__)
+testbase = os.path.dirname(os.path.abspath(__file__))
 
 class TestResourceSync(TestROSupport.TestROSupport):
     
@@ -38,6 +38,7 @@ ora et labora"""
 
     def setUp(self):
         super(TestResourceSync, self).setUp()
+        self.setupConfig()
         self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", "RO test resource sync", "ro-testResourceSync")
         self.workspacedir = os.path.join(testbase, ro_test_config.ROBASEDIR)
         try:
@@ -66,6 +67,11 @@ ora et labora"""
             pass
         return
     
+    # Setup local config for local tests
+
+    def setupConfig(self):
+        return self.setupTestBaseConfig(testbase)
+
     def testNull(self):
         assert True, 'Null test failed'
 
