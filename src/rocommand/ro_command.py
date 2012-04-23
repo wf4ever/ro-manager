@@ -344,7 +344,10 @@ def annotate(progname, configbase, options, args):
     if len(args) == 3:
         # Add existing graph as annotation
         if options.verbose:
-            print "ro annotate -d %(rodir)s %(rofile)s -g %(graph)s"%ro_options
+            print "ro annotate -d %(rodir)s %(rofile)s -g %(graph)s "%(ro_options)
+            #print "ro annotate -d %(rodir)s"%ro_options
+            #print "ro annotate %(rofile)s"%ro_options
+            #print "ro annotate -g %(graph)s"%ro_options
         rometa.addGraphAnnotation(rofile, ro_options['graph'])
     else:
         # Create new annotation graph
