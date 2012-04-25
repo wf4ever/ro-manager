@@ -1,0 +1,15 @@
+== Notes for documenting RODL/ROSRS synchronization ==
+
+The rosrs5 branch of ro-manager provides basic synchronization options with RODL. All tests are passing on my machine and I have updated a sample shell script that demonstrates the use of sync commands. I have just merged master branch into it so when you have time you may test it and merge back into master. The 2 commands that are available are checkout and push:
+
+    ro checkout [ <RO-identifier> ] [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+
+RO-identifier is the URI segment that identifies the RO. If ommitted, all ROs of the user are checked out. The checkout is done by downloading the zipped RO and unzipping it. The destination directory can be provided, current directory is used by default.
+
+    ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+
+The directory provided is the root directory of RO, current directory is used by default. Only files modified from last push are sent, unless -f/--force is specified. All files found in the RO directory are sent, regardless of whether they are specified in the manifest or not (this is something to improve in the future).
+
+
+These are only basic synchronization options but they work, so I suggest we have them merged into master before working on improvements. BTW, I haven't seen a help command that would explain each command in detail but I will add the description above to the wiki.
+
