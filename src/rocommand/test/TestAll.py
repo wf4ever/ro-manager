@@ -12,6 +12,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
     sys.path.insert(0, "../..")
     sys.path.insert(0, "../../iaeval/test")
+    sys.path.insert(0, "../../sync/test")
 
 import TestBasicCommands
 import TestAnnotationUtils
@@ -20,6 +21,8 @@ import TestAnnotations
 import TestROMetadata
 import TestMinimAccess
 import TestEvalChecklist
+import TestRosrsApi
+import TestResourceSync
 import TestSyncCommands
 
 # Code to run unit tests from all library test modules
@@ -31,8 +34,10 @@ def getTestSuite(select="unit"):
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestROMetadata.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
-    ###suite.addTest(TestSyncCommands.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
+    suite.addTest(TestRosrsApi.getTestSuite(select=select))
+    suite.addTest(TestResourceSync.getTestSuite(select=select))
+    suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils

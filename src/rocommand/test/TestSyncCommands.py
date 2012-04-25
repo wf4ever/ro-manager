@@ -38,7 +38,7 @@ from StdoutContext import SwitchStdout
 import TestROSupport
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__file__)
+testbase = os.path.dirname(os.path.abspath(__file__))
 
 class TestSyncCommands(TestROSupport.TestROSupport):
     """
@@ -285,12 +285,12 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testPushOneRO"
             ],
         "component":
             [ "testComponents"
-            , "testPushAll"
-            , "testPushAllForce"
+            , "testPushOneRO"
+            #, "testPushAll"
+            #, "testPushAllForce"
             , "testCheckout"
             , "testCheckoutAll"
             ],
@@ -304,6 +304,6 @@ def getTestSuite(select="unit"):
     return TestUtils.getTestSuite(TestSyncCommands, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestBasicCommands.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestSyncCommands.log", getTestSuite, sys.argv)
 
 # End.
