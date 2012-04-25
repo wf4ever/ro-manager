@@ -10,6 +10,8 @@ if __name__ == "__main__":
 
 from MiscLib import TestUtils
 import os.path
+import random
+import string
 from rocommand.test import TestROSupport
 from sync.RosrsApi import RosrsApi
 from rocommand.test.TestConfig import ro_test_config
@@ -26,7 +28,9 @@ class TestRosrsApi(TestROSupport.TestROSupport):
     def setUp(self):
         super(TestRosrsApi, self).setUp()
         self.setupConfig()
-        self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", "RO test resource sync", "ro-testResourceSync")
+        self.ident1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+        self.ident2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+        self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", self.ident1, self.ident1)
         return
 
     def tearDown(self):
@@ -54,30 +58,30 @@ class TestRosrsApi(TestROSupport.TestROSupport):
 
     def testROCreation(self):
         api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        api.postRo(ro_test_config.RO_ID)
-        api.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open(os.path.join(self.rodir, "subdir1/subdir1-file.txt")))
-        api.deleteFile(ro_test_config.RO_ID, "folderX/fileY.txt")
-        api.deleteRo(ro_test_config.RO_ID)
+        api.postRo(self.ident1)
+        api.putFile(self.ident1, "folderX/fileY.txt", "text/plain", open(os.path.join(self.rodir, "subdir1/subdir1-file.txt")))
+        api.deleteFile(self.ident1, "folderX/fileY.txt")
+        api.deleteRo(self.ident1)
         
     def testGetRoAsZip(self):
         api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        api.postRo(ro_test_config.RO_ID)
-        api.putFile(ro_test_config.RO_ID, "folderX/fileY.txt", "text/plain", open(os.path.join(self.rodir, "subdir1/subdir1-file.txt")))
-        verzip = api.getRoAsZip(ro_test_config.RO_ID)
+        api.postRo(self.ident1)
+        api.putFile(self.ident1, "folderX/fileY.txt", "text/plain", open(os.path.join(self.rodir, "subdir1/subdir1-file.txt")))
+        verzip = api.getRoAsZip(self.ident1)
         zipfile = ZipFile(verzip)
         self.assertEquals(len(zipfile.read("folderX/fileY.txt")), os.path.getsize(os.path.join(self.rodir, "subdir1/subdir1-file.txt")), "FileY size must be the same")
         self.assertTrue(len(zipfile.read(".ro/manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
-        api.deleteRo(ro_test_config.RO_ID)
+        api.deleteRo(self.ident1)
         return
     
     def testGetRos(self):
         api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        api.postRo(ro_test_config.RO_ID)
-        api.postRo(ro_test_config.RO_ID_2)
+        api.postRo(self.ident1)
+        api.postRo(self.ident2)
         ros = api.getRos()
-        self.assertSetEqual(set(ros), { ro_test_config.ROSRS_URI + "/ROs/" + ro_test_config.RO_ID + "/", ro_test_config.ROSRS_URI + "/ROs/" + ro_test_config.RO_ID_2 + "/" }, "Returned ROs are not correct")
-        api.deleteRo(ro_test_config.RO_ID)
-        api.deleteRo(ro_test_config.RO_ID_2)
+        self.assertSetEqual(set(ros), { ro_test_config.ROSRS_URI + "/ROs/" + self.ident1 + "/", ro_test_config.ROSRS_URI + "/ROs/" + self.ident2 + "/" }, "Returned ROs are not correct")
+        api.deleteRo(self.ident1)
+        api.deleteRo(self.ident2)
         return
         
 def getTestSuite(select="unit"):

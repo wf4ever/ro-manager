@@ -10,6 +10,8 @@ import sys
 import os.path
 import filecmp
 import logging
+import random
+import string
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -26,6 +28,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
+from sync.RosrsApi import RosrsApi
 from sync.ResourceSync import ResourceSync
 
 from rocommand import ro, ro_command
@@ -54,14 +57,26 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
     def setUp(self):
         super(TestSyncCommands, self).setUp()
-        self.rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test sync", "ro-testRoSync")
-        self.rodir2 = self.createTestRo(testbase, "data/ro-test-1", "RO test sync 2", "ro-testRoSync2")
+        self.ident1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+        self.ident2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+        self.rodir = self.createTestRo(testbase, "data/ro-test-1", self.ident1, self.ident1)
+        self.rodir2 = self.createTestRo(testbase, "data/ro-test-1", self.ident2, self.ident2)
         return
 
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
         self.deleteTestRo(self.rodir)
         self.deleteTestRo(self.rodir2)
+        try:
+            api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+            ros = api.getRos()
+            for ro in ros:
+                try:
+                    api.deleteRoByUrl(ro)
+                except:
+                    pass
+        except:
+            pass
         return
 
     # Actual tests follow
@@ -180,7 +195,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
         os.rename(self.rodir, rodir2)
         args = [
-            "ro", "checkout", ro_command.ro_utils.ronametoident("RO test sync"),
+            "ro", "checkout", self.ident1,
             "-d", ro_test_config.ROBASEDIR,
             "-v"
             ]
@@ -217,7 +232,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        rodir2 = os.path.join(ro_test_config.ROBASEDIR, ro_command.ro_utils.ronametoident("RO test sync 2"))
+        rodir2 = os.path.join(ro_test_config.ROBASEDIR, self.ident2)
         args = [
             "ro", "checkout",
             "-d", ro_test_config.ROBASEDIR,
@@ -228,8 +243,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
         for f in self.files:
-            self.assertGreaterEqual(self.outstr.getvalue().count(f), 2, "counting %s" % f)
-        self.assertGreaterEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 2)
+            self.assertGreaterEqual(self.outstr.getvalue().count(f), 1, "counting %s" % f)
+        self.assertGreaterEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
         
         cmpres = filecmp.dircmp(self.rodir, rodir2)
         self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
