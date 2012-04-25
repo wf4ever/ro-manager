@@ -10,6 +10,8 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 import logging
+import random
+import string
 import os.path
 from MiscLib import TestUtils
 from rocommand.test import TestROSupport
@@ -39,7 +41,8 @@ ora et labora"""
     def setUp(self):
         super(TestResourceSync, self).setUp()
         self.setupConfig()
-        self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", "RO test resource sync", "ro-testResourceSync")
+        self.ident1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
+        self.rodir = self.createTestRo(testbase, "../../rocommand/test/data/ro-test-1", self.ident1, self.ident1)
         self.workspacedir = os.path.join(testbase, ro_test_config.ROBASEDIR)
         try:
             self.__sync = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
@@ -62,7 +65,7 @@ ora et labora"""
         super(TestResourceSync, self).tearDown()
         self.deleteTestRo(self.rodir)
         try:
-            self.__sync.deleteRo("RO_test_resource_sync")
+            self.__sync.deleteRo(self.ident1)
         except:
             pass
         return
@@ -76,7 +79,7 @@ ora et labora"""
         assert True, 'Null test failed'
 
     def testSyncRecources(self):
-        self.__sync.postRo("RO_test_resource_sync")
+        self.__sync.postRo(self.ident1)
         back = ResourceSync(self.__sync)
         
         (sent, deleted) = back.pushAllResources(self.rodir, force = True)
