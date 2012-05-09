@@ -76,3 +76,6 @@ Thumbs.db
 *.bak
 *~
 
+# Project files
+/romenv
+
