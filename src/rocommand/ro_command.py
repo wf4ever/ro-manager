@@ -13,6 +13,11 @@ import datetime
 import logging
 import rdflib
 import shutil
+try:
+    # Running Python 2.5 with simplejson?
+    import simplejson as json
+except ImportError:
+    import json
 
 log = logging.getLogger(__name__)
 
@@ -541,6 +546,9 @@ def evaluate(progname, configbase, options, args):
         rometa = ro_metadata(ro_config, ro_dir)
         evalresult = ro_eval_minim.evaluate(rometa, 
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
+        if options.verbose:
+            print "== Evaluation result =="
+            print json.dumps(evalresult, indent=2)
         ro_eval_minim.format(evalresult, 
             { "detail" : "full" if options.all else options.level }, 
             sys.stdout)
