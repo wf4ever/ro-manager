@@ -131,7 +131,7 @@ class RosrsApi:
         headers["Content-Type"] = contentType or "text/plain"
         conn.request("PUT", url, body, headers)
         res = conn.getresponse()
-        if res.status != OK:
+        if res.status not in [OK,CREATED]:
             raise Exception("%d %s: %s" % (res.status, res.reason, res.read()))
         log.debug("File created/updated: %s" % filePath)
         return None
