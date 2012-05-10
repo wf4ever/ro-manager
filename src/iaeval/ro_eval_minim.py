@@ -82,6 +82,7 @@ def evaluate(rometa, minim, target, purpose):
             # @@TODO: factor to separate function
             cmnd = r['softwarerule']['command']
             resp = r['softwarerule']['response']
+            log.debug("softwarerule: %s -> %s"%(cmnd,resp))
             out = unicode(subprocess.check_output(cmnd.split(), stderr=subprocess.STDOUT))
             exp = re.compile(resp)
             satisfied = exp.match(out)

@@ -58,7 +58,13 @@ testbase = os.path.dirname(os.path.abspath(__file__))
 
 class TestEvalChecklist(TestROSupport.TestROSupport):
     """
-    Test ro annotation commands
+    Test ro checklist evaluation
+
+    Some tests here require that the python package lpod-python is installed
+      apt-get  install libxml2-dev
+      apt-get  install libxslt-dev
+      easy_install lxml
+      pip install lpod-python
     """
     def setUp(self):
         super(TestEvalChecklist, self).setUp()

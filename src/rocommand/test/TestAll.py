@@ -14,6 +14,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "../../iaeval/test")
     sys.path.insert(0, "../../sync/test")
 
+import TestConfig
 import TestBasicCommands
 import TestAnnotationUtils
 import TestManifest

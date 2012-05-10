@@ -6,6 +6,12 @@ Dependencies:
 - Linux/Unix type system
 - The ro_sample script is written to run under BASH
 
+The test suite also depends on the python-lpod package, which can be installed on Ubuntu Linux thus:
+    apt-get  install libxml2-dev
+    apt-get  install libxslt-dev
+    easy_install lxml
+    pip install lpod-python
+
 
 To run this program:
 
