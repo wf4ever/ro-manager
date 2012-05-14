@@ -89,6 +89,15 @@ def service_html(request):
         </html>\n""")
     return Response(sd, content_type="text/html", vary=['accept'])
 
+def real_evaluate(request):
+    graph = rdflib.Graph()
+    # isolate parameters
+    # create rometa object
+    # invoke evaluation service
+    #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
+    return graph
+
+
 def evaluate(request):
     graph = rdflib.Graph()
     rgstr = StringIO.StringIO(

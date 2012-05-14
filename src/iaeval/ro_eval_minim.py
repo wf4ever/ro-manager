@@ -1,7 +1,7 @@
-# ro_eval_completeness.py
+# ro_eval_minim.py
 
 """
-Research Object manifest read, write, decode functions
+Research Object evaluation withj respoect to a MINIM description
 """
 
 #import sys
