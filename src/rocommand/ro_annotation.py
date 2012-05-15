@@ -373,10 +373,11 @@ def getAllAnnotations(ro_dir):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
         if ann_graph == None:
-            print "No annotation graph: ann_uri: "+str(ann_uri)
-        for (p, v) in ann_graph.predicate_objects(subject=subject):
-            #log.debug("Triple: %s %s %s"%(subject,p,v))
-            yield (subject, p, v)
+            log.debug("No annotation graph: ann_uri: "+str(ann_uri))
+        else:
+            for (p, v) in ann_graph.predicate_objects(subject=subject):
+                #log.debug("Triple: %s %s %s"%(subject,p,v))
+                yield (subject, p, v)
     return
 
 def makeAnnotationValue(aval, atype):

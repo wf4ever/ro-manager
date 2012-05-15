@@ -532,6 +532,50 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testQueryAnnotationsWithMissingGraph(self):
+        """
+        This test is included to ensure that queries still work as expected when
+        the manifest contains a reference to a non-existent manifest graph
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+            "Test query annotations", "ro-testRoAnnotate")
+        romd  = ro_metadata.ro_metadata(ro_config, rodir)
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        romd.addSimpleAnnotation(roresource, "type",        "Test file")
+        romd.addSimpleAnnotation(roresource, "description", "File in test research object")
+        romd.addSimpleAnnotation(roresource, "note", "Research object file created for annotation testing")
+        romd.addSimpleAnnotation(roresource, "title",       "Test file in RO")
+        romd.addSimpleAnnotation(roresource, "created",     "2011-12-07")
+        romd.addSimpleAnnotation(roresource, "rdf:type",    ROTERMS.resource)
+        # Apply non-exietent graph annotation
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf") 
+        romd.addGraphAnnotation(roresource, annotation_graph_filename)
+        # Query the file anotations
+        queryprefixes = """
+            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX ro:         <http://purl.org/wf4ever/ro#>
+            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
+            PREFIX ao:         <http://purl.org/ao/>
+            PREFIX dcterms:    <http://purl.org/dc/terms/>
+            PREFIX roterms:    <http://ro.example.org/ro/terms/>
+            """
+        query = (queryprefixes +
+            """
+            ASK
+            {
+                ?ro rdf:type ro:ResearchObject ;
+                    dcterms:creator "Test User" .
+                ?file rdf:type roterms:resource ;
+                    dcterms:type "Test file" ;
+                    dcterms:created "2011-12-07" .
+            }
+            """)
+        resp = romd.queryAnnotations(query)
+        self.assertTrue(resp, "Expected 'True' result for query: %s")
+        self.deleteTestRo(rodir)
+        return
+
     # URI tests
 
     def testGetRoUri(self):
@@ -688,6 +732,7 @@ def getTestSuite(select="unit"):
             , "testAddGetAllAnnotations"
             , "testAddGetAnnotationValues"
             , "testQueryAnnotations"
+            , "testQueryAnnotationsWithMissingGraph"
             , "testGetRoUri"
             , "testGetComponentUri"
             , "testGetComponentUriRel"

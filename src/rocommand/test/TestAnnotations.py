@@ -280,6 +280,37 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    # Test annotate with non-existent graph (make nsure it doesn't all fall over)
+    def testAnnotateWithNotExistentGraph(self):
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        # Apply non-exietent graph annotation
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf") 
+        rouri = ro_manifest.getRoUri(rodir)
+        args = ["ro", "annotate", rodir+"/", "-g", annotation_graph_filename ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        # Read manifest and check for annotation
+        annotations = ro_annotation.getAllAnnotations(rodir)
+        expected_annotations = (
+            [ ( rouri, DCTERMS.identifier,  rdflib.Literal('ro-testRoAnnotate')  )
+            , ( rouri, DCTERMS.description, rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.title,       rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.creator,     rdflib.Literal('Test User') )
+            , ( rouri, RDF.type,            RO.ResearchObject )
+            ])
+        for i in range(8):
+            next = annotations.next()
+            if (next not in expected_annotations 
+                and not isinstance(next[2], rdflib.BNode)
+                and not next[1] == DCTERMS.created):
+                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
+        # Clean up
+        self.deleteTestRo(rodir)
+        return
+
     # Test display of annotations for entire RO
     
     # @@TODO: Test annotations shown in RO listing
@@ -331,6 +362,7 @@ def getTestSuite(select="unit"):
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"
             , "testAnnotateWithGraph"
+            , "testAnnotateWithNotExistentGraph"
             ],
         "component":
             [ "testComponents"

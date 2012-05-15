@@ -156,8 +156,8 @@ class ro_metadata(object):
         try:
             anngr.parse(annotationuri, format=annotationformat)
             log.debug("readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-        except Exception(e):  # @@TODO Make this more explicit
-            print str(e)
+        except IOError, e:
+            log.debug("readAnnotationBody "+repr(e))
             anngr = None
         return anngr
 
@@ -221,14 +221,30 @@ class ro_metadata(object):
         ro_manifest.writeManifestGraph(rodir, ro_graph)
         return
 
+    def iterateAnnotations(self, subject=None, property=None):
+        """
+        Returns an iterator over annotations of the current RO that match the supplied subject and/or property.
+        """
+        log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
+        self._loadManifest()
+        for ann_node in self.manifestgraph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
+            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            ann_graph = self.readAnnotationBody(ann_uri)
+            if ann_graph == None:
+                log.debug("No annotation graph: "+str(ann_uri))
+            else:
+                for (s, p, v) in ann_graph.triples((subject, property, None)):
+                    log.debug("Triple: %s %s %s"%(s,p,v))
+                    yield (s, p, v)
+        return
+
     def getRoAnnotations(self):
         """
         Returns iterator over annotations applied to the RO as an entity.
 
         Each value returned by the iterator is a (subject,predicate,object) triple.
         """
-        # @@TODO annotation read inline      
-        return ro_annotation.getRoAnnotations(self.getRoFilename())
+        return self.iterateAnnotations(subject=self.getRoUri())
 
     def getFileAnnotations(self, rofile):
         """
@@ -365,11 +381,11 @@ class ro_metadata(object):
         """
         Test current RO URI to see if it is a local file system reference
         """
-        return self.getRoUri().startswith("file://")
+        return self.getRoUri().startswith(fileuribase)
 
     def getRoFilename(self):
         assert self.isLocalFileRo(), "RO %s is not in local file system"%self.getRoUri()
-        return self.rouri[len("file://"):]
+        return self.rouri[len(fileuribase):]
 
     def getManifestFilename(self):
         """
