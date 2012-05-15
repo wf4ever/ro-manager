@@ -226,14 +226,16 @@ class ro_metadata(object):
         Returns an iterator over annotations of the current RO that match the supplied subject and/or property.
         """
         log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
+        # @@TODO: cache annotation graph; invalidate when annotations updated.
         self._loadManifest()
-        for ann_node in self.manifestgraph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
+        anns = self.manifestgraph.triples((None, RO.annotatesAggregatedResource, subject))
+        for (ann_node, _ap, ann_sub) in anns:
             ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             ann_graph = self.readAnnotationBody(ann_uri)
             if ann_graph == None:
                 log.debug("No annotation graph: "+str(ann_uri))
             else:
-                for (s, p, v) in ann_graph.triples((subject, property, None)):
+                for (s, p, v) in ann_graph.triples((ann_sub, property, None)):
                     log.debug("Triple: %s %s %s"%(s,p,v))
                     yield (s, p, v)
         return
@@ -252,8 +254,7 @@ class ro_metadata(object):
     
         Each value returned by the iterator is a (subject,predicate,object) triple.
         """
-        # @@TODO annotation read inline      
-        return ro_annotation.getFileAnnotations(self.getRoFilename(), rofile)
+        return self.iterateAnnotations(subject=self.getComponentUri(rofile))
 
     def getAllAnnotations(self):
         """
@@ -261,15 +262,14 @@ class ro_metadata(object):
     
         Each value returned by the iterator is a (subject,predicate,object) triple.
         """
-        # @@TODO annotation read inline      
-        return ro_annotation.getAllAnnotations(self.getRoFilename())
+        return self.iterateAnnotations()
 
     def getAnnotationValues(self, rofile, attrname):
         """
         Returns iterator over annotation values for given subject and attribute
         """
-        # @@TODO annotation read inline      
-        return ro_annotation.getAnnotationValues(self.roconfig, self.getRoFilename(), rofile, attrname)
+        (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
+        return ( v for (s,p,v) in self.iterateAnnotations(subject=self.getComponentUri(rofile), property=predicate) )
 
     def queryAnnotations(self, query):
         """
