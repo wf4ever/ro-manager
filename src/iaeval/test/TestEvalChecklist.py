@@ -225,7 +225,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMust'],    [] )
         self.assertEquals(evalresult['missingShould'],  [] )
         self.assertEquals(evalresult['missingMay'],     [(missing_may,{})] )
-        self.assertEquals(evalresult['rodir'],          rodir)
+        self.assertEquals(evalresult['rodir'],          rodir+"/")
         self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements.rdf"))
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-bio.pdf")
@@ -361,7 +361,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
         expect = (
-            [ "Research Object %s:"%rodir
+            [ "Research Object %s:"%(rodir+"/")
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
             , "Unsatisfied SHOULD requirements:"
             , "  Aggregates resource %s"%(rometa.getComponentUri("docs/missing.css"))

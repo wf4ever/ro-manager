@@ -142,11 +142,12 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     manifest and metadata directory.
     """
     # Determine name for annotation body
+    log.debug("createAnnotationGraphBody: %s, %s"%(ro_dir, rofile))
     annotation_filename = None
     name_index = 0
     name_suffix = os.path.basename(rofile)
     if name_suffix in [".",""]:
-        name_suffix = os.path.basename(ro_dir)
+        name_suffix = os.path.basename(os.path.normpath(ro_dir))
     today = datetime.date.today()
     while annotation_filename == None:
         name_index += 1

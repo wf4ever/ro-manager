@@ -65,7 +65,7 @@ def evaluate(rometa, minim, target, purpose):
     rouri        = rometa.getRoUri()
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
-    constraint   = ro_minim.getConstraint(minimgraph, rometa.getRoDir(), target, purpose)
+    constraint   = ro_minim.getConstraint(minimgraph, rometa.getRoFilename(), target, purpose)
     assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
     model        = ro_minim.getModel(minimgraph, constraint['model'])
     assert model != None, "Missing minim:Model for target %s, purpose %s"%(target, purpose)
@@ -105,7 +105,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'missingShould':  []
         , 'missingMay':     []
         , 'satisfied':      []
-        , 'rodir':          rometa.getRoDir()
+        , 'rodir':          rometa.getRoFilename()
         , 'rouri':          rouri
         , 'minimuri':       minimuri
         , 'target':         target

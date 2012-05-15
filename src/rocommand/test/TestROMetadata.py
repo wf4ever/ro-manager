@@ -534,17 +534,6 @@ class TestROMetadata(TestROSupport.TestROSupport):
 
     # URI tests
 
-    def testGetFileUri(self):
-        def testUri(filestring, uristring):
-            romd  = ro_metadata.ro_metadata(ro_config, "", dummysetupfortest=True)
-            self.assertEquals(romd.getFileUri(filestring), rdflib.URIRef(uristring))
-            return
-        testUri("/example/a/b.txt",         "file:///example/a/b.txt")
-        testUri("a/b.txt",                  "file://%s/a/b.txt"%(cwd))
-        testUri("/example/ro/dir/a/b/d/",   "file:///example/ro/dir/a/b/d/")
-        testUri("a/b/d/",                   "file://%s/a/b/d/"%(cwd))
-        return
-
     def testGetRoUri(self):
         def testUri(rodir, uristring):
             romd  = ro_metadata.ro_metadata(ro_config, rodir, dummysetupfortest=True)
@@ -699,7 +688,6 @@ def getTestSuite(select="unit"):
             , "testAddGetAllAnnotations"
             , "testAddGetAnnotationValues"
             , "testQueryAnnotations"
-            , "testGetFileUri"
             , "testGetRoUri"
             , "testGetComponentUri"
             , "testGetComponentUriRel"
