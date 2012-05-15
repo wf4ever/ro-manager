@@ -285,6 +285,7 @@ class ro_metadata(object):
         for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
             ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             self.readAnnotationBody(ann_uri, self.roannotations)
+        ### log.debug("queryAnnotations graph:\n"+self.roannotations.serialize())
         # Run query against assembled annotation graph
         resp = self.roannotations.query(query)
         if resp.type == 'ASK':

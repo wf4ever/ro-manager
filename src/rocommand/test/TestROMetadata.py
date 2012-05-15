@@ -576,6 +576,58 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testQueryAnnotationsRemote(self):
+        romd  = ro_metadata.ro_metadata(
+            ro_config, 
+            "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+            )
+        # Query the file anotations
+        queryprefixes = """
+            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX ro:         <http://purl.org/wf4ever/ro#>
+            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
+            PREFIX ao:         <http://purl.org/ao/>
+            PREFIX dcterms:    <http://purl.org/dc/terms/>
+            PREFIX roterms:    <http://ro.example.org/ro/terms/>
+            """
+        query = (queryprefixes +
+            """
+            ASK
+            {
+                ?ro rdf:type ro:ResearchObject ;
+                    dcterms:creator "Test user" ;
+                    ore:aggregates ?file .
+            }
+            """)
+        resp = romd.queryAnnotations(query)
+        self.assertTrue(resp, "Expected 'True' result for query: %s")
+        query = (queryprefixes +
+            """
+            ASK
+            {
+                ?ro rdf:type ro:ResearchObject ;
+                    dcterms:creator "Not user" .
+            }
+            """)
+        resp = romd.queryAnnotations(query)
+        self.assertFalse(resp, "Expected 'False' result for query: %s")
+        query = (queryprefixes +
+            """
+            SELECT * WHERE
+            {
+                ?ro rdf:type ro:ResearchObject ;
+                    dcterms:creator "Test user" ;
+                    ore:aggregates ?file .
+            }
+            """)
+        rouri       = romd.getRoUri()
+        resourceuri = romd.getComponentUri("README")
+        resp = romd.queryAnnotations(query)
+        self.assertEqual(resp[0]['ro'],   rouri)
+        aggs = [ respn['file'] for respn in resp ]
+        self.assertIn( resourceuri, aggs, repr(aggs))
+        return
+
     # URI tests
 
     def testGetRoUri(self):
@@ -748,6 +800,7 @@ def getTestSuite(select="unit"):
             ],
         "pending":
             [ "testPending"
+            , "testQueryAnnotationsRemote"
             ]
         }
     return TestUtils.getTestSuite(TestROMetadata, testdict, select=select)
