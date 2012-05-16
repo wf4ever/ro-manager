@@ -2,6 +2,7 @@ import sys
 import os
 import logging
 import StringIO
+import json
 
 import rdflib
 
@@ -116,14 +117,14 @@ def real_evaluate(request):
     graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
     graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
     graph.bind("minim",  "http://purl.org/minim/minim#")
-    rouri = rdflib.URIRef(eval_result['rouri'])
-    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(eval_result['constrainturi'])) )
-    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(eval_result['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     rdflib.URIRef(eval_result['target']))        )
-    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(eval_result['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(eval_result['modeluri']))      )
-    for level in eval_result['summary']:
-        graph.add( (rouri, level, rdflib.URIRef(eval_result['modeluri'])) )
+    rouri = rdflib.URIRef(evalresult['rouri'])
+    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
+    graph.add( (rouri, MINIM.testedTarget,     rdflib.URIRef(evalresult['target']))        )
+    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
+    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
+    for level in evalresult['summary']:
+        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all rules tested...
     def addRulesDetail(results, satlevel):
         for (rule, binding) in results:
@@ -135,10 +136,10 @@ def real_evaluate(request):
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-    addRulesDetail(eval_result['satisfied'], MINIM.satisfied)
-    addRulesDetail(eval_result['missingMay'], MINIM.missingMay)
-    addRulesDetail(eval_result['missingShould'], MINIM.missingShould)
-    addRulesDetail(eval_result['missingMust'], MINIM.missingMust)
+    addRulesDetail(evalresult['satisfied'], MINIM.satisfied)
+    addRulesDetail(evalresult['missingMay'], MINIM.missingMay)
+    addRulesDetail(evalresult['missingShould'], MINIM.missingShould)
+    addRulesDetail(evalresult['missingMust'], MINIM.missingMust)
     return graph
 
 def fake_evaluate(request):
