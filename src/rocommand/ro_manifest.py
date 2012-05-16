@@ -117,8 +117,14 @@ def getUriFile(uri):
         uri = uri[len(filebase):]
     return uri
 
-def getRoUri(ro_dir):
+def old_getRoUri(ro_dir):
     return getFileUri(os.path.abspath(ro_dir)+"/")
+
+def getRoUri(roref):
+    base = "file://"+os.path.abspath(os.getcwd())+"/"
+    uri  = urlparse.urljoin(base, roref)
+    if not uri.endswith("/"): uri += "/" 
+    return rdflib.URIRef(uri)
 
 def getComponentUri(ro_dir, path):
     #log.debug("getComponentUri: ro_dir %s, path %s"%(ro_dir, path))

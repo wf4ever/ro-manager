@@ -62,8 +62,17 @@ def getConstraints(minimgraph):
         yield c
     return
 
-def getConstraint(minimgraph, rodir, target_string, purpose_regex_string):
+def old_getConstraint(minimgraph, rodir, target_string, purpose_regex_string):
     target  = target_string and ro_manifest.getComponentUri(rodir, target_string)
+    purpose = purpose_regex_string and re.compile(purpose_regex_string)
+    for c in getConstraints(minimgraph):
+        if ( ( not target  or target == c['target'] ) and
+             ( not purpose or purpose.match(c['purpose']) ) ):
+            return c
+    return None
+
+def getConstraint(minimgraph, roref, target_ref, purpose_regex_string):
+    target  = target_ref and ro_manifest.getComponentUri(roref, target_ref)
     purpose = purpose_regex_string and re.compile(purpose_regex_string)
     for c in getConstraints(minimgraph):
         if ( ( not target  or target == c['target'] ) and

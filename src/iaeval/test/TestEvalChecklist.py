@@ -225,7 +225,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMust'],    [] )
         self.assertEquals(evalresult['missingShould'],  [] )
         self.assertEquals(evalresult['missingMay'],     [(missing_may,{})] )
-        self.assertEquals(evalresult['rodir'],          rodir+"/")
         self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements.rdf"))
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-bio.pdf")
@@ -307,7 +306,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         ro_eval_minim.format(self.eval_result, options, stream)
         outtxt = stream.getvalue()
         expect = (
-            "Research Object %s:\n"%rodir +
+            "Research Object file://%s/:\n"%rodir +
             "Nominally complete for %(purpose)s of resource %(target)s\n"%(self.eval_result)
             )
         self.assertEquals(outtxt, expect)
@@ -319,7 +318,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         stream  = StringIO.StringIO()
         ro_eval_minim.format(self.eval_result, options, stream)
         expect = (
-            [ "Research Object %s:"%rodir
+            [ "Research Object file://%s/:"%rodir
             , "Nominally complete for %(purpose)s of resource %(target)s"%(self.eval_result)
             , "Unsatisfied MUST requirements:"
             , "  Aggregates resource %s"%(self.eval_result['missingMust'][0][0]['datarule']['aggregates'])
@@ -361,7 +360,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
         expect = (
-            [ "Research Object %s:"%(rodir+"/")
+            [ "Research Object file://%s/:"%(rodir)
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
             , "Unsatisfied SHOULD requirements:"
             , "  Aggregates resource %s"%(rometa.getComponentUri("docs/missing.css"))
@@ -380,6 +379,38 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
     # @@ Add test cases for software environment rule pass/faiul, based on previous
 
     # @@ Add test cases for content match rule pass/fail, based on previous
+
+    # Test evaluation of remote resource
+
+    def testEvaluateChecklistRemote(self):
+        # Config remote testing
+        remotehost   = "http://andros.zoo.ox.ac.uk"
+        remoterobase = "/workspace/wf4ever-ro-catalogue/v0.1/"
+        remoteroname = "simple-requirements/"
+        remoteminim  = "simple-requirements-minim.rdf"
+        #self.setupConfig()
+        rouri    = remotehost+remoterobase+remoteroname
+        rometa   = ro_metadata(ro_config, rouri)
+        minimuri = rometa.getComponentUri(remoteminim)
+        # create rometa object
+        rometa = ro_metadata(ro_config, rouri)
+        # invoke evaluation service
+        #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
+        evalresult = ro_eval_minim.evaluate(rometa, minimuri, rouri, "Runnable")
+        self.assertEqual(evalresult['rouri'],         rdflib.URIRef(rouri))
+        self.assertEqual(evalresult['minimuri'],      rdflib.URIRef(minimuri))
+        self.assertEqual(evalresult['target'],        rouri)
+        self.assertEqual(evalresult['purpose'],       "Runnable")
+        self.assertEqual(evalresult['constrainturi'], rometa.getComponentUri("simple-requirements-minim.rdf#runnable_RO"))
+        self.assertEqual(evalresult['modeluri'],      rometa.getComponentUri("simple-requirements-minim.rdf#runnable_RO_model"))
+        self.assertIn(MINIM.fullySatisfies,    evalresult['summary'])
+        self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEqual(len(evalresult['missingMust']),   0)
+        self.assertEqual(len(evalresult['missingShould']), 0)
+        self.assertEqual(len(evalresult['missingMay']),    0)
+        self.assertEqual(len(evalresult['satisfied']),     4)
+        return
 
     # Sentinel/placeholder tests
 
@@ -429,6 +460,7 @@ def getTestSuite(select="unit"):
             ],
         "pending":
             [ "testPending"
+            , "testEvaluateChecklistRemote"
             ]
         }
     return TestUtils.getTestSuite(TestEvalChecklist, testdict, select=select)

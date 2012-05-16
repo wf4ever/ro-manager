@@ -45,6 +45,13 @@ from iaeval.ro_minim import MINIM
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
 
+# Config remote testing
+remotehost   = "http://andros.zoo.ox.ac.uk"
+remoterobase = "/workspace/wf4ever-ro-catalogue/v0.1/"
+remoteroname = "simple-requirements/"
+remoteminim  = "simple-requirements-minim.rdf"
+
+# Test suite
 class TestMinimAccess(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
@@ -140,6 +147,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.assertEquals(c['uri'],      constraint)
         return
 
+
     def testGetModels(self):
         self.setupConfig()
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
@@ -228,6 +236,148 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         self.assertTrue(r3_found, "Expected requirement(3) not found in minim")
         return
 
+    # Remote access tests
+
+    def testMinimReadRemote(self):
+        """
+        Basic test that remote Minim test file can be read
+        """
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        target     = rouri
+        g = ro_minim.readMinimGraph(minimbase)
+        expected_minim = (
+            [ (target,     MINIM.hasConstraint, constraint                 )
+            , (constraint, MINIM.forPurpose,    rdflib.Literal('Runnable') )
+            , (constraint, MINIM.onResource,    rouri                      )
+            , (constraint, MINIM.toModel,       model                      )
+            , (model,      RDF.type,            MINIM.Model                )
+            ])
+        self.checkTargetGraph(g, expected_minim, msg="Not found in Minim")
+        return
+
+    def testGetConstraintsRemote(self):
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        # Read Minim as graph, scan constraints and look for expected value
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        constraints = ro_minim.getConstraints(minimgraph)
+        expected_found = False
+        for c in constraints:
+            if ( c['target']   == rouri                      and
+                 c['purpose']  == rdflib.Literal("Runnable") and
+                 c['resource'] == rouri                      and
+                 c['model']    == model                      and
+                 c['uri']      == constraint ) :
+                expected_found = True
+                break
+        self.assertTrue(expected_found, "Expected constraint not found in minim")
+        return
+
+    def testGetConstraintRemote(self):
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        c = ro_minim.getConstraint(minimgraph, rouri,
+            ".",
+            "Runnable")
+        self.assertEquals(c['target'],   rouri)
+        self.assertEquals(c['purpose'],  rdflib.Literal("Runnable"))
+        self.assertEquals(c['resource'], rouri)
+        self.assertEquals(c['model'],    model)
+        self.assertEquals(c['uri'],      constraint)
+        return
+
+    def testGetModelsRemote(self):
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        models     = ro_minim.getModels(minimgraph)
+        expected_found = False
+        for m in models:
+            if ( m['label']  == rdflib.Literal("Runnable RO") and
+                 m['uri']    == model ) :
+                expected_found = True
+                break
+        self.assertTrue(expected_found, "Expected model not found in minim")
+        return
+    
+    def testGetModelRemote(self):
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        m = ro_minim.getModel(minimgraph, model)
+        self.assertEquals(m['label'], rdflib.Literal("Runnable RO"))
+        self.assertEquals(m['uri'],   model)
+        return
+
+    def testGetRequirementsRemote(self):
+        def compare_reqs(req_expect, req_found):
+            for k in req_expect:
+                if not k in req_found:
+                    log.debug("- not found: %s"%(k))
+                    return False
+                elif isinstance(req_expect[k], dict) and isinstance(req_found[k], dict):
+                    if not compare_reqs(req_expect[k], req_found[k]): return False
+                elif req_found[k] != req_expect[k]:
+                    log.debug("- not found: %s: %s != %s "%(k,req_expect[k],req_found[k]))
+                    return False
+            return True
+        rouri      = rdflib.URIRef(remotehost+remoterobase+remoteroname)
+        minimbase  = rdflib.URIRef(remotehost+remoterobase+remoteroname+remoteminim)
+        constraint = ro_minim.getElementUri(minimbase, "#runnable_RO")
+        model      = ro_minim.getElementUri(minimbase, "#runnable_RO_model")
+        minimgraph = ro_minim.readMinimGraph(minimbase)
+        requirements = ro_minim.getRequirements(minimgraph, model)
+        expected_found = False
+        r1 = (
+            { 'level': "MUST"
+            , 'label': None
+            , 'softwarerule':
+              { 'command':  rdflib.Literal("lpod-show.py --version")
+              , 'response': rdflib.Literal("0.9.3")
+              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/lpod-show")
+              , 'show': rdflib.term.Literal('lpOD command %(command)s returns %(response)s')
+              , 'showfail': None
+              , 'showpass': None
+              }
+            , 'model': model
+            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/lpod-show") 
+            })
+        r2 = (
+            { 'level': 'MUST'
+            , 'label': None
+            , 'contentmatchrule':
+              { 'exists':   rdflib.term.Literal('\n          ?wf rdf:type wfdesc:Workflow .\n        ')
+              , 'show':     None
+              , 'template': None
+              , 'forall':   None
+              , 'derives':  ro_minim.getElementUri(minimbase, "#isPresent/workflow-instance")
+              , 'showfail': rdflib.term.Literal('No workflow instance or template found')
+              , 'showpass': rdflib.term.Literal('Workflow instance or template found')
+              }
+            , 'model': model
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/workflow-instance")
+            })
+        r1_found = r2_found = False
+        for r in requirements:
+            log.debug("requirement: %s"%(repr(r)))
+            if compare_reqs(r1, r): r1_found = True
+            if compare_reqs(r2, r): r2_found = True
+        self.assertTrue(r1_found, "Expected requirement(1) not found in minim")
+        self.assertTrue(r2_found, "Expected requirement(2) not found in minim")
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -275,6 +425,12 @@ def getTestSuite(select="unit"):
             ],
         "pending":
             [ "testPending"
+            , "testMinimReadRemote"
+            , "testGetConstraintsRemote"
+            , "testGetConstraintRemote"
+            , "testGetModelsRemote"
+            , "testGetModelRemote"
+            , "testGetRequirementsRemote"
             ]
         }
     return TestUtils.getTestSuite(TestMinimAccess, testdict, select=select)
