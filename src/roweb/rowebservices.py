@@ -12,11 +12,18 @@ from wsgiref.simple_server import make_server
 
 if __name__ == '__main__':
     sys.path.append("..")
+    logging.basicConfig()
 
 from uritemplate import uritemplate
 
-logging.basicConfig()
-log = logging.getLogger(__file__)
+from rocommand.ro_namespaces import RDF, RDFS
+from rocommand.ro_annotation import annotationTypes
+from rocommand.ro_metadata   import ro_metadata
+
+from iaeval          import ro_eval_minim
+from iaeval.ro_minim import MINIM, RESULT
+
+log  = logging.getLogger(__file__)
 here = os.path.dirname(os.path.abspath(__file__))
 
 @view_config(route_name='hello', request_method='GET')
@@ -90,15 +97,51 @@ def service_html(request):
     return Response(sd, content_type="text/html", vary=['accept'])
 
 def real_evaluate(request):
-    graph = rdflib.Graph()
     # isolate parameters
+    RO      = request.params["RO"]
+    minim   = request.params["minim"]
+    target  = request.params.get("target",".")
+    purpose = request.params["purpose"]
     # create rometa object
+    ro_config = {
+        "annotationTypes": annotationTypes
+        }
+    rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
     #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
+    evalresult = ro_eval_minim.evaluate(rometa, minim, target, purpose)
+    log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
+    # Assemble graph of results
+    graph = rdflib.Graph()
+    graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
+    graph.bind("minim",  "http://purl.org/minim/minim#")
+    rouri = rdflib.URIRef(eval_result['rouri'])
+    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(eval_result['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(eval_result['purpose']))      )
+    graph.add( (rouri, MINIM.testedTarget,     rdflib.URIRef(eval_result['target']))        )
+    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(eval_result['minimuri']))      )
+    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(eval_result['modeluri']))      )
+    for level in eval_result['summary']:
+        graph.add( (rouri, level, rdflib.URIRef(eval_result['modeluri'])) )
+    # Add details for all rules tested...
+    def addRulesDetail(results, satlevel):
+        for (rule, binding) in results:
+            b = rdflib.BNode()
+            graph.add( (rouri, satlevel, b) )
+            graph.add( (b, MINIM.tryRule, rule) )
+            for k in binding:
+                b2 = rdflib.BNode()
+                graph.add( (b,  RESULT.binding,  b2) )
+                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
+                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+    addRulesDetail(eval_result['satisfied'], MINIM.satisfied)
+    addRulesDetail(eval_result['missingMay'], MINIM.missingMay)
+    addRulesDetail(eval_result['missingShould'], MINIM.missingShould)
+    addRulesDetail(eval_result['missingMust'], MINIM.missingMust)
     return graph
 
-
-def evaluate(request):
+def fake_evaluate(request):
     graph = rdflib.Graph()
     rgstr = StringIO.StringIO(
         """@prefix rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
@@ -127,6 +170,27 @@ def evaluate(request):
         """)
     graph.parse(rgstr, format="turtle")
     return graph
+
+evaluate = real_evaluate
+
+@view_config(route_name='evaluate', request_method='GET', accept='text/html')
+def evaluate_html(request):
+    r1 = request.params
+    # NestedMultiDict([(u'RO', u'http://sandbox.example.org/ROs/myro'), 
+    #                  (u'minim', u'http://another.example.com/minim/repeatable.rdf'),
+    #                  (u'purpose', u'Runnable')])
+    r2 = ("""<h1>Evaluate HTML</h1>
+        <h2>Multidict</h2>
+        <pre>
+        """+repr(r1)+"""
+        </pre>
+        <h2>Values</h2>
+        <p>RO:      """+request.params["RO"]+"""</p>
+        <p>minim:   """+request.params["minim"]+"""</p>
+        <p>target:  """+request.params.get("target",".")+"""</p>
+        <p>purpose: """+request.params["purpose"]+"""</p>
+        """)
+    return Response(r2, content_type="text/html", vary=['accept'])
 
 @view_config(route_name='evaluate', request_method='GET', accept='text/turtle')
 def evaluate_turtle(request):

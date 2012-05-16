@@ -17,9 +17,8 @@ from rocommand import ro_manifest
 from rocommand import ro_namespaces
 from rocommand.ro_namespaces import RDF, RDFS
 
-minim   = rdflib.URIRef("http://purl.org/minim/minim#")
-
-MINIM   = ro_namespaces.makeNamespace(minim,
+minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
+MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             [ "Constraint", "Model", "Requirement", "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
             , "hasConstraint", "forPurpose", "onResource", "toModel"
@@ -30,6 +29,11 @@ MINIM   = ro_namespaces.makeNamespace(minim,
             , "command", "response"
             , "forall", "exists", "aggregatesTemplate"
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
+            ])
+
+resultnsuri = rdflib.URIRef("http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
+RESULT      = ro_namespaces.makeNamespace(resultnsuri,
+            [ "binding", "variable", "value"
             ])
 
 def getElementUri(minimbase, elemname):
