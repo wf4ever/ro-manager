@@ -22,5 +22,5 @@ fi
 echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
 curl -H "accept: text/turtle"  "http://$HOST/evaluate/checklist?RO=http%3A%2F%2Fandros.zoo.ox.ac.uk%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fsimple-requirements%2F&minim=http%3A%2F%2Fandros.zoo.ox.ac.uk%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fsimple-requirements%2Fsimple-requirements-minim.rdf&purpose=Runnable"
 echo "==== Request evaluation result with parameters, as RDF/XML ===="
-curl -H "accept: application/rdf+xml"  "http://andros.zoo.ox.ac.uk:8080/evaluate/checklist?RO=http%3A%2F%2Fsandbox.example.org%2FROs%2Fmyro&minim=http%3A%2F%2Fanother.example.com%2Fminim%2Frepeatable.rdf&purpose=Runnable"
+curl -H "accept: application/rdf+xml"  "http://$HOST/evaluate/checklist?RO=http%3A%2F%2Fandros.zoo.ox.ac.uk%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fsimple-requirements%2F&minim=http%3A%2F%2Fandros.zoo.ox.ac.uk%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fsimple-requirements%2Fsimple-requirements-minim.rdf&purpose=Runnable"
 
