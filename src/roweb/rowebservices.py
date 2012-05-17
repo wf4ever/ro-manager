@@ -120,7 +120,7 @@ def real_evaluate(request):
     rouri = rdflib.URIRef(evalresult['rouri'])
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     rdflib.URIRef(evalresult['target']))        )
+    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))        )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     for level in evalresult['summary']:
