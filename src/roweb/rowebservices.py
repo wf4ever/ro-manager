@@ -126,20 +126,20 @@ def real_evaluate(request):
     for level in evalresult['summary']:
         graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all rules tested...
-    def addRulesDetail(results, satlevel):
-        for (rule, binding) in results:
+    def addRequirementsDetail(results, satlevel):
+        for (req, binding) in results:
             b = rdflib.BNode()
             graph.add( (rouri, satlevel, b) )
-            graph.add( (b, MINIM.tryRule, rule) )
+            graph.add( (b, MINIM.tryRequirement, req['uri']) )
             for k in binding:
                 b2 = rdflib.BNode()
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-    addRulesDetail(evalresult['satisfied'], MINIM.satisfied)
-    addRulesDetail(evalresult['missingMay'], MINIM.missingMay)
-    addRulesDetail(evalresult['missingShould'], MINIM.missingShould)
-    addRulesDetail(evalresult['missingMust'], MINIM.missingMust)
+    addRequirementsDetail(evalresult['satisfied'], MINIM.satisfied)
+    addRequirementsDetail(evalresult['missingMay'], MINIM.missingMay)
+    addRequirementsDetail(evalresult['missingShould'], MINIM.missingShould)
+    addRequirementsDetail(evalresult['missingMust'], MINIM.missingMust)
     return graph
 
 def fake_evaluate(request):
@@ -159,10 +159,10 @@ def fake_evaluate(request):
           # minim:missingShould    ... (none)
           # minim:missingMay       ... (none)
           minim:satisfied
-            [ minim:tryRule <http://another.example.com/minim/repeatable.rdf#environment-software/lpod-show> ],
-            [ minim:tryRule <http://another.example.com/minim/repeatable.rdf#environment-software/python> ],
-            [ minim:tryRule <http://another.example.com/minim/repeatable.rdf#isPresent/workflow-instance>],
-            [ minim:tryRule <http://another.example.com/minim/repeatable.rdf#isPresent/workflow-inputfiles> ;
+            [ minim:tryRequirement <http://another.example.com/minim/repeatable.rdf#environment-software/lpod-show> ],
+            [ minim:tryRequirement <http://another.example.com/minim/repeatable.rdf#environment-software/python> ],
+            [ minim:tryRequirement <http://another.example.com/minim/repeatable.rdf#isPresent/workflow-instance>],
+            [ minim:tryRequirement <http://another.example.com/minim/repeatable.rdf#isPresent/workflow-inputfiles> ;
               result:binding
                 [ result:variable "wf" ; result:value "http://sandbox.example.org/ROs/myro/docs/mkjson.sh" ],
                 [ result:variable "wi" ; result:value "GZZzLCkR38" ],
