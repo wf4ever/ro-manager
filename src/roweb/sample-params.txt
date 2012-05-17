@@ -1,0 +1,9 @@
+{
+  "template": "/evaluate/checklist{?RO,minim,target,purpose}",
+  "params":
+  {
+    "RO": "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/",
+    "minim": "simple-requirements-minim.rdf",
+    "purpose": "Runnable"
+  }
+}
