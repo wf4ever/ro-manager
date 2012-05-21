@@ -376,7 +376,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
-    # @@ Add test cases for software environment rule pass/faiul, based on previous
+    # @@ Add test cases for software environment rule pass/fail, based on previous
 
     # @@ Add test cases for content match rule pass/fail, based on previous
 
@@ -407,6 +407,36 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
         self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
         self.assertEqual(len(evalresult['missingMust']),   0)
+        self.assertEqual(len(evalresult['missingShould']), 0)
+        self.assertEqual(len(evalresult['missingMay']),    0)
+        self.assertEqual(len(evalresult['satisfied']),     4)
+        return
+
+    def testEvaluateChecklistRemoteFail(self):
+        # Config remote testing
+        remotehost   = "http://andros.zoo.ox.ac.uk"
+        remoterobase = "/aleix/ro-catalogue/v0.1/"
+        remoteroname = "wf74-repeat-fail/"
+        remoteminim  = "simple-requirements-minim.rdf"
+        #self.setupConfig()
+        rouri    = remotehost+remoterobase+remoteroname
+        rometa   = ro_metadata(ro_config, rouri)
+        minimuri = rometa.getComponentUri(remoteminim)
+        # create rometa object
+        rometa = ro_metadata(ro_config, rouri)
+        # invoke evaluation service
+        #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
+        evalresult = ro_eval_minim.evaluate(rometa, minimuri, rouri, "Repeatable")
+        self.assertEqual(evalresult['rouri'],         rdflib.URIRef(rouri))
+        self.assertEqual(evalresult['minimuri'],      rdflib.URIRef(minimuri))
+        self.assertEqual(evalresult['target'],        rouri)
+        self.assertEqual(evalresult['purpose'],       "Repeatable")
+        self.assertEqual(evalresult['constrainturi'], rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO"))
+        self.assertEqual(evalresult['modeluri'],      rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO_model"))
+        self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertNotIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEqual(len(evalresult['missingMust']),   1)
         self.assertEqual(len(evalresult['missingShould']), 0)
         self.assertEqual(len(evalresult['missingMay']),    0)
         self.assertEqual(len(evalresult['satisfied']),     4)

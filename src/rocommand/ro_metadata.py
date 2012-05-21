@@ -143,7 +143,7 @@ class ro_metadata(object):
         annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
                         (e.g. as returned by createAnnotationBody method).
         """
-        log.debug("readAnnotationBody %s"%(annotationref))
+        ###log.debug("readAnnotationBody %s"%(annotationref))
         annotationuri    = self.getComponentUri(annotationref)
         annotationformat = "xml"
         # Look at file extension to figure format
@@ -155,9 +155,9 @@ class ro_metadata(object):
             anngr = rdflib.Graph()
         try:
             anngr.parse(annotationuri, format=annotationformat)
-            log.debug("readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
+            ###log.debug("readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
         except IOError, e:
-            log.debug("readAnnotationBody "+repr(e))
+            log.debug("readAnnotationBody "+annotationref+", "+repr(e))
             anngr = None
         return anngr
 

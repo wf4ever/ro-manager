@@ -91,6 +91,8 @@ def evaluate(rometa, minim, target, purpose):
         elif 'contentmatchrule' in r:
             (satisfied, bindings) = evalContentMatch(rometa, r['contentmatchrule'])
             reqeval.append((r,satisfied,bindings))
+            log.debug("- ContentMatch: rule %s, bindings %s, satisfied %s"%
+                      (repr(r['contentmatchrule']), repr(bindings), "OK" if satisfied else "Fail"))
         else:
             raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
     # Evaluate overall satisfaction of model
@@ -198,6 +200,7 @@ def evalContentMatch(rometa, rule):
             ###print "...........: fileuri %s"%(repr(fileuri))
             ###print "...........: RO uri  %s"%(repr(rometa.getRoUri()))
             # Test if URI is aggregated
+            log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
             satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
             ###print "...........: satisfied %s"%(satisfied)
             if not satisfied: break
