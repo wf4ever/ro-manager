@@ -131,7 +131,7 @@ def evaluate(rometa, minim, target, purpose):
                 eval_result['missingMay'].append((r, binding))
                 sat_levels['MAY'] = None
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
-    return eval_result
+    return (minimgraph, eval_result)
 
 def evalContentMatch(rometa, rule):
     querytemplate = """

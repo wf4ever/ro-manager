@@ -544,7 +544,7 @@ def evaluate(progname, configbase, options, args):
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
         rometa = ro_metadata(ro_config, ro_dir)
-        evalresult = ro_eval_minim.evaluate(rometa, 
+        (minimgraph, evalresult) = ro_eval_minim.evaluate(rometa, 
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
         if options.verbose:
             print "== Evaluation result =="

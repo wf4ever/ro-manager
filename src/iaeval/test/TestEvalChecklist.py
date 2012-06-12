@@ -102,7 +102,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
-        evalresult = ro_eval_minim.evaluate(rometa,
+        (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-astro.csv",          # Target resource
             "create")                                   # Purpose
@@ -133,7 +133,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingMustRequirement")
-        evalresult = ro_eval_minim.evaluate(rometa,
+        (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.csv",            # Target resource
             "create")                                   # Purpose
@@ -168,7 +168,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
-        evalresult = ro_eval_minim.evaluate(rometa,
+        (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.html",           # Target resource
             "create")                                   # Purpose
@@ -203,7 +203,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri   = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
-        evalresult = ro_eval_minim.evaluate(rometa,
+        (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.pdf",            # Target resource
             "create")                                   # Purpose

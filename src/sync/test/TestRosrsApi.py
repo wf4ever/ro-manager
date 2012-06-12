@@ -99,12 +99,12 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testROCreation"
-            , "testGetRoAsZip"
-            , "testGetRos"
             ],
         "component":
             [ "testComponents"
+            , "testROCreation"
+            , "testGetRoAsZip"
+            , "testGetRos"
             ],
         "integration":
             [ "testIntegration"

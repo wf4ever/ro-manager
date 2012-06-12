@@ -142,12 +142,12 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testSyncRecources"
-            , "testSyncWorkspace"
-            , "testSaveLoadRegistries"
             ],
         "component":
             [ "testComponents"
+            , "testSyncRecources"
+            , "testSyncWorkspace"
+            , "testSaveLoadRegistries"
             ],
         "integration":
             [ "testIntegration"

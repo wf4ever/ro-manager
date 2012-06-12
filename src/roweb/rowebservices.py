@@ -110,10 +110,10 @@ def real_evaluate(request):
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
     #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
-    evalresult = ro_eval_minim.evaluate(rometa, minim, target, purpose)
+    (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
-    graph = rdflib.Graph()
+    #graph = rdflib.Graph() // start with minim graph
     graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
     graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
     graph.bind("minim",  "http://purl.org/minim/minim#")
