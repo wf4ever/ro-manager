@@ -2,8 +2,8 @@
   "template": "/evaluate/checklist{?RO,minim,target,purpose}",
   "params":
   {
-    "RO": "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/",
+    "RO": "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/wf74-repeat-fail",
     "minim": "simple-requirements-minim.rdf",
-    "purpose": "Runnable"
+    "purpose": "Repeatable"
   }
 }
