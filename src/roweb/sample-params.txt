@@ -1,5 +1,5 @@
 {
-  "template": "/evaluate/checklist{?RO,minim,target,purpose}",
+  "template": "asq: Could not read RDF data (use -r <file> or supply RDF on stdin)",
   "params":
   {
     "RO": "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/wf74-repeat-fail",

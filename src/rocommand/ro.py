@@ -25,6 +25,13 @@ import ro_utils
 def run(configbase, options, args):
     status = 0
     progname = ro_utils.progname(args)
+    if len(args) < 2:
+        print "%s No command given"%(progname)
+        print "Enter '%s help' to show a list of commands"
+        status = 2
+    else:
+        status = ro_command.check_command_args(progname, options, args)
+    if status != 0: return status
     if args[1] == "help":
         status = ro_command.help(progname, args)
     elif args[1] == "config":

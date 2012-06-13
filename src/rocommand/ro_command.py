@@ -79,10 +79,67 @@ def ro_root_directory(cmdname, ro_config, rodir):
            (cmdname, ro_dir))
     return None
 
+# Argumemnt count checking and usage summary
+
+def argminmax(min, max):
+    return (lambda options,args: (len(args) >= min and (max == 0 or len(args) <= max)))
+
+ro_command_usage = (
+    [ ( ["help"],            argminmax(0,0), 
+          ["help"] )
+    , ( ["config"],          argminmax(0,0), 
+          ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"] )
+    , ( ["create"],          argminmax(0,0),
+          ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"] )
+    , ( ["add"],             argminmax(0,0),
+          ["add [ -d <dir> ] [ -a ] [ file | directory ]"] )
+    , ( ["status"],          argminmax(0,0),
+          ["status [ -d <dir> ]"] )
+    , ( ["list","ls"],       argminmax(0,0),
+          ["list [ -d <dir> ]"
+          ,"ls   [ -d <dir> ]"
+          ] )
+    , ( ["annotate"],        (lambda options,args: (len(args) in [4,5]) or (len(args) == 3 and options.graph)), 
+          ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
+          ,"annotate [ -d <dir> ] <file> -g <RDF-graph>"
+          ] )
+    , ( ["annotations"],     argminmax(0,0),
+          ["annotations [ <file> | -d <dir> ]"] )
+    , ( ["push"],            argminmax(0,0),
+          ["push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
+    , ( ["checkout"],        argminmax(0,0),
+          ["checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
+    , ( ["evaluate","eval"], argminmax(0,0),
+          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"] )
+    ])
+
+def check_command_args(progname, options, args):
+    # Check argument count for known command
+    for (cmds, test, usages) in ro_command_usage:
+        if args[1] in cmds:
+            if not test(options, args):
+                print ("%s %s: wrong number of arguments provided"%
+                       (progname,args[1]))
+                print "Usage:"
+                for u in usages:
+                    print "  %s %s"%(progname,u)
+                return 2
+            return 0
+    # Unknown command - show usage for all commands
+    print "%s Unrecognized command (%s)"%(progname, args[1])
+    print "Available commands are:"
+    print ""
+    for (cmds, test, usages) in ro_command_usage:
+        for u in usages:
+            print "  %s %s"%(progname,u)
+    return 2
+
 def help(progname, args):
     """
     Display ro command help.  See also ro --help
     """
+    # @@TODO: replace with logic as above
+    # @@TODO remove argument count checks from individual command functions
     helptext = (
         [ "Available commands are:"
         , ""
