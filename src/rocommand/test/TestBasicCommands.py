@@ -79,7 +79,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
                 ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, 
                 ["ro", "nosuchcommand"])
             self.assertEqual(status, 2)
-        self.assertEqual(self.outstr.getvalue().count("unrecognized"), 1)
+        self.assertEqual(self.outstr.getvalue().count("Unrecognized"), 1)
         self.assertEqual(self.outstr.getvalue().count("nosuchcommand"), 1)
         return
 

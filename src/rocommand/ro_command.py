@@ -126,7 +126,7 @@ def check_command_args(progname, options, args):
                 return 2
             return 0
     # Unknown command - show usage for all commands
-    print "%s Unrecognized command (%s)"%(progname, args[1])
+    print "%s: Unrecognized command (%s)"%(progname, args[1])
     print "Available commands are:"
     print ""
     for (cmds, test, usages) in ro_command_usage:
