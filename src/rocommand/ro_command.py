@@ -85,31 +85,31 @@ def argminmax(min, max):
     return (lambda options,args: (len(args) >= min and (max == 0 or len(args) <= max)))
 
 ro_command_usage = (
-    [ ( ["help"],            argminmax(0,0), 
+    [ ( ["help"],            argminmax(2,2), 
           ["help"] )
-    , ( ["config"],          argminmax(0,0), 
+    , ( ["config"],          argminmax(2,2), 
           ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"] )
-    , ( ["create"],          argminmax(0,0),
+    , ( ["create"],          argminmax(3,3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"] )
-    , ( ["add"],             argminmax(0,0),
+    , ( ["add"],             argminmax(2,3),
           ["add [ -d <dir> ] [ -a ] [ file | directory ]"] )
-    , ( ["status"],          argminmax(0,0),
+    , ( ["status"],          argminmax(2,2),
           ["status [ -d <dir> ]"] )
-    , ( ["list","ls"],       argminmax(0,0),
+    , ( ["list","ls"],       argminmax(2,2),
           ["list [ -d <dir> ]"
           ,"ls   [ -d <dir> ]"
           ] )
-    , ( ["annotate"],        (lambda options,args: (len(args) in [4,5]) or (len(args) == 3 and options.graph)), 
+    , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])), 
           ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
           ,"annotate [ -d <dir> ] <file> -g <RDF-graph>"
           ] )
-    , ( ["annotations"],     argminmax(0,0),
+    , ( ["annotations"],     argminmax(2,3),
           ["annotations [ <file> | -d <dir> ]"] )
-    , ( ["push"],            argminmax(0,0),
+    , ( ["push"],            argminmax(2,2),
           ["push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
-    , ( ["checkout"],        argminmax(0,0),
+    , ( ["checkout"],        argminmax(2,3),
           ["checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
-    , ( ["evaluate","eval"], argminmax(0,0),
+    , ( ["evaluate","eval"], argminmax(5,6),
           ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"] )
     ])
 
@@ -127,8 +127,8 @@ def check_command_args(progname, options, args):
             return 0
     # Unknown command - show usage for all commands
     print "%s: Unrecognized command (%s)"%(progname, args[1])
-    print "Available commands are:"
     print ""
+    print "Available commands are:"
     for (cmds, test, usages) in ro_command_usage:
         for u in usages:
             print "  %s %s"%(progname,u)
@@ -138,24 +138,12 @@ def help(progname, args):
     """
     Display ro command help.  See also ro --help
     """
-    # @@TODO: replace with logic as above
-    # @@TODO remove argument count checks from individual command functions
+    print "Available commands are:"
+    for (cmds, test, usages) in ro_command_usage:
+        for u in usages:
+            print "  %s %s"%(progname,u)
     helptext = (
-        [ "Available commands are:"
-        , ""
-        , "  %(progname)s help"
-        , "  %(progname)s config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"
-        , "  %(progname)s create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"
-        , "  %(progname)s add [ -d <dir> ] [ -a ] [ file | directory ]"
-        , "  %(progname)s status [ -d <dir> ]"
-        , "  %(progname)s list [ -d <dir> ]"
-        , "  %(progname)s annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
-        , "  %(progname)s annotate [ -d <dir> ] <file> -g <RDF-graph>"
-        , "  %(progname)s annotations [ <file> | -d <dir> ]"
-        , "  %(progname)s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
-        , "  %(progname)s checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"
-        , "  %(progname)s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"
-        , ""
+        [ ""
         , "Supported annotation type names are: "
         , "\n".join([ "  %(name)s - %(description)s"%atype for atype in annotationTypes ])
         , ""
@@ -280,13 +268,6 @@ def add(progname, configbase, options, args):
 
     If no file or directory specified, defaults to current directory.
     """
-    # Check command arguments
-    if len(args) not in [2, 3]:
-        print ("%s add: wrong number of arguments provided"%
-               (progname))
-        print ("Usage: %s add [ -a ] [ file | directory ]"%
-               (progname))
-        return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "rodir":        options.rodir or "",
@@ -369,15 +350,6 @@ def annotate(progname, configbase, options, args):
     
     ro annotate file attribute-name [ attribute-value ]
     """
-    # Check command arguments
-    if not (len(args) in [4,5]) and not (len(args) == 3 and options.graph):
-        print ("%s annotate: wrong number of arguments provided"%
-               (progname))
-        print ("Usage: %s annotate file attribute-name [ attribute-value ]"%
-               (progname))
-        print ("       %s annotate file -g rdf-filename"%
-               (progname))
-        return 1
     ro_config = ro_utils.readconfig(configbase)
     rodir = options.rodir or os.path.dirname(args[2])
     if len(args) == 3:
@@ -394,7 +366,7 @@ def annotate(progname, configbase, options, args):
             "rofile":       args[2],
             "rodir":        rodir,
             "roattribute":  args[3],
-            "rovalue":      args[4] or None
+            "rovalue":      args[4] if len(args) == 5 else None
             }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
@@ -426,13 +398,6 @@ def annotations(progname, configbase, options, args):
     """
     log.debug("annotations: progname %s, configbase %s, args %s"%
               (progname, configbase, repr(args)))
-    # Check command arguments
-    if len(args) not in [2,3]:
-        print ("%s annotations: wrong number of arguments provided"%
-               (progname))
-        print ("Usage: %s annotations [ file | -d dir ]"%
-               (progname))
-        return 1
     ro_config  = ro_utils.readconfig(configbase)
     ro_file    = (args[2] if len(args) >= 3 else "")
     ro_options = {
@@ -461,18 +426,12 @@ def push(progname, configbase, options, args):
     
     ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
-    # Check command arguments
-    if len(args) not in [2, 3, 4, 5, 6]:
-        print ("%s push: wrong number of arguments provided"%
-               (progname))
-        print ("Usage: %s push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
-               (progname))
-        return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "rodir":          options.rodir or None,
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], "Access token for ROSRS service:    "),
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], 
+                                                                                      "Access token for ROSRS service: "),
         "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
@@ -510,19 +469,13 @@ def checkout(progname, configbase, options, args):
     
     ro checkout [ <RO-identifier> ] [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
-    # Check command arguments
-    if len(args) not in [2, 3, 4, 5]:
-        print ("%s push: wrong number of arguments provided"%
-               (progname))
-        print ("Usage: %s checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]"%
-               (progname))
-        return 1
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "roident":        args[2] if len(args) > 2 else None,
         "rodir":          options.rodir or "",
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'],           "URI for ROSRS service:         "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], "Access token for ROSRS service:    "),
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
+                                                                                      "Access token for ROSRS service: "),
         "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
@@ -572,11 +525,6 @@ def evaluate(progname, configbase, options, args):
     """
     log.debug("evaluate: progname %s, configbase %s, args %s"%
               (progname, configbase, repr(args)))
-    # Check command arguments
-    if len(args) < 3:
-        print ("%s evaluate: wrong number of arguments provided"%(progname))
-        print ("Usage: %s evaluate <function> [ -d <dir> ] ..."%(progname))
-        return 1
     ro_config  = ro_utils.readconfig(configbase)
     ro_options = (
         { "rodir":        options.rodir or ""
@@ -593,7 +541,8 @@ def evaluate(progname, configbase, options, args):
             return 1
         levels = ["summary", "must", "should", "may", "full"]
         if options.level not in ["summary", "must", "should", "may", "full"]:
-            print ("%s evaluate checklist: invalid reporting level %s, must be one of %s"%(progname, options.level, repr(levels)))
+            print ("%s evaluate checklist: invalid reporting level %s, must be one of %s"%
+                    (progname, options.level, repr(levels)))
             return 1
         ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
