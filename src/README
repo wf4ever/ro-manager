@@ -1,5 +1,4 @@
-Research Object manager command line tool for function experimentation
-
+Research Object manager command line tool
 
 Dependencies:
 - Python 2.6 or 2.7.  The test suite depends on Python 2.7, but the program has been run under Python 2.6
@@ -20,13 +19,17 @@ Installing lpod-python:
     cd lpod-python
     python setup.py install
 
-To run this program:
 
-1. Pull a copy of this repository to a local directory. Let's call this $RO_MANAGER.  It's recommended to do this using git.  In the first instance, will be a "git clone ...".  For subsequent updates, go into the ro-manager directory tree and use "git pull"; e.g.
-   cd (some working directory)
-   git clone https://github.com/wf4ever/ro-manager.git ro-manager
-   cd ro-manager
-The current working directory is now the $RO_MANAGER
+To install and run the program:
+
+1. Pull a copy of this repository to a local directory. Let's call this $RO_MANAGER.
+   It's recommended to do this using git.
+   In the first instance, will be a "git clone ...".
+   For subsequent updates, go into the ro-manager directory tree and use "git pull".
+     cd (some working directory)
+     git clone https://github.com/wf4ever/ro-manager.git ro-manager
+     cd ro-manager
+   The current working directory is now the $RO_MANAGER directory.
 
 2. Go to directory $RO_MANAGER/src
 
@@ -48,9 +51,10 @@ The current working directory is now the $RO_MANAGER
 
 6. Go to directory $RO_MANAGER/src
 
-7. Edit file ro_sample.sh so the ro config command refers to the appropriate directory
-   within the ro-manager installation; e.g.
-   
+7. Check file ro_sample.sh that the ROBASE variable command refers to the 
+   appropriate directory within the ro-manager installation; e.g.
+     ROBASE="rocommand/test/robase"
+     TESTRO="rocommand/test/data"
 
 8. Run this command: ./ro_sample.sh
    The output should look something like this:
@@ -107,7 +111,7 @@ The current working directory is now the $RO_MANAGER
 11. Note that the ro config command only needs to be run once to set up a 
     configuration for your environment, though it can be re-run to update 
     the details.  Most ro config values are currently ignored.  The important 
-    value is -b <robase>, which indicates a disk area (possibly a DropBox area)
-    where Research Objects are managed.
+    value is -b <robase>, which indicates a disk area where Research Objects
+    are managed.
 
-  
+
