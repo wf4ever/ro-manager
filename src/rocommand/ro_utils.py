@@ -75,11 +75,12 @@ def readconfig(configbase):
         "username":       None,
         "useremail":      None
         }
-    configfile = open(configfilename(configbase), 'r')
+    configfile = None
     try:
-        ro_config = json.load(configfile)
+        configfile = open(configfilename(configbase), 'r')
+        ro_config  = json.load(configfile)
     finally:
-        configfile.close()
+        if configfile: configfile.close()
     return ro_config
 
 # End.
