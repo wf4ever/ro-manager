@@ -104,6 +104,7 @@ class RosrsApi:
         Parameters: ROSRS URL, username, password, RO id, version id
         """
         req = urllib2.Request(roUrl)
+        req.add_header("Accept", "application/zip")
         res = urllib2.urlopen(req)
         
         tmp = tempfile.TemporaryFile()
