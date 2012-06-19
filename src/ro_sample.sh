@@ -59,7 +59,7 @@ echo "--------"
 
 echo "--------"
 
-./ro evaluate completeness -a -v -d $ROBASE/test-create-RO minim.rdf test
+./ro evaluate checklist -a -d $ROBASE/test-create-RO minim.rdf test
 
 echo "--------"
 
