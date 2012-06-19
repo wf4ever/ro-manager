@@ -115,3 +115,38 @@ To install and run the program:
     are managed.
 
 
+----
+
+Sample installation commands.
+
+As root, install libxml2-dev, libxslt-dev and virtualenv:
+
+  187  apt-get install python-virtualenv
+  188  apt-get install libxml2-dev
+  189  apt-get install libxslt-dev
+
+The following commands can be run as a non-root user.  Note, this creates a local python virtual environment that must be "actoivated" to run RO-manager:
+
+  809  virtualenv p27env
+  810  source p27env/bin/activate
+  812  pip install lxml
+  813  pip install rdflib
+  814  pip install rdfextras
+  815  pip install lpod-python
+  816  pip install python-lpod
+  818  git clone git://gitorious.org/lpod-project/lpod-python.git
+  819  cd lpod-python/
+  823  python setup.py build
+  824  python setup.py install
+
+       # If ro-manager not already loaded from githib:
+       # git clone https://github.com/wf4ever/ro-manager.git ro-manager
+  827  cd wf4ever-ro-manager/
+  828  git pull  # Update to latest version of ro-manager
+
+       # Testing
+  830  cd src/rocommand/test/
+  832  python TestAll.py
+  833  cd ../..
+  835  ./ro_sample.sh 
+
