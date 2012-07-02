@@ -271,7 +271,7 @@ class ro_metadata(object):
         (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
         return ( v for (s,p,v) in self.iterateAnnotations(subject=self.getComponentUri(rofile), property=predicate) )
 
-    def queryAnnotations(self, query):
+    def queryAnnotations(self, query, initBindings={}):
         """
         Runs a query over the combined annotation graphs (including the manifest)
         and returns True or False (for ASK queries) or a list of doctionaries of 
@@ -287,7 +287,7 @@ class ro_metadata(object):
             self.readAnnotationBody(ann_uri, self.roannotations)
         ### log.debug("queryAnnotations graph:\n"+self.roannotations.serialize())
         # Run query against assembled annotation graph
-        resp = self.roannotations.query(query)
+        resp = self.roannotations.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
             return resp.askAnswer
         elif resp.type == 'SELECT':

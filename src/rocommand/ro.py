@@ -32,6 +32,7 @@ def run(configbase, options, args):
     else:
         status = ro_command.check_command_args(progname, options, args)
     if status != 0: return status
+    #@@TODO: refactor to use command/usage table in rocommand for dispatch
     if args[1] == "help":
         status = ro_command.help(progname, args)
     elif args[1] == "config":
@@ -117,6 +118,11 @@ def parseCommandArgs(argv):
                       dest="verbose", 
                       default=False,
                       help="display verbose output")
+    parser.add_option("--debug",
+                      action="store_true", 
+                      dest="debug", 
+                      default=False,
+                      help="display debug output")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
@@ -131,8 +137,10 @@ def runCommand(configbase, robase, argv):
     
     Returns exit status.
     """
-    log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     (options, args) = parseCommandArgs(argv)
+    if not options or options.debug:
+        logging.basicConfig(level=logging.DEBUG)
+    log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     status = 1
     if options:
         status  = run(configbase, options, args)

@@ -156,14 +156,10 @@ def evalContentMatch(rometa, rule):
         """
     satisfied     = True
     simplebinding = {}
-    if rule['exists']:
-        queryparams = (
-            { 'queryverb': "ASK"
-            , 'querypattern': rule['exists']
-            })
-        query = querytemplate%queryparams
-        satisfied = rometa.queryAnnotations(query)
-    elif rule['forall']:
+    if rule['forall']:
+        template = rule['template']
+        exists   = rule['exists']
+        assert (template or exists), "minim:forall construct requires minim:aggregatesTemplate and/or minim:exisrts value"
         queryparams = (
             { 'queryverb': "SELECT * WHERE"
             , 'querypattern': rule['forall']
@@ -174,6 +170,7 @@ def evalContentMatch(rometa, rule):
         ###print "forall query: "+query
         ###print "forall response: "+repr(resp)
         for binding in resp:
+            satisfied = False
             # Extract keys and values from query result
             simplebinding = {}
             for k in binding:
@@ -190,20 +187,36 @@ def evalContentMatch(rometa, rule):
                         print "Response bindings: "+repr(resp)
                         print "--------------------"
                         assert False, "Aborted"
-            # Construct URI for file from template
-            # Uses code copied from http://code.google.com/p/uri-templates
-            template = rule['template']
-            fileref = uritemplate.expand(rule['template'], simplebinding)
-            fileuri = rometa.getComponentUri(fileref)
-            ###print "forall test: binding %s"%(repr(simplebinding))
-            ###print "...........: template %s, fileref %s"%(template, fileref)
-            ###print "...........: fileuri %s"%(repr(fileuri))
-            ###print "...........: RO uri  %s"%(repr(rometa.getRoUri()))
-            # Test if URI is aggregated
-            log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
-            satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
+            if exists:
+                # existence query against forall results
+                existsparams = (
+                    { 'queryverb': "ASK"
+                    , 'querypattern': exists
+                    })
+                query = querytemplate%existsparams
+                log.debug("***** evalContentMatch RO test exists: \nquery: %s \nbinding: %s)"%(query, repr(binding)))
+                satisfied = rometa.queryAnnotations(query,initBindings=binding)
+            if template:
+                # Construct URI for file from template
+                # Uses code copied from http://code.google.com/p/uri-templates
+                fileref = uritemplate.expand(rule['template'], simplebinding)
+                fileuri = rometa.getComponentUri(fileref)
+                ###print "forall test: binding %s"%(repr(simplebinding))
+                ###print "...........: template %s, fileref %s"%(template, fileref)
+                ###print "...........: fileuri %s"%(repr(fileuri))
+                ###print "...........: RO uri  %s"%(repr(rometa.getRoUri()))
+                # Test if URI is aggregated
+                log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
+                satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
             ###print "...........: satisfied %s"%(satisfied)
             if not satisfied: break
+    elif rule['exists']:
+        queryparams = (
+            { 'queryverb': "ASK"
+            , 'querypattern': rule['exists']
+            })
+        query = querytemplate%queryparams
+        satisfied = rometa.queryAnnotations(query)
     else:
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)

@@ -560,7 +560,7 @@ def evaluate(progname, configbase, options, args):
             sys.stdout)
     # elif ... other functions here
     else:
-        print ("%s evaluate: unrecognized function provided"%(progname))
+        print ("%s evaluate: unrecognized function provided (%s)"%(progname, ro_options["function"]))
         print ("Usage:")
         print ("  %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"%(progname))
         return 1
