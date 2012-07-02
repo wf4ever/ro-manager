@@ -16,7 +16,6 @@ which corresponds very well with your proposal of which functions to tackle init
 TODO:
 
 * ro eval checklist
-** Support for <forall>... <exists>... rule structures
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** See: https://www.pivotaltracker.com/story/show/26123933
 ** Test that aggregated files actually exist - part of liveness?

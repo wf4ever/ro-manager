@@ -47,6 +47,7 @@ class ro_metadata(object):
         """
         self.roconfig = roconfig
         self.roref    = roref
+        self.roannotations = None
         base = fileuribase+os.path.abspath(os.getcwd())+"/"
         uri  = urlparse.urljoin(base, roref)
         if not uri.endswith("/"): uri += "/" 
@@ -60,7 +61,7 @@ class ro_metadata(object):
         return
 
     def _loadManifest(self):
-        self.manifestgraph    = rdflib.Graph()
+        self.manifestgraph = rdflib.Graph()
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
@@ -68,6 +69,18 @@ class ro_metadata(object):
             # Read manifest graph
             self.manifestgraph.parse(self.manifesturi)
         return
+
+    def _loadAnnotations(self):
+        if self.roannotations: return self.roannotations
+        # Assemble annotation graph
+        # NOTE: the manifest itself is included as an annotation by the RO setup
+        self._loadManifest()
+        self.roannotations = rdflib.Graph()
+        for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            self.readAnnotationBody(ann_uri, self.roannotations)
+        log.debug("roannotations graph:\n"+self.roannotations.serialize())
+        return self.roannotations
 
     def updateManifest(self):
         """
@@ -277,17 +290,8 @@ class ro_metadata(object):
         and returns True or False (for ASK queries) or a list of doctionaries of 
         query results (for SELECT queries).
         """
-        # @@TODO: cache annotation graph; invalidate when annotations updated.
-        # Assemble annotation graph
-        # NOTE: the manifest itself is included as an annotation by the RO setup
-        self._loadManifest()
-        self.roannotations = rdflib.Graph()
-        for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
-            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
-            self.readAnnotationBody(ann_uri, self.roannotations)
-        ### log.debug("queryAnnotations graph:\n"+self.roannotations.serialize())
-        # Run query against assembled annotation graph
-        resp = self.roannotations.query(query,initBindings=initBindings)
+        ann_gr = self._loadAnnotations()
+        resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
             return resp.askAnswer
         elif resp.type == 'SELECT':
