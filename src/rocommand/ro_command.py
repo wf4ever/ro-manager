@@ -25,6 +25,7 @@ import MiscLib.ScanDirectories
 
 import ro_settings
 import ro_utils
+import ro_uriutils
 from ro_annotation import annotationTypes
 from ro_metadata   import ro_metadata
 
@@ -374,7 +375,7 @@ def annotate(progname, configbase, options, args):
     if not ro_dir: return 1
     # Read and update manifest and annotations
     rometa = ro_metadata(ro_config, ro_dir)
-    rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+    rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])     # Relative to CWD
     if len(args) == 3:
         # Add existing graph as annotation
         if options.verbose:
@@ -412,7 +413,7 @@ def annotations(progname, configbase, options, args):
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, ro_dir)
     if ro_options['rofile']:
-        rofile = rometa.getFileUri(ro_options['rofile'])     # Relative to CWD
+        rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])  # Relative to CWD
         log.debug("Annotations for %s"%str(rofile))
         annotations = rometa.getFileAnnotations(rofile)
     else:

@@ -157,9 +157,11 @@ def evalContentMatch(rometa, rule):
     satisfied     = True
     simplebinding = {}
     if rule['forall']:
-        template = rule['template']
         exists   = rule['exists']
-        assert (template or exists), "minim:forall construct requires minim:aggregatesTemplate and/or minim:exisrts value"
+        template = rule['template']
+        islive   = rule['islive']
+        assert (exists or template or islive), (
+            "minim:forall construct requires minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
         queryparams = (
             { 'queryverb': "SELECT * WHERE"
             , 'querypattern': rule['forall']
@@ -199,15 +201,19 @@ def evalContentMatch(rometa, rule):
             if template:
                 # Construct URI for file from template
                 # Uses code copied from http://code.google.com/p/uri-templates
-                fileref = uritemplate.expand(rule['template'], simplebinding)
+                fileref = uritemplate.expand(template, simplebinding)
                 fileuri = rometa.getComponentUri(fileref)
-                ###print "forall test: binding %s"%(repr(simplebinding))
-                ###print "...........: template %s, fileref %s"%(template, fileref)
-                ###print "...........: fileuri %s"%(repr(fileuri))
-                ###print "...........: RO uri  %s"%(repr(rometa.getRoUri()))
                 # Test if URI is aggregated
                 log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
                 satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
+            if islive:
+                # Construct URI for file from template
+                # Uses code copied from http://code.google.com/p/uri-templates
+                fileref = uritemplate.expand(islive, simplebinding)
+                fileuri = rometa.getComponentUri(fileref)
+                # Test if URI is live (accessible)
+                log.debug("evalContentMatch RO islive %s (%s)"%(fileref, str(fileuri)))
+                satisfied = isLive(fileuri)
             ###print "...........: satisfied %s"%(satisfied)
             if not satisfied: break
     elif rule['exists']:

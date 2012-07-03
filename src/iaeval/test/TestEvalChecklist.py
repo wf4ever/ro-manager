@@ -376,9 +376,13 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
-    # @@ Add test cases for software environment rule pass/fail, based on previous
+    # @@TODO Add test cases for software environment rule pass/fail, based on previous
 
-    # @@ Add test cases for content match rule pass/fail, based on previous
+    # @@TODO Add test cases for content match rule pass/fail, based on previous
+
+    # @@TODO Add test cases for forall => exists conteht match
+    
+    # @@TODO Add test cases for liveness test
 
     # Test evaluation of remote resource
 

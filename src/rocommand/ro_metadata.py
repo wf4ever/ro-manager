@@ -8,6 +8,7 @@ import sys
 import os
 import os.path
 import re
+import urllib
 import urlparse
 import logging
 
@@ -28,10 +29,10 @@ rdflib.plugin.register(
 
 import ro_settings
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
+from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
 import ro_manifest
 import ro_annotation
 
-fileuribase = "file://"
 
 class ro_metadata(object):
     """
@@ -48,8 +49,7 @@ class ro_metadata(object):
         self.roconfig = roconfig
         self.roref    = roref
         self.roannotations = None
-        base = fileuribase+os.path.abspath(os.getcwd())+"/"
-        uri  = urlparse.urljoin(base, roref)
+        uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/" 
         self.rouri    = rdflib.URIRef(uri)
         self.manifesturi  = self.getManifestUri()
@@ -373,24 +373,14 @@ class ro_metadata(object):
     def getManifestUri(self):
         return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
-    def getFileUri(self, path):
-        """
-        Like getComponentUri, except that path may be relative to the current directory,
-        and returned URI string includes file:// scheme
-        """
-        if not path.startswith(fileuribase):
-            path = fileuribase+os.path.join(os.getcwd(), path)
-        return rdflib.URIRef(path)
-
     def isLocalFileRo(self):
         """
         Test current RO URI to see if it is a local file system reference
         """
-        return self.getRoUri().startswith(fileuribase)
+        return isFileUri(self.getRoUri())
 
     def getRoFilename(self):
-        assert self.isLocalFileRo(), "RO %s is not in local file system"%self.getRoUri()
-        return self.rouri[len(fileuribase):]
+        return getFilenameFromUri(self.getRoUri())
 
     def getManifestFilename(self):
         """

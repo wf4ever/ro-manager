@@ -55,11 +55,11 @@ Other functions:
 
 Technical debt:
 - Mop up @@TODOs
-- Clean up handling command analysis; factor out usage summaries
-- When adding an annotation graph, check that it exists.  Also when displaying annotations.
-- evaluation service should include minim description in result graph.
+- new test cases for evaluation
+- Check out rdflib sparql query bnode bug - is it fixed?
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
+- evaluation service should include minim description in result graph.
 - Include minim description in evaluation result (code changed; needs testing with online service)
 
 ----
