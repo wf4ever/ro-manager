@@ -20,8 +20,9 @@ import rdflib
 #from rdflib import Literal
 from uritemplate import uritemplate
 
+from rocommand.ro_uriutils   import isLiveUri
 from rocommand.ro_namespaces import RDF, RDFS, ORE
-from rocommand.ro_metadata  import ro_metadata
+from rocommand.ro_metadata   import ro_metadata
 import ro_minim
 from ro_minim import MINIM
 
@@ -161,16 +162,14 @@ def evalContentMatch(rometa, rule):
         template = rule['template']
         islive   = rule['islive']
         assert (exists or template or islive), (
-            "minim:forall construct requires minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+            "minim:forall construct requires "+
+            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
         queryparams = (
             { 'queryverb': "SELECT * WHERE"
             , 'querypattern': rule['forall']
             })
         query = querytemplate%queryparams
         resp  = rometa.queryAnnotations(query)
-        ###print rometa.manifestgraph.serialize(format='xml')
-        ###print "forall query: "+query
-        ###print "forall response: "+repr(resp)
         for binding in resp:
             satisfied = False
             # Extract keys and values from query result
@@ -213,8 +212,8 @@ def evalContentMatch(rometa, rule):
                 fileuri = rometa.getComponentUri(fileref)
                 # Test if URI is live (accessible)
                 log.debug("evalContentMatch RO islive %s (%s)"%(fileref, str(fileuri)))
-                satisfied = isLive(fileuri)
-            ###print "...........: satisfied %s"%(satisfied)
+                satisfied = isLiveUri(fileuri)
+            log.debug("evalContentMatch (forall) RO satisfied %s"%(satisfied))
             if not satisfied: break
     elif rule['exists']:
         queryparams = (

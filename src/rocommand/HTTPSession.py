@@ -44,7 +44,7 @@ class HTTPSessionError(Exception):
 
 class HTTP_Session(object):
 
-    def __init__(self, uri, accesskey):
+    def __init__(self, uri, accesskey=None):
         self._uri     = uri
         self._key     = accesskey
         parseduri     = urlparse.urlsplit(uri)
@@ -102,7 +102,8 @@ class HTTP_Session(object):
         # Assemble request headers
         if not reqheaders:
             reqheaders = {}
-        reqheaders["authorization"] = "Bearer "+self._key
+        if self._key:
+            reqheaders["authorization"] = "Bearer "+self._key
         if ctype:
             reqheaders["content-type"] = ctype
         if accept:
@@ -113,7 +114,7 @@ class HTTP_Session(object):
         response = self._httpcon.getresponse()
         status   = response.status
         reason   = response.reason
-        headerlist = [ (h.lower(),v)) for (h,v) in response.getheaders() ]
+        headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
         headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
         headers["_headerlist"] = headerlist
         data = response.read()

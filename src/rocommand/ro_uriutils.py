@@ -13,6 +13,8 @@ import urllib
 import urlparse
 import logging
 
+import HTTPSession
+
 log = logging.getLogger(__name__)
 
 fileuribase = "file://"
@@ -42,12 +44,30 @@ def resolveFileAsUri(path):
     return path
 
 def getFilenameFromUri(uri):
-    assert isFileUri(uri), "RO %s is not in local file system"%uri
-    return uri[len(fileuribase):]
+    """
+    Convert a file:// URI into a local file system reference
+    """
+    uriparts = urlparse.urlsplit(uri)
+    assert uriparts.scheme == "file", "RO %s is not in local file system"%uri
+    uriparts = urlparse.SplitResult("","",uriparts.path,uriparts.query,uriparts.fragment)
+    return urllib.url2pathname(urlparse.urlunsplit(uriparts))
 
 def isLiveUri(uriref):
-    #@@TODO
-    return False
+    """
+    Test URI reference to see if it refers to an accessible resource
+    
+    Relative URI references are assumed to be local file system references,
+    relartive to the current working directory.
+    """
+    islive  = False
+    fileuri = resolveFileAsUri(uriref)
+    if isFileUri(fileuri):
+        islive = os.path.exists(getFilenameFromUri(fileuri))
+    else:
+        hs = HTTP_Session(uriref)
+        (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
+        islive = (status == 200)
+    return islive
 
 def retrieveUri(uriref):
     uri = resolveUri(uriref, fileuribase, os.getcwd())
