@@ -94,6 +94,8 @@ DONE
 
 * ro annotate (-g|--graph) rdf-resource [ file ] -- use RDF file already present as annotation for the named file.  Defaults to annotations for the entire RO.
 
+* Updates evaluation options; forall => exists and liveness tests
+
 ----
 
 Option table
