@@ -1,7 +1,20 @@
 SANDBOX-README.TXT
 
-Notes for installing an d running ro-manager / checklist evaluation service on sandbox.
 
+Notes for installing and running ro-manager / checklist evaluation service on sandbox.
+
+== Prerequisites ==
+
+Standard compile/link tools (cc, etc.)
+
+Python 2.7
+
+sudo pip install VirtualEnv # (installed from PyPi, *not* Ubuntu 10.04 repository)
+sudo apt-get  install libxml2-dev
+sudo apt-get  install libxslt-dev
+
+
+== Install and test ==
 
        cd /home/checklist
    36  virtualenv -p python2.7 py27
