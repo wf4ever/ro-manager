@@ -24,13 +24,13 @@ from ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
 
 #   Default list of annotation types
 annotationTypes = (
-    [ 
+    [
       { "name": "type", "prefix": "dcterms", "localName": "type", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.type
       , "label": "Type"
-      , "description": "Word or brief phrase describing type of Research Object component" 
+      , "description": "Word or brief phrase describing type of Research Object component"
       }
-    , { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist" 
+    , { "name": "keywords", "prefix": "dcterms", "localName": "subject", "type": "termlist"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.subject
       , "label": "Keywords"
       , "description": "List of key words or phrases associated with a Research Object component"
@@ -38,27 +38,27 @@ annotationTypes = (
     , { "name": "description", "prefix": "dcterms", "localName": "description", "type": "text"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.description
       , "label": "Description"
-      , "description": "Extended description of Research Object component" 
+      , "description": "Extended description of Research Object component"
       }
     , { "name": "format", "prefix": "dcterms", "localName": "format", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.format
       , "label": "Data format"
-      , "description": "String indicating the data format of a Research Object component" 
+      , "description": "String indicating the data format of a Research Object component"
       }
     , { "name": "note", "prefix": "dcterms", "localName": "note", "type": "text"
       , "baseUri": ROTERMS.baseUri, "fullUri": ROTERMS.note
       , "label": "Note"
-      , "description": "String indicating some information about a Research Object component" 
+      , "description": "String indicating some information about a Research Object component"
       }
     , { "name": "title", "prefix": "dcterms", "localName": "title", "type": "string"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.title
       , "label": "Title"
-      , "description": "Title of Research Object component" 
+      , "description": "Title of Research Object component"
       }
     , { "name": "created", "prefix": "dcterms", "localName": "created", "type": "datetime"
       , "baseUri": DCTERMS.baseUri, "fullUri": DCTERMS.created
       , "label": "Creation time"
-      , "description": "Date and time that Research Object component was created" 
+      , "description": "Date and time that Research Object component was created"
       }
     , { "name": "rdf:type", "prefix": "rdf", "localName": "type", "type": "resource"
       , "baseUri": RDF.baseUri, "fullUri": RDF.type
@@ -69,7 +69,7 @@ annotationTypes = (
 
 def getAnnotationByName(ro_config, aname):
     """
-    Given an attribute name from the command line, returns 
+    Given an attribute name from the command line, returns
     attribute predicate and type URIs as a URIRef node and attribute value type
     """
     #@@TODO: deal properly with annotation types: return URIRef for type instead of name string
@@ -86,7 +86,7 @@ def getAnnotationByName(ro_config, aname):
 
 def getAnnotationByUri(ro_config, auri):
     """
-    Given an attribute URI from the manifest graph, returns an 
+    Given an attribute URI from the manifest graph, returns an
     attribute name and type tuple for displaying an attribute
     """
     for atype in ro_config["annotationTypes"]:
@@ -96,7 +96,7 @@ def getAnnotationByUri(ro_config, auri):
 
 def getAnnotationNameByUri(ro_config, uri):
     """
-    Given an attribute URI from the manifest graph, returns an 
+    Given an attribute URI from the manifest graph, returns an
     attribute name for displaying an attribute
     """
     return getAnnotationByUri(ro_config, uri)[0]
@@ -127,17 +127,17 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
     Create a new annotation body for a single resource in a research object, based
     on a supplied graph value.
 
-    Existing annotations for the same resource are not touched; if an annotation is being 
+    Existing annotations for the same resource are not touched; if an annotation is being
     added or replaced, it is the calling program'sresponsibility to update the manifest to
     reference the active annotations.  A new name is allocated for the created annotation,
     graph which is returned as the result of this function.
-    
+
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      is the name of the Research Object component to be annotated, possibly
                 relative to the RO root directory.
     anngraph    is an annotation graph that is to be saved.
-    
+
     Returns the name of the annotation body created relative to the RO
     manifest and metadata directory.
     """
@@ -157,7 +157,7 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
             annotation_filename = name
     # Create annotation body file
     log.debug("createAnnotationGraphBody: %s"%(annotation_filename))
-    anngraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename), 
+    anngraph.serialize(destination=makeAnnotationFilename(ro_dir, annotation_filename),
         format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
     return annotation_filename
 
@@ -165,18 +165,18 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     """
     Create a new annotation body for a single resource in a research object.
 
-    Existing annotations for the same resource are not touched; if an annotation is being 
+    Existing annotations for the same resource are not touched; if an annotation is being
     added or replaced, it is the calling program'sresponsibility to update the manifest to
     reference the active annotations.  A new name is allocated for the created annotation,
     which is returned as the result of this function.
-    
+
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      is the name of the Research Object component to be annotated, possibly
                 relative to the RO root directory.
     attrdict    is a dictionary of attributes to be saved inthe annotation body.
                 Dictionary keys are attribute names that can be resolved via getAnnotationByName.
-    
+
     Returns the name of the annotation body created relative to the RO
     manifest and metadata directory.
     """
@@ -192,7 +192,7 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
 def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
     """
     Add a new annotation body to an RO graph
-    
+
     ro_graph    graph to which annotation is added
     ro_dir      is the research object directory
     rofile      is the research object file being annotated
@@ -214,7 +214,7 @@ def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
 def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
     """
     Remove references to an annotation body from an RO graph
-    
+
     ro_graph    graph from which annotation is removed
     annbody     is the the annotation body node to be removed
     """
@@ -225,7 +225,7 @@ def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
 def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Add a simple annotation to a file in a research object.
-    
+
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      names the file or resource to be annotated, possibly relative to the RO.
@@ -241,7 +241,7 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
 def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Remove a simple annotation or multiple matching annotations a research object.
-    
+
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      names the annotated file or resource, possibly relative to the RO.
@@ -253,7 +253,7 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     # Enumerate annotations
     # For each:
     #     if annotation is only one in graph then:
-    #         remove aggragetd annotation
+    #         remove aggregated annotation
     #     else:
     #         create new annotation graph witj annotation removed
     #         update aggregated annotation
@@ -271,7 +271,7 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
             ann_graph.remove((subject, predicate, val))
             if (subject, None, None) in ann_graph:
                 # Triples remain in annotation body: write new body and update RO graph
-                ann_name = createAnnotationGraphBody(ro_config, ro_dir, rofile, ann_graph)            
+                ann_name = createAnnotationGraphBody(ro_config, ro_dir, rofile, ann_graph)
                 remove_annotations.append(ann_node)
                 add_annotations.append(ann_name)
             else:
@@ -289,7 +289,7 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
 def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Replace a simple annotation in a research object.
-    
+
     ro_config   is the research object manager configuration, supplied as a dictionary
     ro_dir      is the research object root directory
     rofile      names the file or resource to be annotated, possibly relative to the RO.
@@ -325,7 +325,7 @@ def getAnnotationValues(ro_config, ro_dir, rofile, attrname):
 def getRoAnnotations(ro_dir):
     """
     Returns iterator over annotations applied to the RO as an entity.
-    
+
     Each value returned by the iterator is a (subject,predicate,object) triple.
     """
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
@@ -343,7 +343,7 @@ def getRoAnnotations(ro_dir):
 def getFileAnnotations(ro_dir, rofile):
     """
     Returns iterator over annotations applied to a specified component in the RO
-    
+
     Each value returned by the iterator is a (subject,predicate,object) triple.
     """
     log.debug("getFileAnnotations: ro_dir %s, rofile %s"%(ro_dir, rofile))
@@ -363,7 +363,7 @@ def getFileAnnotations(ro_dir, rofile):
 def getAllAnnotations(ro_dir):
     """
     Returns iterator over all annotations associated with the RO
-    
+
     Each value returned by the iterator is a (subject,predicate,object) triple.
     """
     log.debug("getAllAnnotations %s"%str(ro_dir))
@@ -383,7 +383,7 @@ def getAllAnnotations(ro_dir):
 def makeAnnotationValue(aval, atype):
     """
     atype is one of "string", "resurce", ...
-    
+
     Returns a graph node for the supplied type and value
     """
     #@@TODO: construct appropriately typed RDF literals

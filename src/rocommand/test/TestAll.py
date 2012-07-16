@@ -36,9 +36,9 @@ def getTestSuite(select="unit"):
     suite.addTest(TestROMetadata.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
-    suite.addTest(TestRosrsApi.getTestSuite(select=select))
-    suite.addTest(TestResourceSync.getTestSuite(select=select))
-    suite.addTest(TestSyncCommands.getTestSuite(select=select))
+    #suite.addTest(TestRosrsApi.getTestSuite(select=select))
+    #suite.addTest(TestResourceSync.getTestSuite(select=select))
+    #suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
 from MiscLib import TestUtils

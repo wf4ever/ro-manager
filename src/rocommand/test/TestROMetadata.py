@@ -95,12 +95,12 @@ class TestROMetadata(TestROSupport.TestROSupport):
             "title":        "Test research object",
             "created":      "2011-12-07"
             }
-        annotationfile = romd.createAnnotationBody(roresource, attrdict)
+        annotationfile = romd._createAnnotationBody(roresource, attrdict)
         # Ann-%04d%02d%02d-%04d-%s.rdf
         self.assertRegexpMatches(annotationfile,
-            r"^\.ro/Ann-\d\d\d\d\d\d\d\d-\d+-RO_test_annotation\.rdf", 
+            r"^\.ro/Ann-\d\d\d\d\d\d\d\d-\d+-RO_test_annotation\.rdf",
             msg="Unexpected filename form for annotation: "+annotationfile)
-        annotationgraph = romd.readAnnotationBody(annotationfile)
+        annotationgraph = romd._readAnnotationBody(annotationfile)
         attrpropdict = {
             "type":         DCTERMS.type,
             # @@TODO "keywords":     DCTERMS.subject,
@@ -137,12 +137,12 @@ class TestROMetadata(TestROSupport.TestROSupport):
             "title":        "Test file in RO",
             "created":      "2011-12-07"
             }
-        annotationfile = romd.createAnnotationBody(roresource, attrdict)
+        annotationfile = romd._createAnnotationBody(roresource, attrdict)
         # Ann-%04d%02d%02d-%04d-%s.rdf
         self.assertRegexpMatches(annotationfile,
-            r"^\.ro/Ann-\d\d\d\d\d\d\d\d-\d+-subdir1-file\.txt\.rdf", 
+            r"^\.ro/Ann-\d\d\d\d\d\d\d\d-\d+-subdir1-file\.txt\.rdf",
             msg="Unexpected filename form for annotation: "+annotationfile)
-        annotationgraph = romd.readAnnotationBody(annotationfile)
+        annotationgraph = romd._readAnnotationBody(annotationfile)
         attrpropdict = {
             "type":         DCTERMS.type,
             "description":  DCTERMS.description,
@@ -182,7 +182,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         for i in range(6+1):      # Annotations + aggregations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and 
+            if ( next not in expected_annotations and
                  next[1] != DCTERMS.created       and
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
@@ -191,7 +191,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         return
 
     def testAddGetRoAnnotations(self):
-        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
             "Test add RO annotation", "ro-testRoAnnotate")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "."
@@ -216,7 +216,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         for i in range(9+4):      # Annotations + aggregations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and 
+            if ( next not in expected_annotations and
                  next[1] != DCTERMS.created       and
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
@@ -246,7 +246,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         for i in range(4):
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and 
+            if ( next not in expected_annotations and
                  next[1] != DCTERMS.created       and
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
@@ -281,7 +281,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         for i in range(8+1):      # Annotations + aggregations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and 
+            if ( next not in expected_annotations and
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
@@ -355,7 +355,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         return
 
     def testAddGetAllAnnotations(self):
-        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
             "Test get all annotations", "ro-testRoAnnotate")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "subdir1/subdir1-file.txt"
@@ -388,7 +388,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         for i in range(12+1+6):      # Annotations + aggregations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and 
+            if ( next not in expected_annotations and
                  next[1] != DCTERMS.created       and
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
@@ -397,7 +397,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         return
 
     def testAddGetAnnotationValues(self):
-        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
             "Test get annotation values", "ro-testRoAnnotate")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "subdir1/subdir1-file.txt"
@@ -469,7 +469,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         return
 
     def testQueryAnnotations(self):
-        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
             "Test query annotations", "ro-testRoAnnotate")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "subdir1/subdir1-file.txt"
@@ -537,7 +537,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         This test is included to ensure that queries still work as expected when
         the manifest contains a reference to a non-existent manifest graph
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", 
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
             "Test query annotations", "ro-testRoAnnotate")
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "subdir1/subdir1-file.txt"
@@ -549,7 +549,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.addSimpleAnnotation(roresource, "created",     "2011-12-07")
         romd.addSimpleAnnotation(roresource, "rdf:type",    ROTERMS.resource)
         # Apply non-exietent graph annotation
-        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf") 
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf")
         romd.addGraphAnnotation(roresource, annotation_graph_filename)
         # Query the file anotations
         queryprefixes = """
@@ -578,7 +578,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
 
     def testQueryAnnotationsRemote(self):
         romd  = ro_metadata.ro_metadata(
-            ro_config, 
+            ro_config,
             "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
             )
         # Query the file anotations
