@@ -19,7 +19,6 @@ sudo apt-get  install libxslt-dev
        cd /home/checklist
    36  virtualenv -p python2.7 py27
    37  source py27/bin/activate
-   38  pip install lxmx
    39  pip install lxml
    40  pip install rdfextras
    41  cd git
