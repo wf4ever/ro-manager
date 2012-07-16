@@ -487,7 +487,8 @@ class ro_metadata(object):
         """
         Return manifesrt file name: used for local updates
         """
-        return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/", ro_settings.MANIFEST_FILE)
+        return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/",
+                            ro_settings.MANIFEST_FILE)
 
 # End.
 

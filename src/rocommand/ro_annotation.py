@@ -189,7 +189,7 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     # Write graph and return filename
     return createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph)
 
-def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
+def _addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
     """
     Add a new annotation body to an RO graph
 
@@ -211,7 +211,7 @@ def addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile):
     ro_graph.add((ro_manifest.getComponentUri(ro_dir, "."), ORE.aggregates, ann))
     return
 
-def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
+def _removeAnnotationBodyFromRoGraph(ro_graph, annbody):
     """
     Remove references to an annotation body from an RO graph
 
@@ -222,7 +222,7 @@ def removeAnnotationBodyFromRoGraph(ro_graph, annbody):
     ro_graph.remove((None,    ORE.aggregates, annbody))
     return
 
-def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+def _addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Add a simple annotation to a file in a research object.
 
@@ -234,11 +234,11 @@ def addSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     annfile = createAnnotationBody(ro_config, ro_dir, rofile, { attrname: attrvalue} )
     ro_graph = ro_manifest.readManifestGraph(ro_dir)
-    addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile)
+    _addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, annfile)
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
-def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+def _removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Remove a simple annotation or multiple matching annotations a research object.
 
@@ -280,13 +280,13 @@ def removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     # Update RO graph if needed
     if add_annotations or remove_annotations:
         for a in remove_annotations:
-            removeAnnotationBodyFromRoGraph(ro_graph, a)
+            _removeAnnotationBodyFromRoGraph(ro_graph, a)
         for a in add_annotations:
-            addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, a)
+            _addAnnotationBodyToRoGraph(ro_graph, ro_dir, rofile, a)
         ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
-def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
+def _replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     """
     Replace a simple annotation in a research object.
 
@@ -305,7 +305,7 @@ def replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
-def getAnnotationValues(ro_config, ro_dir, rofile, attrname):
+def _getAnnotationValues(ro_config, ro_dir, rofile, attrname):
     """
     Returns iterator over annotation values for given subject and attribute
     """
@@ -322,7 +322,7 @@ def getAnnotationValues(ro_config, ro_dir, rofile, attrname):
             yield v
     return
 
-def getRoAnnotations(ro_dir):
+def _getRoAnnotations(ro_dir):
     """
     Returns iterator over annotations applied to the RO as an entity.
 
@@ -340,7 +340,7 @@ def getRoAnnotations(ro_dir):
                 yield (subject, p, v)
     return
 
-def getFileAnnotations(ro_dir, rofile):
+def _getFileAnnotations(ro_dir, rofile):
     """
     Returns iterator over annotations applied to a specified component in the RO
 

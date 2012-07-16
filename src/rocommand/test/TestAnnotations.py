@@ -85,7 +85,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         log.debug("outtxt %s"%outtxt)
         #self.assertRegexpMatches(outtxt, "annotation.*dc:title")
         # Read manifest and check for annotation
-        values = ro_annotation.getAnnotationValues(ro_config, rodir, "subdir1/subdir1-file.txt", "title")
+        values = ro_annotation._getAnnotationValues(ro_config, rodir, "subdir1/subdir1-file.txt", "title")
         self.assertEquals(values.next(), rdflib.Literal("subdir1-file title"))
         self.assertRaises(StopIteration, values.next)
         # Clean up
@@ -104,7 +104,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         self.assertEqual(outtxt.count("ro annotate"), 1)
         # Read manifest and check for annotation
-        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
         resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
         expected_annotations = (
             [ (resourceuri, anntypeuri, rdflib.Literal(annexpect))
@@ -174,7 +174,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
             ])
         self.annotateMultiple(rodir, rofile, define_annotations)
         # Read manifest and check for annotation
-        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
         resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
         expected_annotations = (
             [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
@@ -257,7 +257,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
         for ann in define_annotations:
             annotation_graph.add( (resourceuri, ann["atypeuri"], rdflib.Literal(ann["aexpect"])) )
-        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-subdir1-file.txt.rdf") 
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-subdir1-file.txt.rdf")
         annotation_graph.serialize(annotation_graph_filename,
             format='xml', base=ro_manifest.getRoUri(rodir), xml_base="")
         args = ["ro", "annotate", rofile, "-g", annotation_graph_filename ]
@@ -266,7 +266,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
         # Read manifest and check for annotation
-        annotations = ro_annotation.getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
+        annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
         expected_annotations = (
             [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
                 for a in define_annotations
@@ -285,7 +285,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         # Apply non-exietent graph annotation
-        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf") 
+        annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf")
         rouri = ro_manifest.getRoUri(rodir)
         args = ["ro", "annotate", rodir+"/", "-g", annotation_graph_filename ]
         with SwitchStdout(self.outstr):
@@ -303,7 +303,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
             ])
         for i in range(8):
             next = annotations.next()
-            if (next not in expected_annotations 
+            if (next not in expected_annotations
                 and not isinstance(next[2], rdflib.BNode)
                 and not next[1] == DCTERMS.created):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
@@ -312,13 +312,13 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     # Test display of annotations for entire RO
-    
+
     # @@TODO: Test annotations shown in RO listing
 
     # @@TODO: Test interactive/multiline update (how?)
-    
+
     # @@TODO: Test use of CURIE as type
-    
+
     # @@TODO: Test use of URI as type
 
     # Sentinel/placeholder tests
