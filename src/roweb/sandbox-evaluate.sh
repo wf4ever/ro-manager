@@ -1,5 +1,5 @@
 #!/bin/bash
-HOST=http://sandbox.wf4ever-project.org:8080    # Service endpoint URI
+HOST=http://sandbox.wf4ever-project.org/roevaluate   # Service endpoint URI
 
 # Retrieve service description and extract template
 
