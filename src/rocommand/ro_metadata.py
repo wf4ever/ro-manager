@@ -255,13 +255,6 @@ class ro_metadata(object):
         """
         ro_dir    = self.getRoFilename()
         ro_graph  = self._loadManifest()
-        # Enumerate annotations
-        # For each:
-        #     if annotation is only one in graph then:
-        #         remove aggregated annotation
-        #     else:
-        #         create new annotation graph with annotation removed
-        #         update aggregated annotation
         subject     = self.getComponentUri(rofile)
         (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
         val         = attrvalue and ro_annotation.makeAnnotationValue(attrvalue, valtype)
@@ -269,6 +262,7 @@ class ro_metadata(object):
         remove_annotations = []
         log.debug("removeSimpleAnnotation subject %s, predicate %s, val %s"%
                   (str(subject), str(predicate), val))
+        # Scan for annotation graph resourcxes containing this annotation
         for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
             ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
             log.debug("removeSimpleAnnotation ann_uri %s"%(str(ann_uri)))
@@ -342,21 +336,11 @@ class ro_metadata(object):
         supplied subject and/or property.
         """
         log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
-        man_graph = self._loadManifest()
-        anns = man_graph.triples((None, RO.annotatesAggregatedResource, subject))
-        for (ann_node, _ap, ann_sub) in anns:
-            ann_uri   = man_graph.value(subject=ann_node, predicate=AO.body)
-            log.debug("iterateAnnotations readannotationBody %s"%(str(ann_uri)))
-            ann_graph = self._readAnnotationBody(ann_uri)
-            #for (s, p, o) in ann_graph:
-            #    log.debug("  (%s,%s,%s)"%(str(s),str(p),str(o)))
-            log.debug("iterateAnnotations ann_graph %s"%(str(ann_graph)))
-            if ann_graph == None:
-                log.debug("No annotation graph: "+str(ann_uri))
-            else:
-                for (s, p, v) in ann_graph.triples((ann_sub, property, None)):
-                    log.debug("Triple: %s %s %s"%(s,p,v))
-                    yield (s, p, v)
+        ann_graph = self._loadAnnotations()
+        for (s, p, v) in ann_graph.triples((subject, property, None)):
+            if not isinstance(s, rdflib.BNode):
+                log.debug("Triple: %s %s %s"%(s,p,v))
+                yield (s, p, v)
         return
 
     def getRoAnnotations(self):
