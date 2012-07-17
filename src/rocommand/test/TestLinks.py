@@ -128,14 +128,19 @@ class TestLinks(TestROSupport.TestROSupport):
         return
 
     def testLinkCreated(self):
-        created = LIT("2011-09-14T12:00:00")
-        self.linkTest("created", created, DCTERMS.created, created)
+        created = "2011-09-14T12:00:00"
+        self.linkTest("created", created, DCTERMS.created, LIT(created))
         return
 
-    def testLinkTypeUri(self):
-        anntypeuri = rdflib.URIRef("http://example.org/annotationtype")
-        annvalue   = REF("http://example.com/link")
-        self.linkTest(anntypeuri, annvalue, anntypeuri, annvalue)
+    def testLinkRdfType(self):
+        typeref = "http://example.com/type"
+        self.linkTest("rdf:type", typeref, RDF.type, REF(typeref))
+        return
+
+    def testLinkUnknownUri(self):
+        anntypeuri = "http://example.org/unknowntype"
+        annvalue   = "http://example.com/link"
+        self.linkTest(anntypeuri, annvalue, REF(anntypeuri), REF(annvalue))
         return
 
     # Test annotate with graph
@@ -243,7 +248,8 @@ def getTestSuite(select="unit"):
             , "testLink"
             , "testLinkType"
             , "testLinkCreated"
-            , "testLinkTypeUri"
+            , "testLinkRdfType"
+            , "testLinkUnknownUri"
             , "testLinkWithGraph"
             , "testLinkWithNotExistentGraph"
             ],

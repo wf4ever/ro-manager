@@ -92,10 +92,10 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
-    def annotationTest(self, anntype, annvalue, anntypeuri, annexpect, cmd):
+    def annotateTest(self, anntype, annvalue, anntypeuri, annexpect):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
-            "ro", cmd, rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
+            "ro", "annotate", rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
             "-v",
             ]
         with SwitchStdout(self.outstr):
@@ -116,14 +116,6 @@ class TestAnnotations(TestROSupport.TestROSupport):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
         self.deleteTestRo(rodir)
-        return
-
-    def annotateTest(self, anntype, annvalue, anntypeuri, annexpect):
-        self.annotationTest(anntype, annvalue, anntypeuri, annexpect, "annotate")
-        return
-
-    def linkTest(self, anntype, annvalue, anntypeuri, annexpect):
-        self.annotationTest(anntype, annvalue, anntypeuri, annexpect, "link")
         return
 
     # Other annotation types to add (cf. http://wf4ever.github.com/labs/ro-annotator/mockups/1/index.html)
@@ -151,10 +143,17 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     def testAnnotateTypeUri(self):
-        anntypeuri = rdflib.URIRef("http://example.org/annotationtype")
+        anntypestr = "http://example.org/annotationtype"
+        anntypeuri = rdflib.URIRef(anntypestr)
         annvalue   = "Annotation value"
-        self.annotateTest(anntypeuri, annvalue, anntypeuri, annvalue)
+        self.annotateTest(anntypestr, annvalue, anntypeuri, annvalue)
         return
+
+    def testAnnotateTypeCurie(self):
+        assert False, "@@TODO Unimplemented testAnnotateTypeCurie"
+        return
+
+    # @@TODO: Test use of CURIE as type
 
     def annotateMultiple(self, rodir, rofile, annotations):
         with SwitchStdout(self.outstr):
@@ -322,12 +321,6 @@ class TestAnnotations(TestROSupport.TestROSupport):
     # Test display of annotations for entire RO
 
     # @@TODO: Test annotations shown in RO listing
-
-    # @@TODO: Test interactive/multiline update (how?)
-
-    # @@TODO: Test use of CURIE as type
-
-    # @@TODO: Test use of URI as type
 
     # Sentinel/placeholder tests
 
