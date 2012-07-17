@@ -72,7 +72,7 @@ annotationTypes = (
       }
     ])
 
-def getAnnotationByName(ro_config, aname):
+def getAnnotationByName(ro_config, aname, defaultType="string"):
     """
     Given an attribute name from the command line, returns
     attribute predicate and type URIs as a URIRef node and attribute value type
@@ -85,11 +85,11 @@ def getAnnotationByName(ro_config, aname):
             break
     else:
         predicate = aname
-        valtype   = "string"
+        valtype   = defaultType
     predicate = rdflib.URIRef(predicate)
     return (predicate, valtype)
 
-def getAnnotationByUri(ro_config, auri):
+def getAnnotationByUri(ro_config, auri, defaultType="string"):
     """
     Given an attribute URI from the manifest graph, returns an
     attribute name and type tuple for displaying an attribute
@@ -97,7 +97,7 @@ def getAnnotationByUri(ro_config, auri):
     for atype in ro_config["annotationTypes"]:
         if str(atype["fullUri"]) == str(auri):
             return (atype["name"], atype["type"])
-    return ("<"+str(auri)+">", "string")
+    return ("<"+str(auri)+">", defaultType)
 
 def getAnnotationNameByUri(ro_config, uri):
     """
@@ -166,7 +166,7 @@ def createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph):
         format='xml', base=ro_manifest.getRoUri(ro_dir), xml_base="..")
     return annotation_filename
 
-def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
+def createAnnotationBody(ro_config, ro_dir, rofile, attrdict, defaultType="string"):
     """
     Create a new annotation body for a single resource in a research object.
 
@@ -189,7 +189,7 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict):
     anngraph = rdflib.Graph()
     s = ro_manifest.getComponentUri(ro_dir, rofile)
     for k in attrdict:
-        (p,t) = getAnnotationByName(ro_config, k)
+        (p,t) = getAnnotationByName(ro_config, k, defaultType)
         anngraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
     # Write graph and return filename
     return createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph)

@@ -18,8 +18,9 @@ import TestConfig
 import TestBasicCommands
 import TestAnnotationUtils
 import TestManifest
-import TestAnnotations
 import TestROMetadata
+import TestAnnotations
+import TestLinks
 import TestMinimAccess
 import TestEvalChecklist
 import TestRosrsApi
@@ -32,8 +33,9 @@ def getTestSuite(select="unit"):
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
     suite.addTest(TestManifest.getTestSuite(select=select))
-    suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestROMetadata.getTestSuite(select=select))
+    suite.addTest(TestAnnotations.getTestSuite(select=select))
+    suite.addTest(TestLinks.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
     if select != "unit":

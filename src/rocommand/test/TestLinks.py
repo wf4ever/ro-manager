@@ -50,16 +50,19 @@ ro_config = {
     "annotationTypes": ro_annotation.annotationTypes
     }
 
-class TestAnnotations(TestROSupport.TestROSupport):
+def LIT(l): return rdflib.Literal(l)
+def REF(u): return rdflib.URIRef(u)
+
+class TestLinks(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
     """
     def setUp(self):
-        super(TestAnnotations, self).setUp()
+        super(TestLinks, self).setUp()
         return
 
     def tearDown(self):
-        super(TestAnnotations, self).tearDown()
+        super(TestLinks, self).tearDown()
         return
 
     # Actual tests follow
@@ -67,7 +70,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testAnnotate(self):
+    def testLink(self):
         """
         Annotate file in created RO
 
@@ -92,10 +95,10 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
-    def annotationTest(self, anntype, annvalue, anntypeuri, annexpect, cmd):
+    def linkTest(self, anntype, annvalue, anntypeuri, annexpect):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         args = [
-            "ro", cmd, rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
+            "ro", "link", rodir+"/"+"subdir1/subdir1-file.txt", anntype, annvalue,
             "-v",
             ]
         with SwitchStdout(self.outstr):
@@ -107,7 +110,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
         resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
         expected_annotations = (
-            [ (resourceuri, anntypeuri, rdflib.Literal(annexpect))
+            [ (resourceuri, anntypeuri, annexpect)
             ])
         for i in range(1):
             next = annotations.next()
@@ -118,138 +121,25 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
-    def annotateTest(self, anntype, annvalue, anntypeuri, annexpect):
-        self.annotationTest(anntype, annvalue, anntypeuri, annexpect, "annotate")
-        return
-
-    def linkTest(self, anntype, annvalue, anntypeuri, annexpect):
-        self.annotationTest(anntype, annvalue, anntypeuri, annexpect, "link")
-        return
-
     # Other annotation types to add (cf. http://wf4ever.github.com/labs/ro-annotator/mockups/1/index.html)
 
-    def testAnnotateType(self):
-        self.annotateTest("type", "file type", DCTERMS.type, "file type")
+    def testLinkType(self):
+        self.linkTest("type", "file type", DCTERMS.type, LIT("file type"))
         return
 
-    def testAnnotateKeywords(self):
-        self.annotateTest("keywords", "foo,bar", DCTERMS.subject, "foo,bar")  #@@TODO: make multiples
+    def testLinkCreated(self):
+        created = LIT("2011-09-14T12:00:00")
+        self.linkTest("created", created, DCTERMS.created, created)
         return
 
-    def testAnnotateDescription(self):
-        descr = """
-            Multiline
-            description
-            """
-        self.annotateTest("description", descr, DCTERMS.description, descr)
-        return
-
-    def testAnnotateCreated(self):
-        #@@TODO: use for creation date/time of file
-        created = "2011-09-14T12:00:00"
-        self.annotateTest("created", created, DCTERMS.created, created)
-        return
-
-    def testAnnotateTypeUri(self):
+    def testLinkTypeUri(self):
         anntypeuri = rdflib.URIRef("http://example.org/annotationtype")
-        annvalue   = "Annotation value"
-        self.annotateTest(anntypeuri, annvalue, anntypeuri, annvalue)
-        return
-
-    def annotateMultiple(self, rodir, rofile, annotations):
-        with SwitchStdout(self.outstr):
-            for a in annotations:
-                args = ["ro", "annotate", rofile, a["atypename"], a["avalue"]]
-                status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-                outtxt = self.outstr.getvalue()
-                assert status == 0, outtxt
-        # Reset output stream buffer closed
-        self.outstr = StringIO.StringIO()
-        return
-
-    def testAnnotateMultiple(self):
-        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
-        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
-        define_annotations = (
-            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
-            , {"atypename": "keywords",    "avalue":"asubj",    "atypeuri":DCTERMS.subject,     "aexpect":"asubj" }
-            , {"atypename": "description", "avalue":"adesc",    "atypeuri":DCTERMS.description, "aexpect":"adesc" }
-            , {"atypename": "format",      "avalue":"aformat",  "atypeuri":DCTERMS.format,      "aexpect":"aformat" }
-            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
-            , {"atypename": "created",     "avalue":"acreated", "atypeuri":DCTERMS.created,     "aexpect":"acreated" }
-            #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
-            #, {"atypename": ..., "avalue":..., "atypeuri":..., "aexpect":... }
-            ])
-        self.annotateMultiple(rodir, rofile, define_annotations)
-        # Read manifest and check for annotation
-        annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
-        resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")
-        expected_annotations = (
-            [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
-                for a in define_annotations
-            ])
-        for i in range(6):
-            next = annotations.next()
-            #log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations):
-                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
-        self.assertRaises(StopIteration, annotations.next)
-        # Clean up
-        self.deleteTestRo(rodir)
-        return
-
-    # Test annotation display
-    def testAnnotationDisplayRo(self):
-        # Construct annotated RO
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
-        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
-        # Display annotations
-        args = [ "ro", "annotations", rodir+"/"
-               , "-v"
-               ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        outtxt = self.outstr.getvalue()
-        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
-        log.debug("status %d, outtxt: %s"%(status, outtxt))
-        self.assertEqual(outtxt.count("ro annotations"), 1)
-        #self.assertRegexpMatches(outtxt, "((name))")
-        self.assertRegexpMatches(outtxt, "title.*RO test annotation")
-        self.assertRegexpMatches(outtxt, "created.*\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d")
-        self.assertRegexpMatches(outtxt, "description.*RO test annotation")
-        self.assertRegexpMatches(outtxt, "rdf:type.*<%s>"%(RO.ResearchObject))
-        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/identifier>.*ro-testRoAnnotate")
-        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/creator>.*Test User")
-        self.deleteTestRo(rodir)
-        return
-
-    def testAnnotationDisplayFile(self):
-        # Construct annotated RO
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
-        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
-        annotations = (
-            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
-            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
-            ])
-        self.annotateMultiple(rodir, rofile, annotations)
-        # Display annotations
-        args = [ "ro", "annotations", rofile
-               , "-v"
-               ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        outtxt = self.outstr.getvalue()
-        assert status == 0, outtxt
-        log.debug("outtxt: %s"%(outtxt))
-        self.assertEqual(outtxt.count("ro annotations"), 1)
-        self.assertRegexpMatches(outtxt, "\n<subdir1/subdir1-file.txt>")
-        self.assertRegexpMatches(outtxt, "type.*atype")
-        self.assertRegexpMatches(outtxt, "title.*atitle")
-        self.deleteTestRo(rodir)
+        annvalue   = REF("http://example.com/link")
+        self.linkTest(anntypeuri, annvalue, anntypeuri, annvalue)
         return
 
     # Test annotate with graph
-    def testAnnotateWithGraph(self):
+    def testLinkWithGraph(self):
         rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         define_annotations = (
@@ -289,7 +179,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     # Test annotate with non-existent graph (make nsure it doesn't all fall over)
-    def testAnnotateWithNotExistentGraph(self):
+    def testLinkWithNotExistentGraph(self):
         rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         rofile = rodir+"/"+"subdir1/subdir1-file.txt"
         # Apply non-exietent graph annotation
@@ -318,16 +208,6 @@ class TestAnnotations(TestROSupport.TestROSupport):
         # Clean up
         self.deleteTestRo(rodir)
         return
-
-    # Test display of annotations for entire RO
-
-    # @@TODO: Test annotations shown in RO listing
-
-    # @@TODO: Test interactive/multiline update (how?)
-
-    # @@TODO: Test use of CURIE as type
-
-    # @@TODO: Test use of URI as type
 
     # Sentinel/placeholder tests
 
@@ -360,17 +240,12 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testAnnotate"
-            , "testAnnotateType"
-            , "testAnnotateKeywords"
-            , "testAnnotateDescription"
-            , "testAnnotateCreated"
-            , "testAnnotateTypeUri"
-            , "testAnnotateMultiple"
-            , "testAnnotationDisplayRo"
-            , "testAnnotationDisplayFile"
-            , "testAnnotateWithGraph"
-            , "testAnnotateWithNotExistentGraph"
+            , "testLink"
+            , "testLinkType"
+            , "testLinkCreated"
+            , "testLinkTypeUri"
+            , "testLinkWithGraph"
+            , "testLinkWithNotExistentGraph"
             ],
         "component":
             [ "testComponents"
@@ -382,9 +257,9 @@ def getTestSuite(select="unit"):
             [ "testPending"
             ]
         }
-    return TestUtils.getTestSuite(TestAnnotations, testdict, select=select)
+    return TestUtils.getTestSuite(TestLinks, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestAnnotations.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestLinks.log", getTestSuite, sys.argv)
 
 # End.

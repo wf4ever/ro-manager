@@ -21,6 +21,7 @@ TODO:
 ** Test interactive/multiline update (how?)
 ** Test use of CURIE as type
 ** Test use of URI as type
+** Check use of remove annotation does not modify file in main RO added with -g
 
 * ro link
 * ro links

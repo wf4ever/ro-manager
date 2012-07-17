@@ -45,7 +45,7 @@ def run(configbase, options, args):
         status = ro_command.status(progname, configbase, options, args)
     elif args[1] == "list" or args[1] == "ls":
         status = ro_command.list(progname, configbase, options, args)
-    elif args[1] == "annotate":
+    elif args[1] in ["annotate","link"]:
         status = ro_command.annotate(progname, configbase, options, args)
     elif args[1] == "annotations":
         status = ro_command.annotations(progname, configbase, options, args)
@@ -63,10 +63,10 @@ def run(configbase, options, args):
 def parseCommandArgs(argv):
     """
     Parse command line arguments
-    
+
     prog -- program name from command line
     argv -- argument list from command line
-    
+
     Returns a pair consisting of options specified as returned by
     OptionParser, and any remaining unparsed arguments.
     """
@@ -77,50 +77,50 @@ def parseCommandArgs(argv):
     # version option
     parser.add_option("-a", "--all",
                       action="store_true",
-                      dest="all", 
+                      dest="all",
                       default=False,
                       help="All, list all files, depends on the context")
     parser.add_option("-b", "--ro-base",
-                      dest="robasedir", 
+                      dest="robasedir",
                       help="Base of local directory tree used for ROs")
     parser.add_option("-d", "--ro-directory",
                       dest="rodir",
                       help="Directory of Research Object to process (defaults to current directory)")
     parser.add_option("-e", "--user-email",
-                      dest="useremail", 
+                      dest="useremail",
                       help="Email address of research objects owner")
     parser.add_option("-f", "--force",
                       action="store_true",
-                      dest="force", 
+                      dest="force",
                       default=False,
                       help="Force, depends on the context")
     parser.add_option("-g", "--graph",
-                      dest="graph", 
+                      dest="graph",
                       help="Name of existing RDF graph used for annotation")
     parser.add_option("-i", "--ro-identifier",
-                      dest="roident", 
+                      dest="roident",
                       help="Identifier of Research Object (defaults to value based on name)")
     parser.add_option("-l", "--report-level",
                       dest="level",
                       default="may",
                       help="Level of report detail to generate (summary, must, should, may or full)")
     parser.add_option("-n", "--user-name",
-                      dest="username", 
+                      dest="username",
                       help="Full name of research objects owner")
     parser.add_option("-r", "--rosrs-uri",
-                      dest="rosrs_uri", 
+                      dest="rosrs_uri",
                       help="URI of ROSRS service")
     parser.add_option("-t", "--rosrs-access-token",
-                      dest="rosrs_access_token", 
+                      dest="rosrs_access_token",
                       help="ROSRS access token")
     parser.add_option("-v", "--verbose",
-                      action="store_true", 
-                      dest="verbose", 
+                      action="store_true",
+                      dest="verbose",
                       default=False,
                       help="display verbose output")
     parser.add_option("--debug",
-                      action="store_true", 
-                      dest="debug", 
+                      action="store_true",
+                      dest="debug",
                       default=False,
                       help="display debug output")
     # parse command line now
@@ -130,11 +130,11 @@ def parseCommandArgs(argv):
 
 def runCommand(configbase, robase, argv):
     """
-    Run program with supplied configuration base directory, Base directory 
+    Run program with supplied configuration base directory, Base directory
     from which to start looking for research objects, and arguments.
-    
+
     This is called by main function (below), and also by test suite routines.
-    
+
     Returns exit status.
     """
     (options, args) = parseCommandArgs(argv)

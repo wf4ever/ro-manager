@@ -129,7 +129,7 @@ class ro_metadata(object):
             yield r
         return
 
-    def _createAnnotationBody(self, roresource, attrdict):
+    def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):
         """
         Create a new annotation body for a single resource in a research object, based
         on a supplied graph value.
@@ -148,7 +148,7 @@ class ro_metadata(object):
         Returns the name of the annotation body created relative to the RO directory.
         """
         af = ro_annotation.createAnnotationBody(
-            self.roconfig, self.getRoFilename(), roresource, attrdict)
+            self.roconfig, self.getRoFilename(), roresource, attrdict, defaultType)
         return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
 
     def _createAnnotationGraphBody(self, roresource, anngraph):
@@ -231,7 +231,7 @@ class ro_metadata(object):
         self.manifestgraph.remove((None,    ORE.aggregates, annbody))
         return
 
-    def addSimpleAnnotation(self, rofile, attrname, attrvalue):
+    def addSimpleAnnotation(self, rofile, attrname, attrvalue, defaultType="string"):
         """
         Add a simple annotation to a file in a research object.
 
@@ -240,7 +240,7 @@ class ro_metadata(object):
         attrvalue   is a value to be associated with the attribute
         """
         ro_dir   = self.getRoFilename()
-        annfile  = self._createAnnotationBody(rofile, { attrname: attrvalue} )
+        annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
         self._addAnnotationBodyToRoGraph(rofile, annfile)
         self.updateManifest()
         return

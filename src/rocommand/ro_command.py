@@ -104,6 +104,10 @@ ro_command_usage = (
           ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
           ,"annotate [ -d <dir> ] <file> -g <RDF-graph>"
           ] )
+    , ( ["link"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
+          ["link [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
+          ,"link [ -d <dir> ] <file> -g <RDF-graph>"
+          ] )
     , ( ["annotations"],     argminmax(2,3),
           ["annotations [ <file> | -d <dir> ]"] )
     , ( ["push"],            argminmax(2,2),
@@ -350,6 +354,7 @@ def annotate(progname, configbase, options, args):
     Annotate a specified research object component
 
     ro annotate file attribute-name [ attribute-value ]
+    ro link file attribute-name [ attribute-value ]
     """
     ro_config = ro_utils.readconfig(configbase)
     rodir = options.rodir or os.path.dirname(args[2])
@@ -359,7 +364,8 @@ def annotate(progname, configbase, options, args):
             # Usding graph annotation form
             "rofile":       args[2],
             "rodir":        rodir,
-            "graph":        options.graph or None
+            "graph":        options.graph or None,
+            "defaultType":  "resource" if args[1] == "link" else "string"
             }
     else:
         ro_options = {
@@ -367,7 +373,8 @@ def annotate(progname, configbase, options, args):
             "rofile":       args[2],
             "rodir":        rodir,
             "roattribute":  args[3],
-            "rovalue":      args[4] if len(args) == 5 else None
+            "rovalue":      args[4] if len(args) == 5 else None,
+            "defaultType":  "resource" if args[1] == "link" else "string"
             }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
@@ -388,7 +395,9 @@ def annotate(progname, configbase, options, args):
         # Create new annotation graph
         if options.verbose:
             print "ro annotate -d %(rodir)s %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
-        rometa.addSimpleAnnotation(rofile, ro_options['roattribute'],  ro_options['rovalue'])
+        rometa.addSimpleAnnotation(rofile,
+            ro_options['roattribute'], ro_options['rovalue'],
+            ro_options['defaultType'])
     return 0
 
 def annotations(progname, configbase, options, args):
