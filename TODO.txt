@@ -15,26 +15,12 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
-* ro annotate/annnotations
-** Test display of annotations for entire RO
-** Test annotations shown in RO listing
-** Test interactive/multiline update (how?)
-** Test use of CURIE as type
-** Test use of URI as type
-** Check use of remove annotation does not modify file in main RO added with -g
-
-* ro link
-* ro links
-** Test links shown in RO listing
+* Update documentation to reflect new link command
 
 * ro show config
 * ro create should fail if RO already created
 
-* Refactor sync code to use ro_metadata to access manifest (OUTSTANDING)
-
-* Refactor ro_metadata to handle manifest access and updates locally, rather than via ro_annotations.
-  Also, add logic to cache ro_annotation graph.
-  (Keep ro_annotations for annotation support methods)
+* Refactor sync code to use ro_metadata to access manifest
 
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
@@ -96,6 +82,20 @@ DONE
 * ro annotate (-g|--graph) rdf-resource [ file ] -- use RDF file already present as annotation for the named file.  Defaults to annotations for the entire RO.
 
 * Updates evaluation options; forall => exists and liveness tests
+
+* ro annotate/annnotations
+** Test use of CURIE as type
+** Test use of URI as type
+** Check use of remove annotation does not modify file in main RO added with -g
+
+* ro link
+* ro links
+** Test links shown in RO listing
+
+* Refactor ro_metadata to handle manifest access and updates locally, rather than via ro_annotations.
+  Also, add logic to cache ro_annotation graph.
+  (Keep ro_annotations for annotation support methods)
+
 
 ----
 
