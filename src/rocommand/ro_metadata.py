@@ -179,7 +179,7 @@ class ro_metadata(object):
         annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
                         (e.g. as returned by _createAnnotationBody method).
         """
-        ###log.debug("_readAnnotationBody %s"%(annotationref))
+        log.debug("_readAnnotationBody %s"%(annotationref))
         annotationuri    = self.getComponentUri(annotationref)
         annotationformat = "xml"
         # Look at file extension to figure format
@@ -191,7 +191,7 @@ class ro_metadata(object):
             anngr = rdflib.Graph()
         try:
             anngr.parse(annotationuri, format=annotationformat)
-            ###log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
+            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
         except IOError, e:
             log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
             anngr = None
@@ -345,7 +345,11 @@ class ro_metadata(object):
         anns = man_graph.triples((None, RO.annotatesAggregatedResource, subject))
         for (ann_node, _ap, ann_sub) in anns:
             ann_uri   = man_graph.value(subject=ann_node, predicate=AO.body)
+            log.debug("iterateAnnotations readannotationBody %s"%(str(ann_uri)))
             ann_graph = self._readAnnotationBody(ann_uri)
+            #for (s, p, o) in ann_graph:
+            #    log.debug("  (%s,%s,%s)"%(str(s),str(p),str(o)))
+            log.debug("iterateAnnotations ann_graph %s"%(str(ann_graph)))
             if ann_graph == None:
                 log.debug("No annotation graph: "+str(ann_uri))
             else:

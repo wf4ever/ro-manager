@@ -44,7 +44,7 @@ def getoptionvalue(val, prompt):
             val = raw_input(prompt)
         else:
             val = sys.stdin.readline()
-            if val[-1] == '\n': val = val[:-1]    
+            if val[-1] == '\n': val = val[:-1]
     return val
 
 def ro_root_directory(cmdname, ro_config, rodir):
@@ -86,9 +86,9 @@ def argminmax(min, max):
     return (lambda options,args: (len(args) >= min and (max == 0 or len(args) <= max)))
 
 ro_command_usage = (
-    [ ( ["help"],            argminmax(2,2), 
+    [ ( ["help"],            argminmax(2,2),
           ["help"] )
-    , ( ["config"],          argminmax(2,2), 
+    , ( ["config"],          argminmax(2,2),
           ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"] )
     , ( ["create"],          argminmax(3,3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"] )
@@ -100,7 +100,7 @@ ro_command_usage = (
           ["list [ -d <dir> ]"
           ,"ls   [ -d <dir> ]"
           ] )
-    , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])), 
+    , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
           ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
           ,"annotate [ -d <dir> ] <file> -g <RDF-graph>"
           ] )
@@ -171,7 +171,7 @@ def config(progname, configbase, options, args):
         "annotationTypes": annotationTypes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
-    if options.verbose: 
+    if options.verbose:
         print "ro config -b %(robase)s"%ro_config
         print "          -r %(rosrs_uri)s"%ro_config
         print "          -t %(rosrs_access_token)s"%ro_config
@@ -206,7 +206,7 @@ def create(progname, configbase, options, args):
                (ro_utils.progname(args), ro_options['rodir']))
         return 1
     # Create directory for manifest
-    if options.verbose: 
+    if options.verbose:
         print "ro create \"%(roname)s\" -d \"%(rodir)s\" -i \"%(roident)s\""%ro_options
     manifestdir = os.path.join(ro_dir, ro_settings.MANIFEST_DIR)
     log.debug("manifestdir: "+manifestdir)
@@ -261,7 +261,7 @@ def create(progname, configbase, options, args):
 def add(progname, configbase, options, args):
     """
     Add files to a research object manifest
-    
+
     ro add [ -d dir ] file
     ro add [ -d dir ] [-a] [directory]
 
@@ -303,7 +303,7 @@ def status(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" status", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read manifest and display status
-    if options.verbose: 
+    if options.verbose:
         print "ro status -d \"%(rodir)s\""%ro_options
     rometa = ro_metadata(ro_config, ro_dir)
     rodict = rometa.getRoMetadataDict()
@@ -336,7 +336,7 @@ def list(progname, configbase, options, args):
     if options.verbose:
         print "ro list -d \"%(rodir)s\""%ro_options
     rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
-                ro_dir, baseDir=os.path.abspath(ro_dir), 
+                ro_dir, baseDir=os.path.abspath(ro_dir),
                 listDirs=False, listFiles=True, recursive=True, appendSep=False)
     if not options.all:
         def notHidden(f):
@@ -348,7 +348,7 @@ def list(progname, configbase, options, args):
 def annotate(progname, configbase, options, args):
     """
     Annotate a specified research object component
-    
+
     ro annotate file attribute-name [ attribute-value ]
     """
     ro_config = ro_utils.readconfig(configbase)
@@ -394,7 +394,7 @@ def annotate(progname, configbase, options, args):
 def annotations(progname, configbase, options, args):
     """
     Display annotations
-    
+
     ro annotations [ file | -d dir ]
     """
     log.debug("annotations: progname %s, configbase %s, args %s"%
@@ -418,20 +418,25 @@ def annotations(progname, configbase, options, args):
         annotations = rometa.getFileAnnotations(rofile)
     else:
         annotations = rometa.getAllAnnotations()
+    if options.debug:
+        log.debug("---- Annotations:")
+        for a in annotations:
+            log.debug("  %s"%repr(a))
+        log.debug("----")
     rometa.showAnnotations(annotations, sys.stdout)
     return 0
 
 def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
-    
+
     ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "rodir":          options.rodir or None,
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'], 
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
                                                                                       "Access token for ROSRS service: "),
         "force":          options.force
         }
@@ -467,7 +472,7 @@ def push(progname, configbase, options, args):
 def checkout(progname, configbase, options, args):
     """
     Checkout a RO from ROSRS
-    
+
     ro checkout [ <RO-identifier> ] [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
@@ -506,22 +511,22 @@ def checkout(progname, configbase, options, args):
 
 def __unpackZip(verzip, rodir, verbose):
     zipfile = ZipFile(verzip)
-    
+
     if verbose:
         for l in zipfile.namelist():
             print os.path.join(rodir, l)
-                
+
     if not os.path.exists(rodir) or not os.path.isdir(rodir):
         os.mkdir(rodir)
     zipfile.extractall(rodir)
-        
+
     print "%d files checked out" % len(zipfile.namelist())
     return 0
 
 def evaluate(progname, configbase, options, args):
     """
     Evaluate RO
-    
+
     ro evaluate checklist [ -d <dir> ] <minim> <purpose> [ <target> ]"
     """
     log.debug("evaluate: progname %s, configbase %s, args %s"%
@@ -551,13 +556,13 @@ def evaluate(progname, configbase, options, args):
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s"%ro_options
         rometa = ro_metadata(ro_config, ro_dir)
-        (minimgraph, evalresult) = ro_eval_minim.evaluate(rometa, 
+        (minimgraph, evalresult) = ro_eval_minim.evaluate(rometa,
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
         if options.verbose:
             print "== Evaluation result =="
             print json.dumps(evalresult, indent=2)
-        ro_eval_minim.format(evalresult, 
-            { "detail" : "full" if options.all else options.level }, 
+        ro_eval_minim.format(evalresult,
+            { "detail" : "full" if options.all else options.level },
             sys.stdout)
     # elif ... other functions here
     else:

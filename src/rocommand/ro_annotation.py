@@ -14,13 +14,13 @@ import re
 log = logging.getLogger(__name__)
 
 import rdflib
-from rdflib.namespace import RDF
+#from rdflib.namespace import RDF, RDFS
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
 
 import ro_settings
 import ro_manifest
-from ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
+from ro_namespaces import RDF, RDFS, RO, AO, ORE, DCTERMS, ROTERMS
 
 #   Default list of annotation types
 annotationTypes = (
@@ -64,6 +64,11 @@ annotationTypes = (
       , "baseUri": RDF.baseUri, "fullUri": RDF.type
       , "label": "RDF type"
       , "description": "RDF type of the annotated object"
+      }
+    , { "name": "rdfs:seeAlso", "prefix": "rdfs", "localName": "seeAlso", "type": "resource"
+      , "baseUri": RDFS.baseUri, "fullUri": RDFS.seeAlso
+      , "label": "See also"
+      , "description": "Related resource with further information"
       }
     ])
 
