@@ -272,18 +272,19 @@ class ro_metadata(object):
         for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
             ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
             log.debug("removeSimpleAnnotation ann_uri %s"%(str(ann_uri)))
-            ann_graph = self._readAnnotationBody(self.getComponentUriRel(ann_uri))
-            log.debug("removeSimpleAnnotation ann_graph %s"%(ann_graph))
-            if (subject, predicate, val) in ann_graph:
-                ann_graph.remove((subject, predicate, val))
-                if (subject, None, None) in ann_graph:
-                    # Triples remain in annotation body: write new body and update RO graph
-                    ann_name = self._createAnnotationGraphBody(rofile, ann_graph)
-                    remove_annotations.append(ann_node)
-                    add_annotations.append(ann_name)
-                else:
-                    # Remove annotation from RO graph
-                    remove_annotations.append(ann_node)
+            if self.isRoMetadataRef(ann_uri):
+                ann_graph = self._readAnnotationBody(self.getComponentUriRel(ann_uri))
+                log.debug("removeSimpleAnnotation ann_graph %s"%(ann_graph))
+                if (subject, predicate, val) in ann_graph:
+                    ann_graph.remove((subject, predicate, val))
+                    if (subject, None, None) in ann_graph:
+                        # Triples remain in annotation body: write new body and update RO graph
+                        ann_name = self._createAnnotationGraphBody(rofile, ann_graph)
+                        remove_annotations.append(ann_node)
+                        add_annotations.append(ann_name)
+                    else:
+                        # Remove annotation from RO graph
+                        remove_annotations.append(ann_node)
         # Update RO manifest graph if needed
         if add_annotations or remove_annotations:
             for a in remove_annotations:
@@ -474,6 +475,13 @@ class ro_metadata(object):
         else:
             file_uri_rel = path
         return rdflib.URIRef(file_uri_rel)
+
+    def isRoMetadataRef(self, uri):
+        """
+        Test if supplied URI is a reference to the current RO metadata area
+        """
+        urirel = self.getComponentUriRel(uri)
+        return str(urirel).startswith(ro_settings.MANIFEST_DIR+"/")
 
     def getManifestUri(self):
         return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)

@@ -35,7 +35,7 @@ from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand import ro_annotation
-from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
+from rocommand.ro_namespaces import RDF, RDFS, DCTERMS, RO, AO, ORE
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -150,7 +150,10 @@ class TestAnnotations(TestROSupport.TestROSupport):
         return
 
     def testAnnotateTypeCurie(self):
-        assert False, "@@TODO Unimplemented testAnnotateTypeCurie"
+        anntypestr = "rdfs:comment"
+        anntypeuri = RDFS.comment
+        annvalue   = "Annotation value"
+        self.annotateTest(anntypestr, annvalue, anntypeuri, annvalue)
         return
 
     # @@TODO: Test use of CURIE as type
@@ -217,8 +220,8 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.assertRegexpMatches(outtxt, "created.*\d\d\d\d-\d\d-\d\dT\d\d:\d\d:\d\d")
         self.assertRegexpMatches(outtxt, "description.*RO test annotation")
         self.assertRegexpMatches(outtxt, "rdf:type.*<%s>"%(RO.ResearchObject))
-        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/identifier>.*ro-testRoAnnotate")
-        self.assertRegexpMatches(outtxt, "<http://purl.org/dc/terms/creator>.*Test User")
+        self.assertRegexpMatches(outtxt, "dcterms:identifier.*ro-testRoAnnotate")
+        self.assertRegexpMatches(outtxt, "dcterms:creator.*Test User")
         self.deleteTestRo(rodir)
         return
 
@@ -359,6 +362,7 @@ def getTestSuite(select="unit"):
             , "testAnnotateDescription"
             , "testAnnotateCreated"
             , "testAnnotateTypeUri"
+            , "testAnnotateTypeCurie"
             , "testAnnotateMultiple"
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"

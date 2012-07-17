@@ -26,7 +26,7 @@ import MiscLib.ScanDirectories
 import ro_settings
 import ro_utils
 import ro_uriutils
-from ro_annotation import annotationTypes
+from ro_annotation import annotationTypes, annotationPrefixes
 from ro_metadata   import ro_metadata
 
 from iaeval import ro_eval_minim
@@ -166,13 +166,19 @@ def config(progname, configbase, options, args):
     """
     robase = os.path.realpath(options.robasedir)
     ro_config = {
-        "robase":         getoptionvalue(robase,                 "RO local base directory:       "),
-        "rosrs_uri":      getoptionvalue(options.rosrs_uri,             "URI for ROSRS service:         "),
-        "rosrs_access_token": getoptionvalue(options.rosrs_access_token,"Access token for ROSRS service:"),
-        "username":       getoptionvalue(options.username,       "Name of research object owner: "),
-        "useremail":      getoptionvalue(options.useremail,      "Email address of owner:        "),
-        # Built-in annotation types
-        "annotationTypes": annotationTypes
+        "robase":               getoptionvalue(robase,
+                                "RO local base directory:       "),
+        "rosrs_uri":            getoptionvalue(options.rosrs_uri,
+                                "URI for ROSRS service:         "),
+        "rosrs_access_token":   getoptionvalue(options.rosrs_access_token,
+                                "Access token for ROSRS service:"),
+        "username":             getoptionvalue(options.username,
+                                "Name of research object owner: "),
+        "useremail":            getoptionvalue(options.useremail,
+                                "Email address of owner:        "),
+        # Built-in annotation types and prefixes
+        "annotationTypes":      annotationTypes,
+        "annotationPrefixes":   annotationPrefixes
         }
     ro_config["robase"] = os.path.abspath(ro_config["robase"])
     if options.verbose:

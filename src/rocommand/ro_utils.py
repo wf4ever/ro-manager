@@ -36,7 +36,7 @@ def ropath(ro_config, dir):
     if os.path.isdir(rodir) and os.path.commonprefix([robase, os.path.realpath(rodir)]) == robase:
        return rodir
     return None
-    
+
 def configfilename(configbase):
     return os.path.abspath(configbase+"/"+CONFIGFILE)
 
@@ -55,11 +55,13 @@ def resetconfig(configbase):
     Reset configuration in indicated directory
     """
     ro_config = {
-        "robase":         None,
-        "rosrs_uri":      None,
-        "rosrs_access_token": None,
-        "username":       None,
-        "useremail":      None
+        "robase":               None,
+        "rosrs_uri":            None,
+        "rosrs_access_token":   None,
+        "username":             None,
+        "useremail":            None,
+        "annotationTypes":      None,
+        "annotationPrefixes":   None,
         }
     writeconfig(configbase, ro_config)
     return
@@ -69,11 +71,13 @@ def readconfig(configbase):
     Read configuration in indicated directory and return as a dictionary
     """
     ro_config = {
-        "robase":         None,
-        "rosrs_uri":      None,
-        "rosrs_access_token": None,
-        "username":       None,
-        "useremail":      None
+        "robase":               None,
+        "rosrs_uri":            None,
+        "rosrs_access_token":   None,
+        "username":             None,
+        "useremail":            None,
+        "annotationTypes":      None,
+        "annotationPrefixes":   None,
         }
     configfile = None
     try:

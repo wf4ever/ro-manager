@@ -34,7 +34,7 @@ from MiscLib import TestUtils
 from rocommand import ro_settings
 from rocommand import ro_manifest
 from rocommand import ro_annotation
-from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
+from rocommand.ro_namespaces import RDF, RDFS, RO, ORE, DCTERMS, ROTERMS
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -46,7 +46,8 @@ testbase = os.path.dirname(os.path.abspath(__file__))
 
 # Local ro_config for testing
 ro_config = {
-    "annotationTypes": ro_annotation.annotationTypes
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
     }
 
 cwd        = os.getcwd()
@@ -228,19 +229,18 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         testAnnotaton(DCTERMS.title,          "title",          "string")
         testAnnotaton(DCTERMS.description,    "description",    "text")
         testAnnotaton(RDF.type,               "rdf:type",       "resource")
+        testAnnotaton(RDFS.comment,           "rdfs:comment",   "string")
         return
 
     def testGetAnnotationNameByUri(self):
         def testAnnotatonName(uri, name):
-            roconfig = {
-                "annotationTypes": ro_annotation.annotationTypes
-                }
-            self.assertEqual(ro_annotation.getAnnotationNameByUri(roconfig, uri), name)
+            self.assertEqual(ro_annotation.getAnnotationNameByUri(ro_config, uri), name)
             return
         self.assertEqual(RDF.type, rdflib.URIRef("http://www.w3.org/1999/02/22-rdf-syntax-ns#type"))
         testAnnotatonName(DCTERMS.title,        "title")
         testAnnotatonName(DCTERMS.description,  "description")
         testAnnotatonName(RDF.type,             "rdf:type")
+        testAnnotatonName(RDFS.comment,         "rdfs:comment")
         testAnnotatonName(rdflib.URIRef("http://example.org/foo"),  "<http://example.org/foo>")
         return
 

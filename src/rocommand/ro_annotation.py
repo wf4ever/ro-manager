@@ -72,20 +72,49 @@ annotationTypes = (
       }
     ])
 
+# Default list of annotation prefixes
+annotationPrefixes = (
+    { "rdf":       "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+    , "rdfs":      "http://www.w3.org/2000/01/rdf-schema#"
+    , "owl":       "http://www.w3.org/2002/07/owl#"
+    , "xsd":       "http://www.w3.org/2001/XMLSchema#"
+    , "rdfg":      "http://www.w3.org/2004/03/trix/trix-1/"
+    , "skos":      "http://www.w3.org/2004/02/skos/core#"
+    , "foaf":      "http://xmlns.com/foaf/0.1/"
+    , "dc":        "http://purl.org/dc/elements/1.1/"
+    , "dcterms":   "http://purl.org/dc/terms/"
+    , "ore":       "http://www.openarchives.org/ore/terms/"
+    , "ao":        "http://purl.org/ao/"
+    , "ro":        "http://purl.org/wf4ever/ro#"
+    , "roterms":   "http://purl.org/wf4ever/roterms#"
+    , "roevo":     "http://purl.org/wf4ever/roevo#"
+    , "wfdesc":    "http://purl.org/wf4ever/wfdesc#"
+    , "wfprov":    "http://purl.org/wf4ever/wfprov#"
+    })
+
+# Annotation support functions
 def getAnnotationByName(ro_config, aname, defaultType="string"):
     """
     Given an attribute name from the command line, returns
     attribute predicate and type URIs as a URIRef node and attribute value type
     """
     #@@TODO: deal properly with annotation types: return URIRef for type instead of name string
+    # Default interpret atrtribute name as URI
+    predicate = aname
+    valtype   = defaultType
+    asplit = aname.split(":")
     for atype in ro_config["annotationTypes"]:
+        # Try to interpret attribute name as predefined name
         if atype["name"] == aname:
             predicate = atype["fullUri"]
             valtype   = atype["type"]
             break
     else:
-        predicate = aname
-        valtype   = defaultType
+        if len(asplit) == 2:
+            # Try to interpret name as CURIE
+            for apref in ro_config["annotationPrefixes"]:
+                if asplit[0] == apref:
+                    predicate = ro_config["annotationPrefixes"][apref]+asplit[1]
     predicate = rdflib.URIRef(predicate)
     return (predicate, valtype)
 
@@ -94,9 +123,15 @@ def getAnnotationByUri(ro_config, auri, defaultType="string"):
     Given an attribute URI from the manifest graph, returns an
     attribute name and type tuple for displaying an attribute
     """
+    # Look for predefined name
     for atype in ro_config["annotationTypes"]:
         if str(atype["fullUri"]) == str(auri):
             return (atype["name"], atype["type"])
+    # Look for CURIE match
+    for (pref,puri) in ro_config["annotationPrefixes"].iteritems():
+        if auri.startswith(puri):
+            return (pref+":"+auri[len(puri):], defaultType)
+    # return full URI in angle brackets
     return ("<"+str(auri)+">", defaultType)
 
 def getAnnotationNameByUri(ro_config, uri):
