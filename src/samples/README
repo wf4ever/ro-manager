@@ -1,0 +1,9 @@
+This directory contains miscellaneous sample files associated with the ro-manger
+tool.
+
+*.sh: bash shell scripts containing examples of commands that can be used to 
+create and access research Object structures.
+
+prefixes.*: prefix files containing collections of URI prefixes
+commonly used used in Research Object metadata.
+

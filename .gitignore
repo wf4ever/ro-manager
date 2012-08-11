@@ -78,4 +78,7 @@ Thumbs.db
 
 # Project files
 /romenv
-
+/testenv
+/src/build
+/src/dist
+/src/ro_manager.egg-info

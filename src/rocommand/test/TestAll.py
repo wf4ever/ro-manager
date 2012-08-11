@@ -1,18 +1,6 @@
 #!/usr/bin/env python
-# $Id: TestAll.py 1047 2009-01-15 14:48:58Z graham $
-#
-# Unit testing for WebBrick library functions (Functions.py)
-# See http://pyunit.sourceforge.net/pyunit.html
-#
 
 import sys, unittest
-
-if __name__ == "__main__":
-    # Add main project directory and ro manager directories at start of python path
-    sys.path.insert(0, "..")
-    sys.path.insert(0, "../..")
-    sys.path.insert(0, "../../iaeval/test")
-    sys.path.insert(0, "../../sync/test")
 
 import TestConfig
 import TestBasicCommands
@@ -46,7 +34,26 @@ def getTestSuite(select="unit"):
 
 from MiscLib import TestUtils
 
+def runTestSuite():
+    """
+    Transfer function for setup.py script ro-manager-test
+    """
+    base = os.path.dirname(__file__)
+    #print "Run test suite assuming base path "+base
+    sys.path.insert(0, os.path.normpath(base+"/..") )
+    sys.path.insert(0, os.path.normpath(base+"/../..") )
+    sys.path.insert(0, os.path.normpath(base+"/../../iaeval/test") )
+    sys.path.insert(0, os.path.normpath(base+"/../../sync/test") )
+    #print "Path: "+repr(sys.path)
+    TestUtils.runTests("TestAll", getTestSuite, sys.argv)
+    return 0
+
 if __name__ == "__main__":
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "..")
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "../../iaeval/test")
+    sys.path.insert(0, "../../sync/test")
     print "By default, runs quick tests only."
     print "Use \"python TestAll.py all\" to run all tests"
     TestUtils.runTests("TestAll", getTestSuite, sys.argv)

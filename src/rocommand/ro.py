@@ -146,13 +146,19 @@ def runCommand(configbase, robase, argv):
         status  = run(configbase, options, args)
     return status
 
+def runMain():
+    """
+    Main program transfer function for setup.py console script
+    """
+    configbase = os.path.expanduser("~")
+    robase = os.getcwd()
+    return runCommand(configbase, robase, sys.argv)
+
 if __name__ == "__main__":
     """
     Program invoked from the command line.
     """
-    configbase = os.path.expanduser("~")
-    robase = os.getcwd()
-    status = runCommand(configbase, robase, sys.argv)
+    status = runMain()
     sys.exit(status)
 
 #--------+---------+---------+---------+---------+---------+---------+---------+

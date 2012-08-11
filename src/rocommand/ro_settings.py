@@ -4,10 +4,12 @@
 RO manager parameter settings
 """
 
-VERSION       = "0.2 (RODL)"
+import __init__
+VERSION_NUM   = __init__.__version__
+
+RO_VERSION    = "v"+VERSION_NUM
+VERSION       = RO_VERSION+" (RODL)"
 MANIFEST_DIR  = ".ro"
 MANIFEST_FILE = "manifest.rdf"
-
-RO_VERSION    = "v0.1"
 
 # End.

@@ -19,6 +19,9 @@ from rocommand.test.TestConfig import ro_test_config
 from sync.RosrsApi import RosrsApi
 from sync.ResourceSync import ResourceSync
 
+# Logging object
+log = logging.getLogger(__name__)
+
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
 
@@ -107,6 +110,8 @@ ora et labora"""
         self.assertRaises(Exception, back.pushAllResourcesInWorkspace, self.workspacedir, force = True)
         back = ResourceSync(self.__sync)
         (sent, deleted) = back.pushAllResourcesInWorkspace(self.workspacedir, True, True)
+        log.debug("testSyncWorkspace: files: [%s]"%(", ".join(self.files)))
+        log.debug("testSyncWorkspace: sent: [%s]"%(", ".join(sent)))
         self.assertSetEqual(sent, self.files, "Send all workspace resource")
         self.assertSetEqual(deleted, set())
         self.assertTupleEqual((set(), set()), back.pushAllResourcesInWorkspace(self.workspacedir), 
