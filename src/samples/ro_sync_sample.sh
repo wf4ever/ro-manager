@@ -1,15 +1,15 @@
 #!/bin/bash
 #
-# RO manager sample script
+# RO manager sample script for RODL interactions
 #
 
-ROBASE="myworkspace"
+ROBASE="robase"
 
-mkdir $ROBASE
+mkdir -p $ROBASE
 
 echo "--------"
 
-./ro config -v \
+ro config -v \
   -b $ROBASE \
   -r http://sandbox.wf4ever-project.org/rosrs5 \
   -t "47d5423c-b507-4e1c-8" \
@@ -18,7 +18,7 @@ echo "--------"
 
 echo "--------"
 
-./ro checkout -v -d $ROBASE 219 
+ro checkout -v -d $ROBASE 219 
 
 echo "--------"
 
@@ -28,6 +28,6 @@ echo "touched file1.txt"
 
 echo "--------"
 
-./ro push -v -d $ROBASE/219
+ro push -v -d $ROBASE/219
 
 # End.

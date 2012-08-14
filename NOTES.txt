@@ -13,3 +13,15 @@ The directory provided is the root directory of RO, current directory is used by
 
 These are only basic synchronization options but they work, so I suggest we have them merged into master before working on improvements. BTW, I haven't seen a help command that would explain each command in detail but I will add the description above to the wiki.
 
+
+== Packaging ==
+
+Local:
+python setup.py build
+python setup.py install
+
+Register with PyPI:
+python setup.py register
+
+Upload to PyPI:
+python setup.py sdist upload

@@ -81,4 +81,5 @@ Thumbs.db
 /testenv
 /src/build
 /src/dist
+/src/samples/robase
 /src/ro_manager.egg-info

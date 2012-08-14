@@ -53,7 +53,7 @@ setup(
                         ,'test/data/*.rdf'
                         ],
         'sync':         ['test/config/*','test/robase/*'],
-        'samples':      ['*'],
+        'samples':      ['*.sh', '*.py', 'prefixes.*', 'README'],
         },
     exclude_package_data = {
         '': ['spike/*'] 
