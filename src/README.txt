@@ -9,14 +9,13 @@ Research Object Manager (RO Manager) is a simple command line tool for creating 
 * http://www.wf4ever-project.org/wiki/display/docs/RO+Manager+FAQ
 
 Dependencies:
-- Python 2.7.  The test suite depends on Python 2.7, but the program has been run under Python 2.6
-- Linux/Unix type system.  Ths software has not been tested under Windows.
+- Python 2.7.
+- Linux/Unix type system.  This software has not been tested under Windows, but may work.
 - The sample scripts are written to run under BASH
 
 Installation summary (see below for more details):
 
   pip install ro-manager
-  ro-manager-test
 
 OR
 
@@ -86,6 +85,8 @@ OR
 
 == To install from PyPI ==
 
+RO-manager can also be installed from PyPI using 'pip' or 'easy_install', but installation by this route does not include all the sample and test data.  (@@TODO try and understand how to install supporting dsata files via pip install.)
+
 1. If required, create a new Python virtual environment as described above
 
 2. Install:
@@ -93,7 +94,7 @@ OR
      pip install ro-manager
 
    If not installing to a virtual environment, the command needs to be run with 
-   root privilages:
+   root privileges:
    
      sudo pip install ro-manager
 

@@ -44,15 +44,15 @@ setup(
                ,'samples'
                ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
     package_data = {
-        'rocommand':    ['test/config/*','test/robase/*','test/nobase/*'
-                        ,'test/data/ro-test-1/subdir1/*','test/data/ro-test-1/subdir2/*'
-                        ,'test/data/ro-test-1/*.rdf','test/data/ro-test-1/README*'
+        'rocommand.test':    ['config/*','robase/*','nobase/*'
+                        ,'data/ro-test-1/subdir1/*','data/ro-test-1/subdir2/*'
+                        ,'data/ro-test-1/*.rdf','data/ro-test-1/README*'
                         ],
-        'iaeval':       ['test/config/*','test/robase/*'
-                        ,'test/data/data/*','test/data/docs/*'
-                        ,'test/data/*.rdf'
+        'iaeval.test':       ['config/*','robase/*'
+                        ,'data/data/*','data/docs/*'
+                        ,'data/*.rdf'
                         ],
-        'sync':         ['test/config/*','test/robase/*'],
+        'sync.test':         ['config/*','robase/*'],
         'samples':      ['*.sh', '*.py', 'prefixes.*', 'README'],
         },
     exclude_package_data = {
