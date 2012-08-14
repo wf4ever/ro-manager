@@ -16,6 +16,7 @@ Dependencies:
 Installation summary (see below for more details):
 
   pip install ro-manager
+  ro-manager-test
 
 OR
 
@@ -85,7 +86,7 @@ OR
 
 == To install from PyPI ==
 
-RO-manager can also be installed from PyPI using 'pip' or 'easy_install', but installation by this route does not include all the sample and test data.  (@@TODO try and understand how to install supporting dsata files via pip install.)
+RO-manager can also be installed from PyPI using 'pip' or 'easy_install'.
 
 1. If required, create a new Python virtual environment as described above
 
@@ -97,6 +98,12 @@ RO-manager can also be installed from PyPI using 'pip' or 'easy_install', but in
    root privileges:
    
      sudo pip install ro-manager
+
+
+3. Test:
+
+     ro-manager-test
+     ro help
 
 
 == Using RO Manager ==
