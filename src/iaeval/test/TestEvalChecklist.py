@@ -366,7 +366,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , "  Aggregates resource %s"%(rometa.getComponentUri("docs/missing.css"))
             , "Satisfied requirements:"
             , "  Aggregates resource %s"%(rometa.getComponentUri("data/UserRequirements-astro.ods")) 
-            , "  Environment 'lpod-show.py --version' matches '0.9.3'"
+            , "  Environment 'python -V' matches 'Python 2.7'"
             , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])

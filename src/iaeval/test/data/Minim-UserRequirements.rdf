@@ -99,17 +99,16 @@
     </rdfs:comment>
 
     <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="#environment-software/lpod-show">
-        <rdfs:label>lpod-show command</rdfs:label>
+      <minim:Requirement rdf:about="#environment-software/python-27">
+        <rdfs:label>Python 2.7</rdfs:label>
         <rdfs:comment>
-          Require that lpod-show.py command is present (from http://lpod-project.org/).
-          This command dumps CSV data from an OpenOffice Calc spreadsheet document.
+          Require that Python 2.7 is installed.
         </rdfs:comment>
         <minim:isDerivedBy>
           <minim:SoftwareEnvironmentRule>
-            <minim:command>lpod-show.py --version</minim:command>
-            <minim:response>0.9.3</minim:response>
-            <minim:derives rdf:resource="#environment-software/lpod-show" />
+            <minim:command>python -V</minim:command>
+            <minim:response>Python 2.7</minim:response>
+            <minim:derives rdf:resource="#environment-software/python-27" />
           </minim:SoftwareEnvironmentRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -150,7 +149,7 @@
       This model defines a MUST requirement that is missing in the test RO
     </rdfs:comment>
 
-    <minim:hasMustRequirement rdf:resource="#environment-software/lpod-show"/>
+    <minim:hasMustRequirement rdf:resource="#environment-software/python-27"/>
        
     <minim:hasMustRequirement>
       <minim:Requirement rdf:about="#isPresent/data/UserRequirements-bio.ods">
@@ -176,7 +175,7 @@
       This model defines a SHOULD requirement that is missing in the test RO
     </rdfs:comment>
 
-    <minim:hasMustRequirement rdf:resource="#environment-software/lpod-show"/>
+    <minim:hasMustRequirement rdf:resource="#environment-software/python-27"/>
 
     <minim:hasMustRequirement rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
 
@@ -202,7 +201,7 @@
       This model defines a MAY requirement that is missing in the test RO
     </rdfs:comment>
 
-    <minim:hasMustRequirement rdf:resource="#environment-software/lpod-show"/>
+    <minim:hasMustRequirement rdf:resource="#environment-software/python-27"/>
 
     <minim:hasMustRequirement rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
 

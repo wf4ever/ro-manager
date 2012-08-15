@@ -199,13 +199,13 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         expected_found = False
         r1 = (
             { 'level': "MUST"
-            , 'label': rdflib.Literal("lpod-show command")
+            , 'label': rdflib.Literal("Python 2.7")
             , 'softwarerule':
-              { 'command':  rdflib.Literal("lpod-show.py --version")
-              , 'response': rdflib.Literal("0.9.3")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/lpod-show")
+              { 'command':  rdflib.Literal("python -V")
+              , 'response': rdflib.Literal("Python 2.7")
+              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/python-27")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/lpod-show") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/python-27") 
             })
         r2 = (
             { 'level': "MUST"
@@ -344,15 +344,15 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             { 'level': "MUST"
             , 'label': None
             , 'softwarerule':
-              { 'command':  rdflib.Literal("lpod-show.py --version")
-              , 'response': rdflib.Literal("0.9.3")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/lpod-show")
-              , 'show': rdflib.term.Literal('lpOD command %(command)s returns %(response)s')
+              { 'command':  rdflib.Literal("python -V")
+              , 'response': rdflib.Literal("Python 2.7")
+              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/Python 2.7")
+              , 'show': rdflib.term.Literal('python -V command %(command)s returns %(response)s')
               , 'showfail': None
               , 'showpass': None
               }
             , 'model': model
-            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/lpod-show") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/python-27") 
             })
         r2 = (
             { 'level': 'MUST'

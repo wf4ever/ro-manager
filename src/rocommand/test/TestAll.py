@@ -2,6 +2,13 @@
 
 import sys, unittest
 
+if __name__ == "__main__":
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "..")
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "../../iaeval/test")
+    sys.path.insert(0, "../../sync/test")
+
 import TestConfig
 import TestBasicCommands
 import TestAnnotationUtils
@@ -49,11 +56,6 @@ def runTestSuite():
     return 0
 
 if __name__ == "__main__":
-    # Add main project directory and ro manager directories at start of python path
-    sys.path.insert(0, "..")
-    sys.path.insert(0, "../..")
-    sys.path.insert(0, "../../iaeval/test")
-    sys.path.insert(0, "../../sync/test")
     print "By default, runs quick tests only."
     print "Use \"python TestAll.py all\" to run all tests"
     TestUtils.runTests("TestAll", getTestSuite, sys.argv)
