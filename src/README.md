@@ -118,12 +118,12 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 2. Install RO Manager:
 
-    pip install ro-manager
+        pip install ro-manager
 
 3. Test:
 
-    ro-manager-test
-    ro help
+        ro-manager-test
+        ro help
 
 
 ## To install from GitHub
@@ -137,22 +137,22 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git 
 
 1. Obtain a copy of software from GitHub:
 
-In the first instance, the command used will be a "git clone ...":
+    In the first instance, the command used will be a "git clone ...":
 
-Choose a working directory where the RO Manager software will be
-stored:
+    Choose a working directory where the RO Manager software will be
+    stored:
 
-    cd (working directory)
-    git clone https://github.com/wf4ever/ro-manager.git ro-manager
-    cd ro-manager
+        cd (working directory)
+        git clone https://github.com/wf4ever/ro-manager.git ro-manager
+        cd ro-manager
 
- The current working directory is now the $RO_MANAGER directory.
+    The current working directory is now the $RO_MANAGER directory.
 
- To obtain subsequent updates, go into the ro-manager directory
- tree and use "git pull":
+    To obtain subsequent updates, go into the ro-manager directory
+    tree and use "git pull":
    
-    cd $RO_MANAGER
-    git pull
+        cd $RO_MANAGER
+        git pull
 
 2. (Optional) Use Python virtualenv to create and activate an environment
    for installing RO manager.  There are two advantages to doing this:
@@ -161,46 +161,46 @@ stored:
    The main disadvantage of using a new Python virtual environment is
    that it must be activated every time before RO Manager can be run.
 
-    cd $RO_Manager
-    virtualenv roenv
-    source roenv/bin/activate
+        cd $RO_Manager
+        virtualenv roenv
+        source roenv/bin/activate
 
 3. Go to directory $RO_MANAGER/src
 
-    cd $RO_MANAGER/src
+        cd $RO_MANAGER/src
 
 4. Build the installation package:
 
-    python setup.py build
+        python setup.py build
 
 5. Install the package and its dependencies
 
-If installing into a Python virtual environment:
+    If installing into a Python virtual environment:
 
-    python setup.py install
+        python setup.py install
    
- If *not* installing into a Python virtual environment, 
- this command must be run as root:
+    If *not* installing into a Python virtual environment, 
+    this command must be run as root:
    
-    sudo python setup.py install
-   
+        sudo python setup.py install
+
 6. Test the installation
 
-    ro-manager-test
+        ro-manager-test
 
- The following should be displayed:
+    The following should be displayed:
 
-    $ ro-manager-test 
-    .......................................................................................................
-    ----------------------------------------------------------------------
-    Ran 103 tests in 13.406s
+        $ ro-manager-test 
+        .......................................................................................................
+        ----------------------------------------------------------------------
+        Ran 103 tests in 13.406s
     
-    OK
-    $ 
+        OK
+        $ 
 
 7. To run RO manager to display a summary of commands and options:
 
-    ro help
+        ro help
 
 
 ## Using RO Manager
