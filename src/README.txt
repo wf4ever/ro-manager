@@ -21,15 +21,21 @@ Dependencies:
 - The sample scripts are written to run under BASH
 - Python pip utility, or git, depending on the installation option used.
 
+
+== Installation overview ==
+
+This is just a summary of the installation options.
+More detailed explanations can be found below.
+
 There are two main options for installation: the first is from the Python 
-Package Index (PyPI) which requires that Python's pip utility is installed:
+Package Index (PyPI) which requires that the Python pip utility is installed:
 
   pip install ro-manager
   ro-manager-test
 
 The other option is to take a copy of the source code from GitHub, and install
-from that, which requires a copy of the git source code management tool to be
-installed.
+from that, which requires that the git source code management tool is
+installed:
 
   cd (some working directory)
   git clone https://github.com/wf4ever/ro-manager.git ro-manager
@@ -38,7 +44,18 @@ installed.
   python setup.py install
   ro-manager-test
 
-See below for more details about these options.
+For further information on installing git on various systems, see:
+* http://git-scm.com/download
+* http://git-scm.com/book/en/Getting-Started-Installing-Git
+* http://www.devdaily.com/mac-os-x/how-install-git-mac-os-x-osx
+* https://help.ubuntu.com/community/Git
+
+For further information on installing pip on various systems, see:
+* http://stackoverflow.com/questions/4986896/
+* http://www.saltycrane.com/blog/2010/02/how-install-pip-ubuntu/
+* http://stackoverflow.com/questions/4750806/how-to-install-pip-on-windows
+
+Once pip is installed, it can be used to install virtualenv, if needed.
 
 
 == System-wide install from PyPI ==
