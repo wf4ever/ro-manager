@@ -73,14 +73,14 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 1. Install:
 
-    sudo pip install ro-manager
+        sudo pip install ro-manager
 
-(You may be asked for a password to confirm root access privilege.)
+    (You may be asked for a password to confirm root access privilege.)
 
 2. Test:
 
-    ro-manager-test
-    ro help
+        ro-manager-test
+        ro help
 
 
 ## "Virtual environment" install from PyPI
@@ -102,19 +102,19 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 1. Create and activate virtual environment:
 
-    cd $RO_Manager
-    virtualenv roenv
-    source roenv/bin/activate
+        cd $RO_Manager
+        virtualenv roenv
+        source roenv/bin/activate
 
-To subsequently revert to the system default Python environment:
+    To subsequently revert to the system default Python environment:
    
-    deactivate
+        deactivate
 
-To remove a temporary virtual environment, including any software
-that has been installed there:
+    To remove a temporary virtual environment, including any software
+    that has been installed there:
 
-    deactivate
-    rm -rf $RO_MANAGER/roenv
+        deactivate
+        rm -rf $RO_MANAGER/roenv
 
 2. Install RO Manager:
 
