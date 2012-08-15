@@ -19,13 +19,17 @@ Dependencies:
 - Linux/Unix type system.
   This software has not been tested under Windows, but may work.
 - The sample scripts are written to run under BASH
+- Python pip utility, or git, depending on the installation option used.
 
-Installation summary (see below for more details):
+There are two main options for installation: the first is from the Python 
+Package Index (PyPI) which requires that Python's pip utility is installed:
 
   pip install ro-manager
   ro-manager-test
 
-OR
+The other option is to take a copy of the source code from GitHub, and install
+from that, which requires a copy of the git source code management tool to be
+installed.
 
   cd (some working directory)
   git clone https://github.com/wf4ever/ro-manager.git ro-manager
@@ -34,15 +38,18 @@ OR
   python setup.py install
   ro-manager-test
 
+See below for more details about these options.
+
 
 == System-wide install from PyPI ==
 
-RO-manager can be installed from the Python Package Index (PyPI) using 'pip'
-(or 'easy_install').
+RO-manager can be installed from the Python Package Index (PyPI) using 'pip'.
 
 This is the simplest option for installing RO Manager, and does not require
 a copy of the RO Manager code be obtained from GitHub, but generally does
 require that you have root access on the computer where it is installed:
+
+Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and pip (http://pypi.python.org/pypi/pip).
 
 1. Install:
    
@@ -102,7 +109,9 @@ from GitHub.  This may be advantageous if you need to access the most
 recent version of the software.  (The copy uploaded to PyPI may lag the
 development copy in GitHub.)
 
-1. Obtain ciopy of software from GitHub:
+Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git (http://git-scm.com/).
+
+1. Obtain a copy of software from GitHub:
 
    In the first instance, the command used will be a "git clone ...":
 
