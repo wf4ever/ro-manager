@@ -1,4 +1,4 @@
-Research Object manager command line tool
+# Research Object manager command line tool
 
 Research Objects are semantically rich aggregations of resources [1] that bring
 together data, methods and people in scientific investigations.  For further
@@ -15,16 +15,16 @@ Research Object Digital Library (RODL):
 * http://www.wf4ever-project.org/wiki/display/docs/RO+Manager+FAQ
 
 
-== Dependencies ==
+## Dependencies
 
-- Python 2.7.
-- Linux/Unix type system.
+* Python 2.7.
+* Linux/Unix type system.
   This software has not been tested under Windows, but may work.
-- The sample scripts are written to run under BASH
-- Python pip utility, or git, depending on the installation option used.
+* The sample scripts are written to run under BASH
+* Python pip utility, or git, depending on the installation option used.
 
 
-== Installation overview ==
+## Installation overview
 
 This is just a summary of the installation options.
 More detailed explanations can be found below.
@@ -32,19 +32,19 @@ More detailed explanations can be found below.
 There are two main options for installation: the first is from the Python 
 Package Index (PyPI) which requires that the Python pip utility is installed:
 
-  pip install ro-manager
-  ro-manager-test
+    pip install ro-manager
+    ro-manager-test
 
 The other option is to take a copy of the source code from GitHub, and install
 from that, which requires that the git source code management tool is
 installed:
 
-  cd (some working directory)
-  git clone https://github.com/wf4ever/ro-manager.git ro-manager
-  cd ro-manager
-  python setyp.by build
-  python setup.py install
-  ro-manager-test
+    cd (some working directory)
+    git clone https://github.com/wf4ever/ro-manager.git ro-manager
+    cd ro-manager
+    python setyp.by build
+    python setup.py install
+    ro-manager-test
 
 For further information on installing git on various systems, see:
 * http://git-scm.com/download
@@ -60,7 +60,7 @@ For further information on installing pip on various systems, see:
 Once pip is installed, it can be used to install virtualenv, if needed.
 
 
-== System-wide install from PyPI ==
+## System-wide install from PyPI
 
 RO-manager can be installed from the Python Package Index (PyPI) using 'pip'.
 
@@ -72,18 +72,18 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and
 pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 1. Install:
-   
-     sudo pip install ro-manager
 
-   (You may be asked for a password to confirm root access privilege.)
+    sudo pip install ro-manager
+
+(You may be asked for a password to confirm root access privilege.)
 
 2. Test:
 
-     ro-manager-test
-     ro help
+    ro-manager-test
+    ro help
 
 
-== "Virtual environment" install from PyPI ==
+## "Virtual environment" install from PyPI
 
 If you don't have root privileges, or if you want to create a temporary
 or local copy of the RO Manager installation, this can be done using the
@@ -102,31 +102,31 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 1. Create and activate virtual environment:
 
-     cd $RO_Manager
-     virtualenv roenv
-     source roenv/bin/activate
+    cd $RO_Manager
+    virtualenv roenv
+    source roenv/bin/activate
 
-   To subsequently revert to the system default Python environment:
+To subsequently revert to the system default Python environment:
    
-     deactivate
+    deactivate
 
-   To remove a temporary virtual environment, including any software
-   that has been installed there:
+To remove a temporary virtual environment, including any software
+that has been installed there:
 
-     deactivate
-     rm -rf $RO_MANAGER/roenv
+    deactivate
+    rm -rf $RO_MANAGER/roenv
 
 2. Install RO Manager:
 
-     pip install ro-manager
+    pip install ro-manager
 
 3. Test:
 
-     ro-manager-test
-     ro help
+    ro-manager-test
+    ro help
 
 
-== To install from GitHub ==
+## To install from GitHub
 
 RO Manager can also be installed using a copy of the software obtained
 from GitHub.  This may be advantageous if you need to access the most
@@ -137,22 +137,22 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git 
 
 1. Obtain a copy of software from GitHub:
 
-   In the first instance, the command used will be a "git clone ...":
+In the first instance, the command used will be a "git clone ...":
 
-   Choose a working directory where the RO Manager software will be
-   stored:
+Choose a working directory where the RO Manager software will be
+stored:
 
-     cd (working directory)
-     git clone https://github.com/wf4ever/ro-manager.git ro-manager
-     cd ro-manager
+    cd (working directory)
+    git clone https://github.com/wf4ever/ro-manager.git ro-manager
+    cd ro-manager
 
-   The current working directory is now the $RO_MANAGER directory.
+ The current working directory is now the $RO_MANAGER directory.
 
-   To obtain subsequent updates, go into the ro-manager directory
-   tree and use "git pull":
+ To obtain subsequent updates, go into the ro-manager directory
+ tree and use "git pull":
    
-     cd $RO_MANAGER
-     git pull
+    cd $RO_MANAGER
+    git pull
 
 2. (Optional) Use Python virtualenv to create and activate an environment
    for installing RO manager.  There are two advantages to doing this:
@@ -161,49 +161,49 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git 
    The main disadvantage of using a new Python virtual environment is
    that it must be activated every time before RO Manager can be run.
 
-     cd $RO_Manager
-     virtualenv roenv
-     source roenv/bin/activate
+    cd $RO_Manager
+    virtualenv roenv
+    source roenv/bin/activate
 
 3. Go to directory $RO_MANAGER/src
 
-     cd $RO_MANAGER/src
+    cd $RO_MANAGER/src
 
 4. Build the installation package:
 
-     python setup.py build
+    python setup.py build
 
 5. Install the package and its dependencies
 
-   If installing into a Python virtual environment:
+If installing into a Python virtual environment:
 
-     python setup.py install
+    python setup.py install
    
-   If *not* installing into a Python virtual environment, 
-   this command must be run as root:
+ If *not* installing into a Python virtual environment, 
+ this command must be run as root:
    
-     sudo python setup.py install
+    sudo python setup.py install
    
 6. Test the installation
 
-     ro-manager-test
+    ro-manager-test
 
-   The following should be displayed:
+ The following should be displayed:
 
-     $ ro-manager-test 
-     .......................................................................................................
-     ----------------------------------------------------------------------
-     Ran 103 tests in 13.406s
-
-     OK
-     $ 
+    $ ro-manager-test 
+    .......................................................................................................
+    ----------------------------------------------------------------------
+    Ran 103 tests in 13.406s
+    
+    OK
+    $ 
 
 7. To run RO manager to display a summary of commands and options:
 
-     ro help
+    ro help
 
 
-== Using RO Manager ==
+## Using RO Manager
 
 See also the documentation at http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 
@@ -221,8 +221,8 @@ individual commands used look like.
 
 For example, to create and manipulate a simple example Research Object:
 
-  cd $RO_MANAGER/src/samples
-  ./ro_sample.sh
+    cd $RO_MANAGER/src/samples
+    ./ro_sample.sh
 
 The output should look something like this:
 
@@ -270,3 +270,4 @@ The output should look something like this:
       created: 20110914T12:00:00
       description: subdir2-file.txt description\nline 2
     --------
+
