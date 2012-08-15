@@ -49,7 +49,8 @@ This is the simplest option for installing RO Manager, and does not require
 a copy of the RO Manager code be obtained from GitHub, but generally does
 require that you have root access on the computer where it is installed:
 
-Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and pip (http://pypi.python.org/pypi/pip).
+Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and 
+pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 1. Install:
    
@@ -76,7 +77,11 @@ environment must always be activated in order to run RO Manager.
 You will need to choose a working directory where the Python virtual 
 environment will be created.  We'll call this $RO_MANAGER.
 
-1. Create and activiate virtual environment:
+Prerequisites are python 2.7 (http://python.org/download/releases/2.7/),
+virtualenv (http://pypi.python.org/pypi/virtualenv) and 
+pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
+
+1. Create and activate virtual environment:
 
      cd $RO_Manager
      virtualenv roenv
