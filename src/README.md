@@ -79,7 +79,7 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 2. Test:
 
-        ro-manager-test
+        sudo ro-manager-test
         ro help
 
 
