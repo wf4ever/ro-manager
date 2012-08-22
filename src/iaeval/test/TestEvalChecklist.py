@@ -116,10 +116,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements.rdf"))
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
         self.assertEquals(evalresult['purpose'],        "create")
-        self.assertEquals(evalresult['constrainturi'],  
-            rometa.getComponentUri("Minim-UserRequirements.rdf#create/docs/UserRequirements-astro.csv"))
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements.rdf#create/docs/UserRequirements-astro.csv"))
         self.assertEquals(evalresult['modeluri'],
-            rometa.getComponentUri("Minim-UserRequirements.rdf#runnableRequirementRO"))
+            rometa.getComponentUriAbs("Minim-UserRequirements.rdf#runnableRequirementRO"))
         self.deleteTestRo(rodir)
         return
 
@@ -230,9 +230,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['target'],         "docs/UserRequirements-bio.pdf")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],  
-            rometa.getComponentUri("Minim-UserRequirements.rdf#create/docs/UserRequirements-bio.pdf"))
+            rometa.getComponentUriAbs("Minim-UserRequirements.rdf#create/docs/UserRequirements-bio.pdf"))
         self.assertEquals(evalresult['modeluri'],
-            rometa.getComponentUri("Minim-UserRequirements.rdf#missingMayRequirement"))
+            rometa.getComponentUriAbs("Minim-UserRequirements.rdf#missingMayRequirement"))
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir)
         return
