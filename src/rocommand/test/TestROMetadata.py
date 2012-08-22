@@ -31,8 +31,8 @@ from MiscLib import TestUtils
 
 from rocommand import ro_settings
 from rocommand import ro_metadata
+from rocommand import ro_annotation
 from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
-from rocommand.ro_annotation import annotationTypes
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -44,7 +44,8 @@ testbase = os.path.dirname(__file__)
 
 # Local ro_config for testing
 ro_config = {
-    "annotationTypes": annotationTypes
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
     }
 
 cwd        = os.getcwd()
@@ -452,12 +453,14 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         romd.addAggregatedResources(rodir, recurse=True)
         def URIRef(path):
-            return romd.getComponentUri(path)
+            return romd.getComponentUriAbs(path)
         resources = (
           [ URIRef("README-ro-test-1")
           , URIRef("minim.rdf")
           , URIRef("subdir1/subdir1-file.txt")
           , URIRef("subdir2/subdir2-file.txt")
+          , URIRef("filename%20with%20spaces.txt")
+          , URIRef("filename%23with%23hashes.txt")
           ])
         c = 0
         for r in romd.getAggregatedResources():

@@ -257,7 +257,7 @@ class ro_metadata(object):
         ro_graph  = self._loadManifest()
         subject     = self.getComponentUri(rofile)
         (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-        val         = attrvalue and ro_annotation.makeAnnotationValue(attrvalue, valtype)
+        val         = attrvalue and ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)
         add_annotations    = []
         remove_annotations = []
         log.debug("removeSimpleAnnotation subject %s, predicate %s, val %s"%
@@ -304,7 +304,7 @@ class ro_metadata(object):
                   (repr(subject), repr(predicate), repr(attrvalue)))
         ro_graph.remove((subject, predicate, None))
         ro_graph.add((subject, predicate,
-                      ro_annotation.makeAnnotationValue(attrvalue, valtype)))
+                      ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
         self.updateManifest()
         return
 
@@ -332,7 +332,7 @@ class ro_metadata(object):
 
     def iterateAnnotations(self, subject=None, property=None):
         """
-        Returns an iterator over annotations of the current RO that match th
+        Returns an iterator over annotations of the current RO that match the
         supplied subject and/or property.
         """
         log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
@@ -449,10 +449,25 @@ class ro_metadata(object):
         return self.rouri
 
     def getComponentUri(self, path):
+        """
+        Return URI for component where relative reference is treated as a file path
+        """
+        ###return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+        if urlparse.urlsplit(path).scheme == "":
+            path = resolveUri("", str(self.getRoUri()), path)
+        return rdflib.URIRef(path)
+
+    def getComponentUriAbs(self, path):
+        """
+        Return absolute URI for component where relative reference is treated as a URI reference
+        """
         return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
 
     def getComponentUriRel(self, path):
-        file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(self.getComponentUri(path))))
+        """
+        Return reference relative to RO for a supplied URI
+        """
+        file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(self.getComponentUriAbs(path))))
         ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(str(self.getRoUri())))
         if ro_uri is not None and file_uri.startswith(ro_uri):
             file_uri_rel = file_uri.replace(ro_uri, "", 1)

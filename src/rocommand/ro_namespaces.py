@@ -63,7 +63,7 @@ DCTERMS = makeNamespace(dcterms,
             , "subject", "format", "type"
             ])
 ROTERMS = makeNamespace(roterms, 
-            [ "note", "resource"
+            [ "note", "resource", "defaultBase"
             ])
 
 # End.

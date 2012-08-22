@@ -10,6 +10,7 @@ import os.path
 import datetime
 import logging
 import re
+import urlparse
 
 log = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ import rdflib
 import ro_settings
 import ro_manifest
 from ro_namespaces import RDF, RDFS, RO, AO, ORE, DCTERMS, ROTERMS
+from ro_uriutils   import resolveUri, resolveFileAsUri
 
 #   Default list of annotation types
 annotationTypes = (
@@ -93,16 +95,32 @@ annotationPrefixes = (
     })
 
 # Annotation support functions
+def getResourceNameString(ro_config, rname, base=None):
+    """
+    Returns a string value corresoponding to a URI indicated by the supplied parameter.
+    Relative references are assumed to be paths relative to the supplied base URI or,
+    if no rbase is supplied, relative to the current directory.
+    """
+    rsplit = rname.split(":")
+    if len(rsplit) == 2:
+        # Try to interpret name as CURIE
+        for rpref in ro_config["annotationPrefixes"]:
+            if rsplit[0] == rpref:
+                rname = ro_config["annotationPrefixes"][rpref]+rsplit[1]
+    if urlparse.urlsplit(rname).scheme == "":
+        if base:
+            rname = resolveUri(rname, base)
+        else:
+            rname = resolveFileAsUri(rname)
+    return rname
+
 def getAnnotationByName(ro_config, aname, defaultType="string"):
     """
     Given an attribute name from the command line, returns
     attribute predicate and type URIs as a URIRef node and attribute value type
     """
-    #@@TODO: deal properly with annotation types: return URIRef for type instead of name string
-    # Default interpret atrtribute name as URI
     predicate = aname
     valtype   = defaultType
-    asplit = aname.split(":")
     for atype in ro_config["annotationTypes"]:
         # Try to interpret attribute name as predefined name
         if atype["name"] == aname:
@@ -110,11 +128,7 @@ def getAnnotationByName(ro_config, aname, defaultType="string"):
             valtype   = atype["type"]
             break
     else:
-        if len(asplit) == 2:
-            # Try to interpret name as CURIE
-            for apref in ro_config["annotationPrefixes"]:
-                if asplit[0] == apref:
-                    predicate = ro_config["annotationPrefixes"][apref]+asplit[1]
+        predicate = getResourceNameString(ro_config, aname, base=ROTERMS.defaultBase+"#")
     predicate = rdflib.URIRef(predicate)
     return (predicate, valtype)
 
@@ -225,7 +239,7 @@ def createAnnotationBody(ro_config, ro_dir, rofile, attrdict, defaultType="strin
     s = ro_manifest.getComponentUri(ro_dir, rofile)
     for k in attrdict:
         (p,t) = getAnnotationByName(ro_config, k, defaultType)
-        anngraph.add((s, p, makeAnnotationValue(attrdict[k],t)))
+        anngraph.add((s, p, makeAnnotationValue(ro_config, attrdict[k],t)))
     # Write graph and return filename
     return createAnnotationGraphBody(ro_config, ro_dir, rofile, anngraph)
 
@@ -300,7 +314,7 @@ def _removeSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     ro_graph    = ro_manifest.readManifestGraph(ro_dir)
     subject     = ro_manifest.getComponentUri(ro_dir, rofile)
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
-    val         = attrvalue and makeAnnotationValue(attrvalue, valtype)
+    val         = attrvalue and makeAnnotationValue(ro_config, attrvalue, valtype)
     #@@TODO refactor common code with getRoAnnotations, etc.
     add_annotations = []
     remove_annotations = []
@@ -341,7 +355,7 @@ def _replaceSimpleAnnotation(ro_config, ro_dir, rofile, attrname, attrvalue):
     (predicate,valtype) = getAnnotationByName(ro_config, attrname)
     log.debug("Replace annotation: subject %s, predicate %s, value %s"%(repr(subject), repr(predicate), repr(attrvalue)))
     ro_graph.remove((subject, predicate, None))
-    ro_graph.add((subject, predicate, makeAnnotationValue(attrvalue, valtype)))
+    ro_graph.add((subject, predicate, makeAnnotationValue(ro_config, attrvalue, valtype)))
     ro_manifest.writeManifestGraph(ro_dir, ro_graph)
     return
 
@@ -420,21 +434,21 @@ def getAllAnnotations(ro_dir):
                 yield (subject, p, v)
     return
 
-def makeAnnotationValue(aval, atype):
+def makeAnnotationValue(ro_config, aval, atype):
     """
     atype is one of "string", "resurce", ...
 
     Returns a graph node for the supplied type and value
     """
     #@@TODO: construct appropriately typed RDF literals
+    if atype == "resource":
+        return rdflib.URIRef(getResourceNameString(ro_config, aval))
     if atype == "string":
         return rdflib.Literal(aval)
     if atype == "text":
         return rdflib.Literal(aval)
     if atype == "datetime":
         return rdflib.Literal(aval)
-    if atype == "resource":
-        return rdflib.URIRef(aval)
     return rdflib.Literal(aval)
 
 def formatAnnotationValue(aval, atype):

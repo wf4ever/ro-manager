@@ -47,7 +47,8 @@ testbase = os.path.dirname(os.path.abspath(__file__))
 
 # Local ro_config for testing
 ro_config = {
-    "annotationTypes": ro_annotation.annotationTypes
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
     }
 
 class TestAnnotations(TestROSupport.TestROSupport):
