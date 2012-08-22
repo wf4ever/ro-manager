@@ -156,11 +156,9 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
-        # @@refactor to use method from rocommand
         rodir = self.createRoFixture(testbase, src, ro_test_config.ROBASEDIR, ro_utils.ronametoident(roname))
         args = [
             "ro", "create", roname,
-            "-v", 
             "-d", rodir,
             "-i", roident,
             ]
@@ -170,7 +168,6 @@ class TestROSupport(unittest.TestCase):
             status = ro.runCommand(configdir, robasedir, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
-        # @@TODO: is this helpful? Reset output stream buffer closed
         self.outstr = StringIO.StringIO()
         return rodir
 
@@ -180,9 +177,8 @@ class TestROSupport(unittest.TestCase):
         
         Returns name of research object directory
         """
-        # @@refactor to use method from rocommand
         args = [
-            "ro", "add", "-v", "-a",
+            "ro", "add", "-a",
             "-d", rodir,
             rodir
             ]

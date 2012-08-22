@@ -87,4 +87,38 @@ def readconfig(configbase):
         if configfile: configfile.close()
     return ro_config
 
+def mapmerge(f1, l1, f2, l2):
+    """
+    Helper function to merge lists of values with different map functions.
+    A sorted list is returned containing f1 mapped over the elements of l1 and 
+    f2 mapped over the elements ofd l2 that are not in l1; i.e. roughly:
+
+    return sorted([ f1(i1) for i1 in l1 ] + [ f2(i2) for i2 in l2 if i2 not in l1 ])
+
+    The actual code is a little more complex because the final sort is based on the
+    original list values rather than the mapped values.
+    """    
+    def mm(f1, l1, f2, l2, acc):
+        if len(l1) == 0: return acc + map(f2, l2)
+        if len(l2) == 0: return acc + map(f1, l1)
+        if l1[0] < l2[0]: return mm(f1, l1[1:], f2, l2, acc+[f1(l1[0])])
+        if l1[0] > l2[0]: return mm(f1, l1, f2, l2[1:], acc+[f2(l2[0])])
+        # List heads equal: choose preferentially from l1
+        return mm(f1, l1[1:], f2, l2[1:], acc+[f1(l1[0])])
+    return mm(f1, sorted(l1), f2, sorted(l2), [])
+
+def prepend_f(pref):
+    """
+    Returns a function that prepends prefix 'pref' to a supplied string
+    """
+    return lambda s:pref+s
+
+def testMap():
+    l1 = ["a", "b", "d", "e"]
+    l2 = ["a", "c"]
+    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "1:b", "2:c", "1:d", "1:e"]
+    l1 = ["d", "a"]
+    l2 = ["f", "e", "c", "a"]
+    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "2:c", "1:d", "2:e", "2:f"]
+
 # End.

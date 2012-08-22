@@ -43,7 +43,7 @@ def run(configbase, options, args):
         status = ro_command.add(progname, configbase, options, args)
     elif args[1] == "status":
         status = ro_command.status(progname, configbase, options, args)
-    elif args[1] == "list" or args[1] == "ls":
+    elif args[1] in ["list", "ls"]:
         status = ro_command.list(progname, configbase, options, args)
     elif args[1] in ["annotate","link"]:
         status = ro_command.annotate(progname, configbase, options, args)
@@ -110,6 +110,10 @@ def parseCommandArgs(argv):
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri",
                       help="URI of ROSRS service")
+    parser.add_option("-s", "--secret", "--hidden",
+                      action="store_true",
+                      dest="hidden",
+                      help="Include hidden files in RO content listing (when used with -a)")
     parser.add_option("-t", "--rosrs-access-token",
                       dest="rosrs_access_token",
                       help="ROSRS access token")

@@ -126,7 +126,8 @@ class ro_metadata(object):
         """
         log.debug("getAggregatedResources: uri %s"%(self.rouri))
         for r in self.manifestgraph.objects(subject=self.rouri, predicate=ORE.aggregates):
-            yield r
+            if not isinstance(r, rdflib.BNode):
+                yield r
         return
 
     def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):

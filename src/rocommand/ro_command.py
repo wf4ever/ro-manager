@@ -97,8 +97,8 @@ ro_command_usage = (
     , ( ["status"],          argminmax(2,2),
           ["status [ -d <dir> ]"] )
     , ( ["list","ls"],       argminmax(2,2),
-          ["list [ -d <dir> ]"
-          ,"ls   [ -d <dir> ]"
+          ["list [ -a ] [ -s ] [ -d <dir> ]"
+          ,"ls   [ -a ] [ -s ] [ -d <dir> ]"
           ] )
     , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
           ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
@@ -326,33 +326,82 @@ def status(progname, configbase, options, args):
     print "  description: %(rodescription)s"%rodict
     return 0
 
+def mapmerge(f1, l1, f2, l2):
+    """
+    Helper function to merge lists of values with different map functions.
+    A sorted list is returned containing f1 mapped over the elements of l1 and 
+    f2 mapped over the elements ofd l2 that are not in l1; i.e. roughly:
+
+    return sorted([ f1(i1) for i1 in l1 ] + [ f2(i2) for i2 in l2 if i2 not in l1 ])
+
+    The actual code is a little more complex because the final sort is based on the
+    original list values rather than the mapped values.
+    """    
+    def mm(f1, l1, f2, l2, acc):
+        if len(l1) == 0: return acc + map(f2, l2)
+        if len(l2) == 0: return acc + map(f1, l1)
+        if l1[0] < l2[0]: return mm(f1, l1[1:], f2, l2, acc+[f1(l1[0])])
+        if l1[0] > l2[0]: return mm(f1, l1, f2, l2[1:], acc+[f2(l2[0])])
+        # List heads equal: choose preferentially from l1
+        return mm(f1, l1[1:], f2, l2[1:], acc+[f1(l1[0])])
+    return mm(f1, sorted(l1), f2, sorted(l2), [])
+
+def prepend_f(pref):
+    """
+    Returns a function that prepends prefix 'pref' to a supplied string
+    """
+    return lambda s:pref+s
+
+def testMap():
+    l1 = ["a", "b", "d", "e"]
+    l2 = ["a", "c"]
+    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "1:b", "2:c", "1:d", "1:e"]
+    l1 = ["d", "a"]
+    l2 = ["f", "e", "c", "a"]
+    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "2:c", "1:d", "2:e", "2:f"]
+
 def list(progname, configbase, options, args):
     """
     List contents of a designated research object
+    
+    -a displays files present as well as aggregated resources
+    -h includes hidden files in display
 
-    ro list [ -a ] [ -d dir ]
-    ro ls [ -a ] [ -d dir ]
+    ro list [ -a ] [ -h ] [ -d dir ]
+    ro ls   [ -a ] [ -h ] [ -d dir ]
     """
     # Check command arguments
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "rodir":   options.rodir or "",
+        "all":     " -a" if options.all    else "",
+        "hidden":  " -h" if options.hidden else "",
         }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
     ro_dir = ro_root_directory(progname+" list", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
-    # Scan directory tree and display files
+    # Scan directory tree and collect filenames
     if options.verbose:
-        print "ro list -d \"%(rodir)s\""%ro_options
-    rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
-                ro_dir, baseDir=os.path.abspath(ro_dir),
-                listDirs=False, listFiles=True, recursive=True, appendSep=False)
-    if not options.all:
-        def notHidden(f):
-            return re.match("\.|.*/\.", f) == None
-        rofiles = filter(notHidden, rofiles)
-    print "\n".join(rofiles)
+        print "ro list%(all)s%(hidden)s -d \"%(rodir)s\""%ro_options
+    prep_f  = ""
+    prep_a  = ""
+    rofiles = []
+    if options.all:
+        prep_f  = "f: "
+        prep_a  = "a: "
+        rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+                    ro_dir, baseDir=os.path.abspath(ro_dir),
+                    listDirs=False, listFiles=True, recursive=True, appendSep=False)
+        if not options.hidden:
+            def notHidden(f):
+                return re.match("\.|.*/\.", f) == None
+            rofiles = filter(notHidden, rofiles)
+    # Scan RO and collect aggregated resources
+    rometa = ro_metadata(ro_config, ro_dir)
+    roaggs = [ str(rometa.getComponentUriRel(a)) for a in rometa.getAggregatedResources() ]
+    # Assemble and output listing
+    print "\n".join(mapmerge(prepend_f(prep_a), roaggs, prepend_f(prep_f), rofiles))
     return 0
 
 def annotate(progname, configbase, options, args):

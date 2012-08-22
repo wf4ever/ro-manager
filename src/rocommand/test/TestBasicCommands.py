@@ -281,6 +281,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro ls -d rodir
         """
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
+        self.populateTestRo(testbase, rodir)
         args = [
             "ro", "ls",
             "-d", rodir,
@@ -304,6 +305,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro ls
         """
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
+        self.populateTestRo(testbase, rodir)
         args = [
             "ro", "ls",
             "-v"
