@@ -69,9 +69,12 @@ def getConstraints(minimgraph):
     return
 
 def getConstraint(minimgraph, roref, target_ref, purpose_regex_string):
+    log.debug("getConstraint: roref %s, target_ref %s"%(roref,target_ref))
     target  = target_ref and ro_manifest.getComponentUri(roref, target_ref)
+    #log.debug("- target %s"%(target))
     purpose = purpose_regex_string and re.compile(purpose_regex_string)
     for c in getConstraints(minimgraph):
+        #log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         if ( ( not target  or target == c['target'] ) and
              ( not purpose or purpose.match(c['purpose']) ) ):
             return c
