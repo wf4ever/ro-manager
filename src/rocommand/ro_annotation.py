@@ -456,6 +456,8 @@ def formatAnnotationValue(aval, atype):
     atype is one of "string", "resurce", ...
     """
     #@@TODO: deal with appropriately typed RDF literals
+    if atype == "resource" or isinstance(aval,rdflib.URIRef):
+        return '<' + str(aval) + '>'
     if atype == "string":
         return '"' + str(aval).replace('"', '\\"') + '"'
     if atype == "text":
@@ -463,8 +465,6 @@ def formatAnnotationValue(aval, atype):
         return '"""' + str(aval) + '"""'
     if atype == "datetime":
         return '"' + str(aval) + '"'
-    if atype == "resource":
-        return '<' + str(aval) + '>'
     return str(aval)
 
 def showAnnotations(ro_config, ro_dir, annotations, outstr):
