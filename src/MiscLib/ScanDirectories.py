@@ -31,9 +31,10 @@ def ScanDirectoriesEx(srcdir, DirFunc, FileFunc=None, recursive=True):
     Scan all sub-directories in a given source directory.
     Exceptions are thrown back to the calling program.
     """
+    if not srcdir.endswith(os.path.sep): srcdir += os.path.sep
     directoryList = os.listdir(srcdir)
     for directoryComponent in directoryList:
-        path = srcdir+"/"+directoryComponent
+        path = srcdir+directoryComponent
         if isdir(path):
             DirFunc(path)
             if recursive:

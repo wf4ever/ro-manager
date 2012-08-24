@@ -102,19 +102,19 @@ class ro_metadata(object):
         log.debug("addAggregatedResources: roref %s, file %s"%(self.roref, ro_file))
         self.getRoFilename()  # Check that we have one
         basedir = os.path.abspath(self.roref)
-        ro_file = os.path.abspath(ro_file)
-        if ro_file.endswith(os.path.sep):
-            ro_file = ro_file[0:-1]
         if os.path.isdir(ro_file):
+            ro_file = os.path.abspath(ro_file)+os.path.sep
+            #if ro_file.endswith(os.path.sep):
+            #    ro_file = ro_file[0:-1]
             if recurse:
                 rofiles = filter( notHidden,
                                     MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, baseDir=basedir,
                                         listDirs=includeDirs, listFiles=True, recursive=recurse, appendSep=True)
                                 )
             else:
-                rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]+os.path.sep]
+                rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
         else:
-            rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
+            rofiles = [self.getComponentUriRel(ro_file)]
         s = self.getRoUri()
         for f in rofiles:
             log.debug("- file %s"%f)

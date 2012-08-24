@@ -295,7 +295,7 @@ def add(progname, configbase, options, args):
         print "ro add -d %(rodir)s %(recurseopt)s %(rofile)s"%ro_options
     rometa = ro_metadata(ro_config, ro_dir)
     rometa.addAggregatedResources(ro_options['rofile'], 
-        recurse=ro_options['recurse'], includeDirs=ro_options['recurse'])
+        recurse=ro_options['recurse'], includeDirs=not ro_options['recurse'])
     return 0
 
 def status(progname, configbase, options, args):

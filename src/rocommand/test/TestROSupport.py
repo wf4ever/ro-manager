@@ -199,6 +199,7 @@ class TestROSupport(unittest.TestCase):
             status = ro.runCommand(configdir, robasedir, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
         return rodir
 
     def deleteTestRo(self, rodir):
