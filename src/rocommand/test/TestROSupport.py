@@ -133,6 +133,17 @@ class TestROSupport(unittest.TestCase):
             self.assertIn((s,p,o), m_graph, "Not found in manifest: "+repr((s, p, o)))
         return
 
+    def checkManifestGraphOmits(self, rodir, rograph):
+        """
+        Check manifest file contains all statements from supplied graph
+        """
+        m_graph = ro_manifest.readManifestGraph(rodir)
+        for (s,p,o) in rograph:
+            if isinstance(s, rdflib.BNode): s = None 
+            if isinstance(o, rdflib.BNode): o = None
+            self.assertNotIn((s,p,o), m_graph, "Unexpected in manifest: "+repr((s, p, o)))
+        return
+
     def checkTargetGraph(self, targetgraph, expectgraph, msg="Not found in target graph"):
         """
         Check target graph contains all statements from supplied graph

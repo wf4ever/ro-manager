@@ -93,23 +93,28 @@ class ro_metadata(object):
             base=self.rouri, xml_base="..")
         return
 
-    def addAggregatedResources(self, ro_file, recurse=True):
+    def addAggregatedResources(self, ro_file, recurse=True, includeDirs=False):
         """
         Scan a local directory and add files found to the RO aggregation
         """
         def notHidden(f):
             return re.match("\.|.*/\.", f) == None
-        log.debug("addAggregatedResources: ref %s, file %s"%(self.roref, ro_file))
+        log.debug("addAggregatedResources: roref %s, file %s"%(self.roref, ro_file))
         self.getRoFilename()  # Check that we have one
+        basedir = os.path.abspath(self.roref)
+        ro_file = os.path.abspath(ro_file)
         if ro_file.endswith(os.path.sep):
             ro_file = ro_file[0:-1]
-        rofiles = [ro_file]
         if os.path.isdir(ro_file):
-            rofiles = filter( notHidden,
-                                MiscLib.ScanDirectories.CollectDirectoryContents(
-                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.roref),
-                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
-                            )
+            if recurse:
+                rofiles = filter( notHidden,
+                                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, baseDir=basedir,
+                                        listDirs=includeDirs, listFiles=True, recursive=recurse, appendSep=True)
+                                )
+            else:
+                rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]+os.path.sep]
+        else:
+            rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
         s = self.getRoUri()
         for f in rofiles:
             log.debug("- file %s"%f)
