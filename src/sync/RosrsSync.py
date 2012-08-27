@@ -5,15 +5,13 @@ Created on 22-08-2012
 '''
 
 from SyncRegistry import SyncRegistry
-import mimetypes
 import logging
-from os.path import exists, join
-import pickle
 import urllib2
 import httplib
 import urlparse
 import json
 import rdflib
+from rocommand import ro_remote_metadata
 
 log = logging.getLogger(__name__)
 
@@ -22,7 +20,17 @@ class ResourceSync(object):
     classdocs
     '''
    
-    REGISTRIES_FILE = ".registries.pickle"
+    ACTION_CREATE_RO = 1
+    ACTION_RO_EXISTS = 2
+    ACTION_AGGREGATE_INTERNAL = 3
+    ACTION_AGGREGATE_EXTERNAL = 4
+    ACTION_UPDATE_OVERWRITE_NEWER = 5
+    ACTION_UPDATE = 5
+    ACTION_SKIP = 7
+    ACTION_DELETE = 8
+    
+    RESPONSE_YES = 1
+    RESPONSE_NO = 2
 
     def __init__(self, srsuri, accesskey):
         '''
@@ -36,36 +44,92 @@ class ResourceSync(object):
         self._srshost   = parseduri.netloc
         self._srspath   = parseduri.path
         self._httpcon   = httplib.HTTPConnection(self._srshost)
-        mimetypes.init()
         return
                 
-    def pushResearchObject(self, roMetadata, force = False):
+    def pushResearchObject(self, localRo, roid, force = False):
         '''
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
         '''
-        for res in roMetadata.getAggregatedResources():
-            if self.__isInternalResource(roMetadata, res):
-                log.debug("ResourceSync.pushResearchObject: %s is internal"%(res))
-                if self.__isInternalResourceModified(roMetadata, res):
-                    log.debug("ResourceSync.pushResearchObject: %s has been modified"%(res))
-                    self.aggregateResourceInt(roMetadata.getRoUri(), 
-                                              roMetadata.getComponentUriRel(res), 
-                                              roMetadata.getResourceType(res), 
-                                              urllib2.urlopen(roMetadata.getComponentUri(res)))
+        (status, _, rouri, _) = self.createRO(roid, None, None, None)
+        if status == 409:
+            # we'll assume we have rights to modify it and we'll see later
+            log.info("Research Object %s already exists."%(roid))
+            rouri = urlparse.urljoin(self.srsuri, roid)
+            yield (self.ACTION_RO_EXISTS, rouri)
+        else:
+            yield (self.ACTION_CREATE_RO, rouri)
+        
+        remoteRo = ro_remote_metadata.ro_remote_metadata(None, rouri)
+
+        for res in localRo.getAggregatedResources():
+            resuri = urlparse.urljoin(rouri, res)
+            if not remoteRo.isAggregatedResource(resuri):
+                log.debug("ResourceSync.pushResearchObject: %s does was not aggregated in the remote RO"%(resuri))
+                if localRo.isInternalResource(resuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(resuri))
+                    yield (self.ACTION_AGGREGATE_INTERNAL, resuri)
+                    remoteRo.aggregateResourceInt(rouri, 
+                                              localRo.getComponentUriRel(resuri), 
+                                              localRo.getResourceType(resuri), 
+                                              urllib2.urlopen(localRo.getComponentUri(resuri)))
+                elif localRo.isExternalResource(resuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is external"%(resuri))
+                    yield (self.ACTION_AGGREGATE_EXTERNAL, resuri)
+                    remoteRo.aggregateResourceExt(rouri, localRo.getComponentUri(resuri))
                 else:
-                    log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(res))
-                    pass
-            elif self.__isExternalResource(roMetadata, res):
-                log.debug("ResourceSync.pushResearchObject: %s is external"%(res))
-                self.aggregateResourceExt(roMetadata.getRoUri(), roMetadata.getComponentUri(res))
+                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(resuri))
             else:
-                log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(res))
-        for ann in roMetadata.getAllAnnotations():
+                log.debug("ResourceSync.pushResearchObject: %s does was already aggregated in the remote RO"%(resuri))
+                if localRo.isInternalResource(localRo, resuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(res))
+                    # Get remote ETag
+                    (status, reason, headers, _) = remoteRo.getHead(resuri)
+                    if status != 200:
+                        raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuri))
+                    currentETag = headers["ETag"];
+                    currentChecksum = localRo.calculateChecksum(res)
+                    # Check locally stored ETag
+                    previousETag = localRo.getRegistries()[res]["ETag"]
+                    previousChecksum = localRo.getRegistries()[res]["checksum"]
+                    if not previousETag or previousETag != currentETag:
+                        yield (self.ACTION_UPDATE_OVERWRITE_NEWER, res)
+                        (status, reason, headers, resuri) = remoteRo.updateResourceInt(resuri, 
+                                                   localRo.getResourceType(resuri),
+                                                   urllib2.urlopen(localRo.getComponentUri(resuri)))
+                        localRo.getRegistries()[res]["ETag"] = headers["ETag"]
+                        localRo.getRegistries()[res]["checksum"] = currentChecksum
+                    else:
+                        if not previousChecksum or previousChecksum != currentChecksum:
+                            log.debug("ResourceSync.pushResearchObject: %s has been modified"%(resuri))
+                            yield (self.ACTION_UPDATE_OVERWRITE, res)
+                            (status, reason, headers, resuri) = remoteRo.updateResourceInt(resuri, 
+                                                       localRo.getResourceType(resuri),
+                                                       urllib2.urlopen(localRo.getComponentUri(resuri)))
+                            localRo.getRegistries()[res]["ETag"] = headers["ETag"]
+                            localRo.getRegistries()[res]["checksum"] = currentChecksum
+                        else:
+                            log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(resuri))
+                            yield (self.ACTION_SKIP, res)
+                elif localRo.isExternalResource(resuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is external"%(resuri))
+                    yield (self.ACTION_SKIP, resuri)
+                else:
+                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(resuri))
+        
+        for res in remoteRo.getAggregatedResources():
+            if not localRo.isAggregatedResource(res):
+                log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(res))
+                yield (self.ACTION_DELETE, res)
+                remoteRo.deaggregateResource(res)
+            pass            
+                    
+        for ann in localRo.getAllAnnotations():
             pass
+        localRo.saveRegistries()
         return
     
-    def createRO(self, id, title, creator, date):
+    def createRO(self, roid, title, creator, date):
         """
         Create a new RO, return (status, reason, uri, manifest):
         status+reason: 201 Created or 409 Exists
@@ -75,10 +139,10 @@ class ResourceSync(object):
         NOTE: this method has been adapted from TestApi_ROSRS
         """
         reqheaders   = {
-            "slug":     id
+            "slug":     roid
             }
         roinfo = {
-            "id":       id,
+            "id":       roid,
             "title":    title,
             "creator":  creator,
             "date":     date
@@ -93,122 +157,5 @@ class ResourceSync(object):
             return (status, reason, None, data)
         #@@TODO: Create annotations for title, creator, date??
         raise self.error("Error creating RO", "%03d %s"%(status, reason))
-
-    def aggregateResourceInt(
-            self, rouri, respath, ctype="application/octet-stream", body=None):
-        """
-        Aggegate internal resource
-        Return (status, reason, proxyuri, resuri), where status is 200 or 201
-
-        NOTE: this method has been adapted from TestApi_ROSRS
-        """
-        # POST (empty) proxy value to RO ...
-        reqheaders = { "slug": respath }
-        proxydata = ("""
-            <rdf:RDF
-              xmlns:ore="http://www.openarchives.org/ore/terms/"
-              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-              <ore:Proxy>
-              </ore:Proxy>
-            </rdf:RDF>
-            """)
-        (status, reason, headers, data) = self.doRequest(rouri,
-            method="POST", ctype="application/vnd.wf4ever.proxy",
-            reqheaders=reqheaders, body=proxydata)
-        if status != 201:
-            raise self.error("Error creating aggregation proxy",
-                            "%d03 %s (%s)"%(status, reason, respath))
-        proxyuri = rdflib.URIRef(headers["location"])
-        links    = self.parseLinks(headers)
-        if "http://www.openarchives.org/ore/terms/proxyFor" not in links:
-            raise self.error("No ore:proxyFor link in create proxy response",
-                            "Proxy URI %s"%str(proxyuri))
-        resuri   = rdflib.URIRef(links["http://www.openarchives.org/ore/terms/proxyFor"])
-        # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.doRequest(resuri,
-            method="PUT", ctype=ctype, body=body)
-        if status not in [200,201]:
-            raise self.error("Error creating aggregated resource content",
-                "%d03 %s (%s)"%(status, reason, respath))
-        return (status, reason, proxyuri, resuri)
-
-    def aggregateResourceExt(self, rouri, resuri):
-        """
-        Aggegate internal resource
-        Return (status, reason, proxyuri, resuri), where status is 200 or 201
-
-        NOTE: this method has been adapted from TestApi_ROSRS
-        """
-        # Aggegate external resource: POST proxy ...
-        proxydata = ("""
-            <rdf:RDF
-              xmlns:ore="http://www.openarchives.org/ore/terms/"
-              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-              <ore:Proxy>
-                <ore:proxyFor rdf:resource="%s" />
-              </ore:Proxy>
-            </rdf:RDF>
-            """)%str(resuri)
-        (status, reason, headers, data) = self.doRequest(rouri,
-            method="POST", ctype="application/vnd.wf4ever.proxy",
-            body=proxydata)
-        if status != 201:
-            raise self.error("Error creating aggregation proxy",
-                "%d03 %s (%s)"%(status, reason, str(resuri)))
-        proxyuri = rdflib.URIRef(headers["location"])
-        links    = self.parseLinks(headers)
-        return (status, reason, proxyuri, rdflib.URIRef(resuri))
     
-    # STUBS
-    def __isInternalResource(self, roMetadata, res):
-        return
-
-    def __isExternalResource(self, roMetadata, res):
-        return
-    
-    def __isExternalResourceModified(self, roMetadata, res):
-        return
-
-    # Should be used
-    def __checkFile4Put(self, roId, roDirectory, filepath):
-        assert filepath.startswith(roDirectory)
-        rosrsFilepath = filepath[len(roDirectory) + 1:]
-        put = True
-        if (filepath in self.syncRegistries):
-            put = self.syncRegistries[filepath].hasBeenModified()
-        if put:
-            contentType = mimetypes.guess_type(filepath)[0]
-            fileObject = open(filepath)
-            log.debug("Put file %s" % filepath)
-            self.rosrsSync.putFile(roId, rosrsFilepath, contentType, fileObject)
-            self.syncRegistries[filepath] = SyncRegistry(filepath)
-        return put
-    
-    def __scanRegistries4Delete(self, roId, roDirectory):
-        deletedFiles = set()
-        for r in self.syncRegistries.viewvalues():
-            if r.filename.startswith(roDirectory):
-                if not exists(r.filename):
-                    log.debug("Delete file %s" % r.filename)
-                    deletedFiles.add(r.filename)
-                    rosrsFilepath = r.filename[len(roDirectory) + 1:]
-                    try:
-                        self.rosrsSync.deleteFile(roId, rosrsFilepath)
-                    except:
-                        log.debug("File %s did not exist in ROSRS" % r.filename)
-        for f in deletedFiles:
-            del self.syncRegistries[f]
-        return deletedFiles
-    
-    def __loadRegistries(self, roDirectory):
-        try:
-            rf = open(join(roDirectory, self.REGISTRIES_FILE), 'r')
-            return pickle.load(rf)
-        except:
-            return dict()
-        
-    def __saveRegistries(self, roDirectory):
-        rf = open(join(roDirectory, self.REGISTRIES_FILE), 'w')
-        pickle.dump(self.syncRegistries, rf)
-        return
         

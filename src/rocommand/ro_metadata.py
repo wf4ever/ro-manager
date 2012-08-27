@@ -32,12 +32,16 @@ from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
 from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
 import ro_manifest
 import ro_annotation
+import json
+import hashlib
 
 
 class ro_metadata(object):
     """
     Class for accessing RO metadata
     """
+
+    REGISTRIES_FILE = ".registries.json"
 
     def __init__(self, roconfig, roref, dummysetupfortest=False):
         """
@@ -128,7 +132,31 @@ class ro_metadata(object):
         for r in self.manifestgraph.objects(subject=self.rouri, predicate=ORE.aggregates):
             yield r
         return
+    
+    def isAggregatedResource(self, rofile):
+        '''
+        Returns true if the manifest says that the research object aggregates the
+        resource. Resource URI is resolved against the RO URI unless it's absolute.
+        '''
+        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, rofile))
+        resuri = urlparse.urljoin(self.rouri, rofile)
+        return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
 
+    def isInternalResource(self, resuri):
+        '''
+        Check if the resource is internal, i.e. should the resource content be uploaded
+        to the ROSR service. Returns true if the resource URI has the RO URI as a prefix.
+        '''
+        return self.rouri.startswith(resuri)
+
+    def isExternalResource(self, resuri):
+        '''
+        Check if the resource is external, i.e. can be aggregated as a URI reference.
+        Returns true if the URI has 'http' or 'https' scheme.
+        '''
+        parseduri = urlparse.urlsplit(resuri)
+        return parseduri.scheme in ["http", "https"]
+    
     def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):
         """
         Create a new annotation body for a single resource in a research object, based
@@ -481,10 +509,43 @@ class ro_metadata(object):
 
     def getManifestFilename(self):
         """
-        Return manifesrt file name: used for local updates
+        Return manifest file name: used for local updates
         """
         return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/",
                             ro_settings.MANIFEST_FILE)
+        
+    def getRegistries(self, roDirectory):
+        '''
+        Load a dictionary of synchronization data from memory or from a JSON file.
+        '''
+        if self.registries:
+            return self.registries
+        try:
+            rf = open(os.path.join(roDirectory, self.REGISTRIES_FILE), 'r')
+            self.registries = json.load(rf)
+            return self.registries
+        except:
+            return dict()
+        
+    def saveRegistries(self, roDirectory):
+        '''
+        Save a dictionary of synchronization data to a JSON file.
+        '''
+        rf = open(os.path.join(roDirectory, self.REGISTRIES_FILE), 'w')
+        if self.registries:
+            json.dump(self.registries, rf)
+        return
+    
+    def calculateChecksum(self, rofile):
+        '''
+        Calculate a file checksum.
+        '''
+        m = hashlib.md5()
+        with open(rofile) as f:
+            for line in f:
+                m.update(line)
+            f.close()
+        return m.hexdigest()
 
 # End.
 
