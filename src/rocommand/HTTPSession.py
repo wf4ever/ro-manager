@@ -125,12 +125,12 @@ class HTTP_Session(object):
         Perform HTTP request with RDF response.
         If requests succeeds, return response as RDF graph,
         or return fake 9xx status if RDF cannot be parsed
-        otherwise return responbse and content per request.
+        otherwise return response and content per request.
         Thus, only 2xx responses include RDF data.
         """
         (status, reason, headers, data) = self.doRequest(uripath,
             method=method, body=body,
-            ctype=ctype, accept="application/rdf+xml", headers=headers)
+            ctype=ctype, accept="application/rdf+xml", reqheaders=headers)
         if status >= 200 and status < 300:
             if headers["content-type"].lower() == "application/rdf+xml":
                 rdfgraph = rdflib.Graph()

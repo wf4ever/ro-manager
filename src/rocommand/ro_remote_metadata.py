@@ -32,6 +32,7 @@ from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
 from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
 import ro_manifest
 import ro_annotation
+import json
 
 # Class for ROSRS errors
 
@@ -59,20 +60,29 @@ class ro_remote_metadata(object):
     Class for accessing metadata of an RO stored by a ROSR service
     """
 
-    def __init__(self, roconfig, roref, dummysetupfortest=False):
+    def __init__(self, roconfig, httpsession, rouri = None, roid = None, dummysetupfortest=False):
         """
         Initialize: read manifest from object at given directory into local RDF graph
 
         roconfig    is the research object manager configuration, supplied as a dictionary
-        roref       a URI reference that refers to the Research Object to be accessed
+        rouri       a URI reference that refers to the Research Object to be accessed
+        roid        can be provided as an alternative to rouri if the Research Object
+                    needs to be created
         """
-        self.roconfig = roconfig
-        self.roref    = roref
+        self.roconfig = roconfig 
+        self.httpsession = httpsession       
+        if not rouri and not roid:
+            raise self.error("RO URI or RO ID must be provided")
+        if not rouri:
+            (status, _, rouri, _) = self.create(roid, None, None, None)
+            if status == 409:
+                # we'll assume we have rights to modify it and we'll see later
+                log.debug("Research Object %s already exists."%(roid))
+                rouri = urlparse.urljoin(self.srsuri, roid)
+        if not rouri.endswith("/"): rouri += "/"
+        self.rouri = rouri
         self.manifestgraph = None
         self.roannotations = None
-        uri = resolveFileAsUri(roref)
-        if not uri.endswith("/"): uri += "/"
-        self.rouri    = rdflib.URIRef(uri)
         self.manifesturi  = self.getManifestUri()
         self.dummyfortest = dummysetupfortest
         self._loadManifest()
@@ -80,6 +90,51 @@ class ro_remote_metadata(object):
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
+
+    def error(self, msg, value=None):
+        return ROSRS_Error(msg=msg, value=value, srsuri=self.httpsession.baseuri())
+
+    def create(self, roid, title, creator, date):
+        """
+        Create a new RO, return (status, reason, uri, manifest):
+        status+reason: 201 Created or 409 Exists
+        uri+manifest: URI and copy of manifest as RDF graph if 201 status,
+                      otherwise None and response data as diagnostic
+
+        NOTE: this method has been adapted from TestApi_ROSRS
+        """
+        reqheaders   = {
+            "slug":     roid
+            }
+        roinfo = {
+            "id":       roid,
+            "title":    title,
+            "creator":  creator,
+            "date":     date
+            }
+        roinfotext = json.dumps(roinfo)
+        (status, reason, headers, data) = self.httpsession.doRequestRDF("",
+            method="POST", body=roinfotext, headers=reqheaders)
+        log.debug("ROSRS_session.createRO: %03d %s: %s"%(status, reason, repr(data)))
+        if status == 201:
+            return (status, reason, rdflib.URIRef(headers["location"]), data)
+        if status == 409:
+            return (status, reason, None, data)
+        #@@TODO: Create annotations for title, creator, date??
+        raise self.error("Error creating RO", "%03d %s"%(status, reason))
+
+    def delete(self):
+        """
+        Delete this RO, return (status, reason):
+        status+reason: 204 No Content or 404 Not Found
+        """
+        (status, reason, _, data) = self.httpsession.doRequest(self.rouri,
+            method="DELETE")
+        log.debug("ROSRS_session.deleteRO: %03d %s: %s"%(status, reason, repr(data)))
+        if status in [204, 404]:
+            return (status, reason)
+        #@@TODO: Create annotations for title, creator, date??
+        raise self.error("Error deleting RO", "%03d %s"%(status, reason))
 
     def _loadManifest(self):
         if self.manifestgraph: return self.manifestgraph
@@ -104,84 +159,6 @@ class ro_remote_metadata(object):
         log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
     
-    def _doRequest(self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS
-        Return status, reason(text), response headers, response body
-        """
-        # Sort out path to use in HTTP request: request may be path or full URI or rdflib.URIRef
-        uripath = str(uripath)        # get URI string from rdflib.URIRef
-        log.debug("ROSRS_Session.doRequest uripath:  "+str(uripath))
-        uriparts = urlparse.urlsplit(urlparse.urljoin(self._srspath,uripath))
-        log.debug("ROSRS_Session.doRequest uriparts: "+str(uriparts))
-        if uriparts.scheme:
-            if self._srsscheme != uriparts.scheme:
-                raise ROSRS_Error(
-                    "ROSRS URI scheme mismatch",
-                    value=uriparts.scheme,
-                    srsuri=self._srsuri)
-        if uriparts.netloc:
-            if self._srshost != uriparts.netloc:
-                raise ROSRS_Error(
-                    "ROSRS URI host:port mismatch",
-                    value=uriparts.netloc,
-                    srsuri=self._srsuri)
-        path = uriparts.path
-        if uriparts.query: path += "?"+uriparts.query
-        # Assemble request headers
-        if not reqheaders:
-            reqheaders = {}
-        reqheaders["authorization"] = "Bearer "+self._key
-        if ctype:
-            reqheaders["content-type"] = ctype
-        if accept:
-            reqheaders["accept"] = accept
-        # Execute request
-        log.debug("ROSRS_Session.doRequest method:     "+method)
-        log.debug("ROSRS_Session.doRequest path:       "+path)
-        log.debug("ROSRS_Session.doRequest reqheaders: "+repr(reqheaders))
-        log.debug("ROSRS_Session.doRequest body:       "+repr(body))
-        self._httpcon.request(method, path, body, reqheaders)
-        # Pick out elements of response
-        response = self._httpcon.getresponse()
-        status   = response.status
-        reason   = response.reason
-        headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
-        headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
-        headers["_headerlist"] = headerlist
-        data = response.read()
-        log.debug("ROSRS_Session.doRequest response: "+str(status)+" "+reason)
-        log.debug("ROSRS_Session.doRequest headers:  "+repr(headers))
-        log.debug("ROSRS_Session.doRequest data:     "+repr(data))
-        return (status, reason, headers, data)
-
-    def _doRequestRDF(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
-        """
-        Perform HTTP request with RDF response.
-        If requests succeeds, return response as RDF graph,
-        or return fake 9xx status if RDF cannot be parsed
-        otherwise return responbse and content per request.
-        Thus, only 2xx responses include RDF data.
-
-        NOTE: this method has been adapted from TestApi_ROSRS
-        """
-        (status, reason, headers, data) = self.doRequest(uripath,
-            method=method, body=body,
-            ctype=ctype, accept="application/rdf+xml", reqheaders=reqheaders)
-        if status >= 200 and status < 300:
-            if headers["content-type"].lower() == "application/rdf+xml":
-                rdfgraph = rdflib.graph.Graph()
-                try:
-                    rdfgraph.parse(data=data, format="xml")
-                    data = rdfgraph
-                except Exception, e:
-                    status   = 902
-                    reason   = "RDF parse failure"
-            else:
-                status   = 901
-                reason   = "Non-RDF content-type returned"
-        return (status, reason, headers, data)
-
 
 #    def updateManifest(self):
 #        """
@@ -282,7 +259,7 @@ class ro_remote_metadata(object):
                             "Proxy URI %s"%str(proxyuri))
         resuri   = rdflib.URIRef(links["http://www.openarchives.org/ore/terms/proxyFor"])
         # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.doRequest(resuri,
+        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
             method="PUT", ctype=ctype, body=body)
         if status not in [200,201]:
             raise self.error("Error creating aggregated resource content",
@@ -298,7 +275,7 @@ class ro_remote_metadata(object):
         NOTE: this method has been adapted from TestApi_ROSRS
         """
         # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.doRequest(resuri,
+        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
             method="PUT", ctype=ctype, body=body)
         if status != 200:
             raise self.error("Error updating aggregated resource content",
@@ -322,7 +299,7 @@ class ro_remote_metadata(object):
               </ore:Proxy>
             </rdf:RDF>
             """)%str(resuri)
-        (status, reason, headers, data) = self.doRequest(rouri,
+        (status, reason, headers, data) = self.httpsession.doRequest(rouri,
             method="POST", ctype="application/vnd.wf4ever.proxy",
             body=proxydata)
         if status != 201:
@@ -362,8 +339,8 @@ class ro_remote_metadata(object):
         Return (status, reason, headers, data), where status is 200 or 404
         """
         resuri = str(resuriref)
-        (status, reason, headers, data) = self._doRequest(resuri,
-            method="HEAD", None, None)
+        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
+            method="HEAD")
         if status in [200, 404]:
             return (status, reason, headers, data if status == 200 else None)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
