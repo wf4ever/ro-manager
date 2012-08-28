@@ -47,14 +47,14 @@ class ro_rosrs_sync(object):
                 if localRo.isInternalResource(resuri):
                     log.debug("ResourceSync.pushResearchObject: %s is internal"%(resuri))
                     yield (self.ACTION_AGGREGATE_INTERNAL, resuri)
-                    remoteRo.aggregateResourceInt(remoteRo.getRoUri(), 
+                    remoteRo.aggregateResourceInt(
                                               localRo.getComponentUriRel(resuri), 
                                               localRo.getResourceType(resuri), 
                                               urllib2.urlopen(localRo.getComponentUri(resuri)))
                 elif localRo.isExternalResource(resuri):
                     log.debug("ResourceSync.pushResearchObject: %s is external"%(resuri))
                     yield (self.ACTION_AGGREGATE_EXTERNAL, resuri)
-                    remoteRo.aggregateResourceExt(remoteRo.getRoUri(), localRo.getComponentUri(resuri))
+                    remoteRo.aggregateResourceExt(localRo.getComponentUri(resuri))
                 else:
                     log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(resuri))
             else:

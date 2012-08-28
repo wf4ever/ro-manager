@@ -31,9 +31,6 @@ from ro_metadata   import ro_metadata
 
 from iaeval import ro_eval_minim
 
-from sync.RosrsApi import RosrsApi
-from sync.ResourceSync import ResourceSync
-
 from zipfile import ZipFile
 
 import urllib2
@@ -508,30 +505,30 @@ def push(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro push -d %(rodir)s -r %(rosrs_uri)s -t %(rosrs_access_token)s"%ro_options
-    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
-    back = ResourceSync(api)
-    if not ro_options['rodir']:
-        try:
-            (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True, ro_options['force'])
-        except Exception as e:
-            print "Could not push all Research Objects: %s" % e
-            return 1
-    else:
-        try:
-            roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
-            if not roDir:
-                raise Exception("%(rodir)s is not a valid RO folder" % ro_options)
-            (sent, deleted) = back.pushAllResources(roDir, True, ro_options['force'])
-        except Exception as e:
-            print "Could not push Research Object in folder %s: %s" % (roDir, e)
-            return 1
-    if not options.verbose:
-        print "%d files updated, %d files deleted" % (len(sent), len(deleted))
-    else:
-        for s in sent:
-            print "Updated: %s" % s
-        for d in deleted:
-            print "Deleted: %s" % d
+#    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
+#    back = ResourceSync(api)
+#    if not ro_options['rodir']:
+#        try:
+#            (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True, ro_options['force'])
+#        except Exception as e:
+#            print "Could not push all Research Objects: %s" % e
+#            return 1
+#    else:
+#        try:
+#            roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
+#            if not roDir:
+#                raise Exception("%(rodir)s is not a valid RO folder" % ro_options)
+#            (sent, deleted) = back.pushAllResources(roDir, True, ro_options['force'])
+#        except Exception as e:
+#            print "Could not push Research Object in folder %s: %s" % (roDir, e)
+#            return 1
+#    if not options.verbose:
+#        print "%d files updated, %d files deleted" % (len(sent), len(deleted))
+#    else:
+#        for s in sent:
+#            print "Updated: %s" % s
+#        for d in deleted:
+#            print "Deleted: %s" % d
     return 0
 
 def checkout(progname, configbase, options, args):
@@ -552,26 +549,26 @@ def checkout(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
-    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
-    if (ro_options["roident"]):
-        roident = ro_options["roident"]
-        print "Checking out %s..." % roident
-        rodir = os.path.join(ro_options['rodir'], roident)
-        try:
-            verzip = api.getRoAsZip(roident)
-            __unpackZip(verzip, rodir, options.verbose)
-        except urllib2.URLError as e:
-            print "Could not checkout %s: %s" % (roident, e)
-    else:
-        ros = api.getRos()
-        print "Checking out %d Research Objects..." % len(ros)
-        for ro in ros:
-            roident = os.path.basename(os.path.dirname(ro))
-            print "---"
-            print "Checking out %s..." % roident
-            rodir = os.path.join(ro_options['rodir'], roident)
-            verzip = api.getRoAsZipByUrl(ro)
-            __unpackZip(verzip, rodir, options.verbose)
+#    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
+#    if (ro_options["roident"]):
+#        roident = ro_options["roident"]
+#        print "Checking out %s..." % roident
+#        rodir = os.path.join(ro_options['rodir'], roident)
+#        try:
+#            verzip = api.getRoAsZip(roident)
+#            __unpackZip(verzip, rodir, options.verbose)
+#        except urllib2.URLError as e:
+#            print "Could not checkout %s: %s" % (roident, e)
+#    else:
+#        ros = api.getRos()
+#        print "Checking out %d Research Objects..." % len(ros)
+#        for ro in ros:
+#            roident = os.path.basename(os.path.dirname(ro))
+#            print "---"
+#            print "Checking out %s..." % roident
+#            rodir = os.path.join(ro_options['rodir'], roident)
+#            verzip = api.getRoAsZipByUrl(ro)
+#            __unpackZip(verzip, rodir, options.verbose)
     return 0
 
 def __unpackZip(verzip, rodir, verbose):

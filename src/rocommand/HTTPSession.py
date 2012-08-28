@@ -14,6 +14,7 @@ import httplib
 #import urllib
 import urlparse
 import rdflib
+import re
 
 from MiscLib import TestUtils
 
@@ -65,7 +66,7 @@ class HTTP_Session(object):
     def error(self, msg, value):
         return HTTPSessionError(msg=msg, value=value, uri=self._uri)
 
-    def parseLinks(headers):
+    def parseLinks(self, headers):
         """
         Parse link header(s), return dictionary of links keyed by link relation type
         """

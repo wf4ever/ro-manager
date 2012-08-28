@@ -133,11 +133,10 @@ class ro_remote_metadata(object):
         log.debug("ROSRS_session.deleteRO: %03d %s: %s"%(status, reason, repr(data)))
         if status in [204, 404]:
             return (status, reason)
-        #@@TODO: Create annotations for title, creator, date??
         raise self.error("Error deleting RO", "%03d %s"%(status, reason))
 
-    def _loadManifest(self):
-        if self.manifestgraph: return self.manifestgraph
+    def _loadManifest(self, refresh = False):
+        if self.manifestgraph and not refresh: return self.manifestgraph
         self.manifestgraph = rdflib.Graph()
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
@@ -145,6 +144,7 @@ class ro_remote_metadata(object):
         else:
             # Read manifest graph
             self.manifestgraph.parse(self.manifesturi)
+        log.debug("Manifest loaded: %d triples"%len(self.manifestgraph))
         return self.manifestgraph
 
     def _loadAnnotations(self):
@@ -229,7 +229,7 @@ class ro_remote_metadata(object):
         return parseduri.scheme in ["http", "https"]
 
     def aggregateResourceInt(
-            self, rouri, respath, ctype="application/octet-stream", body=None):
+            self, respath, ctype="application/octet-stream", body=None):
         """
         Aggegate internal resource
         Return (status, reason, proxyuri, resuri), where status is 201
@@ -246,14 +246,14 @@ class ro_remote_metadata(object):
               </ore:Proxy>
             </rdf:RDF>
             """)
-        (status, reason, headers, data) = self.doRequest(rouri,
+        (status, reason, headers, data) = self.httpsession.doRequest(self.rouri,
             method="POST", ctype="application/vnd.wf4ever.proxy",
             reqheaders=reqheaders, body=proxydata)
         if status != 201:
             raise self.error("Error creating aggregation proxy",
                             "%d03 %s (%s)"%(status, reason, respath))
         proxyuri = rdflib.URIRef(headers["location"])
-        links    = self.parseLinks(headers)
+        links    = self.httpsession.parseLinks(headers)
         if "http://www.openarchives.org/ore/terms/proxyFor" not in links:
             raise self.error("No ore:proxyFor link in create proxy response",
                             "Proxy URI %s"%str(proxyuri))
@@ -264,10 +264,11 @@ class ro_remote_metadata(object):
         if status not in [200,201]:
             raise self.error("Error creating aggregated resource content",
                 "%d03 %s (%s)"%(status, reason, respath))
+        self._loadManifest(refresh = True)
         return (status, reason, proxyuri, resuri)
 
     def updateResourceInt(
-            self, resuri, ctype="application/octet-stream", body=None):
+            self, respath, ctype="application/octet-stream", body=None):
         """
         Update an already aggregated internal resource
         Return (status, reason, None, resuri), where status is 200
@@ -275,14 +276,15 @@ class ro_remote_metadata(object):
         NOTE: this method has been adapted from TestApi_ROSRS
         """
         # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
+        (status, reason, headers, data) = self.httpsession.doRequest(
+            urlparse.urljoin(self.rouri, respath),
             method="PUT", ctype=ctype, body=body)
         if status != 200:
             raise self.error("Error updating aggregated resource content",
-                "%d03 %s (%s)"%(status, reason, resuri))
-        return (status, reason, headers, resuri)
+                "%d03 %s (%s)"%(status, reason, respath))
+        return (status, reason, headers, respath)
 
-    def aggregateResourceExt(self, rouri, resuri):
+    def aggregateResourceExt(self, resuri):
         """
         Aggegate internal resource
         Return (status, reason, proxyuri, resuri), where status is 200 or 201
@@ -299,39 +301,49 @@ class ro_remote_metadata(object):
               </ore:Proxy>
             </rdf:RDF>
             """)%str(resuri)
-        (status, reason, headers, data) = self.httpsession.doRequest(rouri,
+        (status, reason, headers, data) = self.httpsession.doRequest(self.rouri,
             method="POST", ctype="application/vnd.wf4ever.proxy",
             body=proxydata)
         if status != 201:
             raise self.error("Error creating aggregation proxy",
                 "%d03 %s (%s)"%(status, reason, str(resuri)))
         proxyuri = rdflib.URIRef(headers["location"])
+        self._loadManifest(refresh = True)
         return (status, reason, proxyuri, rdflib.URIRef(resuri))
     
-    def deaggregateResource(self, rouri, resuri):
+    def getROResourceProxy(self, resuriref):
+        """
+        Retrieve proxy description for resource.
+        Return (proxyuri, manifest), where status is 200 or 404
+        """
+        resuri = self.getComponentUriAbs(resuriref)
+        proxyterms = list(self.manifestgraph.subjects(
+            predicate=rdflib.term.URIRef(u'http://www.openarchives.org/ore/terms/proxyFor'), object=resuri))
+        log.debug("getROResourceProxy proxyterms: %s"%(repr(proxyterms)))
+        proxyuri = None
+        if len(proxyterms) == 1:
+            proxyuri = proxyterms[0]
+        return proxyuri
+
+    def deaggregateResource(self, resuriref):
         """
         Deaggregate an aggregated resource. In case of an internal resource, its
         content is deleted.
         Return (status, reason, None, resuri), where status is 204 or 404
         """
-#        # Aggegate external resource: POST proxy ...
-#        proxydata = ("""
-#            <rdf:RDF
-#              xmlns:ore="http://www.openarchives.org/ore/terms/"
-#              xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
-#              <ore:Proxy>
-#                <ore:proxyFor rdf:resource="%s" />
-#              </ore:Proxy>
-#            </rdf:RDF>
-#            """)%str(resuri)
-#        (status, reason, headers, data) = self.doRequest(rouri,
-#            method="POST", ctype="application/vnd.wf4ever.proxy",
-#            body=proxydata)
-#        if status != 201:
-#            raise self.error("Error creating aggregation proxy",
-#                "%d03 %s (%s)"%(status, reason, str(resuri)))
-#        proxyuri = rdflib.URIRef(headers["location"])
-#        return (status, reason, proxyuri, rdflib.URIRef(resuri))
+        proxyuri = self.getROResourceProxy(resuriref)
+        if not proxyuri:
+            raise self.error("Could not find proxy for %s"%str(resuriref))
+        (status, reason, headers, _) = self.httpsession.doRequest(
+            proxyuri, method="DELETE")
+        if status == 307:
+            (status, reason, headers, _) = self.httpsession.doRequest(
+                    headers["location"], method="DELETE")
+        if status != 204:
+            raise self.error("Error deleting aggregated resource",
+                "%d03 %s (%s)"%(status, reason, resuriref))
+        self._loadManifest(refresh = True)
+        return (status, reason, headers, resuriref)
 
     def getHead(self, resuriref):
         """
@@ -665,6 +677,12 @@ class ro_remote_metadata(object):
         return self.rouri
 
     def getComponentUri(self, path):
+        return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+
+    def getComponentUriAbs(self, path):
+        """
+        Return absolute URI for component where relative reference is treated as a URI reference
+        """
         return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
 
     def getComponentUriRel(self, path):

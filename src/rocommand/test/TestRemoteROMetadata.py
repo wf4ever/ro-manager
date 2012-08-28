@@ -80,6 +80,39 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
         return
 
+    def testAddGetAggregatedResources(self):
+        """
+        Test function that adds aggregated resources to a research object manifest
+        """
+        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        roid = "romanagertest-" + str(uuid.uuid4())      
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
+        def URIRef(path):
+            return self.remoteRo.getComponentUriAbs(path)
+        def verifyResources(resources):
+            c = 0
+            for r in self.remoteRo.getAggregatedResources():
+                if self.remoteRo.getResourceType(r) != RO.AggregatedAnnotation:
+                    c += 1
+                    self.assertIn(r, resources)
+            self.assertEqual(c, len(resources))
+            return
+        self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        verifyResources([
+                         URIRef("internal/1")
+          ])
+        self.remoteRo.aggregateResourceExt("http://www.google.com")
+        verifyResources([
+                         URIRef("internal/1")
+                         , URIRef("http://www.google.com")
+          ])
+        self.remoteRo.deaggregateResource(URIRef("internal/1"))
+        verifyResources([
+                         URIRef("http://www.google.com")
+          ])
+        self.remoteRo.deaggregateResource(URIRef("http://www.google.com"))
+        verifyResources([])
+        return
 
 
     # Sentinel/placeholder tests
@@ -114,6 +147,7 @@ def getTestSuite(select="unit"):
             [ "testUnits"
             , "testNull"
             , "testCreateRo"
+            , "testAddGetAggregatedResources"
             ],
         "component":
             [ "testComponents"
