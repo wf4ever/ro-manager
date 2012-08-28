@@ -42,6 +42,11 @@ from StdoutContext import SwitchStdout
 
 import TestROSupport
 
+# Current working directory
+cwd        = os.getcwd()
+robase     = ro_test_config.ROBASEDIR
+robase_abs = os.path.abspath(ro_test_config.ROBASEDIR)
+
 # Base directory for RO tests in this module
 testbase = os.path.dirname(__file__)
 
@@ -119,15 +124,128 @@ class TestManifest(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         log.debug("outtxt %s"%outtxt)
         def URIRef(path):
-            return ro_manifest.getComponentUri(rodir, path)
+            return ro_manifest.getComponentUriAbs(rodir, path)
         s = ro_manifest.getComponentUri(rodir, "")
         g = rdflib.Graph()
-        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
-        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
-        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
-        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
+        g.add( (s, RDF.type,            RO.ResearchObject                       ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")              ) )
+        g.add( (s, ORE.aggregates,      URIRef("filename%20with%20spaces.txt")  ) )
+        g.add( (s, ORE.aggregates,      URIRef("filename%23with%23hashes.txt")  ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")              ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt")      ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt")      ) )
         self.checkManifestGraph(rodir, g)
         self.deleteTestRo(rodir)
+        return
+
+    # URI tests
+
+    def testGetRoUri(self):
+        def testUri(rodir, uristring):
+            self.assertEquals(ro_manifest.getRoUri(rodir), rdflib.URIRef(uristring))
+            return
+        testUri("/example/ro/dir",  "file:///example/ro/dir/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/" )
+        testUri("ro/dir",           "file://%s/ro/dir/"%(cwd) )
+        testUri("ro/dir/",          "file://%s/ro/dir/"%(cwd) )
+        testUri(robase+"/ro/dir",   "file://%s/ro/dir/"%(robase_abs) )
+        testUri(robase+"/ro/dir/",  "file://%s/ro/dir/"%(robase_abs) )
+        testUri("file:///example/ro/dir", "file:///example/ro/dir/" )
+        return
+
+    def testGetComponentUri(self):
+        def testUri(rodir, path, uristring):
+            self.assertEquals(ro_manifest.getComponentUri(rodir, path), rdflib.URIRef(uristring))
+            return
+        testUri("/example/ro/dir",  "a/b.txt", "file:///example/ro/dir/a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt", "file:///example/ro/dir/a/b.txt" )
+        testUri("ro/dir",           "a/b.txt", "file://%s/ro/dir/a/b.txt"%(cwd) )
+        testUri("ro/dir/",          "a/b.txt", "file://%s/ro/dir/a/b.txt"%(cwd) )
+        testUri("/example/ro/dir",  "a/b/d/",  "file:///example/ro/dir/a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",  "file:///example/ro/dir/a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",  "file://%s/ro/dir/a/b/d/"%(cwd)  )
+        testUri("ro/dir/",          "a/b/d/",  "file://%s/ro/dir/a/b/d/"%(cwd)  )
+        return
+
+    def testGetComponentUriRel(self):
+        def testUri(rodir, path, uristring):
+            self.assertEquals(ro_manifest.getComponentUriRel(rodir, path), rdflib.URIRef(uristring))
+            return
+
+        testUri("/example/ro/dir",  "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir/",          "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir",  "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir/",          "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir",  "",         ""        )
+        testUri("/example/ro/dir/", "",         ""        )
+        testUri("ro/dir",           "",         ""        )
+        testUri("ro/dir/",          "",         ""        )
+
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("ro/dir",           "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("/example/ro/dir",  "/example/ro/dir/",         "" )
+        testUri("/example/ro/dir/", "/example/ro/dir/",         "" )
+        testUri("ro/dir",           "%s/ro/dir/"%(cwd),         "" )
+        testUri("ro/dir/",          "%s/ro/dir/"%(cwd),         "" )
+
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/",          "" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/",          "" )
+        return
+
+    def testGetComponentUriRelUri(self):
+        """
+        Same as previous tests, but with path supplied as rdflib.URIRef value rather than string
+        """
+        def testUri(rodir, path, uristring):
+            self.assertEquals(ro_manifest.getComponentUriRel(rodir, rdflib.URIRef(path)), rdflib.URIRef(uristring))
+            return
+
+        testUri("/example/ro/dir",  "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "a/b.txt",  "a/b.txt" )
+        testUri("ro/dir/",          "a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir",  "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir/", "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir",           "a/b/d/",   "a/b/d/"  )
+        testUri("ro/dir/",          "a/b/d/",   "a/b/d/"  )
+        testUri("/example/ro/dir",  "",         ""        )
+        testUri("/example/ro/dir/", "",         ""        )
+        testUri("ro/dir",           "",         ""        )
+        testUri("ro/dir/",          "",         ""        )
+
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b.txt",  "a/b.txt" )
+        testUri("ro/dir",           "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b.txt"%(cwd),  "a/b.txt" )
+        testUri("/example/ro/dir",  "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("/example/ro/dir/", "/example/ro/dir/a/b/d/",   "a/b/d/" )
+        testUri("ro/dir",           "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("ro/dir/",          "%s/ro/dir/a/b/d/"%(cwd),   "a/b/d/" )
+        testUri("/example/ro/dir",  "/example/ro/dir/",         "" )
+        testUri("/example/ro/dir/", "/example/ro/dir/",         "" )
+        testUri("ro/dir",           "%s/ro/dir/"%(cwd),         "" )
+        testUri("ro/dir/",          "%s/ro/dir/"%(cwd),         "" )
+
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b.txt",   "a/b.txt" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/a/b/d/",    "a/b/d/" )
+        testUri("/example/ro/dir",  "file:///example/ro/dir/",          "" )
+        testUri("/example/ro/dir/", "file:///example/ro/dir/",          "" )
         return
 
     # Sentinel/placeholder tests
@@ -164,6 +282,10 @@ def getTestSuite(select="unit"):
             , "testManifestContent"
             , "testAddAggregatedResources"
             , "testAddAggregatedResourcesCommand"
+            , "testGetRoUri"
+            , "testGetComponentUri"
+            , "testGetComponentUriRel"
+            , "testGetComponentUriRelUri"
             ],
         "component":
             [ "testComponents"

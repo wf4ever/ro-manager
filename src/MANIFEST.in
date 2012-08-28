@@ -1,3 +1,4 @@
+include README.md
 include rocommand/test/config/*
 include rocommand/test/robase/*
 include rocommand/test/nobase/*

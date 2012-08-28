@@ -31,8 +31,8 @@ from MiscLib import TestUtils
 
 from rocommand import ro_settings
 from rocommand import ro_metadata
+from rocommand import ro_annotation
 from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
-from rocommand.ro_annotation import annotationTypes
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -44,7 +44,8 @@ testbase = os.path.dirname(__file__)
 
 # Local ro_config for testing
 ro_config = {
-    "annotationTypes": annotationTypes
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
     }
 
 cwd        = os.getcwd()
@@ -441,6 +442,31 @@ class TestROMetadata(TestROSupport.TestROSupport):
         g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
         g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
         self.checkManifestGraph(rodir, g)
+        n = rdflib.Graph()
+        n.add( (s, ORE.aggregates,      URIRef("subdir1/") ) )
+        n.add( (s, ORE.aggregates,      URIRef("subdir2/") ) )
+        self.checkManifestGraphOmits(rodir, n)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddAggregatedResourcesWithDirs(self):
+        """
+        Test function that adds aggregated resources to a research object manifest
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test aggregation", "ro-testRoAggregation")
+        romd  = ro_metadata.ro_metadata(ro_config, rodir)
+        romd.addAggregatedResources(rodir, recurse=True, includeDirs=True)
+        def URIRef(path):
+            return romd.getComponentUri(path)
+        s = romd.getRoUri()
+        g = rdflib.Graph()
+        g.add( (s, RDF.type,            RO.ResearchObject                  ) )
+        g.add( (s, ORE.aggregates,      URIRef("README-ro-test-1")         ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir1/subdir1-file.txt") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/") ) )
+        g.add( (s, ORE.aggregates,      URIRef("subdir2/subdir2-file.txt") ) )
+        self.checkManifestGraph(rodir, g)
         self.deleteTestRo(rodir)
         return
 
@@ -452,12 +478,14 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         romd.addAggregatedResources(rodir, recurse=True)
         def URIRef(path):
-            return romd.getComponentUri(path)
+            return romd.getComponentUriAbs(path)
         resources = (
           [ URIRef("README-ro-test-1")
           , URIRef("minim.rdf")
           , URIRef("subdir1/subdir1-file.txt")
           , URIRef("subdir2/subdir2-file.txt")
+          , URIRef("filename%20with%20spaces.txt")
+          , URIRef("filename%23with%23hashes.txt")
           ])
         c = 0
         for r in romd.getAggregatedResources():
@@ -790,6 +818,7 @@ def getTestSuite(select="unit"):
             , "testGetComponentUriRel"
             , "testGetComponentUriRelUri"
             , "testAddAggregatedResources"
+            , "testAddAggregatedResourcesWithDirs"
             , "testGetAggregatedResources"
             ],
         "component":

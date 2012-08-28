@@ -97,23 +97,28 @@ class ro_metadata(object):
             base=self.rouri, xml_base="..")
         return
 
-    def addAggregatedResources(self, ro_file, recurse=True):
+    def addAggregatedResources(self, ro_file, recurse=True, includeDirs=False):
         """
         Scan a local directory and add files found to the RO aggregation
         """
         def notHidden(f):
             return re.match("\.|.*/\.", f) == None
-        log.debug("addAggregatedResources: ref %s, file %s"%(self.roref, ro_file))
+        log.debug("addAggregatedResources: roref %s, file %s"%(self.roref, ro_file))
         self.getRoFilename()  # Check that we have one
-        if ro_file.endswith(os.path.sep):
-            ro_file = ro_file[0:-1]
-        rofiles = [ro_file]
+        basedir = os.path.abspath(self.roref)
         if os.path.isdir(ro_file):
-            rofiles = filter( notHidden,
-                                MiscLib.ScanDirectories.CollectDirectoryContents(
-                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.roref),
-                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
-                            )
+            ro_file = os.path.abspath(ro_file)+os.path.sep
+            #if ro_file.endswith(os.path.sep):
+            #    ro_file = ro_file[0:-1]
+            if recurse:
+                rofiles = filter( notHidden,
+                                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, baseDir=basedir,
+                                        listDirs=includeDirs, listFiles=True, recursive=recurse, appendSep=True)
+                                )
+            else:
+                rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
+        else:
+            rofiles = [self.getComponentUriRel(ro_file)]
         s = self.getRoUri()
         for f in rofiles:
             log.debug("- file %s"%f)
@@ -130,7 +135,8 @@ class ro_metadata(object):
         """
         log.debug("getAggregatedResources: uri %s"%(self.rouri))
         for r in self.manifestgraph.objects(subject=self.rouri, predicate=ORE.aggregates):
-            yield r
+            if not isinstance(r, rdflib.BNode):
+                yield r
         return
     
     def isAggregatedResource(self, rofile):
@@ -285,7 +291,7 @@ class ro_metadata(object):
         ro_graph  = self._loadManifest()
         subject     = self.getComponentUri(rofile)
         (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-        val         = attrvalue and ro_annotation.makeAnnotationValue(attrvalue, valtype)
+        val         = attrvalue and ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)
         add_annotations    = []
         remove_annotations = []
         log.debug("removeSimpleAnnotation subject %s, predicate %s, val %s"%
@@ -332,7 +338,7 @@ class ro_metadata(object):
                   (repr(subject), repr(predicate), repr(attrvalue)))
         ro_graph.remove((subject, predicate, None))
         ro_graph.add((subject, predicate,
-                      ro_annotation.makeAnnotationValue(attrvalue, valtype)))
+                      ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
         self.updateManifest()
         return
 
@@ -360,7 +366,7 @@ class ro_metadata(object):
 
     def iterateAnnotations(self, subject=None, property=None):
         """
-        Returns an iterator over annotations of the current RO that match th
+        Returns an iterator over annotations of the current RO that match the
         supplied subject and/or property.
         """
         log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
@@ -477,10 +483,25 @@ class ro_metadata(object):
         return self.rouri
 
     def getComponentUri(self, path):
+        """
+        Return URI for component where relative reference is treated as a file path
+        """
+        ###return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+        if urlparse.urlsplit(path).scheme == "":
+            path = resolveUri("", str(self.getRoUri()), path)
+        return rdflib.URIRef(path)
+
+    def getComponentUriAbs(self, path):
+        """
+        Return absolute URI for component where relative reference is treated as a URI reference
+        """
         return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
 
     def getComponentUriRel(self, path):
-        file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(self.getComponentUri(path))))
+        """
+        Return reference relative to RO for a supplied URI
+        """
+        file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(self.getComponentUriAbs(path))))
         ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(str(self.getRoUri())))
         if ro_uri is not None and file_uri.startswith(ro_uri):
             file_uri_rel = file_uri.replace(ro_uri, "", 1)

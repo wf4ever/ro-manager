@@ -24,7 +24,7 @@ def isFileUri(uri):
 
 def resolveUri(uriref, base, path=""):
     """
-    Resolve a URI reference against a supplied base URI and path.
+    Resolve a URI reference against a supplied base URI and path (supplied as strings).
     (The path is a local file system path, and may need converting to use URI conventions)
     """
     upath = urllib.pathname2url(path)

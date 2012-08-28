@@ -281,6 +281,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro ls -d rodir
         """
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
+        self.populateTestRo(testbase, rodir)
         args = [
             "ro", "ls",
             "-d", rodir,
@@ -294,6 +295,8 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertRegexpMatches(outtxt, "README-ro-test-1")
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
         self.deleteTestRo(rodir)
         return
 
@@ -304,6 +307,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         ro ls
         """
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test list", "ro-testRoList")
+        self.populateTestRo(testbase, rodir)
         args = [
             "ro", "ls",
             "-v"
@@ -320,6 +324,79 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertRegexpMatches(outtxt, "README-ro-test-1")
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddDirectory(self):
+        """
+        Add directory to created RO
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test add", "ro-testRoAdd")
+        self.populateTestRo(testbase, rodir)
+        args = [
+            "ro", "add",
+            "-d", rodir,
+            rodir+"/subdir1/",
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        # Now list contents
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro list"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddExternalResource(self):
+        """
+        Add external resource to created RO
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test add", "ro-testRoAdd")
+        self.populateTestRo(testbase, rodir)
+        args = [
+            "ro", "add",
+            "-d", rodir,
+            "http://example.org/external",
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        # Now list contents
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro list"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
+        self.assertRegexpMatches(outtxt, "http://example.org/external")
         self.deleteTestRo(rodir)
         return
 
@@ -367,6 +444,8 @@ def getTestSuite(select="unit"):
             , "testStatusDefault"
             , "testList"
             , "testListDefault"
+            , "testAddDirectory"
+            , "testAddExternalResource"
             ],
         "component":
             [ "testComponents"

@@ -31,9 +31,10 @@ def ScanDirectoriesEx(srcdir, DirFunc, FileFunc=None, recursive=True):
     Scan all sub-directories in a given source directory.
     Exceptions are thrown back to the calling program.
     """
+    if not srcdir.endswith(os.path.sep): srcdir += os.path.sep
     directoryList = os.listdir(srcdir)
     for directoryComponent in directoryList:
-        path = srcdir+"/"+directoryComponent
+        path = srcdir+directoryComponent
         if isdir(path):
             DirFunc(path)
             if recursive:
@@ -71,7 +72,7 @@ def ScanDirectories(srcdir, DirFunc, listFiles=False, recursive=True):
 # listFiles is True if files are to be included in the listing returned
 # recursive is True if directories are to be scanned recursively,
 #           otherwise only the named directory is scanned.
-# appendSep is True if pathe separator characteris to be appended to directory names
+# appendSep is True if path separator character is to be appended to directory names
 #
 # Returns a list of directory contents
 #
@@ -80,7 +81,7 @@ def CollectDirectoryContents(srcDir, baseDir="",
     """
     Return a list of directory contents found under the source directory.
     """
-    #logger.debug("CollectDirectories: %s, %s, %s"%(srcDir,baseDir,str(os.path.sep)))
+    logger.debug("CollectDirectories: %s, %s, %s"%(srcDir,baseDir,str(os.path.sep)))
     dirsuffix = ""
     if appendSep: dirsuffix = os.path.sep
     collection = []

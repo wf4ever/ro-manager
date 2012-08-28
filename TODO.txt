@@ -101,31 +101,31 @@ DONE
 
 Option table
 
-("-a", "--all",             help="All, list all files, depends on the context")
-("-b", "--ro-base",         help="Base of local directory tree used for ROs")
+("-a", "--all",                 help="All, list all files, depends on the context")
+("-b", "--ro-base",             help="Base of local directory tree used for ROs")
   -c
-("-d", "--ro-directory",    help="Directory of Research Object to process (defaults to current directory)")
-("-e", "--user-email",      help="Email address of research objects owner")
-("-f", "--force",           help="Force, depends on the context")
-("-g", "--graph",           help="Name of existing RDF graph used for annotation")
+("-d", "--ro-directory",        help="Directory of Research Object to process (defaults to current directory)")
+("-e", "--user-email",          help="Email address of research objects owner")
+("-f", "--force",               help="Force, depends on the context")
+("-g", "--graph",               help="Name of existing RDF graph used for annotation")
   -h    --help
-("-i", "--ro-identifier",   help="Identifier of Research Object (defaults to value based on name)")
+("-i", "--ro-identifier",       help="Identifier of Research Object (defaults to value based on name)")
   -j
   -k
-  -l,  "--report-level",    help="Reporting level of detail to generate (summary, must, should, may or full)"
+  -l,  "--report-level",        help="Reporting level of detail to generate (summary, must, should, may or full)"
   -m
-("-n", "--user-name",       help="Full name of research objects owner")
+("-n", "--user-name",           help="Full name of research objects owner")
   -o
-("-p", "--rosrs-password",  help="ROSRS password")
+("-p", "--rosrs-password",      help="ROSRS password")
   -q
-("-r", "--rosrs-uri",       help="URI of ROSRS service")
-  -s
+("-r", "--rosrs-uri",           help="URI of ROSRS service")
+("-s", "--secret", "--hidden",  help="display hidden files in listing")
   -t
-("-u", "--rosrs-username",  help="ROSRS username")
-("-v", "--verbose",         help="display verbose output")
+("-u", "--rosrs-username",      help="ROSRS username")
+("-v", "--verbose",             help="display verbose output")
   -w
   -x
   -y
   -z
-(      "--debug",           help="Display debug/trace output")
+(      "--debug",               help="Display debug/trace output")
 

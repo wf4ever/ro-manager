@@ -9,6 +9,7 @@ import os
 import os.path
 import re
 import urlparse
+import urllib
 import logging
 
 log = logging.getLogger(__name__)
@@ -121,15 +122,26 @@ def old_getRoUri(ro_dir):
     return getFileUri(os.path.abspath(ro_dir)+"/")
 
 def getRoUri(roref):
-    base = "file://"+os.path.abspath(os.getcwd())+"/"
-    uri  = urlparse.urljoin(base, roref)
+    uri = roref
+    if urlparse.urlsplit(uri).scheme == "":
+        base = "file://"+urllib.pathname2url(os.path.abspath(os.getcwd()))+"/"
+        uri  = urlparse.urljoin(base, urllib.pathname2url(roref))
     if not uri.endswith("/"): uri += "/" 
     return rdflib.URIRef(uri)
 
 def getComponentUri(ro_dir, path):
-    #log.debug("getComponentUri: ro_dir %s, path %s"%(ro_dir, path))
+    """
+    Return URI for component where relative reference is treated as a file path
+    """
+    if urlparse.urlsplit(path).scheme == "":
+        path = urlparse.urljoin(str(getRoUri(ro_dir)), urllib.pathname2url(path))
+    return rdflib.URIRef(path)
+
+def getComponentUriAbs(ro_dir, path):
+    """
+    Return absolute URI for component where relative reference is treated as a URI reference
+    """
     return rdflib.URIRef(urlparse.urljoin(str(getRoUri(ro_dir)), path))
-    #return rdflib.URIRef("file://"+os.path.normpath(os.path.join(os.path.abspath(ro_dir), path)))
 
 def getComponentUriRel(ro_dir, path):
     #log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
