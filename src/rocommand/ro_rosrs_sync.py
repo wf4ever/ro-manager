@@ -6,7 +6,6 @@ Created on 22-08-2012
 
 import logging
 import urllib2
-import httplib
 import urlparse
 import rdflib
 
@@ -40,66 +39,67 @@ class ro_rosrs_sync(object):
         Scans a given RO version directory for files that have been modified since last synchronization
         and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
         '''        
-        for res in localRo.getAggregatedResources():
-            resuri = urlparse.urljoin(remoteRo.getRoUri(), res)
-            if not remoteRo.isAggregatedResource(resuri):
-                log.debug("ResourceSync.pushResearchObject: %s does was not aggregated in the remote RO"%(resuri))
-                if localRo.isInternalResource(resuri):
-                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(resuri))
-                    yield (self.ACTION_AGGREGATE_INTERNAL, resuri)
+        for localResuri in localRo.getAggregatedResources():
+            respath = localRo.getComponentUriRel(localResuri)
+            if not remoteRo.isAggregatedResource(respath):
+                log.debug("ResourceSync.pushResearchObject: %s does was not aggregated in the remote RO"%(respath))
+                if localRo.isInternalResource(localResuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
+                    yield (self.ACTION_AGGREGATE_INTERNAL, respath)
                     remoteRo.aggregateResourceInt(
-                                              localRo.getComponentUriRel(resuri), 
-                                              localRo.getResourceType(resuri), 
-                                              urllib2.urlopen(localRo.getComponentUri(resuri)))
-                elif localRo.isExternalResource(resuri):
-                    log.debug("ResourceSync.pushResearchObject: %s is external"%(resuri))
-                    yield (self.ACTION_AGGREGATE_EXTERNAL, resuri)
-                    remoteRo.aggregateResourceExt(localRo.getComponentUri(resuri))
+                                             respath, 
+                                              localRo.getResourceType(respath), 
+                                              urllib2.urlopen(localRo.getComponentUri(localResuri)))
+                elif localRo.isExternalResource(localResuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
+                    yield (self.ACTION_AGGREGATE_EXTERNAL, respath)
+                    remoteRo.aggregateResourceExt(respath)
                 else:
-                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(resuri))
+                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(localResuri))
             else:
-                log.debug("ResourceSync.pushResearchObject: %s does was already aggregated in the remote RO"%(resuri))
-                if localRo.isInternalResource(localRo, resuri):
-                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(res))
+                log.debug("ResourceSync.pushResearchObject: %s does was already aggregated in the remote RO"%(respath))
+                if localRo.isInternalResource(localResuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
                     # Get remote ETag
-                    (status, reason, headers, _) = remoteRo.getHead(resuri)
+                    (status, reason, headers) = remoteRo.getHead(respath)
                     if status != 200:
-                        raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuri))
+                        raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, respath))
                     currentETag = headers["ETag"];
-                    currentChecksum = localRo.calculateChecksum(res)
+                    currentChecksum = localRo.calculateChecksum(localResuri)
                     # Check locally stored ETag
-                    previousETag = localRo.getRegistries()[res]["ETag"]
-                    previousChecksum = localRo.getRegistries()[res]["checksum"]
+                    previousETag = localRo.getRegistries()[localResuri]["ETag"]
+                    previousChecksum = localRo.getRegistries()[localResuri]["checksum"]
                     if not previousETag or previousETag != currentETag:
-                        yield (self.ACTION_UPDATE_OVERWRITE_NEWER, res)
-                        (status, reason, headers, resuri) = remoteRo.updateResourceInt(resuri, 
-                                                   localRo.getResourceType(resuri),
-                                                   urllib2.urlopen(localRo.getComponentUri(resuri)))
-                        localRo.getRegistries()[res]["ETag"] = headers["ETag"]
-                        localRo.getRegistries()[res]["checksum"] = currentChecksum
+                        yield (self.ACTION_UPDATE_OVERWRITE_NEWER, respath)
+                        (status, reason, headers, resuri) = remoteRo.updateResourceInt(respath, 
+                                                   localRo.getResourceType(respath),
+                                                   urllib2.urlopen(localRo.getComponentUri(respath)))
+                        localRo.getRegistries()[localResuri]["ETag"] = headers["ETag"]
+                        localRo.getRegistries()[localResuri]["checksum"] = currentChecksum
                     else:
                         if not previousChecksum or previousChecksum != currentChecksum:
                             log.debug("ResourceSync.pushResearchObject: %s has been modified"%(resuri))
-                            yield (self.ACTION_UPDATE_OVERWRITE, res)
+                            yield (self.ACTION_UPDATE_OVERWRITE, resuri)
                             (status, reason, headers, resuri) = remoteRo.updateResourceInt(resuri, 
-                                                       localRo.getResourceType(resuri),
-                                                       urllib2.urlopen(localRo.getComponentUri(resuri)))
-                            localRo.getRegistries()[res]["ETag"] = headers["ETag"]
-                            localRo.getRegistries()[res]["checksum"] = currentChecksum
+                                                       localRo.getResourceType(localResuri),
+                                                       urllib2.urlopen(localRo.getComponentUri(localResuri)))
+                            localRo.getRegistries()[localResuri]["ETag"] = headers["ETag"]
+                            localRo.getRegistries()[localResuri]["checksum"] = currentChecksum
                         else:
-                            log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(resuri))
-                            yield (self.ACTION_SKIP, res)
-                elif localRo.isExternalResource(resuri):
-                    log.debug("ResourceSync.pushResearchObject: %s is external"%(resuri))
-                    yield (self.ACTION_SKIP, resuri)
+                            log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(localResuri))
+                            yield (self.ACTION_SKIP, localResuri)
+                elif localRo.isExternalResource(localResuri):
+                    log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
+                    yield (self.ACTION_SKIP, localResuri)
                 else:
-                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(resuri))
+                    log.error("ResourceSync.pushResearchObject: %s is neither internal nor external"%(localResuri))
         
-        for res in remoteRo.getAggregatedResources():
-            if not localRo.isAggregatedResource(res):
-                log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(res))
-                yield (self.ACTION_DELETE, res)
-                remoteRo.deaggregateResource(res)
+        for resuri in remoteRo.getAggregatedResources():
+            respath = remoteRo.getComponentUriRel(resuri)
+            if not localRo.isAggregatedResource(respath):
+                log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(resuri))
+                yield (self.ACTION_DELETE, resuri)
+                remoteRo.deaggregateResource(resuri)
             pass            
                     
         for ann in localRo.getAllAnnotations():

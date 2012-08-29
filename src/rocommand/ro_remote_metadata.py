@@ -205,12 +205,13 @@ class ro_remote_metadata(object):
             yield r
         return
     
-    def isAggregatedResource(self, resuri):
+    def isAggregatedResource(self, respath):
         '''
         Returns true if the manifest says that the research object aggregates the
         resource. Resource URI is resolved against the RO URI unless it's absolute.
         '''
-        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, resuri))
+        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, respath))
+        resuri = self.getComponentUriAbs(respath)
         return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
 
     def isInternalResource(self, rouri, resuri):
@@ -348,13 +349,13 @@ class ro_remote_metadata(object):
     def getHead(self, resuriref):
         """
         Retrieve resource from RO
-        Return (status, reason, headers, data), where status is 200 or 404
+        Return (status, reason, headers), where status is 200 or 404
         """
-        resuri = str(resuriref)
-        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
+        resuri = self.getComponentUriAbs(resuriref)
+        (status, reason, headers, _) = self.httpsession.doRequest(resuri,
             method="HEAD")
         if status in [200, 404]:
-            return (status, reason, headers, data if status == 200 else None)
+            return (status, reason, headers)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
 
 #    def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):
@@ -677,7 +678,13 @@ class ro_remote_metadata(object):
         return self.rouri
 
     def getComponentUri(self, path):
-        return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+        """
+        Return URI for component where relative reference is treated as a file path
+        """
+        ###return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
+        if urlparse.urlsplit(path).scheme == "":
+            path = resolveUri("", str(self.getRoUri()), path)
+        return rdflib.URIRef(path)
 
     def getComponentUriAbs(self, path):
         """
