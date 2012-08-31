@@ -32,6 +32,7 @@ def readManifestGraph(rodir):
     Read manifest file for research object, return RDF Graph of manifest values.
     """
     manifestfilename = makeManifestFilename(rodir)
+    log.debug("readManifestGraph: "+manifestfilename)
     rdfGraph = rdflib.Graph()
     rdfGraph.parse(manifestfilename)
     return rdfGraph
