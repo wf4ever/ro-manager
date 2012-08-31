@@ -98,20 +98,45 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
             self.assertEqual(c, len(resources))
             return
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
+        self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
           ])
         self.remoteRo.aggregateResourceExt("http://www.google.com")
+        self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
+        self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
                          , URIRef("http://www.google.com")
           ])
         self.remoteRo.deaggregateResource(URIRef("internal/1"))
+        self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
+        self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("http://www.google.com")
           ])
         self.remoteRo.deaggregateResource(URIRef("http://www.google.com"))
+        self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
+        self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([])
+        return
+
+    def testClassifyAggregatedResources(self):
+        """
+        Test functions that identify external and internal resource
+        """
+        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        roid = "romanagertest-" + str(uuid.uuid4())      
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
+        def URIRef(path):
+            return self.remoteRo.getComponentUriAbs(path)
+        self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        self.remoteRo.aggregateResourceExt("http://www.google.com")
+        self.assertTrue(self.remoteRo.isResourceInternal(URIRef("internal/1")))
+        self.assertFalse(self.remoteRo.isResourceExternal(URIRef("internal/1")))
+        self.assertFalse(self.remoteRo.isResourceInternal(URIRef("http://www.google.com")))
+        self.assertTrue(self.remoteRo.isResourceExternal(URIRef("http://www.google.com")))
         return
 
 
@@ -148,6 +173,7 @@ def getTestSuite(select="unit"):
             , "testNull"
             , "testCreateRo"
             , "testAddGetAggregatedResources"
+            , "testClassifyAggregatedResources"
             ],
         "component":
             [ "testComponents"

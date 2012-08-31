@@ -144,7 +144,6 @@ class ro_remote_metadata(object):
         else:
             # Read manifest graph
             self.manifestgraph.parse(self.manifesturi)
-        log.debug("Manifest loaded: %d triples"%len(self.manifestgraph))
         return self.manifestgraph
 
     def _loadAnnotations(self):
@@ -214,20 +213,20 @@ class ro_remote_metadata(object):
         resuri = self.getComponentUriAbs(respath)
         return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
 
-    def isInternalResource(self, rouri, resuri):
+    def isResourceInternal(self, resuri):
         '''
         Check if the resource is internal, i.e. should the resource content be uploaded
         to the ROSR service. Returns true if the resource URI has the RO URI as a prefix.
         '''
-        return rouri.startswith(resuri)
+        return resuri.startswith(self.rouri)
 
-    def isExternalResource(self, resuri):
+    def isResourceExternal(self, resuri):
         '''
         Check if the resource is external, i.e. can be aggregated as a URI reference.
         Returns true if the URI has 'http' or 'https' scheme.
         '''
         parseduri = urlparse.urlsplit(resuri)
-        return parseduri.scheme in ["http", "https"]
+        return parseduri.scheme in ["http", "https"] and not self.isResourceInternal(resuri)
 
     def aggregateResourceInt(
             self, respath, ctype="application/octet-stream", body=None):
