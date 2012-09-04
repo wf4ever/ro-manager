@@ -76,8 +76,11 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         
     def testCreateRo(self):
         httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        roid = "romanagertest-" + str(uuid.uuid4())      
-        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
+        roid = "romanagertest-" + str(uuid.uuid4())  
+        (status, reason, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
+        if status == 409:
+            log.debug("TestRemoteROMetadata: RO already exists %03d %s"%(status, reason)) 
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
         return
 
     def testAddGetAggregatedResources(self):
@@ -86,7 +89,8 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         """
         httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())      
-        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
+        (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
         def URIRef(path):
             return self.remoteRo.getComponentUriAbs(path)
         def verifyResources(resources):
@@ -128,7 +132,8 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         """
         httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())      
-        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, roid = roid)
+        (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
         def URIRef(path):
             return self.remoteRo.getComponentUriAbs(path)
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")

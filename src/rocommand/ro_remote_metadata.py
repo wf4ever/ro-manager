@@ -54,31 +54,64 @@ class ROSRS_Error(Exception):
         return ( "ROSRS_Error(%s, value=%s, srsuri=%s)"%
                  (repr(self._msg), repr(self._value), repr(self._srsuri)))
 
+def createRO(httpsession, roid, title = None, creator = None, date = None):
+    """
+    Create a new RO, return (status, reason, uri, manifest):
+        roid        can be provided as an alternative to rouri if the Research Object
+                    needs to be created
+    status+reason: 201 Created or 409 Exists
+    uri+manifest: URI and copy of manifest as RDF graph if 201 status,
+                  otherwise None and response data as diagnostic
+
+    NOTE: this method has been adapted from TestApi_ROSRS
+    """
+    reqheaders   = {
+        "slug":     roid
+        }
+    roinfo = {
+        "id":       roid,
+        "title":    title,
+        "creator":  creator,
+        "date":     date
+        }
+    roinfotext = json.dumps(roinfo)
+    (status, reason, headers, data) = httpsession.doRequestRDF("",
+        method="POST", body=roinfotext, headers=reqheaders)
+    log.debug("ROSRS_session.createRO: %03d %s: %s"%(status, reason, repr(data)))
+    if status == 201:
+        return (status, reason, rdflib.URIRef(headers["location"]), data)
+    if status == 409:
+        return (status, reason, None, data)
+    #@@TODO: Create annotations for title, creator, date??
+    raise ROSRS_Error("Error creating RO", "%03d %s"%(status, reason), httpsession.baseuri())
+
+def deleteRO(httpsession, rouri):
+    """
+    Delete this RO, return (status, reason):
+    status+reason: 204 No Content or 404 Not Found
+    """
+    (status, reason, _, data) = httpsession.doRequest(rouri,
+        method="DELETE")
+    log.debug("ROSRS_session.deleteRO: %03d %s: %s"%(status, reason, repr(data)))
+    if status in [204, 404]:
+        return (status, reason)
+    raise ROSRS_Error("Error deleting RO", "%03d %s"%(status, reason), httpsession.baseuri())
+
 
 class ro_remote_metadata(object):
     """
     Class for accessing metadata of an RO stored by a ROSR service
     """
 
-    def __init__(self, roconfig, httpsession, rouri = None, roid = None, dummysetupfortest=False):
+    def __init__(self, roconfig, httpsession, rouri, dummysetupfortest=False):
         """
         Initialize: read manifest from object at given directory into local RDF graph
 
         roconfig    is the research object manager configuration, supplied as a dictionary
         rouri       a URI reference that refers to the Research Object to be accessed
-        roid        can be provided as an alternative to rouri if the Research Object
-                    needs to be created
         """
         self.roconfig = roconfig 
         self.httpsession = httpsession       
-        if not rouri and not roid:
-            raise self.error("RO URI or RO ID must be provided")
-        if not rouri:
-            (status, _, rouri, _) = self.create(roid, None, None, None)
-            if status == 409:
-                # we'll assume we have rights to modify it and we'll see later
-                log.debug("Research Object %s already exists."%(roid))
-                rouri = urlparse.urljoin(self.srsuri, roid)
         if not rouri.endswith("/"): rouri += "/"
         self.rouri = rouri
         self.manifestgraph = None
@@ -94,46 +127,13 @@ class ro_remote_metadata(object):
     def error(self, msg, value=None):
         return ROSRS_Error(msg=msg, value=value, srsuri=self.httpsession.baseuri())
 
-    def create(self, roid, title, creator, date):
-        """
-        Create a new RO, return (status, reason, uri, manifest):
-        status+reason: 201 Created or 409 Exists
-        uri+manifest: URI and copy of manifest as RDF graph if 201 status,
-                      otherwise None and response data as diagnostic
-
-        NOTE: this method has been adapted from TestApi_ROSRS
-        """
-        reqheaders   = {
-            "slug":     roid
-            }
-        roinfo = {
-            "id":       roid,
-            "title":    title,
-            "creator":  creator,
-            "date":     date
-            }
-        roinfotext = json.dumps(roinfo)
-        (status, reason, headers, data) = self.httpsession.doRequestRDF("",
-            method="POST", body=roinfotext, headers=reqheaders)
-        log.debug("ROSRS_session.createRO: %03d %s: %s"%(status, reason, repr(data)))
-        if status == 201:
-            return (status, reason, rdflib.URIRef(headers["location"]), data)
-        if status == 409:
-            return (status, reason, None, data)
-        #@@TODO: Create annotations for title, creator, date??
-        raise self.error("Error creating RO", "%03d %s"%(status, reason))
 
     def delete(self):
         """
         Delete this RO, return (status, reason):
         status+reason: 204 No Content or 404 Not Found
         """
-        (status, reason, _, data) = self.httpsession.doRequest(self.rouri,
-            method="DELETE")
-        log.debug("ROSRS_session.deleteRO: %03d %s: %s"%(status, reason, repr(data)))
-        if status in [204, 404]:
-            return (status, reason)
-        raise self.error("Error deleting RO", "%03d %s"%(status, reason))
+        return deleteRO(self.httpsession, self.rouri)
 
     def _loadManifest(self, refresh = False):
         if self.manifestgraph and not refresh: return self.manifestgraph
