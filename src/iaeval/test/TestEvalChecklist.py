@@ -54,7 +54,7 @@ ro_config = {
     }
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(os.path.abspath(__file__))
+testbase = os.path.dirname(os.path.realpath(__file__))
 
 class TestEvalChecklist(TestROSupport.TestROSupport):
     """
