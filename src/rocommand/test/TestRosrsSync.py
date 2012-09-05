@@ -14,6 +14,7 @@ import logging
 import random
 import string
 import os.path
+import rdflib
 from MiscLib import TestUtils
 from rocommand.test import TestROSupport
 from rocommand.test.TestConfig import ro_test_config
@@ -53,13 +54,26 @@ class TestRosrsSync(TestROSupport.TestROSupport):
     def testPush(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
         localRo  = ro_metadata(ro_test_config, rodir)
+        localRo.addAggregatedResources(rodir, recurse=True)
+#        localRo.aggregateResourceExt("http://www.example.org")
         deleteRO(self.rosrs, urlparse.urljoin(self.rosrs.baseuri(), "TestPushRO/"))
         (_,_,rouri,_) = createRO(self.rosrs, "TestPushRO")
         remoteRo = ro_remote_metadata(ro_test_config, self.rosrs, rouri)
-        remoteRo.aggregateResourceExt("http://www.example.org")
+        remoteRo.aggregateResourceExt("http://www.anotherexample.org")
         
         for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
-            pass
+            log.debug("The following object has been pushed: %s (%s)"%(resuri, action))
+            # this assumes that the above is the only external resource
+            if action == ro_rosrs_sync.ACTION_AGGREGATE_EXTERNAL:
+                self.assertEqual(resuri, rdflib.URIRef("http://www.example.org"), "The external resource is pushed")
+                self.assertTrue(localRo.isAggregatedResource(resuri), "Resource that is pushed is aggregated locally")
+            elif action == ro_rosrs_sync.ACTION_AGGREGATE_INTERNAL:
+                self.assertTrue(localRo.isAggregatedResource(resuri), "Resource that is pushed is aggregated locally")
+            elif action == ro_rosrs_sync.ACTION_DELETE:
+                self.assertFalse(localRo.isAggregatedResource(resuri), "Resource that is deaggregated in ROSRS is not aggregated locally")
+                self.assertEqual(resuri, rdflib.URIRef("http://www.anotherexample.org"), "The external resource is deaggregated (%s)"%resuri)
+            else:
+                self.fail("Unexpected action %s"%action)
         
         remoteRo.delete()
         return

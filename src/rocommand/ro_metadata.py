@@ -41,8 +41,6 @@ class ro_metadata(object):
     Class for accessing RO metadata
     """
 
-    REGISTRIES_FILE = ".registries.json"
-
     def __init__(self, roconfig, roref, dummysetupfortest=False):
         """
         Initialize: read manifest from object at given directory into local RDF graph
@@ -54,6 +52,7 @@ class ro_metadata(object):
         self.roref    = roref
         self.manifestgraph = None
         self.roannotations = None
+        self.registries = None
         uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/"
         self.rouri    = rdflib.URIRef(uri)
@@ -535,24 +534,25 @@ class ro_metadata(object):
         return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/",
                             ro_settings.MANIFEST_FILE)
         
-    def getRegistries(self, roDirectory):
+    def getRegistries(self):
         '''
         Load a dictionary of synchronization data from memory or from a JSON file.
         '''
         if self.registries:
             return self.registries
         try:
-            rf = open(os.path.join(roDirectory, self.REGISTRIES_FILE), 'r')
+            rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'r')
             self.registries = json.load(rf)
             return self.registries
-        except:
+        except Exception as e:
+            log.exception(e)
             return dict()
         
-    def saveRegistries(self, roDirectory):
+    def saveRegistries(self):
         '''
         Save a dictionary of synchronization data to a JSON file.
         '''
-        rf = open(os.path.join(roDirectory, self.REGISTRIES_FILE), 'w')
+        rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'w')
         if self.registries:
             json.dump(self.registries, rf)
         return
