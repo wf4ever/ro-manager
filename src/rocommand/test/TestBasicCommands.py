@@ -35,7 +35,7 @@ from StdoutContext import SwitchStdout
 import TestROSupport
 
 # Base directory for RO tests in this module
-testbase = os.path.dirname(__file__)
+testbase = os.path.dirname(os.path.realpath(__file__))
 
 class TestBasicCommands(TestROSupport.TestROSupport):
     """
