@@ -400,6 +400,17 @@ class ro_metadata(object):
         """
         return self.iterateAnnotations()
 
+    def getAllAnnotationNodes(self):
+        """
+        Returns iterator over all annotations aggregated within the RO
+
+        Each value returned by the iterator is a (annuri, bodyuri, target) triple.
+        """
+        for (ann_node, ann_target) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+            ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            yield (ann_node, ann_body, ann_target)
+        return
+
     def getAnnotationValues(self, rofile, attrname):
         """
         Returns iterator over annotation values for given subject and attribute

@@ -22,6 +22,7 @@ from rocommand.ro_metadata import ro_metadata
 from rocommand.ro_remote_metadata import ro_remote_metadata, createRO, deleteRO
 from rocommand.HTTPSession import HTTP_Session
 from rocommand import ro_rosrs_sync
+from rocommand.ro_namespaces import ROTERMS
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -56,6 +57,12 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         localRo  = ro_metadata(ro_test_config, rodir)
         localRo.addAggregatedResources(rodir, recurse=True)
 #        localRo.aggregateResourceExt("http://www.example.org")
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
+        localRo.addSimpleAnnotation(roresource, "rdf:type",     ROTERMS.resource)
+        
         deleteRO(self.rosrs, urlparse.urljoin(self.rosrs.baseuri(), "TestPushRO/"))
         (_,_,rouri,_) = createRO(self.rosrs, "TestPushRO")
         remoteRo = ro_remote_metadata(ro_test_config, self.rosrs, rouri)

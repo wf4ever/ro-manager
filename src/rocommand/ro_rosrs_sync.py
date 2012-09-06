@@ -90,8 +90,24 @@ def pushResearchObject(localRo, remoteRo, force = False):
             remoteRo.deaggregateResource(resuri)
         pass            
                 
-    for ann in localRo.getAllAnnotations():
+    for (ann_node, ann_body, ann_target) in localRo.getAllAnnotationNodes():
+        annpath = localRo.getComponentUriRel(ann_node)
+        bodypath = localRo.getComponentUriRel(ann_body)
+        targetpath = localRo.getComponentUriRel(ann_target)
+        if isinstance(ann_node, rdflib.BNode) or not remoteRo.isAnnotationNode(annpath):
+            remote_ann_node = remoteRo.addAnnotationNode(bodypath, targetpath)
+            localRo.replaceUri(ann_node, remote_ann_node)
+        else:
+            remoteRo.updateAnnotationNode(annpath, bodypath, targetpath)
+            
+    for (ann_node, ann_body, ann_target) in remoteRo.getAllAnnotationNodes():
+        annpath = remoteRo.getComponentUriRel(ann_node)
+        if not localRo.isAnnotationNode(annpath):
+            log.debug("ResourceSync.pushResearchObject: annotation %s will be deleted"%(ann_node))
+            yield (ACTION_DELETE, ann_node)
+            remoteRo.deleteAnnotation(ann_node)
         pass
+    
     localRo.saveRegistries()
     return
     
