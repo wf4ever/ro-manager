@@ -16,6 +16,7 @@ import string
 import os.path
 import rdflib
 from MiscLib import TestUtils
+from rocommand import ro_annotation
 from rocommand.test import TestROSupport
 from rocommand.test.TestConfig import ro_test_config
 from rocommand.ro_metadata import ro_metadata
@@ -23,6 +24,13 @@ from rocommand.ro_remote_metadata import ro_remote_metadata, createRO, deleteRO
 from rocommand.HTTPSession import HTTP_Session
 from rocommand import ro_rosrs_sync
 from rocommand.ro_namespaces import ROTERMS
+
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
+    }
+
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -54,7 +62,7 @@ class TestRosrsSync(TestROSupport.TestROSupport):
 
     def testPush(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
-        localRo  = ro_metadata(ro_test_config, rodir)
+        localRo  = ro_metadata(ro_config, rodir)
         localRo.addAggregatedResources(rodir, recurse=True)
 #        localRo.aggregateResourceExt("http://www.example.org")
         roresource = "subdir1/subdir1-file.txt"
@@ -62,11 +70,22 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         localRo.addSimpleAnnotation(roresource, "type",         "Test file")
         localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         localRo.addSimpleAnnotation(roresource, "rdf:type",     ROTERMS.resource)
+        annotationsCnt = 0
         
         deleteRO(self.rosrs, urlparse.urljoin(self.rosrs.baseuri(), "TestPushRO/"))
         (_,_,rouri,_) = createRO(self.rosrs, "TestPushRO")
         remoteRo = ro_remote_metadata(ro_test_config, self.rosrs, rouri)
         remoteRo.aggregateResourceExt("http://www.anotherexample.org")
+        
+        resourcesInt = (
+          [ rdflib.URIRef("README-ro-test-1")
+          , rdflib.URIRef("minim.rdf")
+          , rdflib.URIRef("subdir1/subdir1-file.txt")
+          , rdflib.URIRef("subdir2/subdir2-file.txt")
+          , rdflib.URIRef("filename%20with%20spaces.txt")
+          , rdflib.URIRef("filename%23with%23hashes.txt")
+          ])
+        resourcesIntCnt = 0
         
         for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
             log.debug("The following object has been pushed: %s (%s)"%(resuri, action))
@@ -75,12 +94,22 @@ class TestRosrsSync(TestROSupport.TestROSupport):
                 self.assertEqual(resuri, rdflib.URIRef("http://www.example.org"), "The external resource is pushed")
                 self.assertTrue(localRo.isAggregatedResource(resuri), "Resource that is pushed is aggregated locally")
             elif action == ro_rosrs_sync.ACTION_AGGREGATE_INTERNAL:
-                self.assertTrue(localRo.isAggregatedResource(resuri), "Resource that is pushed is aggregated locally")
+                self.assertTrue(localRo.getComponentUriRel(resuri) in resourcesInt, "Resource that is pushed is aggregated locally")
+                resourcesIntCnt += 1
             elif action == ro_rosrs_sync.ACTION_DELETE:
                 self.assertFalse(localRo.isAggregatedResource(resuri), "Resource that is deaggregated in ROSRS is not aggregated locally")
                 self.assertEqual(resuri, rdflib.URIRef("http://www.anotherexample.org"), "The external resource is deaggregated (%s)"%resuri)
+            elif action == ro_rosrs_sync.ACTION_AGGREGATE_ANNOTATION:
+                self.assertTrue(localRo.isAnnotationNode(resuri), "Annotation that is pushed is aggregated locally (%s)"%(resuri))
+                annotationsCnt += 1
+            elif action == ro_rosrs_sync.ACTION_DELETE_ANNOTATION:
+                self.assertFalse(localRo.isAnnotationNode(resuri), "Annotation that is deaggregated in ROSRS is not aggregated locally")
+                pass
             else:
                 self.fail("Unexpected action %s"%action)
+        self.assertEqual(len(resourcesInt), resourcesIntCnt, "All internal resources were aggregated (should be %d was %d)"%(len(resourcesInt), resourcesIntCnt))
+        # 3 annotations + manifest which in RO manager also annotates the RO
+        self.assertEqual(4, annotationsCnt, "All annotations were aggregated (should be %d was %d)"%(4, annotationsCnt))
         
         remoteRo.delete()
         return

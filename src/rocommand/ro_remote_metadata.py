@@ -28,7 +28,7 @@ import rdflib.namespace
 #    'rdfextras.sparql.query', 'SPARQLQueryResult')
 
 import ro_settings
-from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
+from ro_namespaces import RDF, RO, ORE, AO, DCTERMS, RDFS
 from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
 import ro_manifest
 import ro_annotation
@@ -259,7 +259,7 @@ class ro_remote_metadata(object):
                             "Proxy URI %s"%str(proxyuri))
         resuri   = rdflib.URIRef(links["http://www.openarchives.org/ore/terms/proxyFor"])
         # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.httpsession.doRequest(resuri,
+        (status, reason, headers, _) = self.httpsession.doRequest(resuri,
             method="PUT", ctype=ctype, body=body)
         if status not in [200,201]:
             raise self.error("Error creating aggregated resource content",
@@ -357,269 +357,106 @@ class ro_remote_metadata(object):
             return (status, reason, headers)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
 
-#    def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):
-#        """
-#        Create a new annotation body for a single resource in a research object, based
-#        on a supplied graph value.
-#
-#        Existing annotations for the same resource are not touched; if an annotation is being
-#        added or replaced, it is the calling program'sresponsibility to update the manifest to
-#        reference the active annotations.  A new name is allocated for the created annotation,
-#        graph which is returned as the result of this function.
-#
-#        roresource  is the name of the Research Object component to be annotated,
-#                    possibly relative to the RO root directory.
-#        attrdict    is a dictionary of attributes to be saved in the annotation body.
-#                    Dictionary keys are attribute names that can be resolved via
-#                    ro_annotation.getAnnotationByName.
-#
-#        Returns the name of the annotation body created relative to the RO directory.
-#        """
-#        af = ro_annotation.createAnnotationBody(
-#            self.roconfig, self.getRoFilename(), roresource, attrdict, defaultType)
-#        return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
-
-#    def _createAnnotationGraphBody(self, roresource, anngraph):
-#        """
-#        Create a new annotation body for a single resource in a research object, based
-#        on a supplied graph value.
-#
-#        Existing annotations for the same resource are not touched; if an annotation is being
-#        added or replaced, it is the calling program'sresponsibility to update the manifest to
-#        reference the active annotations.  A new name is allocated for the created annotation,
-#        graph which is returned as the result of this function.
-#
-#        roresource  is the name of the Research Object component to be annotated,
-#                    possibly relative to the RO root directory.
-#        anngraph    is an annotation graph that is to be saved.
-#
-#        Returns the name of the annotation body created relative to the RO
-#        manifest and metadata directory.
-#        """
-#        af = ro_annotation.createAnnotationGraphBody(
-#            self.roconfig, self.getRoFilename(), roresource, anngraph)
-#        return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
-
-#    def _readAnnotationBody(self, annotationref, anngr=None):
-#        """
-#        Read annotation body from indicated resource, return RDF Graph of annotation values.
-#
-#        annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
-#                        (e.g. as returned by _createAnnotationBody method).
-#        """
-#        log.debug("_readAnnotationBody %s"%(annotationref))
-#        annotationuri    = self.getComponentUri(annotationref)
-#        annotationformat = "xml"
-#        # Look at file extension to figure format
-#        # (rdflib.Graph.parse says;
-#        #   "used if format can not be determined from the source")
-#        if re.search("\.(ttl|n3)$", annotationuri): annotationformat="n3"
-#        if anngr == None:
-#            log.debug("_readAnnotationBody: new graph")
-#            anngr = rdflib.Graph()
-#        try:
-#            anngr.parse(annotationuri, format=annotationformat)
-#            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-#        except IOError, e:
-#            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
-#            anngr = None
-#        return anngr
-
-#    def _addAnnotationBodyToRoGraph(self, rofile, annfile):
-#        """
-#        Add a new annotation body to an RO graph
-#
-#        rofile      is the research object file being annotated
-#        annfile     is the file name of the annotation body to be added,
-#                    possibly relative to the RO URI
-#        """
-#        # <ore:aggregates>
-#        #   <ro:AggregatedAnnotation>
-#        #     <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
-#        #     <ao:body rdf:resource=".ro/(annotation).rdf" />
-#        #   </ro:AggregatedAnnotation>
-#        # </ore:aggregates>
-#        log.debug("_addAnnotationBodyToRoGraph annfile %s"%(annfile))
-#        ann = rdflib.BNode()
-#        self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
-#        self.manifestgraph.add((ann, RO.annotatesAggregatedResource,
-#            self.getComponentUri(rofile)))
-#        self.manifestgraph.add((ann, AO.body,
-#            self.getComponentUri(annfile)))
-#        self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
-#        return
-
-#    def _removeAnnotationBodyFromRoGraph(self, annbody):
-#        """
-#        Remove references to an annotation body from an RO graph
-#
-#        annbody     is the the annotation body node to be removed
-#        """
-#        self.manifestgraph.remove((annbody, None,           None   ))
-#        self.manifestgraph.remove((None,    ORE.aggregates, annbody))
-#        return
-
-#    def addSimpleAnnotation(self, rofile, attrname, attrvalue, defaultType="string"):
-#        """
-#        Add a simple annotation to a file in a research object.
-#
-#        rofile      names the file or resource to be annotated, possibly relative to the RO.
-#        attrname    names the attribute in a form recognized by getAnnotationByName
-#        attrvalue   is a value to be associated with the attribute
-#        """
-#        ro_dir   = self.getRoFilename()
-#        annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
-#        self._addAnnotationBodyToRoGraph(rofile, annfile)
-#        self.updateManifest()
-#        return
-
-#    def removeSimpleAnnotation(self, rofile, attrname, attrvalue):
-#        """
-#        Remove a simple annotation or multiple matching annotations a research object.
-#
-#        rofile      names the annotated file or resource, possibly relative to the RO.
-#        attrname    names the attribute in a form recognized by getAnnotationByName
-#        attrvalue   is the attribute value to be deleted, or Nomne to delete all vaues
-#        """
-#        ro_dir    = self.getRoFilename()
-#        ro_graph  = self._loadManifest()
-#        subject     = self.getComponentUri(rofile)
-#        (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-#        val         = attrvalue and ro_annotation.makeAnnotationValue(attrvalue, valtype)
-#        add_annotations    = []
-#        remove_annotations = []
-#        log.debug("removeSimpleAnnotation subject %s, predicate %s, val %s"%
-#                  (str(subject), str(predicate), val))
-#        # Scan for annotation graph resourcxes containing this annotation
-#        for ann_node in ro_graph.subjects(predicate=RO.annotatesAggregatedResource, object=subject):
-#            ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
-#            log.debug("removeSimpleAnnotation ann_uri %s"%(str(ann_uri)))
-#            if self.isRoMetadataRef(ann_uri):
-#                ann_graph = self._readAnnotationBody(self.getComponentUriRel(ann_uri))
-#                log.debug("removeSimpleAnnotation ann_graph %s"%(ann_graph))
-#                if (subject, predicate, val) in ann_graph:
-#                    ann_graph.remove((subject, predicate, val))
-#                    if (subject, None, None) in ann_graph:
-#                        # Triples remain in annotation body: write new body and update RO graph
-#                        ann_name = self._createAnnotationGraphBody(rofile, ann_graph)
-#                        remove_annotations.append(ann_node)
-#                        add_annotations.append(ann_name)
-#                    else:
-#                        # Remove annotation from RO graph
-#                        remove_annotations.append(ann_node)
-#        # Update RO manifest graph if needed
-#        if add_annotations or remove_annotations:
-#            for a in remove_annotations:
-#                self._removeAnnotationBodyFromRoGraph(a)
-#            for a in add_annotations:
-#                self._addAnnotationBodyToRoGraph(rofile, a)
-#            self.updateManifest()
-#        return
-
-#    def replaceSimpleAnnotation(self, rofile, attrname, attrvalue):
-#        """
-#        Replace a simple annotation in a research object.
-#
-#        rofile      names the file or resource to be annotated, possibly relative to the RO.
-#        attrname    names the attribute in a form recognized by getAnnotationByName
-#        attrvalue   is a new value to be associated with the attribute
-#        """
-#        ro_dir   = self.getRoFilename()
-#        ro_graph = self._loadManifest()
-#        subject  = self.getComponentUri(rofile)
-#        (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-#        log.debug("Replace annotation: subject %s, predicate %s, value %s"%
-#                  (repr(subject), repr(predicate), repr(attrvalue)))
-#        ro_graph.remove((subject, predicate, None))
-#        ro_graph.add((subject, predicate,
-#                      ro_annotation.makeAnnotationValue(attrvalue, valtype)))
-#        self.updateManifest()
-#        return
-
-#    def addGraphAnnotation(self, rofile, graph):
-#        """
-#        Add an annotation graph for a named resource.  Unlike addSimpleAnnotation, this
-#        method adds an annotation to the manifest using an existing RDF graph (which is
-#        presumably itself in the RO structure).
-#
-#        rofile      names the file or resource to be annotated, possibly relative to the RO.
-#                    Note that no checks are performed to ensure that the graph itself actually
-#                    refers to this resource - that's up the the creator of the graph.  This
-#                    identifies the resourfce with which the annotation body is associated in
-#                    the RO manifest.
-#        graph       names the file or resource containing the annotation body.
-#        """
-#        ro_graph = self._loadManifest()
-#        ann = rdflib.BNode()
-#        ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-#        ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
-#        ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
-#        ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
-#        self.updateManifest()
-#        return
-
-    def iterateAnnotations(self, subject=None, property=None):
+    def isAnnotationNode(self, respath):
+        '''
+        Returns true if the manifest says that the research object aggregates the
+        annotation and it is an ro:AggregatedAnnotation.
+        Resource URI is resolved against the RO URI unless it's absolute.
+        '''
+        log.debug("isAnnotationNode: ro uri %s res uri %s"%(self.rouri, respath))
+        resuri = self.getComponentUriAbs(respath)
+        return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph and \
+            (resuri, RDF.type, RO.AggregatedAnnotation) in self.manifestgraph
+            
+    def addAnnotationNode(self, bodypath, targetpath):
         """
-        Returns an iterator over annotations of the current RO that match th
-        supplied subject and/or property.
-        """
-        log.debug("iterateAnnotations s:%s, p:%s"%(str(subject),str(property)))
-        ann_graph = self._loadAnnotations()
-        for (s, p, v) in ann_graph.triples((subject, property, None)):
-            if not isinstance(s, rdflib.BNode):
-                log.debug("Triple: %s %s %s"%(s,p,v))
-                yield (s, p, v)
-        return
+        Aggregate an annotation of an existing resource using an existing annotation
+        body.
+        Return (status, reason, annuri), where status is 201
 
-    def getRoAnnotations(self):
+        NOTE: this method has been adapted from TestApi_ROSRS
         """
-        Returns iterator over annotations applied to the RO as an entity.
+        annotation = """<?xml version="1.0" encoding="UTF-8"?>
+            <rdf:RDF
+               xmlns:ro="http://purl.org/wf4ever/ro#"
+               xmlns:ao="http://purl.org/ao/"
+               xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+               xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+               xml:base="%s"
+            >
+               <ro:AggregatedAnnotation>
+                 <ao:annotatesResource rdf:resource="%s" />
+                 <ao:body rdf:resource="%s" />
+               </ro:AggregatedAnnotation>
+            </rdf:RDF>
+            """%(str(self.rouri), str(targetpath), str(bodypath))
+        (status, reason, headers, _) = self.httpsession.doRequest(self.rouri,
+            method="POST",
+            ctype="application/vnd.wf4ever.annotation",
+            body=annotation)
+        if status != 201:
+            raise self.error("Error creating annotation",
+                "%d03 %s"%(status, reason))
+        annuri = rdflib.URIRef(headers["location"])
+        self._loadManifest(refresh = True)
+        return (status, reason, rdflib.URIRef(annuri))
+    
+    def updateAnnotationNode(self, annpath, bodypath, targetpath):
+        """
+        Update an aggregated annotation of an existing resource using an 
+        existing annotation body.
+        Return (status, reason), where status is 200
 
-        Each value returned by the iterator is a (subject,predicate,object) triple.
+        NOTE: this method has been adapted from TestApi_ROSRS
         """
-        return self.iterateAnnotations(subject=self.getRoUri())
+        annuri = self.getComponentUriAbs(annpath)
+        annotation = """<?xml version="1.0" encoding="UTF-8"?>
+            <rdf:RDF
+               xmlns:ro="http://purl.org/wf4ever/ro#"
+               xmlns:ao="http://purl.org/ao/"
+               xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+               xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+               xml:base="%s"
+            >
+               <ro:AggregatedAnnotation>
+                 <ao:annotatesResource rdf:resource="%s" />
+                 <ao:body rdf:resource="%s" />
+               </ro:AggregatedAnnotation>
+            </rdf:RDF>
+            """%(str(self.rouri), str(targetpath), str(bodypath))
+        (status, reason, _, _) = self.rosrs.doRequest(annuri,
+            method="PUT",
+            ctype="application/vnd.wf4ever.annotation",
+            body=annotation)
+        if status != 200:
+            raise self.error("Error updating annotation",
+                "%d03 %s (%s)"%(status, reason, annuri))
+        self._loadManifest(refresh = True)
+        return (status, reason)
 
-    def getFileAnnotations(self, rofile):
+    def deleteAnnotationNode(self, annpath):
         """
-        Returns iterator over annotations applied to a specified component in the RO
+        Deaggregate an aggregated annotation.
+        Return (status, reason, headers, resuri), where status is 204 or 404
+        """
+        annuri = self.getComponentUriAbs(annpath)
+        (status, reason, headers, _) = self.httpsession.doRequest(
+            annuri, method="DELETE")
+        if not status in [204, 404]:
+            raise self.error("Error deleting aggregated annotation",
+                "%d03 %s (%s)"%(status, reason, annuri))
+        self._loadManifest(refresh = True)
+        return (status, reason, headers, annuri)
 
-        Each value returned by the iterator is a (subject,predicate,object) triple.
+    def getAllAnnotationNodes(self):
         """
-        return self.iterateAnnotations(subject=self.getComponentUri(rofile))
+        Returns iterator over all annotations aggregated within the RO
 
-    def getAllAnnotations(self):
+        Each value returned by the iterator is a (annuri, bodyuri, target) triple.
         """
-        Returns iterator over all annotations associated with the RO
-
-        Each value returned by the iterator is a (subject,predicate,object) triple.
-        """
-        return self.iterateAnnotations()
-
-    def getAnnotationValues(self, rofile, attrname):
-        """
-        Returns iterator over annotation values for given subject and attribute
-        """
-        (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-        return ( v for (s,p,v) in self.iterateAnnotations(subject=self.getComponentUri(rofile), property=predicate) )
-
-    def queryAnnotations(self, query, initBindings={}):
-        """
-        Runs a query over the combined annotation graphs (including the manifest)
-        and returns True or False (for ASK queries) or a list of doctionaries of
-        query results (for SELECT queries).
-        """
-        ann_gr = self._loadAnnotations()
-        resp = ann_gr.query(query,initBindings=initBindings)
-        if resp.type == 'ASK':
-            return resp.askAnswer
-        elif resp.type == 'SELECT':
-            return resp.bindings
-        else:
-            assert False, "Unexpected query response type %s"%resp.type
-        return None
-
-    def showAnnotations(self, annotations, outstr):
-        ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
+        for (ann_node, ann_target) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+            ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            yield (ann_node, ann_body, ann_target)
         return
 
     # Support methods for accessing the manifest graph

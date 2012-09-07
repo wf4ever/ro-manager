@@ -143,8 +143,8 @@ class ro_metadata(object):
         Returns true if the manifest says that the research object aggregates the
         resource. Resource URI is resolved against the RO URI unless it's absolute.
         '''
-        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, rofile))
-        resuri = urlparse.urljoin(self.rouri, rofile)
+        resuri = self.getComponentUriAbs(rofile)
+        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, resuri))
         return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
 
     def isInternalResource(self, resuri):
@@ -152,7 +152,7 @@ class ro_metadata(object):
         Check if the resource is internal, i.e. should the resource content be uploaded
         to the ROSR service. Returns true if the resource URI has the RO URI as a prefix.
         '''
-        return self.rouri.startswith(resuri)
+        return resuri.startswith(self.rouri)
 
     def isExternalResource(self, resuri):
         '''
@@ -363,6 +363,17 @@ class ro_metadata(object):
         self.updateManifest()
         return
 
+    def isAnnotationNode(self, respath):
+        '''
+        Returns true if the manifest says that the research object aggregates the
+        annotation and it is an ro:AggregatedAnnotation.
+        Resource URI is resolved against the RO URI unless it's absolute.
+        '''
+        resuri = self.getComponentUriAbs(respath)
+        log.debug("isAnnotationNode: ro uri %s res uri %s"%(self.rouri, resuri))
+        return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph and \
+            (resuri, RDF.type, RO.AggregatedAnnotation) in self.manifestgraph
+
     def iterateAnnotations(self, subject=None, property=None):
         """
         Returns an iterator over annotations of the current RO that match the
@@ -436,6 +447,16 @@ class ro_metadata(object):
 
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
+        return
+    
+    def replaceUri(self, ann_node, remote_ann_node_uri):
+        log.debug("Replacing %s with %s"%(ann_node, remote_ann_node_uri))
+        for (p, o) in self.manifestgraph.predicate_objects(subject = ann_node):
+            self.manifestgraph.remove((ann_node, p, o))
+            self.manifestgraph.add((remote_ann_node_uri, p, o))
+        for (s, p) in self.manifestgraph.subject_predicates(object = ann_node):
+            self.manifestgraph.remove((s, p, ann_node))
+            self.manifestgraph.add((s, p, remote_ann_node_uri))
         return
 
     # Support methods for accessing the manifest graph

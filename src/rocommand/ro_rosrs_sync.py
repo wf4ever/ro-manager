@@ -7,6 +7,9 @@ Created on 22-08-2012
 import logging
 import urllib2
 import rdflib
+import os
+
+from rocommand import ro_uriutils
 
 log = logging.getLogger(__name__)
 
@@ -14,10 +17,13 @@ ACTION_CREATE_RO = 1
 ACTION_RO_EXISTS = 2
 ACTION_AGGREGATE_INTERNAL = 3
 ACTION_AGGREGATE_EXTERNAL = 4
-ACTION_UPDATE_OVERWRITE = 5
-ACTION_UPDATE = 5
-ACTION_SKIP = 7
-ACTION_DELETE = 8
+ACTION_AGGREGATE_ANNOTATION = 5
+ACTION_UPDATE_OVERWRITE = 6
+ACTION_UPDATE = 7
+ACTION_UPDATE_ANNOTATION = 8
+ACTION_SKIP = 9
+ACTION_DELETE = 10
+ACTION_DELETE_ANNOTATION = 11
 
 RESPONSE_YES = 1
 RESPONSE_NO = 2
@@ -34,10 +40,11 @@ def pushResearchObject(localRo, remoteRo, force = False):
             if localRo.isInternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
                 yield (ACTION_AGGREGATE_INTERNAL, respath)
+                rf = open(ro_uriutils.getFilenameFromUri(localResuri), 'r')
                 remoteRo.aggregateResourceInt(
                                          respath, 
                                           localRo.getResourceType(respath), 
-                                          urllib2.urlopen(localRo.getComponentUri(localResuri)))
+                                          rf)
             elif localRo.isExternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
                 yield (ACTION_AGGREGATE_EXTERNAL, respath)
@@ -95,17 +102,22 @@ def pushResearchObject(localRo, remoteRo, force = False):
         bodypath = localRo.getComponentUriRel(ann_body)
         targetpath = localRo.getComponentUriRel(ann_target)
         if isinstance(ann_node, rdflib.BNode) or not remoteRo.isAnnotationNode(annpath):
-            remote_ann_node = remoteRo.addAnnotationNode(bodypath, targetpath)
-            localRo.replaceUri(ann_node, remote_ann_node)
+            log.debug("ResourceSync.pushResearchObject: %s is a new annotation"%(annpath))
+            (_, _, remote_ann_node_uri) = remoteRo.addAnnotationNode(bodypath, targetpath)
+            remote_ann_node_path = remoteRo.getComponentUriRel(remote_ann_node_uri)
+            localRo.replaceUri(ann_node, localRo.getComponentUriAbs(remote_ann_node_path))
+            yield (ACTION_AGGREGATE_ANNOTATION, remote_ann_node_path)
         else:
+            log.debug("ResourceSync.pushResearchObject: %s is an existing annotation"%(annpath))
             remoteRo.updateAnnotationNode(annpath, bodypath, targetpath)
+            yield (ACTION_UPDATE_ANNOTATION, ann_node)
             
     for (ann_node, ann_body, ann_target) in remoteRo.getAllAnnotationNodes():
         annpath = remoteRo.getComponentUriRel(ann_node)
         if not localRo.isAnnotationNode(annpath):
             log.debug("ResourceSync.pushResearchObject: annotation %s will be deleted"%(ann_node))
-            yield (ACTION_DELETE, ann_node)
-            remoteRo.deleteAnnotation(ann_node)
+            yield (ACTION_DELETE_ANNOTATION, ann_node)
+            remoteRo.deleteAnnotationNode(ann_node)
         pass
     
     localRo.saveRegistries()
