@@ -265,7 +265,7 @@ class ro_remote_metadata(object):
             raise self.error("Error creating aggregated resource content",
                 "%d03 %s (%s)"%(status, reason, respath))
         self._loadManifest(refresh = True)
-        return (status, reason, proxyuri, resuri)
+        return (status, reason, headers, resuri)
 
     def updateResourceInt(
             self, respath, ctype="application/octet-stream", body=None):
@@ -275,10 +275,10 @@ class ro_remote_metadata(object):
 
         NOTE: this method has been adapted from TestApi_ROSRS
         """
+        resuri = self.getComponentUriAbs(respath)
         # PUT resource content to indicated URI
-        (status, reason, headers, data) = self.httpsession.doRequest(
-            urlparse.urljoin(self.rouri, respath),
-            method="PUT", ctype=ctype, body=body)
+        (status, reason, headers, _) = self.httpsession.doRequest(
+            resuri, method="PUT", ctype=ctype, body=body)
         if status != 200:
             raise self.error("Error updating aggregated resource content",
                 "%d03 %s (%s)"%(status, reason, respath))

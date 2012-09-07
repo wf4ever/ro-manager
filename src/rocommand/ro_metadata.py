@@ -570,20 +570,22 @@ class ro_metadata(object):
         '''
         Load a dictionary of synchronization data from memory or from a JSON file.
         '''
+        log.debug("Get registries")
         if self.registries:
             return self.registries
         try:
             rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'r')
             self.registries = json.load(rf)
-            return self.registries
         except Exception as e:
             log.exception(e)
-            return dict()
+            self.registries = dict()
+        return self.registries
         
     def saveRegistries(self):
         '''
         Save a dictionary of synchronization data to a JSON file.
         '''
+        log.debug("Save registries")
         rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'w')
         if self.registries:
             json.dump(self.registries, rf)

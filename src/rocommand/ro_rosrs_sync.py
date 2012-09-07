@@ -40,11 +40,15 @@ def pushResearchObject(localRo, remoteRo, force = False):
             if localRo.isInternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
                 yield (ACTION_AGGREGATE_INTERNAL, respath)
-                rf = open(ro_uriutils.getFilenameFromUri(localResuri), 'r')
-                remoteRo.aggregateResourceInt(
+                filename = ro_uriutils.getFilenameFromUri(localResuri)
+                currentChecksum = localRo.calculateChecksum(filename)
+                rf = open(filename, 'r')
+                (status, reason, headers, resuri) = remoteRo.aggregateResourceInt(
                                          respath, 
                                           localRo.getResourceType(respath), 
                                           rf)
+                localRo.getRegistries()[(filename, "etag")] = headers.get("etag", None)
+                localRo.getRegistries()[(filename, "checksum")] = currentChecksum
             elif localRo.isExternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
                 yield (ACTION_AGGREGATE_EXTERNAL, respath)
@@ -55,34 +59,40 @@ def pushResearchObject(localRo, remoteRo, force = False):
             log.debug("ResourceSync.pushResearchObject: %s does was already aggregated in the remote RO"%(respath))
             if localRo.isInternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
-                # Get remote ETag
-                (status, reason, headers) = remoteRo.getHead(respath)
-                if status != 200:
-                    raise Exception("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, respath))
-                currentETag = headers["ETag"];
-                currentChecksum = localRo.calculateChecksum(localResuri)
-                # Check locally stored ETag
-                previousETag = localRo.getRegistries()[localResuri]["ETag"]
-                previousChecksum = localRo.getRegistries()[localResuri]["checksum"]
-                if not previousETag or previousETag != currentETag:
-                    yield (ACTION_UPDATE_OVERWRITE, respath)
-                    (status, reason, headers, resuri) = remoteRo.updateResourceInt(respath, 
-                                               localRo.getResourceType(respath),
-                                               urllib2.urlopen(localRo.getComponentUri(respath)))
-                    localRo.getRegistries()[localResuri]["ETag"] = headers["ETag"]
-                    localRo.getRegistries()[localResuri]["checksum"] = currentChecksum
+                if localRo.isAnnotationNode(respath):
+                    # annotations are handled separately
+                    pass
                 else:
-                    if not previousChecksum or previousChecksum != currentChecksum:
-                        log.debug("ResourceSync.pushResearchObject: %s has been modified"%(resuri))
-                        yield (ACTION_UPDATE_OVERWRITE, resuri)
-                        (status, reason, headers, resuri) = remoteRo.updateResourceInt(resuri, 
+                    log.debug("ResourceSync.pushResearchObject: %s is a resource"%(localResuri))
+                    # Get remote ETag
+                    (status, reason, headers) = remoteRo.getHead(respath)
+                    if status != 200:
+                        raise Exception("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, respath))
+                    filename = ro_uriutils.getFilenameFromUri(localResuri)
+                    currentETag = headers.get("etag", None)
+                    currentChecksum = localRo.calculateChecksum(filename)
+                    # Check locally stored ETag
+                    previousETag = localRo.getRegistries().get((filename, "etag"), None)
+                    previousChecksum = localRo.getRegistries().get((filename, "checksum"), None)
+                    overwrite = False
+                    if not previousETag or previousETag != currentETag:
+                        log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS"%(respath))
+                        yield (ACTION_UPDATE_OVERWRITE, respath)
+                        overwrite = True
+                    elif not previousChecksum or previousChecksum != currentChecksum:
+                        log.debug("ResourceSync.pushResearchObject: %s has been modified locally"%(respath))
+                        yield (ACTION_UPDATE, respath)
+                        overwrite = True
+                    if overwrite:
+                        rf = open(ro_uriutils.getFilenameFromUri(localResuri), 'r')
+                        (status, reason, headers, resuri) = remoteRo.updateResourceInt(respath, 
                                                    localRo.getResourceType(localResuri),
-                                                   urllib2.urlopen(localRo.getComponentUri(localResuri)))
-                        localRo.getRegistries()[localResuri]["ETag"] = headers["ETag"]
-                        localRo.getRegistries()[localResuri]["checksum"] = currentChecksum
+                                                   rf)
+                        localRo.getRegistries()[(filename, "etag")] = headers.get("etag", None)
+                        localRo.getRegistries()[(filename, "checksum")] = currentChecksum
                     else:
-                        log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(localResuri))
-                        yield (ACTION_SKIP, localResuri)
+                        log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(respath))
+                        yield (ACTION_SKIP, respath)
             elif localRo.isExternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
                 yield (ACTION_SKIP, localResuri)

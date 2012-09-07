@@ -111,6 +111,12 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         # 3 annotations + manifest which in RO manager also annotates the RO
         self.assertEqual(4, annotationsCnt, "All annotations were aggregated (should be %d was %d)"%(4, annotationsCnt))
         
+        for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
+            if action == ro_rosrs_sync.ACTION_UPDATE_ANNOTATION:
+                self.assertTrue(localRo.isAnnotationNode(resuri), "Annotations that is updated is aggregated locally (%s)"%(resuri))
+            else:
+                self.fail("Nothing else should be pushed again (%s, %s)"%(action, resuri))
+
         remoteRo.delete()
         return
         
