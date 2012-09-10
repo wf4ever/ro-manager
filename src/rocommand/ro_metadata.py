@@ -125,7 +125,7 @@ class ro_metadata(object):
             anngr = None
         return anngr
 
-    def updateManifest(self):
+    def _updateManifest(self):
         """
         Write updated manifest file for research object
         """
@@ -161,7 +161,7 @@ class ro_metadata(object):
             log.debug("- file %s"%f)
             stmt = (s, ORE.aggregates, self.getComponentUri(f))
             if stmt not in self.manifestgraph: self.manifestgraph.add(stmt)
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def getAggregatedResources(self):
@@ -264,7 +264,7 @@ class ro_metadata(object):
         ro_dir   = self.getRoFilename()
         annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
         self._addAnnotationBodyToRoGraph(rofile, annfile)
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def removeSimpleAnnotation(self, rofile, attrname, attrvalue):
@@ -307,7 +307,7 @@ class ro_metadata(object):
                 self._removeAnnotationBodyFromRoGraph(a)
             for a in add_annotations:
                 self._addAnnotationBodyToRoGraph(rofile, a)
-            self.updateManifest()
+            self._updateManifest()
         return
 
     def replaceSimpleAnnotation(self, rofile, attrname, attrvalue):
@@ -327,7 +327,7 @@ class ro_metadata(object):
         ro_graph.remove((subject, predicate, None))
         ro_graph.add((subject, predicate,
                       ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def addGraphAnnotation(self, rofile, graph):
@@ -349,7 +349,7 @@ class ro_metadata(object):
         ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
         ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
         ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def iterateAnnotations(self, subject=None, property=None):
