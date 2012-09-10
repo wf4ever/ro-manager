@@ -45,7 +45,9 @@ testbase = os.path.dirname(os.path.realpath(__file__))
 # Local ro_config for testing
 ro_config = {
     "annotationTypes":      ro_annotation.annotationTypes,
-    "annotationPrefixes":   ro_annotation.annotationPrefixes
+    "annotationPrefixes":   ro_annotation.annotationPrefixes,
+    "rosrs_uri":            ro_test_config.ROSRS_URI,           # "http://sandbox.wf4ever-project.org/rodl/ROs/"
+    "rosrs_access_token":   ro_test_config.ROSRS_ACCESS_TOKEN,  # "47d5423c-b507-4e1c-8", 
     }
 
 cwd        = os.getcwd()

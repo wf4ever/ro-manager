@@ -40,20 +40,30 @@ class ro_metadata(object):
         """
         self.roconfig = roconfig
         self.roref    = roref
+        self.dummyfortest  = dummysetupfortest
         self.manifestgraph = None
         self.roannotations = None
         uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/"
         self.rouri    = rdflib.URIRef(uri)
-        self.manifesturi  = self._getManifestUri()
-        self.dummyfortest = dummysetupfortest
+        if self._isLocal():
+            self.rosrs = None
+        else:
+            self.rosrs = ROSRS_Session(
+                self.roconfig["rosrs_uri"], 
+                self.roconfig["rosrs_access_token"]
+                )
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
 
+    def _isLocal(self):
+        return isFileUri(self.rouri)
+
     def _getManifestUri(self):
+        assert self._isLocal()
         return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def _loadManifest(self):
@@ -62,22 +72,58 @@ class ro_metadata(object):
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
-        else:
+        elif self._isLocal():
             # Read manifest graph
-            self.manifestgraph.parse(self.manifesturi)
+            self.manifestgraph.parse(self._getManifestUri())
+        else:
+            (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
+            assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
+                                    (str(self.rouri), status, reason))
+            self.manifestgraph = manifest 
         return self.manifestgraph
 
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
         # Assemble annotation graph
         # NOTE: the manifest itself is included as an annotation by the RO setup
-        self._loadManifest()
-        self.roannotations = rdflib.Graph()
-        for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
-            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
-            self._readAnnotationBody(ann_uri, self.roannotations)
+        manifest = self._loadManifest()
+        if self._isLocal():
+            self.roannotations = rdflib.Graph()
+            for (anode, p, _asubj) in manifest:
+                if p in [RO.annotatesAggregatedResource, AO.annotatesResource]:
+                    auri = manifest.value(subject=anode, predicate=AO.body)
+                    self._readAnnotationBody(auri, self.roannotations)
+        else:
+            self.annotations = self.rosrs.getROAnnotationGraph(self.rouri)
         log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
+
+    def _readAnnotationBody(self, annotationref, anngr=None):
+        """
+        Read annotation body from indicated resource, return RDF Graph of annotation values.
+
+        annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
+                        (e.g. as returned by _createAnnotationBody method).
+        anngr           if supplied, if an RDF graph to which the annotations are added
+        """
+        assert self._isLocal()
+        log.debug("_readAnnotationBody %s"%(annotationref))
+        annotationuri    = self.getComponentUri(annotationref)
+        annotationformat = "xml"
+        # Look at file extension to figure format
+        # (rdflib.Graph.parse says;
+        #   "used if format can not be determined from the source")
+        if re.search("\.(ttl|n3)$", annotationuri): annotationformat="n3"
+        if anngr == None:
+            log.debug("_readAnnotationBody: new graph")
+            anngr = rdflib.Graph()
+        try:
+            anngr.parse(annotationuri, format=annotationformat)
+            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
+        except IOError, e:
+            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
+            anngr = None
+        return anngr
 
     def updateManifest(self):
         """
@@ -172,32 +218,6 @@ class ro_metadata(object):
         af = ro_annotation.createAnnotationGraphBody(
             self.roconfig, self.getRoFilename(), roresource, anngraph)
         return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
-
-    def _readAnnotationBody(self, annotationref, anngr=None):
-        """
-        Read annotation body from indicated resource, return RDF Graph of annotation values.
-
-        annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
-                        (e.g. as returned by _createAnnotationBody method).
-        anngr           if supplied, if an RDF graph to which the annotations are added
-        """
-        log.debug("_readAnnotationBody %s"%(annotationref))
-        annotationuri    = self.getComponentUri(annotationref)
-        annotationformat = "xml"
-        # Look at file extension to figure format
-        # (rdflib.Graph.parse says;
-        #   "used if format can not be determined from the source")
-        if re.search("\.(ttl|n3)$", annotationuri): annotationformat="n3"
-        if anngr == None:
-            log.debug("_readAnnotationBody: new graph")
-            anngr = rdflib.Graph()
-        try:
-            anngr.parse(annotationuri, format=annotationformat)
-            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-        except IOError, e:
-            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
-            anngr = None
-        return anngr
 
     def _addAnnotationBodyToRoGraph(self, rofile, annfile):
         """

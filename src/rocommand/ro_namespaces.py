@@ -48,15 +48,17 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
             ])
 RO = makeNamespace(ro, 
             [ "ResearchObject", "AggregatedAnnotation"
-            , "annotatesAggregatedResource"
+            , "annotatesAggregatedResource" # @@TODO: deprecated
             ])
-ORE = makeNamespace(ore, 
-            [ "Aggregation", "AggregatedResource"
-            , "aggregates"
+ORE = makeNamespace(ore,
+            [ "Aggregation", "AggregatedResource", "Proxy"
+            , "aggregates", "proxyFor", "proxyIn"
+            , "isDescribedBy"
             ])
 AO = makeNamespace(ao, 
             [ "Annotation"
             , "body"
+            , "annotatesResource"
             ])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"
