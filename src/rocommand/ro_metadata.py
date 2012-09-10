@@ -18,14 +18,6 @@ import MiscLib.ScanDirectories
 
 import rdflib
 import rdflib.namespace
-#from rdflib import Namespace, URIRef, BNode, Literal
-# Set up to use SPARQL
-#rdflib.plugin.register(
-#    'sparql', rdflib.query.Processor,
-#    'rdfextras.sparql.processor', 'Processor')
-#rdflib.plugin.register(
-#    'sparql', rdflib.query.Result,
-#    'rdfextras.sparql.query', 'SPARQLQueryResult')
 
 import ro_settings
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
@@ -53,13 +45,16 @@ class ro_metadata(object):
         uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/"
         self.rouri    = rdflib.URIRef(uri)
-        self.manifesturi  = self.getManifestUri()
+        self.manifesturi  = self._getManifestUri()
         self.dummyfortest = dummysetupfortest
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
+
+    def _getManifestUri(self):
+        return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def _loadManifest(self):
         if self.manifestgraph: return self.manifestgraph
@@ -184,6 +179,7 @@ class ro_metadata(object):
 
         annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
                         (e.g. as returned by _createAnnotationBody method).
+        anngr           if supplied, if an RDF graph to which the annotations are added
         """
         log.debug("_readAnnotationBody %s"%(annotationref))
         annotationuri    = self.getComponentUri(annotationref)
@@ -487,9 +483,6 @@ class ro_metadata(object):
         """
         urirel = self.getComponentUriRel(uri)
         return str(urirel).startswith(ro_settings.MANIFEST_DIR+"/")
-
-    def getManifestUri(self):
-        return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def isLocalFileRo(self):
         """
