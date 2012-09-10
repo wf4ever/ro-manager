@@ -20,6 +20,6 @@ class ro_test_config:
     #ROSRS_URI           = "http://sandbox.wf4ever-project.org/rosrs5"
     #ROSRS_ACCESS_TOKEN  = "32801fc0-1df1-4e34-b"
     ROSRS_URI           = "http://sandbox.wf4ever-project.org/rodl/ROs/"
-    ROSRS_ACCESS_TOKEN  = "47d5423c-b507-4e1c-8", 
+    ROSRS_ACCESS_TOKEN  = "47d5423c-b507-4e1c-8" 
 
 # End.

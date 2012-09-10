@@ -480,7 +480,6 @@ class ro_metadata(object):
         """
         Return URI for component where relative reference is treated as a file path
         """
-        ###return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
         if urlparse.urlsplit(path).scheme == "":
             path = resolveUri("", str(self.getRoUri()), path)
         return rdflib.URIRef(path)

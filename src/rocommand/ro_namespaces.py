@@ -14,8 +14,6 @@ Research Object manifest read, write, decode functions
 import rdflib
 import rdflib.namespace
 
-import ro_settings
-
 class Namespace(object):
     def __init__(self, baseUri):
         self.baseUri = baseUri
