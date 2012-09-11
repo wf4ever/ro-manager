@@ -40,6 +40,8 @@ from rocommand.ro_annotation import annotationTypes
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
+from zipfile import ZipFile
+
 import TestROSupport
 
 # Base directory for RO tests in this module
@@ -144,7 +146,18 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         self.assertTrue(self.remoteRo.isResourceExternal(URIRef("http://www.google.com")))
         return
 
-
+    def testGetAsZip(self):
+        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        roid = "romanagertest-" + str(uuid.uuid4())      
+        (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
+        self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
+        self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        zipdata = ro_remote_metadata.getAsZip(rouri)
+        zipfile = ZipFile(zipdata)
+        self.assertEquals(len(zipfile.read("internal/1")), len("ipsum lorem"), "File size must be the same")
+        self.assertTrue(len(zipfile.read(".ro/manifest.rdf")) > 0, "Size of manifest.rdf must be greater than 0")
+        return
+    
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -179,6 +192,7 @@ def getTestSuite(select="unit"):
             , "testCreateRo"
             , "testAddGetAggregatedResources"
             , "testClassifyAggregatedResources"
+            , "testGetAsZip"
             ],
         "component":
             [ "testComponents"

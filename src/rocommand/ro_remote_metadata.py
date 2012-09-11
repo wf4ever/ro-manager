@@ -33,6 +33,8 @@ from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFrom
 import ro_manifest
 import ro_annotation
 import json
+import urllib2
+import tempfile
 
 # Class for ROSRS errors
 
@@ -97,6 +99,25 @@ def deleteRO(httpsession, rouri):
         return (status, reason)
     raise ROSRS_Error("Error deleting RO", "%03d %s"%(status, reason), httpsession.baseuri())
 
+def getAsZip(rouri):
+    """
+    Retrieves a Research Object version from ROSRS as a zip.
+    
+    Parameters: ROSRS URL, username, password, RO id, version id
+    """
+    req = urllib2.Request(rouri)
+    req.add_header("Accept", "application/zip")
+    res = urllib2.urlopen(req)
+    
+    tmp = tempfile.TemporaryFile()
+    while True:
+        packet = res.read()
+        if not packet:
+            break
+        tmp.write(packet)
+    res.close()
+    log.debug("Ro %s retrieved as zip" % rouri)
+    return tmp
 
 class ro_remote_metadata(object):
     """
@@ -458,7 +479,7 @@ class ro_remote_metadata(object):
             ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             yield (ann_node, ann_body, ann_target)
         return
-
+    
     # Support methods for accessing the manifest graph
 
     def _getRoManifestGraph(self):
