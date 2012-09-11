@@ -188,7 +188,8 @@ class ROSRS_Session(object):
         """
         return parseLinks(headers["_headerlist"])
 
-    def doRequest(self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
+    def doRequest(
+        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
         """
         Perform HTTP request to ROSRS
         Return status, reason(text), response headers, response body
@@ -238,7 +239,8 @@ class ROSRS_Session(object):
         log.debug("ROSRS_Session.doRequest data:     "+repr(data))
         return (status, reason, headers, data)
 
-    def doRequestFollowRedirect(self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
+    def doRequestFollowRedirect(
+        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
         """
         Perform HTTP request to ROSRS, following any redirect returned
         Return status, reason(text), response headers, final uri, response body
@@ -251,7 +253,7 @@ class ROSRS_Session(object):
             (status, reason, headers, data) = self.doRequest(uripath,
                 method=method, accept=accept,
                 body=body, ctype=ctype, reqheaders=reqheaders)
-        if status == 302:
+        if status in [302,307]:
             # Allow second temporary redirect
             uripath = headers["location"]
             (status, reason, headers, data) = self.doRequest(uripath,
@@ -660,10 +662,10 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
-        for auri in self.getROResourceAnnotations(rouri, resuri):
-            (status, reason, headers, uri, bodytext) = self.getROResourceFollowRedirect(auri)
+        for auri in self.getROAnnotationUris(rouri, resuri):
+            (status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
             if status == 200:
-                content_type, params = headers['content-type'].split(";", 1)
+                content_type = headers['content-type'].split(";", 1)[0]
                 content_type = content_type.strip().lower()
                 if content_type in ANNOTATION_CONTENT_TYPES:
                     bodyformat = ANNOTATION_CONTENT_TYPES[content_type]

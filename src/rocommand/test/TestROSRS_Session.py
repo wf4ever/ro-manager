@@ -24,6 +24,7 @@ from MiscLib import TestUtils
 
 from ro_namespaces import RDF, RDFS, ORE, RO, DCTERMS, AO
 from ROSRS_Session import ROSRS_Error, ROSRS_Session, testSplitValues, testParseLinks
+from TestConfig import ro_test_config
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -34,9 +35,9 @@ testbase = os.path.dirname(__file__)
 # Test config details
 
 class Config:
-    ROSRS_API_URI = "http://sandbox.wf4ever-project.org/rodl/ROs/"
     #ROSRS_API_URI = "http://localhost:8080/ROs/"
-    AUTHORIZATION = "47d5423c-b507-4e1c-8"
+    ROSRS_API_URI = ro_test_config.ROSRS_URI            # "http://sandbox.wf4ever-project.org/rodl/ROs/"
+    AUTHORIZATION = ro_test_config.ROSRS_ACCESS_TOKEN   # "47d5423c-b507-4e1c-8"
     TEST_RO_NAME  = "TestSessionRO"
     TEST_RO_PATH  = TEST_RO_NAME+"/"
     TEST_RO_URI   = ROSRS_API_URI+TEST_RO_PATH
@@ -148,7 +149,7 @@ class TestROSRS_Session(unittest.TestCase):
     def testAggregateResourceInt(self):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
-        # Aggegate internal resource
+        # Aggregate internal resource
         rescontent = "Resource content\n"
         (status, reason, proxyuri, resuri) = self.rosrs.aggregateResourceInt(
             rouri, "test/path", ctype="text/plain", body=rescontent)
@@ -192,14 +193,14 @@ class TestROSRS_Session(unittest.TestCase):
     def testAggregateResourceExt(self):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
-        # Create test resource
+        # Aggregate external resource
         externaluri = rdflib.URIRef("http://example.com/external/resource.txt")
         (status, reason, proxyuri, resuri) = self.rosrs.aggregateResourceExt(
             rouri, externaluri)
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
         self.assertEqual(resuri, externaluri)
-        # GET proxy (note: using rdfliob.URIRef for path)
+        # GET proxy (note: using rdflib.URIRef value for path)
         (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             externaluri, rouri)
         self.assertEqual(status, 200)
@@ -327,10 +328,41 @@ class TestROSRS_Session(unittest.TestCase):
         self.assertEqual(reason, "OK")
         self.assertIn((resuri, DCTERMS.title, rdflib.Literal("Title for test/file.txt")), anngr)
         self.assertIn((resuri, RDFS.seeAlso,  rdflib.URIRef("http://example.org/test")),  anngr)
+        return
+
+    def testGetROAnnotationGraph(self):
+        (status, reason, rouri, manifest) = self.createTestRO()
+        self.assertEqual(status, 201)
+        # Create internal test resource
+        rescontent = "Resource content\n"
+        (status, reason, proxyuri, resuri) = self.rosrs.aggregateResourceInt(
+            rouri, "test/file.txt", ctype="text/plain", body=rescontent)
+        self.assertEqual(status, 201)
+        # Create internal annotation
+        annbody = """<?xml version="1.0" encoding="UTF-8"?>
+            <rdf:RDF
+               xmlns:dct="http://purl.org/dc/terms/"
+               xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+               xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+               xml:base="%s"
+            >
+              <rdf:Description rdf:about="test/file.txt">
+                <dct:title>Title for test/file.txt</dct:title>
+                <rdfs:seeAlso rdf:resource="http://example.org/test" />
+              </rdf:Description>
+            </rdf:RDF>
+            """%(str(rouri))
+        agraph = rdflib.graph.Graph()
+        agraph.parse(data=annbody, format="xml")
+        (status, reason, annuri, bodyuri) = self.rosrs.createROAnnotationInt(
+            rouri, resuri, agraph)
+        self.assertEqual(status, 201)
+        self.assertEqual(reason, "Created")
         # Retrieve merged annotations
-        anngr2 = self.rosrs.getROAnnotationGraph(rouri, resuri)
-        self.assertIn((resuri, DCTERMS.title, rdflib.Literal("Title for test/file.txt")), anngr2)
-        self.assertIn((resuri, RDFS.seeAlso,  rdflib.URIRef("http://example.org/test")),  anngr2)
+        anngr = self.rosrs.getROAnnotationGraph(rouri, resuri)
+        annts = anngr.triples((None, None, None))
+        self.assertIn((resuri, DCTERMS.title, rdflib.Literal("Title for test/file.txt")), annts)
+        self.assertIn((resuri, RDFS.seeAlso,  rdflib.URIRef("http://example.org/test")),  annts)
         return
 
     def testCreateROAnnotationExt(self):
@@ -340,7 +372,7 @@ class TestROSRS_Session(unittest.TestCase):
         (status, reason, proxyuri, resuri) = self.rosrs.aggregateResourceExt(
             rouri, rdflib.URIRef("http://example.org/ext"))
         self.assertEqual(status, 201)
-        # Create annotation using mexternal body reference
+        # Create annotation using external body reference
         bodyuri = rdflib.URIRef("http://example.org/ext/ann.rdf")
         (status, reason, annuri) = self.rosrs.createROAnnotationExt(rouri, resuri, bodyuri)
         self.assertEqual(status, 201)
@@ -574,6 +606,7 @@ def getTestSuite(select="unit"):
             , "testUpdateROAnnotationInt"
             , "testUpdateROAnnotationExt"
             , "testRemoveROAnnotation"
+            , "testGetROAnnotationGraph"
             # Evolution tests
             , "testCopyRO"
             , "testCancelCopyRO"
