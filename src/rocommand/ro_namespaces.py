@@ -14,8 +14,6 @@ Research Object manifest read, write, decode functions
 import rdflib
 import rdflib.namespace
 
-import ro_settings
-
 class Namespace(object):
     def __init__(self, baseUri):
         self.baseUri = baseUri
@@ -48,15 +46,17 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
             ])
 RO = makeNamespace(ro, 
             [ "ResearchObject", "AggregatedAnnotation"
-            , "annotatesAggregatedResource"
+            , "annotatesAggregatedResource" # @@TODO: deprecated
             ])
-ORE = makeNamespace(ore, 
-            [ "Aggregation", "AggregatedResource"
-            , "aggregates"
+ORE = makeNamespace(ore,
+            [ "Aggregation", "AggregatedResource", "Proxy"
+            , "aggregates", "proxyFor", "proxyIn"
+            , "isDescribedBy"
             ])
 AO = makeNamespace(ao, 
             [ "Annotation"
             , "body"
+            , "annotatesResource"
             ])
 DCTERMS = makeNamespace(dcterms, 
             [ "identifier", "description", "title", "creator", "created"

@@ -18,14 +18,6 @@ import MiscLib.ScanDirectories
 
 import rdflib
 import rdflib.namespace
-#from rdflib import Namespace, URIRef, BNode, Literal
-# Set up to use SPARQL
-#rdflib.plugin.register(
-#    'sparql', rdflib.query.Processor,
-#    'rdfextras.sparql.processor', 'Processor')
-#rdflib.plugin.register(
-#    'sparql', rdflib.query.Result,
-#    'rdfextras.sparql.query', 'SPARQLQueryResult')
 
 import ro_settings
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
@@ -50,19 +42,32 @@ class ro_metadata(object):
         """
         self.roconfig = roconfig
         self.roref    = roref
+        self.dummyfortest  = dummysetupfortest
         self.manifestgraph = None
         self.roannotations = None
         self.registries = None
         uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/"
         self.rouri    = rdflib.URIRef(uri)
-        self.manifesturi  = self.getManifestUri()
-        self.dummyfortest = dummysetupfortest
+        if self._isLocal():
+            self.rosrs = None
+        else:
+            self.rosrs = ROSRS_Session(
+                self.roconfig["rosrs_uri"], 
+                self.roconfig["rosrs_access_token"]
+                )
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
         return
+
+    def _isLocal(self):
+        return isFileUri(self.rouri)
+
+    def _getManifestUri(self):
+        assert self._isLocal()
+        return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def _loadManifest(self):
         if self.manifestgraph: return self.manifestgraph
@@ -70,28 +75,65 @@ class ro_metadata(object):
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
-        else:
+        elif self._isLocal():
             # Read manifest graph
-            self.manifestgraph.parse(self.manifesturi)
+            self.manifestgraph.parse(self._getManifestUri())
+        else:
+            (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
+            assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
+                                    (str(self.rouri), status, reason))
+            self.manifestgraph = manifest 
         return self.manifestgraph
 
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
         # Assemble annotation graph
         # NOTE: the manifest itself is included as an annotation by the RO setup
-        self._loadManifest()
-        self.roannotations = rdflib.Graph()
-        for (ann_node, subject) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
-            ann_uri   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
-            self._readAnnotationBody(ann_uri, self.roannotations)
+        manifest = self._loadManifest()
+        if self._isLocal():
+            self.roannotations = rdflib.Graph()
+            for (anode, p, _asubj) in manifest:
+                if p in [RO.annotatesAggregatedResource, AO.annotatesResource]:
+                    auri = manifest.value(subject=anode, predicate=AO.body)
+                    self._readAnnotationBody(auri, self.roannotations)
+        else:
+            self.annotations = self.rosrs.getROAnnotationGraph(self.rouri)
         log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
 
-    def updateManifest(self):
+    def _readAnnotationBody(self, annotationref, anngr=None):
+        """
+        Read annotation body from indicated resource, return RDF Graph of annotation values.
+
+        annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
+                        (e.g. as returned by _createAnnotationBody method).
+        anngr           if supplied, if an RDF graph to which the annotations are added
+        """
+        assert self._isLocal()
+        log.debug("_readAnnotationBody %s"%(annotationref))
+        annotationuri    = self.getComponentUri(annotationref)
+        annotationformat = "xml"
+        # Look at file extension to figure format
+        # (rdflib.Graph.parse says;
+        #   "used if format can not be determined from the source")
+        if re.search("\.(ttl|n3)$", annotationuri): annotationformat="n3"
+        if anngr == None:
+            log.debug("_readAnnotationBody: new graph")
+            anngr = rdflib.Graph()
+        try:
+            anngr.parse(annotationuri, format=annotationformat)
+            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
+        except IOError, e:
+            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
+            anngr = None
+        return anngr
+
+    def _updateManifest(self):
         """
         Write updated manifest file for research object
         """
-        self.manifestgraph.serialize(
+        assert self._isLocal()
+        self._loadManifest().serialize(
             destination=self.getManifestFilename(), format='xml',
             base=self.rouri, xml_base="..")
         return
@@ -100,6 +142,7 @@ class ro_metadata(object):
         """
         Scan a local directory and add files found to the RO aggregation
         """
+        assert self._isLocal()
         def notHidden(f):
             return re.match("\.|.*/\.", f) == None
         log.debug("addAggregatedResources: roref %s, file %s"%(self.roref, ro_file))
@@ -123,7 +166,7 @@ class ro_metadata(object):
             log.debug("- file %s"%f)
             stmt = (s, ORE.aggregates, self.getComponentUri(f))
             if stmt not in self.manifestgraph: self.manifestgraph.add(stmt)
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def getAggregatedResources(self):
@@ -133,7 +176,7 @@ class ro_metadata(object):
         Each value returned by the iterator is an aggregated resource URI
         """
         log.debug("getAggregatedResources: uri %s"%(self.rouri))
-        for r in self.manifestgraph.objects(subject=self.rouri, predicate=ORE.aggregates):
+        for r in self._loadManifest().objects(subject=self.rouri, predicate=ORE.aggregates):
             if not isinstance(r, rdflib.BNode):
                 yield r
         return
@@ -180,6 +223,7 @@ class ro_metadata(object):
 
         Returns the name of the annotation body created relative to the RO directory.
         """
+        assert self._isLocal()
         af = ro_annotation.createAnnotationBody(
             self.roconfig, self.getRoFilename(), roresource, attrdict, defaultType)
         return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
@@ -201,34 +245,10 @@ class ro_metadata(object):
         Returns the name of the annotation body created relative to the RO
         manifest and metadata directory.
         """
+        assert self._isLocal()
         af = ro_annotation.createAnnotationGraphBody(
             self.roconfig, self.getRoFilename(), roresource, anngraph)
         return os.path.join(ro_settings.MANIFEST_DIR+"/", af)
-
-    def _readAnnotationBody(self, annotationref, anngr=None):
-        """
-        Read annotation body from indicated resource, return RDF Graph of annotation values.
-
-        annotationref   is a URI reference of an annotation, possibly relative to the RO base URI
-                        (e.g. as returned by _createAnnotationBody method).
-        """
-        log.debug("_readAnnotationBody %s"%(annotationref))
-        annotationuri    = self.getComponentUri(annotationref)
-        annotationformat = "xml"
-        # Look at file extension to figure format
-        # (rdflib.Graph.parse says;
-        #   "used if format can not be determined from the source")
-        if re.search("\.(ttl|n3)$", annotationuri): annotationformat="n3"
-        if anngr == None:
-            log.debug("_readAnnotationBody: new graph")
-            anngr = rdflib.Graph()
-        try:
-            anngr.parse(annotationuri, format=annotationformat)
-            log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-        except IOError, e:
-            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
-            anngr = None
-        return anngr
 
     def _addAnnotationBodyToRoGraph(self, rofile, annfile):
         """
@@ -238,6 +258,7 @@ class ro_metadata(object):
         annfile     is the file name of the annotation body to be added,
                     possibly relative to the RO URI
         """
+        assert self._isLocal()
         # <ore:aggregates>
         #   <ro:AggregatedAnnotation>
         #     <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
@@ -260,6 +281,7 @@ class ro_metadata(object):
 
         annbody     is the the annotation body node to be removed
         """
+        assert self._isLocal()
         self.manifestgraph.remove((annbody, None,           None   ))
         self.manifestgraph.remove((None,    ORE.aggregates, annbody))
         return
@@ -272,10 +294,11 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is a value to be associated with the attribute
         """
+        assert self._isLocal()
         ro_dir   = self.getRoFilename()
         annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
         self._addAnnotationBodyToRoGraph(rofile, annfile)
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def removeSimpleAnnotation(self, rofile, attrname, attrvalue):
@@ -286,6 +309,7 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is the attribute value to be deleted, or Nomne to delete all vaues
         """
+        assert self._isLocal()
         ro_dir    = self.getRoFilename()
         ro_graph  = self._loadManifest()
         subject     = self.getComponentUri(rofile)
@@ -318,7 +342,7 @@ class ro_metadata(object):
                 self._removeAnnotationBodyFromRoGraph(a)
             for a in add_annotations:
                 self._addAnnotationBodyToRoGraph(rofile, a)
-            self.updateManifest()
+            self._updateManifest()
         return
 
     def replaceSimpleAnnotation(self, rofile, attrname, attrvalue):
@@ -329,6 +353,7 @@ class ro_metadata(object):
         attrname    names the attribute in a form recognized by getAnnotationByName
         attrvalue   is a new value to be associated with the attribute
         """
+        assert self._isLocal()
         ro_dir   = self.getRoFilename()
         ro_graph = self._loadManifest()
         subject  = self.getComponentUri(rofile)
@@ -338,7 +363,7 @@ class ro_metadata(object):
         ro_graph.remove((subject, predicate, None))
         ro_graph.add((subject, predicate,
                       ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def addGraphAnnotation(self, rofile, graph):
@@ -354,13 +379,14 @@ class ro_metadata(object):
                     the RO manifest.
         graph       names the file or resource containing the annotation body.
         """
+        assert self._isLocal()
         ro_graph = self._loadManifest()
         ann = rdflib.BNode()
         ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
         ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
         ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
         ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
-        self.updateManifest()
+        self._updateManifest()
         return
 
     def isAnnotationNode(self, respath):
@@ -427,7 +453,8 @@ class ro_metadata(object):
         Returns iterator over annotation values for given subject and attribute
         """
         (predicate,valtype) = ro_annotation.getAnnotationByName(self.roconfig, attrname)
-        return ( v for (s,p,v) in self.iterateAnnotations(subject=self.getComponentUri(rofile), property=predicate) )
+        resuri = self.getComponentUri(rofile)
+        return ( v for (s,p,v) in self.iterateAnnotations(subject=resuri, property=predicate) )
 
     def queryAnnotations(self, query, initBindings={}):
         """
@@ -461,23 +488,17 @@ class ro_metadata(object):
 
     # Support methods for accessing the manifest graph
 
-    def _getRoManifestGraph(self):
-        """
-        Returns RDF graph containing RO manifest
-        """
-        return self.manifestgraph
-
     def roManifestContains(self, stmt):
         """
         Returns True if the RO manifest contains a statement matching the supplied triple.
         """
-        return stmt in self.manifestgraph
+        return stmt in self._loadManifest()
 
     def getResourceValue(self, resource, predicate):
         """
         Returns value for resource whose URI is supplied assocfiated with indicated predicate
         """
-        return self.manifestgraph.value(subject=resource, predicate=predicate, object=None)
+        return self._loadManifest().value(subject=resource, predicate=predicate, object=None)
 
     def getResourceType(self, resource):
         """
@@ -489,6 +510,7 @@ class ro_metadata(object):
         """
         Returns dictionary of metadata about the RO from the manifest graph
         """
+        assert self._isLocal()
         strsubject = ""
         if isinstance(self.rouri, rdflib.URIRef): strsubject = str(self.rouri)
         manifestDict = {
@@ -517,7 +539,6 @@ class ro_metadata(object):
         """
         Return URI for component where relative reference is treated as a file path
         """
-        ###return rdflib.URIRef(urlparse.urljoin(str(self.getRoUri()), path))
         if urlparse.urlsplit(path).scheme == "":
             path = resolveUri("", str(self.getRoUri()), path)
         return rdflib.URIRef(path)
@@ -544,11 +565,9 @@ class ro_metadata(object):
         """
         Test if supplied URI is a reference to the current RO metadata area
         """
+        assert self._isLocal()
         urirel = self.getComponentUriRel(uri)
         return str(urirel).startswith(ro_settings.MANIFEST_DIR+"/")
-
-    def getManifestUri(self):
-        return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def isLocalFileRo(self):
         """
@@ -557,12 +576,14 @@ class ro_metadata(object):
         return isFileUri(self.getRoUri())
 
     def getRoFilename(self):
+        assert self._isLocal()
         return getFilenameFromUri(self.getRoUri())
 
     def getManifestFilename(self):
         """
         Return manifest file name: used for local updates
         """
+        assert self._isLocal()
         return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/",
                             ro_settings.MANIFEST_FILE)
         

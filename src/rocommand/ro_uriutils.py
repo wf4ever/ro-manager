@@ -37,7 +37,8 @@ def resolveFileAsUri(path):
     Resolve a filename reference against the current working directory, and return the
     corresponding file:// URI.
     
-    If the supplied string is already a URI, it is returned unchanged (for idepmpotency)
+    If the supplied string is already a URI, it is returned unchanged
+    (for idempotency and non-file URIs)
     """
     if urlparse.urlsplit(path).scheme == "":
         path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
