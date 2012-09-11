@@ -45,38 +45,12 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     Test sync ro commands
     """
     
-    files = ["subdir1/subdir1-file.txt"
-             , "subdir2/subdir2-file.txt"
-             , "README-ro-test-1"
-             , ".ro/manifest.rdf"
-             , "minim.rdf" ]
-
-    fileToModify = "subdir1/subdir1-file.txt"
-    fileToDelete = "README-ro-test-1"
-
-
     def setUp(self):
         super(TestSyncCommands, self).setUp()
-        self.ident1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
-        self.ident2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
-        self.rodir = self.createTestRo(testbase, "data/ro-test-1", self.ident1, self.ident1)
-        self.rodir2 = self.createTestRo(testbase, "data/ro-test-1", self.ident2, self.ident2)
         return
 
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
-        self.deleteTestRo(self.rodir)
-        self.deleteTestRo(self.rodir2)
-        try:
-            api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-            ros = api.getRos()
-            for ro in ros:
-                try:
-                    api.deleteRoByUrl(ro)
-                except:
-                    pass
-        except:
-            pass
         return
 
     # Actual tests follow
@@ -90,26 +64,12 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
-        # first, send all        
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
         args = [
             "ro", "push",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        # touch one file in 1st RO
-        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
-            f.write("foobar")
-            f.close()
-        # delete one file in 2nd RO
-        remove(path.join(self.rodir2, self.fileToDelete))
-
-        # push again, only 1st
-        args = [
-            "ro", "push",
-            "-d", self.rodir,
+            "-d", rodir,
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "7d5423c-b507-4e1c-8",
             "-v"
             ]
         with SwitchStdout(self.outstr):
@@ -117,6 +77,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         assert status == 0
         self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
         self.assertEqual(self.outstr.getvalue().count("Deleted:"), 0)
+        # Clean up
+        self.deleteTestRo(rodir)
         return
 
     def testCheckout(self):
@@ -129,7 +91,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         args = [
             "ro", "push",
             "-d", self.rodir,
-            "-f"
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "7d5423c-b507-4e1c-8"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -196,7 +159,6 @@ def getTestSuite(select="unit"):
         "component":
             [ "testComponents"
             , "testPush"
-            , "testCheckout"
             , "testCheckout"
             ],
         "integration":

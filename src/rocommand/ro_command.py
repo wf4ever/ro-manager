@@ -515,9 +515,9 @@ def push(progname, configbase, options, args):
     if status == 201:
         print "Created RO: %s"%(rouri)
     elif status == 409:
-        rouri = urlparse.urljoin(ro_options["rosrs_uri"], localRo.getRoFilename)
+        rouri = urlparse.urljoin(ro_options["rosrs_uri"], localRo.getRoFilename())
         print "RO already exists: %s"%(rouri)
-    remoteRo = ro_remote_metadata(ro_config, rosrs, rouri)
+    remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, rosrs, rouri)
     pushedResCnt = 0
     pushedAnnCnt = 0
     deletedResCnt = 0

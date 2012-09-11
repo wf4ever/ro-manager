@@ -117,7 +117,9 @@ class TestRosrsSync(TestROSupport.TestROSupport):
             elif not action == ro_rosrs_sync.ACTION_SKIP:
                 self.fail("Nothing else should be pushed again (%s, %s)"%(action, resuri))
 
+        # Clean up
         remoteRo.delete()
+        self.deleteTestRo(rodir)
         return
         
 def getTestSuite(select="unit"):
