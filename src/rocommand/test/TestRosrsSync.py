@@ -114,7 +114,7 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
             if action == ro_rosrs_sync.ACTION_UPDATE_ANNOTATION:
                 self.assertTrue(localRo.isAnnotationNode(resuri), "Annotations that is updated is aggregated locally (%s)"%(resuri))
-            else:
+            elif not action == ro_rosrs_sync.ACTION_SKIP:
                 self.fail("Nothing else should be pushed again (%s, %s)"%(action, resuri))
 
         remoteRo.delete()

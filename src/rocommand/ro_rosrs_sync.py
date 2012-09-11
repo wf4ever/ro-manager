@@ -47,8 +47,8 @@ def pushResearchObject(localRo, remoteRo, force = False):
                                          respath, 
                                           localRo.getResourceType(respath), 
                                           rf)
-                localRo.getRegistries()[(filename, "etag")] = headers.get("etag", None)
-                localRo.getRegistries()[(filename, "checksum")] = currentChecksum
+                localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
+                localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
             elif localRo.isExternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
                 yield (ACTION_AGGREGATE_EXTERNAL, respath)
@@ -72,8 +72,8 @@ def pushResearchObject(localRo, remoteRo, force = False):
                     currentETag = headers.get("etag", None)
                     currentChecksum = localRo.calculateChecksum(filename)
                     # Check locally stored ETag
-                    previousETag = localRo.getRegistries().get((filename, "etag"), None)
-                    previousChecksum = localRo.getRegistries().get((filename, "checksum"), None)
+                    previousETag = localRo.getRegistries().get("%s,etag"%filename, None)
+                    previousChecksum = localRo.getRegistries().get("%s,checksum"%filename, None)
                     overwrite = False
                     if not previousETag or previousETag != currentETag:
                         log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS"%(respath))
@@ -88,8 +88,8 @@ def pushResearchObject(localRo, remoteRo, force = False):
                         (status, reason, headers, resuri) = remoteRo.updateResourceInt(respath, 
                                                    localRo.getResourceType(localResuri),
                                                    rf)
-                        localRo.getRegistries()[(filename, "etag")] = headers.get("etag", None)
-                        localRo.getRegistries()[(filename, "checksum")] = currentChecksum
+                        localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
+                        localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
                     else:
                         log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(respath))
                         yield (ACTION_SKIP, respath)

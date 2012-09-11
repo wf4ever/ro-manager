@@ -424,7 +424,7 @@ class ro_remote_metadata(object):
                </ro:AggregatedAnnotation>
             </rdf:RDF>
             """%(str(self.rouri), str(targetpath), str(bodypath))
-        (status, reason, _, _) = self.rosrs.doRequest(annuri,
+        (status, reason, _, _) = self.httpsession.doRequest(annuri,
             method="PUT",
             ctype="application/vnd.wf4ever.annotation",
             body=annotation)
