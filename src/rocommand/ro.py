@@ -122,6 +122,11 @@ def parseCommandArgs(argv):
                       dest="verbose",
                       default=False,
                       help="display verbose output")
+    parser.add_option("-w", "--wildcard", "--regexp",
+                      action="store_true",
+                      dest="wildcard",
+                      default=False,
+                      help="Interpret annotation target as wildcard/regexp for pattern matching")
     parser.add_option("--debug",
                       action="store_true",
                       dest="debug",

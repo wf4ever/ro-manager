@@ -101,12 +101,12 @@ ro_command_usage = (
           ,"ls   [ -a ] [ -s ] [ -d <dir> ]"
           ] )
     , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
-          ["annotate [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
-          ,"annotate [ -d <dir> ] <file> -g <RDF-graph>"
+          ["annotate [ -d <dir> ] [ -w ] <file> <attribute-name> [ <attribute-value> ]"
+          ,"annotate [ -d <dir> ] [ -w ] <file> -g <RDF-graph>"
           ] )
     , ( ["link"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
-          ["link [ -d <dir> ] <file> <attribute-name> [ <attribute-value> ]"
-          ,"link [ -d <dir> ] <file> -g <RDF-graph>"
+          ["link [ -d <dir> ] [ -w ] <file> <attribute-name> [ <attribute-value> ]"
+          ,"link [ -d <dir> ] [ -w ] <file> -g <RDF-graph>"
           ] )
     , ( ["annotations"],     argminmax(2,3),
           ["annotations [ <file> | -d <dir> ]"] )
@@ -420,14 +420,18 @@ def annotate(progname, configbase, options, args):
             # Usding graph annotation form
             "rofile":       args[2],
             "rodir":        rodir,
+            "wildcard":     options.wildcard,
+            "wild":         "-w " if options.wildcard else "",
             "graph":        options.graph or None,
-            "defaultType":  "resource" if args[1] == "link" else "string"
+            "defaultType":  "resource" if args[1] == "link" else "string",
             }
     else:
         ro_options = {
             # Usding explicit annotation form
             "rofile":       args[2],
             "rodir":        rodir,
+            "wildcard":     options.wildcard,
+            "wild":         "-w " if options.wildcard else "",
             "roattribute":  args[3],
             "rovalue":      args[4] if len(args) == 5 else None,
             "defaultType":  "resource" if args[1] == "link" else "string"
@@ -436,24 +440,26 @@ def annotate(progname, configbase, options, args):
     # Find RO root directory
     ro_dir = ro_root_directory(progname+" annotate", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
+    if options.verbose:
+        if len(args) == 3:
+            print "ro annotate -d %(rodir)s %(wild)s%(rofile)s -g %(graph)s "%(ro_options)
+        else:
+            print "ro annotate -d %(rodir)s %(wild)s%(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     # Read and update manifest and annotations
+    # ---- local function to annotate a single entry ----
+    def annotate_single(rofile):
+        if len(args) == 3:
+            # Add existing graph as annotation
+            rometa.addGraphAnnotation(rofile, ro_options['graph'])
+        else:
+            # Create new annotation graph
+            rometa.addSimpleAnnotation(rofile,
+                ro_options['roattribute'], ro_options['rovalue'],
+                ro_options['defaultType'])
+    # ----
     rometa = ro_metadata(ro_config, ro_dir)
     rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])     # Relative to CWD
-    if len(args) == 3:
-        # Add existing graph as annotation
-        if options.verbose:
-            print "ro annotate -d %(rodir)s %(rofile)s -g %(graph)s "%(ro_options)
-            #print "ro annotate -d %(rodir)s"%ro_options
-            #print "ro annotate %(rofile)s"%ro_options
-            #print "ro annotate -g %(graph)s"%ro_options
-        rometa.addGraphAnnotation(rofile, ro_options['graph'])
-    else:
-        # Create new annotation graph
-        if options.verbose:
-            print "ro annotate -d %(rodir)s %(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
-        rometa.addSimpleAnnotation(rofile,
-            ro_options['roattribute'], ro_options['rovalue'],
-            ro_options['defaultType'])
+    annotate_single(rofile)
     return 0
 
 def annotations(progname, configbase, options, args):
