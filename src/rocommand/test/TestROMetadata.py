@@ -531,7 +531,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             }
             """)
         resp = romd.queryAnnotations(query)
-        self.assertTrue(resp, "Expected 'True' result for query: %s")
+        self.assertTrue(resp, "Expected 'True' result for query: %s"%(query))
         query = (queryprefixes +
             """
             ASK
@@ -541,7 +541,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             }
             """)
         resp = romd.queryAnnotations(query)
-        self.assertFalse(resp, "Expected 'False' result for query: %s")
+        self.assertFalse(resp, "Expected 'False' result for query: %s"%(query))
         query = (queryprefixes +
             """
             SELECT * WHERE

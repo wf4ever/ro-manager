@@ -22,6 +22,7 @@ import rdflib.namespace
 import ro_settings
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
 from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
+from ROSRS_Session import ROSRS_Error, ROSRS_Session
 import ro_manifest
 import ro_annotation
 
@@ -36,7 +37,10 @@ class ro_metadata(object):
         Initialize: read manifest from object at given directory into local RDF graph
 
         roconfig    is the research object manager configuration, supplied as a dictionary
-        roref       a URI reference that refers to the Research Object to be accessed
+        roref       a URI reference that refers to the Research Object to be accessed, or
+                    relative path name (see ro_uriutils.resolveFileAsUri for interpretation)
+        dummysetupfortest is an optional parameter that, if True, suppresses some aspects of
+                    the setup (does not attempt to read a RO manifest) for isolated testing.
         """
         self.roconfig = roconfig
         self.roref    = roref
@@ -68,12 +72,13 @@ class ro_metadata(object):
 
     def _loadManifest(self):
         if self.manifestgraph: return self.manifestgraph
-        self.manifestgraph = rdflib.Graph()
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
+            self.manifestgraph = rdflib.Graph()
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
         elif self._isLocal():
             # Read manifest graph
+            self.manifestgraph = rdflib.Graph()
             self.manifestgraph.parse(self._getManifestUri())
         else:
             (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
@@ -94,7 +99,7 @@ class ro_metadata(object):
                     auri = manifest.value(subject=anode, predicate=AO.body)
                     self._readAnnotationBody(auri, self.roannotations)
         else:
-            self.annotations = self.rosrs.getROAnnotationGraph(self.rouri)
+            self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
         log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
 
