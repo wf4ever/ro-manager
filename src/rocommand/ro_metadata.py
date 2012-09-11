@@ -234,7 +234,8 @@ class ro_metadata(object):
 
         rofile      is the research object file being annotated
         annfile     is the file name of the annotation body to be added,
-                    possibly relative to the RO URI
+                    possibly relative to the RO URI, with special characters
+                    already URI-escaped.
         """
         assert self._isLocal()
         # <ore:aggregates>
@@ -249,7 +250,7 @@ class ro_metadata(object):
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource,
             self.getComponentUri(rofile)))
         self.manifestgraph.add((ann, AO.body,
-            self.getComponentUri(annfile)))
+            self.getComponentUriAbs(annfile)))
         self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
         return
 
