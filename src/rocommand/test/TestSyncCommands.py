@@ -84,63 +84,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testPushAllForce(self):
-        """
-        Push all Research Objects to ROSRS, even unchanged.
-
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-        
-        args = [
-            "ro", "push",
-            "-v",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
-        # must send each file exactly once
-        for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(self.rodir + "/" + f), 1)
-        return
-
-    def testPushAll(self):
-        """
-        Push all Research Objects to ROSRS.
-
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-
-        # first, send all        
-        args = [
-            "ro", "push",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        # touch one file in 1st RO
-        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
-            f.write("foobar")
-            f.close()
-        # delete one file in 2nd RO
-        remove(path.join(self.rodir2, self.fileToDelete))
-
-        # push again
-        args = [
-            "ro", "push",
-            "-v"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
-        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 1)
-        return
-
-    def testPushOneRO(self):
+    def testPush(self):
         """
         Push a Research Object to ROSRS.
 
@@ -217,43 +161,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir2)
         return
 
-    def testCheckoutAll(self):
-        """
-        Checkout a Research Object from ROSRS.
-
-        ro checkout [ <RO-identifier> ] [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-        args = [
-            "ro", "push",
-            "-d", self.rodir,
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        rodir2 = os.path.join(ro_test_config.ROBASEDIR, self.ident2)
-        args = [
-            "ro", "checkout",
-            "-d", ro_test_config.ROBASEDIR,
-            "-v"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
-        for f in self.files:
-            self.assertGreaterEqual(self.outstr.getvalue().count(f), 1, "counting %s" % f)
-        self.assertGreaterEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
-        
-        cmpres = filecmp.dircmp(self.rodir, rodir2)
-        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
-        self.assertEquals(cmpres.right_only, [])
-        self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
-
-        self.deleteTestRo(rodir2)
-        return
-
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -288,11 +195,9 @@ def getTestSuite(select="unit"):
             ],
         "component":
             [ "testComponents"
-            , "testPushOneRO"
-            #, "testPushAll"
-            #, "testPushAllForce"
+            , "testPush"
             , "testCheckout"
-            , "testCheckoutAll"
+            , "testCheckout"
             ],
         "integration":
             [ "testIntegration"

@@ -13,6 +13,8 @@ import datetime
 import logging
 import rdflib
 import shutil
+import urlparse
+import urllib2
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -28,12 +30,12 @@ import ro_utils
 import ro_uriutils
 from ro_annotation import annotationTypes, annotationPrefixes
 from ro_metadata   import ro_metadata
+import ro_remote_metadata
+from HTTPSession import HTTP_Session
+import ro_rosrs_sync
 
 from iaeval import ro_eval_minim
-
 from zipfile import ZipFile
-
-import urllib2
 
 def getoptionvalue(val, prompt):
     if not val:
@@ -492,11 +494,11 @@ def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
 
-    ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+    ro push -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
-        "rodir":          options.rodir or None,
+        "rodir":          options.rodir,
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
         "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
                                                                                       "Access token for ROSRS service: "),
@@ -505,70 +507,85 @@ def push(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro push -d %(rodir)s -r %(rosrs_uri)s -t %(rosrs_access_token)s"%ro_options
-#    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
-#    back = ResourceSync(api)
-#    if not ro_options['rodir']:
-#        try:
-#            (sent, deleted) = back.pushAllResourcesInWorkspace(ro_config['robase'], True, ro_options['force'])
-#        except Exception as e:
-#            print "Could not push all Research Objects: %s" % e
-#            return 1
-#    else:
-#        try:
-#            roDir = ro_utils.ropath(ro_config, ro_options['rodir'])
-#            if not roDir:
-#                raise Exception("%(rodir)s is not a valid RO folder" % ro_options)
-#            (sent, deleted) = back.pushAllResources(roDir, True, ro_options['force'])
-#        except Exception as e:
-#            print "Could not push Research Object in folder %s: %s" % (roDir, e)
-#            return 1
-#    if not options.verbose:
-#        print "%d files updated, %d files deleted" % (len(sent), len(deleted))
-#    else:
-#        for s in sent:
-#            print "Updated: %s" % s
-#        for d in deleted:
-#            print "Deleted: %s" % d
+    ro_dir = ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    localRo  = ro_metadata(ro_config, ro_dir)
+    rosrs = HTTP_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
+    (status, _, rouri,_) = ro_remote_metadata.createRO(rosrs, localRo.getRoFilename())
+    if status == 201:
+        print "Created RO: %s"%(rouri)
+    elif status == 409:
+        rouri = urlparse.urljoin(ro_options["rosrs_uri"], localRo.getRoFilename)
+        print "RO already exists: %s"%(rouri)
+    remoteRo = ro_remote_metadata(ro_config, rosrs, rouri)
+    pushedResCnt = 0
+    pushedAnnCnt = 0
+    deletedResCnt = 0
+    deletedAnnCnt = 0
+    for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
+        if action == ro_rosrs_sync.ACTION_AGGREGATE_INTERNAL:
+            print "Resource uploaded: %s"%(resuri)
+            pushedResCnt += 1
+        elif action == ro_rosrs_sync.ACTION_AGGREGATE_EXTERNAL:
+            print "External resource pushed: %s"%(resuri)
+            pushedResCnt += 1
+        elif action == ro_rosrs_sync.ACTION_AGGREGATE_ANNOTATION:
+            if options.verbose:
+                print "Annotation pushed: %s"%(resuri)
+            log.debug("Annotation pushed: %s"%(resuri))
+            pushedAnnCnt += 1
+        elif action == ro_rosrs_sync.ACTION_UPDATE_OVERWRITE:
+            # TODO ask user for confirmation
+            print "Resource uploaded (WARNING: it has overwritten changes in RODL): %s"%(resuri)
+            pushedResCnt += 1
+        elif action == ro_rosrs_sync.ACTION_UPDATE:
+            print "Resource uploaded: %s"%(resuri)
+            pushedResCnt += 1
+        elif action == ro_rosrs_sync.ACTION_UPDATE_ANNOTATION:
+            if options.verbose:
+                print "Annotation updated: %s"%(resuri)
+            log.debug("Annotation updated: %s"%(resuri))
+            pushedAnnCnt += 1
+        elif action == ro_rosrs_sync.ACTION_SKIP:
+            print "Resource skipped: %s"%(resuri)
+        elif action == ro_rosrs_sync.ACTION_DELETE:
+            # TODO ask user for confirmation
+            print "Resource deleted in ROSRS: %s"%(resuri)
+            deletedResCnt += 1
+        elif action == ro_rosrs_sync.ACTION_DELETE_ANNOTATION:
+            if options.verbose:
+                print "Annotation deleted in ROSRS: %s"%(resuri)
+            log.debug("Annotation deleted in ROSRS: %s"%(resuri))
+            deletedAnnCnt += 1
+        print "%d resources pushed, %d annotations pushed, %d resources deleted, %d annotations deleted" \
+            %(pushedResCnt, pushedAnnCnt, deletedResCnt, deletedAnnCnt)
     return 0
 
 def checkout(progname, configbase, options, args):
     """
     Checkout a RO from ROSRS
 
-    ro checkout [ <RO-identifier> ] [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+    ro checkout <RO-identifier> [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
-        "roident":        args[2] if len(args) > 2 else None,
+        "roident":        args[2],
         "rodir":          options.rodir or "",
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
         "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
                                                                                       "Access token for ROSRS service: "),
-        "force":          options.force
         }
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
-#    api = RosrsApi(ro_options['rosrs_uri'], ro_options['rosrs_access_token'])
-#    if (ro_options["roident"]):
-#        roident = ro_options["roident"]
-#        print "Checking out %s..." % roident
-#        rodir = os.path.join(ro_options['rodir'], roident)
-#        try:
-#            verzip = api.getRoAsZip(roident)
-#            __unpackZip(verzip, rodir, options.verbose)
-#        except urllib2.URLError as e:
-#            print "Could not checkout %s: %s" % (roident, e)
-#    else:
-#        ros = api.getRos()
-#        print "Checking out %d Research Objects..." % len(ros)
-#        for ro in ros:
-#            roident = os.path.basename(os.path.dirname(ro))
-#            print "---"
-#            print "Checking out %s..." % roident
-#            rodir = os.path.join(ro_options['rodir'], roident)
-#            verzip = api.getRoAsZipByUrl(ro)
-#            __unpackZip(verzip, rodir, options.verbose)
+    ro_dir = ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    rouri = urlparse.urljoin(ro_options["rosrs_uri"], ro_options["roident"])
+    try:
+        zipdata = ro_remote_metadata.getAsZip(rouri)
+        __unpackZip(zipdata, ro_dir, options.verbose)
+    except urllib2.URLError as e:
+        print "Could not checkout %s: %s" % (rouri, e)
     return 0
 
 def __unpackZip(verzip, rodir, verbose):
