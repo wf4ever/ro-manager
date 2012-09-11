@@ -264,6 +264,29 @@ class ro_metadata(object):
         self.manifestgraph.remove((None,    ORE.aggregates, annbody))
         return
 
+    def addGraphAnnotation(self, rofile, graph):
+        """
+        Add an annotation graph for a named resource.  Unlike addSimpleAnnotation, this
+        method adds an annotation to the manifest using an existing RDF graph (which is
+        presumably itself in the RO structure).
+
+        rofile      names the file or resource to be annotated, possibly relative to the RO.
+                    Note that no checks are performed to ensure that the graph itself actually
+                    refers to this resource - that's up the the creator of the graph.  This
+                    identifies the resourfce with which the annotation body is associated in
+                    the RO manifest.
+        graph       names the file or resource containing the annotation body.
+        """
+        assert self._isLocal()
+        ro_graph = self._loadManifest()
+        ann = rdflib.BNode()
+        ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
+        ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
+        ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
+        ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
+        self._updateManifest()
+        return
+
     def addSimpleAnnotation(self, rofile, attrname, attrvalue, defaultType="string"):
         """
         Add a simple annotation to a file in a research object.
@@ -341,29 +364,6 @@ class ro_metadata(object):
         ro_graph.remove((subject, predicate, None))
         ro_graph.add((subject, predicate,
                       ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
-        self._updateManifest()
-        return
-
-    def addGraphAnnotation(self, rofile, graph):
-        """
-        Add an annotation graph for a named resource.  Unlike addSimpleAnnotation, this
-        method adds an annotation to the manifest using an existing RDF graph (which is
-        presumably itself in the RO structure).
-
-        rofile      names the file or resource to be annotated, possibly relative to the RO.
-                    Note that no checks are performed to ensure that the graph itself actually
-                    refers to this resource - that's up the the creator of the graph.  This
-                    identifies the resourfce with which the annotation body is associated in
-                    the RO manifest.
-        graph       names the file or resource containing the annotation body.
-        """
-        assert self._isLocal()
-        ro_graph = self._loadManifest()
-        ann = rdflib.BNode()
-        ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-        ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
-        ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
-        ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
         self._updateManifest()
         return
 

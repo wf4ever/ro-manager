@@ -105,7 +105,7 @@ class TestLinks(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         outtxt = self.outstr.getvalue()
         assert status == 0, outtxt
-        self.assertEqual(outtxt.count("ro annotate"), 1)
+        self.assertEqual(outtxt.count("ro link"), 1)
         # Read manifest and check for annotation
         annotations = ro_annotation._getFileAnnotations(rodir, "subdir1/subdir1-file.txt")
         resourceuri = ro_manifest.getComponentUri(rodir, "subdir1/subdir1-file.txt")

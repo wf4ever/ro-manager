@@ -434,7 +434,9 @@ def annotate(progname, configbase, options, args):
             "wild":         "-w " if options.wildcard else "",
             "roattribute":  args[3],
             "rovalue":      args[4] if len(args) == 5 else None,
-            "defaultType":  "resource" if args[1] == "link" else "string"
+            "defaultType":  "resource" if args[1] == "link" else "string",
+            "rocmd":        args[0],
+            "anncmd":       args[1]
             }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
@@ -442,9 +444,9 @@ def annotate(progname, configbase, options, args):
     if not ro_dir: return 1
     if options.verbose:
         if len(args) == 3:
-            print "ro annotate -d %(rodir)s %(wild)s%(rofile)s -g %(graph)s "%(ro_options)
+            print "%(rocmd)s %(anncmd)s -d %(rodir)s %(wild)s%(rofile)s -g %(graph)s "%(ro_options)
         else:
-            print "ro annotate -d %(rodir)s %(wild)s%(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
+            print "%(rocmd)s %(anncmd)s -d %(rodir)s %(wild)s%(rofile)s %(roattribute)s \"%(rovalue)s\""%ro_options
     # Read and update manifest and annotations
     # ---- local function to annotate a single entry ----
     def annotate_single(rofile):
@@ -458,8 +460,18 @@ def annotate(progname, configbase, options, args):
                 ro_options['defaultType'])
     # ----
     rometa = ro_metadata(ro_config, ro_dir)
-    rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])     # Relative to CWD
-    annotate_single(rofile)
+    if options.wildcard:
+        try:
+            rofilepattern = re.compile(ro_options['rofile'])
+        except re.error as e:
+            ro_options["err"] = str(e)
+            print '''%(rocmd)s %(anncmd)s -w "%(rofile)s" <...> : %(err)s'''%ro_options
+            return 1
+        for rofile in [ str(r) for r in rometa.getAggregatedResources() if rofilepattern.match(str(r)) ]:
+            annotate_single(rofile)
+    else:
+        rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])     # Relative to CWD
+        annotate_single(rofile)
     return 0
 
 def annotations(progname, configbase, options, args):
