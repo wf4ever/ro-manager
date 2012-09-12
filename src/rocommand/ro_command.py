@@ -510,12 +510,15 @@ def push(progname, configbase, options, args):
     ro_dir = ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     localRo  = ro_metadata(ro_config, ro_dir)
+    roId = ro_dir.replace(ro_config["robase"], "", 1)
+    if roId.startswith("/"): 
+        roId = roId.replace("/", "", 1)
     rosrs = HTTP_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
-    (status, _, rouri,_) = ro_remote_metadata.createRO(rosrs, localRo.getRoFilename())
+    (status, _, rouri,_) = ro_remote_metadata.createRO(rosrs, roId)
     if status == 201:
         print "Created RO: %s"%(rouri)
     elif status == 409:
-        rouri = urlparse.urljoin(ro_options["rosrs_uri"], localRo.getRoFilename())
+        rouri = urlparse.urljoin(ro_options["rosrs_uri"], roId + "/")
         print "RO already exists: %s"%(rouri)
     remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, rosrs, rouri)
     pushedResCnt = 0
@@ -525,9 +528,11 @@ def push(progname, configbase, options, args):
     for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
         if action == ro_rosrs_sync.ACTION_AGGREGATE_INTERNAL:
             print "Resource uploaded: %s"%(resuri)
+            log.debug("Resource uploaded: %s"%(resuri))
             pushedResCnt += 1
         elif action == ro_rosrs_sync.ACTION_AGGREGATE_EXTERNAL:
             print "External resource pushed: %s"%(resuri)
+            log.debug("External resource pushed: %s"%(resuri))
             pushedResCnt += 1
         elif action == ro_rosrs_sync.ACTION_AGGREGATE_ANNOTATION:
             if options.verbose:
@@ -537,9 +542,11 @@ def push(progname, configbase, options, args):
         elif action == ro_rosrs_sync.ACTION_UPDATE_OVERWRITE:
             # TODO ask user for confirmation
             print "Resource uploaded (WARNING: it has overwritten changes in RODL): %s"%(resuri)
+            log.debug("Resource uploaded (WARNING: it has overwritten changes in RODL): %s"%(resuri))
             pushedResCnt += 1
         elif action == ro_rosrs_sync.ACTION_UPDATE:
             print "Resource uploaded: %s"%(resuri)
+            log.debug("Resource uploaded: %s"%(resuri))
             pushedResCnt += 1
         elif action == ro_rosrs_sync.ACTION_UPDATE_ANNOTATION:
             if options.verbose:
@@ -548,9 +555,11 @@ def push(progname, configbase, options, args):
             pushedAnnCnt += 1
         elif action == ro_rosrs_sync.ACTION_SKIP:
             print "Resource skipped: %s"%(resuri)
+            log.debug("Resource skipped: %s"%(resuri))
         elif action == ro_rosrs_sync.ACTION_DELETE:
             # TODO ask user for confirmation
             print "Resource deleted in ROSRS: %s"%(resuri)
+            log.debug("Resource deleted in ROSRS: %s"%(resuri))
             deletedResCnt += 1
         elif action == ro_rosrs_sync.ACTION_DELETE_ANNOTATION:
             if options.verbose:
@@ -578,7 +587,7 @@ def checkout(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
-    ro_dir = ro_root_directory(progname+" push", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory(progname+" checkout", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     rouri = urlparse.urljoin(ro_options["rosrs_uri"], ro_options["roident"])
     try:

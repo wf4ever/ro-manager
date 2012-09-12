@@ -28,10 +28,9 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
-from sync.RosrsApi import RosrsApi
-from sync.ResourceSync import ResourceSync
 
-from rocommand import ro, ro_command
+from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation
+from rocommand.HTTPSession import HTTP_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -39,6 +38,13 @@ import TestROSupport
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
+
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
+    }
+
 
 class TestSyncCommands(TestROSupport.TestROSupport):
     """
@@ -65,20 +71,32 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
+        localRo  = ro_metadata.ro_metadata(ro_config, rodir)
+        localRo.addAggregatedResources(rodir, recurse=True)
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         args = [
             "ro", "push",
             "-d", rodir,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "7d5423c-b507-4e1c-8",
+            "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
+        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
-        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 0)
+        self.assertEqual(self.outstr.getvalue().count("Resource uploaded:"), 6)
+        self.assertEqual(self.outstr.getvalue().count("Resource deleted in ROSRS:"), 0)
+        self.assertEqual(self.outstr.getvalue().count("Annotation pushed:"), 3)
+        self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
         # Clean up
         self.deleteTestRo(rodir)
+        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         return
 
     def testCheckout(self):
@@ -87,12 +105,19 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
+        localRo  = ro_metadata.ro_metadata(ro_config, rodir)
+        localRo.addAggregatedResources(rodir, recurse=True)
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         # push an RO
         args = [
             "ro", "push",
-            "-d", self.rodir,
+            "-d", rodir,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "7d5423c-b507-4e1c-8"
+            "-t", "a7685677-efd9-4b80-a"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -100,7 +125,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         # check it out as a copy
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
-        os.rename(self.rodir, rodir2)
+        os.rename(rodir, rodir2)
         args = [
             "ro", "checkout", self.ident1,
             "-d", ro_test_config.ROBASEDIR,
