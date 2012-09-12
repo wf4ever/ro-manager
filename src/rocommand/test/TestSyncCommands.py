@@ -12,6 +12,7 @@ import filecmp
 import logging
 import random
 import string
+import shutil
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -29,7 +30,7 @@ if __name__ == "__main__":
 
 from MiscLib import TestUtils
 
-from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation
+from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation, ro_settings
 from rocommand.HTTPSession import HTTP_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -125,28 +126,43 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         # check it out as a copy
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
-        os.rename(rodir, rodir2)
+        shutil.rmtree(rodir2, ignore_errors = True)
+        shutil.move(rodir, rodir2)
         args = [
-            "ro", "checkout", self.ident1,
+            "ro", "checkout", "RO_test_ro_push",
             "-d", ro_test_config.ROBASEDIR,
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
+        
+        files = [ "README-ro-test-1"
+          , "minim.rdf"
+          , "subdir1/subdir1-file.txt"
+          , "subdir2/subdir2-file.txt"
+          , "filename%20with%20spaces.txt"
+          , "filename%23with%23hashes.txt"]
+
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
-        for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(f), 1)
-        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
+        print self.outstr.getvalue()
+        for f in files:
+            self.assertEqual(self.outstr.getvalue().count(f), 1, "file: %s"%f)
+        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(files)), 1)
         
         # compare they're identical, with the exception of registries.pickle
-        cmpres = filecmp.dircmp(rodir2, self.rodir)
-        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
+        cmpres = filecmp.dircmp(rodir2, rodir)
+        self.assertEquals(cmpres.left_only, [ro_settings.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
         # delete the checked out copy
+        self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
+        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         return
 
     # Sentinel/placeholder tests

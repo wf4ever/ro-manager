@@ -566,8 +566,8 @@ def push(progname, configbase, options, args):
                 print "Annotation deleted in ROSRS: %s"%(resuri)
             log.debug("Annotation deleted in ROSRS: %s"%(resuri))
             deletedAnnCnt += 1
-        print "%d resources pushed, %d annotations pushed, %d resources deleted, %d annotations deleted" \
-            %(pushedResCnt, pushedAnnCnt, deletedResCnt, deletedAnnCnt)
+    print "%d resources pushed, %d annotations pushed, %d resources deleted, %d annotations deleted" \
+        %(pushedResCnt, pushedAnnCnt, deletedResCnt, deletedAnnCnt)
     return 0
 
 def checkout(progname, configbase, options, args):
@@ -587,7 +587,7 @@ def checkout(progname, configbase, options, args):
     log.debug("ro_options: "+repr(ro_options))
     if options.verbose:
         print "ro checkout %(roident)s %(rodir)s %(rosrs_uri)s %(rosrs_access_token)s"%ro_options
-    ro_dir = ro_root_directory(progname+" checkout", ro_config, ro_options['rodir'])
+    ro_dir = os.path.join(ro_options['rodir'], ro_options["roident"])
     if not ro_dir: return 1
     rouri = urlparse.urljoin(ro_options["rosrs_uri"], ro_options["roident"])
     try:

@@ -164,7 +164,6 @@ class ro_remote_metadata(object):
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
         else:
             # Read manifest graph
-            log.debug("Manifest URI: %s"%self.manifesturi)
             self.manifestgraph.parse(self.manifesturi)
         return self.manifestgraph
 

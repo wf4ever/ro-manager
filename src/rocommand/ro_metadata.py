@@ -187,7 +187,6 @@ class ro_metadata(object):
         resource. Resource URI is resolved against the RO URI unless it's absolute.
         '''
         resuri = self.getComponentUriAbs(rofile)
-        log.debug("isAggregatedResource: ro uri %s res uri %s"%(self.rouri, resuri))
         return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
 
     def isInternalResource(self, resuri):

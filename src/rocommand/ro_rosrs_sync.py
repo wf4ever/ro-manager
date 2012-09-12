@@ -95,9 +95,13 @@ def pushResearchObject(localRo, remoteRo, force = False):
     for resuri in remoteRo.getAggregatedResources():
         respath = remoteRo.getComponentUriRel(resuri)
         if not localRo.isAggregatedResource(respath):
-            log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(resuri))
-            yield (ACTION_DELETE, resuri)
-            remoteRo.deaggregateResource(resuri)
+            if remoteRo.isAnnotationNode(respath):
+                # annotations are handled separately
+                pass
+            else:
+                log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(resuri))
+                yield (ACTION_DELETE, resuri)
+                remoteRo.deaggregateResource(resuri)
         pass            
                 
     for (ann_node, ann_body, ann_target) in localRo.getAllAnnotationNodes():
