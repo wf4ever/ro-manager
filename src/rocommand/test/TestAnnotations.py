@@ -201,6 +201,29 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testAnnotateFileWithEscapes(self):
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile1 = rodir+"/"+"filename with spaces.txt"
+        rofile2 = rodir+"/"+"filename#with#hashes.txt"
+        with SwitchStdout(self.outstr):
+            for rofile in [rofile1,rofile2]:
+                args = ["ro", "annotate", rofile, "type", "atype"]
+                status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+                outtxt = self.outstr.getvalue()
+                assert status == 0, outtxt
+        # Reset output stream buffer closed
+        self.outstr = StringIO.StringIO()
+        # Read manifest and check for annotation
+        for rofile in [rofile1,rofile2]:
+            resourceuri = ro_manifest.getComponentUri(rodir, rofile)
+            annotations = ro_annotation._getFileAnnotations(rodir, rofile)
+            next = annotations.next()
+            self.assertEqual(next, (resourceuri, DCTERMS.type, rdflib.Literal("atype")))
+            self.assertRaises(StopIteration, annotations.next)
+        # Clean up
+        self.deleteTestRo(rodir)
+        return
+
     # Test annotation display
     def testAnnotationDisplayRo(self):
         # Construct annotated RO
@@ -456,6 +479,7 @@ def getTestSuite(select="unit"):
             , "testAnnotateTypeUri"
             , "testAnnotateTypeCurie"
             , "testAnnotateMultiple"
+            , "testAnnotateFileWithEscapes"
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"
             , "testAnnotateWithGraph"
