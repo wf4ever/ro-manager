@@ -39,10 +39,12 @@ def run(configbase, options, args):
         status = ro_command.config(progname, configbase, options, args)
     elif args[1] == "create":
         status = ro_command.create(progname, configbase, options, args)
-    elif args[1] == "add":
-        status = ro_command.add(progname, configbase, options, args)
     elif args[1] == "status":
         status = ro_command.status(progname, configbase, options, args)
+    elif args[1] == "add":
+        status = ro_command.add(progname, configbase, options, args)
+    elif args[1] == "remove":
+        status = ro_command.remove(progname, configbase, options, args)
     elif args[1] in ["list", "ls"]:
         status = ro_command.list(progname, configbase, options, args)
     elif args[1] in ["annotate","link"]:
@@ -51,10 +53,10 @@ def run(configbase, options, args):
         status = ro_command.annotations(progname, configbase, options, args)
     elif args[1] == "evaluate" or args[1] == "eval":
         status = ro_command.evaluate(progname, configbase, options, args)
-    elif args[1] == "push":
-        status = ro_command.push(progname, configbase, options, args)
     elif args[1] == "checkout":
         status = ro_command.checkout(progname, configbase, options, args)
+    elif args[1] == "push":
+        status = ro_command.push(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2

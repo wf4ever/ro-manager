@@ -92,30 +92,38 @@ ro_command_usage = (
           ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"] )
     , ( ["create"],          argminmax(3,3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"] )
-    , ( ["add"],             argminmax(2,3),
-          ["add [ -d <dir> ] [ -a ] [ file | directory ]"] )
     , ( ["status"],          argminmax(2,2),
           ["status [ -d <dir> ]"] )
+    , ( ["add"],             argminmax(2,3),
+          ["add [ -d <dir> ] [ -a ] [ file | directory ]"] )
+    , ( ["remove"],             argminmax(3,3),
+          ["remove [ -d <dir> ] <file-or-uri>"
+          ,"remove -d <dir> -w <pattern>"
+          ] )
     , ( ["list","ls"],       argminmax(2,2),
           ["list [ -a ] [ -s ] [ -d <dir> ]"
           ,"ls   [ -a ] [ -s ] [ -d <dir> ]"
           ] )
-    , ( ["annotate"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
-          ["annotate [ -d <dir> ] [ -w ] <file> <attribute-name> [ <attribute-value> ]"
-          ,"annotate [ -d <dir> ] [ -w ] <file> -g <RDF-graph>"
+    , ( ["annotate"], (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
+          ["annotate [ -d <dir> ] <file-or-uri> <attribute-name> <attribute-value>"
+          ,"annotate [ -d <dir> ] <file-or-uri> -g <RDF-graph>"
+          ,"annotate -d <dir> -w <pattern> <attribute-name> <attribute-value>"
+          ,"annotate -d <dir> -w <pattern> -g <RDF-graph>"
           ] )
-    , ( ["link"],        (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
-          ["link [ -d <dir> ] [ -w ] <file> <attribute-name> [ <attribute-value> ]"
-          ,"link [ -d <dir> ] [ -w ] <file> -g <RDF-graph>"
+    , ( ["link"],     (lambda options,args: (len(args) == 3 if options.graph else len(args) in [4,5])),
+          ["link [ -d <dir> ] <file-or-uri> <attribute-name> <attribute-value>"
+          ,"link [ -d <dir> ] <file-or-uri> -g <RDF-graph>"
+          ,"link -d <dir> -w <pattern> <attribute-name> <attribute-value>"
+          ,"link -d <dir> -w <pattern> -g <RDF-graph>"
           ] )
     , ( ["annotations"],     argminmax(2,3),
           ["annotations [ <file> | -d <dir> ]"] )
+    , ( ["evaluate","eval"], argminmax(5,6),
+          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"] )
     , ( ["push"],            argminmax(2,2),
           ["push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
     , ( ["checkout"],        argminmax(2,3),
           ["checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
-    , ( ["evaluate","eval"], argminmax(5,6),
-          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"] )
     ])
 
 def check_command_args(progname, options, args):
@@ -268,6 +276,36 @@ def create(progname, configbase, options, args):
     manifestfile.close()
     return 0
 
+def status(progname, configbase, options, args):
+    """
+    Display status of a designated research object
+
+    ro status [ -d dir ]
+    """
+    # Check command arguments
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":   options.rodir or "",
+        }
+    log.debug("ro_options: "+repr(ro_options))
+    # Find RO root directory
+    ro_dir = ro_root_directory(progname+" status", ro_config, ro_options['rodir'])
+    if not ro_dir: return 1
+    # Read manifest and display status
+    if options.verbose:
+        print "ro status -d \"%(rodir)s\""%ro_options
+    rometa = ro_metadata(ro_config, ro_dir)
+    rodict = rometa.getRoMetadataDict()
+    print "Research Object status"
+    print "  identifier:  %(roident)s, title: %(rotitle)s"%rodict
+    print "  creator:     %(rocreator)s, created: %(rocreated)s"%rodict
+    print "  path:        %(ropath)s"%rodict
+    if rodict['rouri']:
+        print "  uri:         %(rouri)s"%rodict
+    print "  description: %(rodescription)s"%rodict
+    # @@TODO: add ROEVO information
+    return 0
+
 def add(progname, configbase, options, args):
     """
     Add files to a research object manifest
@@ -298,33 +336,43 @@ def add(progname, configbase, options, args):
         recurse=ro_options['recurse'], includeDirs=not ro_options['recurse'])
     return 0
 
-def status(progname, configbase, options, args):
+def remove(progname, configbase, options, args):
     """
-    Display status of a designated research object
+    Remove a specified research object component or components
 
-    ro status [ -d dir ]
+    remove [ -d <dir> ] <file-or-uri>
+    remove -d <dir> -w <pattern>
     """
-    # Check command arguments
     ro_config = ro_utils.readconfig(configbase)
+    rodir = options.rodir or (not options.wildcard and os.path.dirname(args[2]))
     ro_options = {
-        "rodir":   options.rodir or "",
+        # Usding graph annotation form
+        "rofile":       args[2],
+        "rodir":        rodir,
+        "wildcard":     options.wildcard,
+        "wild":         "-w " if options.wildcard else "",
+        "rocmd":        progname,
         }
-    log.debug("ro_options: "+repr(ro_options))
+    log.debug("remove: ro_options: "+repr(ro_options))
     # Find RO root directory
-    ro_dir = ro_root_directory(progname+" status", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory("%s %s"%(progname,args[1]), ro_config, ro_options['rodir'])
     if not ro_dir: return 1
-    # Read manifest and display status
     if options.verbose:
-        print "ro status -d \"%(rodir)s\""%ro_options
+        print "%(rocmd)s remove -d %(rodir)s %(wild)s%(rofile)s"%(ro_options)
+    # Read and update manifest and annotations
     rometa = ro_metadata(ro_config, ro_dir)
-    rodict = rometa.getRoMetadataDict()
-    print "Research Object status"
-    print "  identifier:  %(roident)s, title: %(rotitle)s"%rodict
-    print "  creator:     %(rocreator)s, created: %(rocreated)s"%rodict
-    print "  path:        %(ropath)s"%rodict
-    if rodict['rouri']:
-        print "  uri:         %(rouri)s"%rodict
-    print "  description: %(rodescription)s"%rodict
+    if options.wildcard:
+        try:
+            rofilepattern = re.compile(ro_options['rofile'])
+        except re.error as e:
+            ro_options["err"] = str(e)
+            print '''%(rocmd)s remove -w "%(rofile)s" <...> : %(err)s'''%ro_options
+            return 1
+        for rofile in [ r for r in rometa.getAggregatedResources() if rofilepattern.search(str(r)) ]:
+            rometa.removeAggregatedResource(rofile)
+    else:
+        rofile = rometa.getComponentUri(ro_options['rofile'])
+        rometa.removeAggregatedResource(rofile)
     return 0
 
 def mapmerge(f1, l1, f2, l2):

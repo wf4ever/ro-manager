@@ -392,11 +392,95 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         assert status == 0, outtxt
         self.assertEqual(outtxt.count("ro list"), 1)
         self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "filename%20with%20spaces.txt")
+        self.assertRegexpMatches(outtxt, "filename%23with%23hashes.txt")
         self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
         self.assertRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
         self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
         self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
         self.assertRegexpMatches(outtxt, "http://example.org/external")
+        self.deleteTestRo(rodir)
+        return
+
+    def testRemove(self):
+        """
+        Test remove aggregated resource from RO
+
+        ro remove subdir2/subdir2-file.txt
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test remove", "ro-testRoRemove")                      
+        self.populateTestRo(testbase, rodir)
+        # Remove resource
+        args = [
+            "ro", "remove",
+            "-d", rodir, "subdir2/subdir2-file.txt",
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        # List contents
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        self.outstr = StringIO.StringIO()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro list"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertRegexpMatches(outtxt, "filename%20with%20spaces.txt")
+        self.assertRegexpMatches(outtxt, "filename%23with%23hashes.txt")
+        self.assertRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
+        self.deleteTestRo(rodir)
+        return
+
+    def testRemoveWildcard(self):
+        """
+        Test remove aggregated resources from RO
+
+        ro remove subdir2/subdir2-file.txt
+        """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test remove", "ro-testRoRemove")                      
+        self.populateTestRo(testbase, rodir)
+        # Remove resource
+        args = [
+            "ro", "remove",
+            "-d", rodir, "-w", "\\.txt$",
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        # List contents
+        args = [
+            "ro", "ls",
+            "-d", rodir,
+            "-v"
+            ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        self.outstr = StringIO.StringIO()
+        assert status == 0, outtxt
+        self.assertEqual(outtxt.count("ro list"), 1)
+        self.assertRegexpMatches(outtxt, "README-ro-test-1")
+        self.assertNotRegexpMatches(outtxt, "filename%20with%20spaces.txt")
+        self.assertNotRegexpMatches(outtxt, "filename%23with%23hashes.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/subdir1-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir2/subdir2-file.txt")
+        self.assertNotRegexpMatches(outtxt, "subdir1/\\s")
+        self.assertNotRegexpMatches(outtxt, "subdir2/\\s")
         self.deleteTestRo(rodir)
         return
 
@@ -446,6 +530,8 @@ def getTestSuite(select="unit"):
             , "testListDefault"
             , "testAddDirectory"
             , "testAddExternalResource"
+            , "testRemove"
+            , "testRemoveWildcard"
             ],
         "component":
             [ "testComponents"
