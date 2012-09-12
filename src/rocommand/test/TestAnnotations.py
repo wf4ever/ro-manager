@@ -353,7 +353,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         rouri = ro_manifest.getRoUri(rodir)
         args = ["ro", "annotate"
                ,"-d", rodir+"/"
-               , "-w", ".*subdir./.*\\.txt$"
+               , "-w", "subdir./.*\\.txt$"
                , "dcterms:description", "pattern annotation" ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -398,7 +398,7 @@ class TestAnnotations(TestROSupport.TestROSupport):
         rouri = ro_manifest.getRoUri(rodir)
         args = ["ro", "annotate"
                ,"-d", rodir+"/"
-               , "-w", ".*\\.txt$"
+               , "-w", "\\.txt$"
                , "dcterms:description", "pattern annotation" ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)

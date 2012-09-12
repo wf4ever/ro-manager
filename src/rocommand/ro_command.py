@@ -413,7 +413,7 @@ def annotate(progname, configbase, options, args):
     ro link file attribute-name [ attribute-value ]
     """
     ro_config = ro_utils.readconfig(configbase)
-    rodir = options.rodir or os.path.dirname(args[2])
+    rodir = options.rodir or (not options.wildcard and os.path.dirname(args[2]))
     if len(args) == 3:
         # Using graph form
         ro_options = {
@@ -424,6 +424,8 @@ def annotate(progname, configbase, options, args):
             "wild":         "-w " if options.wildcard else "",
             "graph":        options.graph or None,
             "defaultType":  "resource" if args[1] == "link" else "string",
+            "rocmd":        progname,
+            "anncmd":       args[1]
             }
     else:
         ro_options = {
@@ -435,12 +437,12 @@ def annotate(progname, configbase, options, args):
             "roattribute":  args[3],
             "rovalue":      args[4] if len(args) == 5 else None,
             "defaultType":  "resource" if args[1] == "link" else "string",
-            "rocmd":        args[0],
+            "rocmd":        progname,
             "anncmd":       args[1]
             }
     log.debug("ro_options: "+repr(ro_options))
     # Find RO root directory
-    ro_dir = ro_root_directory(progname+" annotate", ro_config, ro_options['rodir'])
+    ro_dir = ro_root_directory("%s %s"%(progname,args[1]), ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     if options.verbose:
         if len(args) == 3:
@@ -467,7 +469,7 @@ def annotate(progname, configbase, options, args):
             ro_options["err"] = str(e)
             print '''%(rocmd)s %(anncmd)s -w "%(rofile)s" <...> : %(err)s'''%ro_options
             return 1
-        for rofile in [ str(r) for r in rometa.getAggregatedResources() if rofilepattern.match(str(r)) ]:
+        for rofile in [ str(r) for r in rometa.getAggregatedResources() if rofilepattern.search(str(r)) ]:
             annotate_single(rofile)
     else:
         rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])     # Relative to CWD
