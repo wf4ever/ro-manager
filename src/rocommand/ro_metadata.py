@@ -298,7 +298,7 @@ class ro_metadata(object):
         annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
         self._addAnnotationBodyToRoGraph(rofile, annfile)
         self._updateManifest()
-        return
+        return annfile
 
     def removeSimpleAnnotation(self, rofile, attrname, attrvalue):
         """
@@ -596,6 +596,8 @@ class ro_metadata(object):
         try:
             rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'r')
             self.registries = json.load(rf)
+        except IOError:
+            self.registries = dict()
         except Exception as e:
             log.exception(e)
             self.registries = dict()

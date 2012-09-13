@@ -106,19 +106,20 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
-        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro checkout", "ro-testRoPush")
         localRo  = ro_metadata.ro_metadata(ro_config, rodir)
         localRo.addAggregatedResources(rodir, recurse=True)
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
-        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
-        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
+        ann1 = localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        ann2 = localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         # push an RO
         args = [
             "ro", "push",
             "-d", rodir,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "a7685677-efd9-4b80-a"
+            "-t", "a7685677-efd9-4b80-a",
+            "-v"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -129,7 +130,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         shutil.rmtree(rodir2, ignore_errors = True)
         shutil.move(rodir, rodir2)
         args = [
-            "ro", "checkout", "RO_test_ro_push",
+            "ro", "checkout", "RO_test_ro_checkout",
             "-d", ro_test_config.ROBASEDIR,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
             "-t", "a7685677-efd9-4b80-a",
@@ -139,15 +140,18 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        files = [ "README-ro-test-1"
-          , "minim.rdf"
-          , "subdir1/subdir1-file.txt"
-          , "subdir2/subdir2-file.txt"
-          , "filename%20with%20spaces.txt"
-          , "filename%23with%23hashes.txt"]
+        files = [ "robase/RO_test_ro_checkout/README-ro-test-1"
+          , "robase/RO_test_ro_checkout/minim.rdf"
+          , "robase/RO_test_ro_checkout/subdir1/subdir1-file.txt"
+          , "robase/RO_test_ro_checkout/subdir2/subdir2-file.txt"
+          , "robase/RO_test_ro_checkout/filename with spaces.txt"
+          , "robase/RO_test_ro_checkout/filename#with#hashes.txt"
+          , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
+#          , "robase/RO_test_ro_checkout/" + ann1
+#          , "robase/RO_test_ro_checkout/" + ann2
+          ]
 
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
-        print self.outstr.getvalue()
         for f in files:
             self.assertEqual(self.outstr.getvalue().count(f), 1, "file: %s"%f)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(files)), 1)
@@ -162,7 +166,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
         httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
-        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_checkout/")
         return
 
     # Sentinel/placeholder tests
