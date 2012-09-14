@@ -163,9 +163,8 @@ class TestROSRS_Session(unittest.TestCase):
         self.assertEqual(headers["content-type"], "text/plain")
         self.assertEqual(data, rescontent)
         # GET proxy
-        (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
+        (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             "test/path", rouri=rouri)
-        self.assertEqual(status, 200)
         self.assertEqual(getproxyuri, proxyuri)
         return
 
@@ -201,9 +200,8 @@ class TestROSRS_Session(unittest.TestCase):
         self.assertEqual(reason, "Created")
         self.assertEqual(resuri, externaluri)
         # GET proxy (note: using rdflib.URIRef value for path)
-        (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
+        (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             externaluri, rouri)
-        self.assertEqual(status, 200)
         self.assertEqual(getproxyuri, proxyuri)
         return
 
@@ -216,17 +214,17 @@ class TestROSRS_Session(unittest.TestCase):
             rouri, externaluri)
         self.assertEqual(status, 201)
         # GET proxy (note: using rdfliob.URIRef for path)
-        (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
+        (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             externaluri, rouri)
-        self.assertEqual(status, 200)
         self.assertEqual(getproxyuri, proxyuri)
         # Delete resource
         (status, reason) = self.rosrs.removeResource(rouri, resuri)
         self.assertEqual(status, 204)
         self.assertEqual(reason, "No Content")
-        (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
+        (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             externaluri, rouri)
-        self.assertEqual(status, 404)
+        self.assertIsNone(getproxyuri)
+        self.assertIsNotNone(manifest)
         return
 
     def testGetROResource(self):
@@ -282,10 +280,8 @@ class TestROSRS_Session(unittest.TestCase):
             rouri, "test/path", ctype="text/plain", body=rescontent)
         self.assertEqual(status, 201)
         # Get resource proxy
-        (status, reason, getproxyuri, manifest) = self.rosrs.getROResourceProxy(
+        (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             "test/path", rouri=rouri)
-        self.assertEqual(status, 200)
-        self.assertEqual(reason, "OK")
         self.assertEqual(getproxyuri, proxyuri)
         return
 
@@ -445,10 +441,10 @@ class TestROSRS_Session(unittest.TestCase):
             """%(str(rouri))
         agraph2 = rdflib.graph.Graph()
         agraph2.parse(data=annbody2, format="xml")
-        (status, reason, annuri, bodyuri2) = self.rosrs.updateROAnnotationInt(
-            rouri, resuri, agraph2)
-        self.assertEqual(status, 201)
-        self.assertEqual(reason, "Created")
+        (status, reason, bodyuri2) = self.rosrs.updateROAnnotationInt(
+            rouri, annuri, resuri, agraph2)
+        self.assertEqual(status, 200)
+        self.assertEqual(reason, "OK")
         # Retrieve annotation URIs
         auris2 = list(self.rosrs.getROAnnotationUris(rouri, resuri))
         self.assertIn(annuri, auris2)

@@ -397,7 +397,7 @@ class ROSRS_Session(object):
             log.debug("getROResourceProxy proxyterms: %s"%(repr(proxyterms)))
             if len(proxyterms) == 1:
                 proxyuri = proxyterms[0]
-        return (status, reason, proxyuri, manifest)
+        return (proxyuri, manifest)
 
     def getROManifest(self, rouri):
         """
@@ -504,9 +504,9 @@ class ROSRS_Session(object):
         return (status, reason), where status is 204 No content or 404 Not found
         """
         # Find proxy for resource
-        (status, reason, proxyuri, manifest) = self.getROResourceProxy(resuri, rouri)
-        if status != 200:
-            return (status, reason)
+        (proxyuri, manifest) = self.getROResourceProxy(resuri, rouri)
+        if proxyuri == None:
+            return (404, "Resource proxy not found in manifest")
         assert isinstance(proxyuri, rdflib.URIRef)
         # Delete proxy
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(proxyuri,
@@ -598,7 +598,6 @@ class ROSRS_Session(object):
 
         returns: (status, reason, bodyuri)
         """
-        assert false, "@@TODO - awaiting RODL fix for slug-less proxy"
         (status, reason, bodyuri) = self.createROAnnotationBody(rouri, anngr)
         assert status == 201
         (status, reason) = self.updateROAnnotation(rouri, annuri, resuri, bodyuri)
@@ -651,7 +650,7 @@ class ROSRS_Session(object):
         (status, reason, headers, anngr) = self.doRequestRDF(annuri)
         if status != 303:
             raise self.error("No redirect from annnotation URI",
-                "%03d %s (%s)"%(status, reason, str(rouri)))
+                "%03d %s (%s)"%(status, reason, str(annuri)))
         return rdflib.URIRef(headers['location'])
 
     def getROAnnotationGraph(self, rouri, resuri=None):
