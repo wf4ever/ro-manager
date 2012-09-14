@@ -32,7 +32,7 @@ from MiscLib import TestUtils
 from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_annotation
-from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
+from rocommand.ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -224,6 +224,27 @@ class TestROMetadata(TestROSupport.TestROSupport):
                  next[1] != ORE.aggregates        ):
                 self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
         self.assertRaises(StopIteration, annotations.next)
+        self.deleteTestRo(rodir)
+        return
+
+    def testAddRoAnnotationIsAggregated(self):
+        rodir = self.createTestRo(testbase, "data/ro-test-1",
+            "Test add RO annotation", "ro-testRoAnnotate")
+        romd  = ro_metadata.ro_metadata(ro_config, rodir)
+        roresource = "."
+        # Add anotations for RO
+        romd.addSimpleAnnotation(roresource, "note", "Research object for annotation testing")
+        # Retrieve the anotations
+        rouri           = romd.getRoUri()
+        addedannotation = (rouri, ROTERMS.note, rdflib.Literal('Research object for annotation testing'))
+        annotations     = romd.getRoAnnotations()
+        self.assertIn(addedannotation, annotations)
+        for (a, p) in romd.manifestgraph.subject_predicates(object=rouri):
+            if p in [AO.annotatesResource, RO.annotatesAggregatedResource]:
+                b = romd.manifestgraph.value(subject=a, predicate=AO.body)
+                if str(romd.getComponentUriRel(b)) != ro_test_config.ROMANIFESTPATH:
+                    aggregate_annbody = (rouri, ORE.aggregates, b)
+                    self.assertIn(aggregate_annbody, romd.manifestgraph)
         self.deleteTestRo(rodir)
         return
 
@@ -807,6 +828,7 @@ def getTestSuite(select="unit"):
             , "testCreateReadFileAnnotationBody"
             , "testGetInitialRoAnnotations"
             , "testAddGetRoAnnotations"
+            , "testAddRoAnnotationIsAggregated"
             , "testRemoveGetRoAnnotations"
             , "testReplaceGetRoAnnotations"
             , "testAddGetFileAnnotations"

@@ -218,24 +218,32 @@ class ro_metadata(object):
         #   </ro:AggregatedAnnotation>
         # </ore:aggregates>
         log.debug("_addAnnotationToManifest annfile %s"%(annfile))
-        ann = rdflib.BNode()
+        ann     = rdflib.BNode()
+        resuri  = self.getComponentUri(rofile)
+        bodyuri = self.getComponentUriAbs(annfile)
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
-        self.manifestgraph.add((ann, RO.annotatesAggregatedResource,
-            self.getComponentUri(rofile)))
-        self.manifestgraph.add((ann, AO.body,
-            self.getComponentUriAbs(annfile)))
-        self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
+        self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
+        self.manifestgraph.add((ann, AO.body, bodyuri))
+        # Aggregate annotation body if it is RO metadata.
+        # Otherwaise aggregation is the caller's responsibility
+        if self.isRoMetadataRef(bodyuri):
+            self.manifestgraph.add((self.getRoUri(), ORE.aggregates, bodyuri))
         return
 
-    def _removeAnnotationFromManifest(self, annbody):
+    def _removeAnnotationFromManifest(self, ann):
         """
-        Remove references to an annotation body from an RO graph
+        Remove references to an annotation from an RO graph
 
-        annbody     is the the annotation body node to be removed
+        ann         is the the annotation node to be removed
         """
         assert self._isLocal()
-        self.manifestgraph.remove((annbody, None,           None   ))
-        self.manifestgraph.remove((None,    ORE.aggregates, annbody))
+        bodyuri = self.manifestgraph.value(subject=ann, predicate=AO.body)
+        self.manifestgraph.remove((ann, None, None   ))
+        # If annotation body is RO Metadata, and there are no other uses as an annotation,
+        # remove it from the RO aggregation.
+        if self.isRoMetadataRef(bodyuri):
+            if not self.manifestgraph.value(subject=ann, predicate=AO.body):
+                self.manifestgraph.remove((None, ORE.aggregates, bodyuri))
         return
 
     def addAggregatedResources(self, ro_file, recurse=True, includeDirs=False):
@@ -253,10 +261,15 @@ class ro_metadata(object):
             #if ro_file.endswith(os.path.sep):
             #    ro_file = ro_file[0:-1]
             if recurse:
-                rofiles = filter( notHidden,
-                                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, baseDir=basedir,
-                                        listDirs=includeDirs, listFiles=True, recursive=recurse, appendSep=True)
-                                )
+                rofiles = filter(notHidden,
+                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, 
+                          baseDir=basedir,
+                          listDirs=includeDirs, 
+                          listFiles=True, 
+                          recursive=recurse, 
+                          appendSep=True
+                          )
+                    )
             else:
                 rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
         else:
@@ -316,7 +329,6 @@ class ro_metadata(object):
         ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
         ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
         ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
-        ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
         self._updateManifest()
         return
 
