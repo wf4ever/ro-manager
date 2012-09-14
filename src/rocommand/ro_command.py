@@ -120,9 +120,9 @@ ro_command_usage = (
     , ( ["evaluate","eval"], argminmax(5,6),
           ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"] )
     , ( ["push"],            argminmax(2,2),
-          ["push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
+          ["push -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
     , ( ["checkout"],        argminmax(2,3),
-          ["checkout [ <RO-name> [ -d <dir>] ] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
+          ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"] )
     ])
 
 def check_command_args(progname, options, args):

@@ -387,7 +387,7 @@ Displays all annotations for the indicated RO and all its components.</P>
 displayed. Default is the current directory.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__931_375509825"></A><A NAME="__RefHeading__352_375509825"></A>
 ro checkout</H2>
-<PRE>  ro checkout [ <I>RO-identifier</I> ] [ -d <I>dir</I> ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
+<PRE>  ro checkout <I>RO-identifier</I> [ -d <I>dir</I> ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
 Retrieves an RO from an RO repository, and creates or updates an
 equivalent object in the local host file system.</P>
 <P><CODE><I>RO-identifier</I></CODE> identifies the RO in the
@@ -395,12 +395,13 @@ repository. If it is ommitted, all ROs created by the user are downloaded.</P>
 <P><CODE><I>dir</I></CODE> is the directory to which the RO will be
 retrieved. Default is the current directory.</P>
 <P><CODE><I>rosrs-uri</I></CODE> is the URI of the RO Storage and
-Retrieval Service (RO SRS) to be used. This effectively addresses the
+Retrieval Service (RO SRS) to be used, example: http://sandbox.wf4ever-project.org/rodl/ROs/. 
+This effectively addresses the
 repository (RO DL) from which the RO is accessed. Default is the
 value specified previously using the <CODE>ro config</CODE> command.</P>
 <P><CODE><I>access_token</I></CODE> is used to identify the user and authorize
-access to RO DL. It can by generate from the <a href="http://sandbox.wf4ever-project.org/users2/">
-User Management Application</a>. Default is the value
+access to RO DL. It can by generate from the <a href="http://sandbox.wf4ever-project.org/portal2/">
+RO Portal</a>. Default is the value
 specified previously using the <CODE>ro config</CODE> command.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__933_375509825"></A><A NAME="__RefHeading__354_375509825"></A>
 ro config</H2>
@@ -416,7 +417,8 @@ been retained in the current RO SRS version of RO-manager as a guard
 against accidental manipulation of files outside the area intended
 for storing ROs.)</P>
 <P><CODE><I>rosrs-uri</I></CODE> is the URI of the RO Storage and
-Retrieval Service (RO SRS) to be used. This effectively addresses the
+Retrieval Service (RO SRS) to be used, example: http://sandbox.wf4ever-project.org/rodl/ROs/. 
+This effectively addresses the
 repository (RO DL) from which the RO is accessed.</P>
 <P><CODE><I>username</I></CODE> and <CODE><I>password</I></CODE> are
 the credentials used when accessing RO SRS.</P>
@@ -465,18 +467,19 @@ listed</P>
 <P>@@probably should have options to display files, manifest or both.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__943_375509825"></A><A NAME="__RefHeading__364_375509825"></A>
 ro push</H2>
-<PRE STYLE="margin-bottom: 0.5cm">  ro push [ -d <I>dir</I> ] [ -f ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
+<PRE STYLE="margin-bottom: 0.5cm">  ro push -d <I>dir</I> [ -f ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
 Saves an RO from the local host file system to an RO repository,
 creating or updating an RO stored there.</P>
 <P><CODE><I>dir</I></CODE> is the directory from which the RO will be
-saved. Default is the current directory.</P>
+saved.</P>
 <P><CODE><I>rosrs-uri</I></CODE> is the URI of the RO Storage and
-Retrieval Service (RO SRS) to be used. This effectively addresses the
+Retrieval Service (RO SRS) to be used, example: http://sandbox.wf4ever-project.org/rodl/ROs/. 
+This effectively addresses the
 repository (RO DL) from which the RO is accessed. Default is the
 value specified previously using the <CODE>ro config</CODE> command.</P>
 <P><CODE><I>access_token</I></CODE> is used to identify the user and authorize
-access to RO DL. It can by generate from the <a href="http://sandbox.wf4ever-project.org/users2/">
-User Management Application</a>. Default is the value
+access to RO DL. It can by generate from the <a href="http://sandbox.wf4ever-project.org/portal2/">
+RO Portal</a>. Default is the value
 specified previously using the <CODE>ro config</CODE> command.</P>
 <P>@@Currently all files in the RO folder are sent to RO DL, but in the future only those aggregated in the manifest will be sent.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__945_375509825"></A><A NAME="__RefHeading__366_375509825"></A>
