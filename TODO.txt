@@ -123,7 +123,7 @@ Option table
   -t
 ("-u", "--rosrs-username",      help="ROSRS username")
 ("-v", "--verbose",             help="display verbose output")
-  -w
+("-w", "--wildcard", "--regexp", help="Interpret annotation target as wildcard/regexp for pattern matching")
   -x
   -y
   -z

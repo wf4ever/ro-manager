@@ -168,6 +168,7 @@ def readAnnotationBody(rodir, annotationfile):
     """
     Read annotation body from indicated file, return RDF Graph of annotation values.
     """
+    log.debug("readAnnotationBody: %s, %s"%(rodir, annotationfile))
     annotationfilename = makeComponentFilename(rodir, annotationfile)
     if not os.path.exists(annotationfilename): return None
     annotationformat   = "xml"
@@ -426,6 +427,7 @@ def getAllAnnotations(ro_dir):
     #@@TODO refactor common code with getRoAnnotations, etc.
     for (ann_node, subject) in ro_graph.subject_objects(predicate=RO.annotatesAggregatedResource):
         ann_uri   = ro_graph.value(subject=ann_node, predicate=AO.body)
+        log.debug("- ann_uri %s"%(str(ann_uri)))
         ann_graph = readAnnotationBody(ro_dir, ro_manifest.getComponentUriRel(ro_dir, ann_uri))
         if ann_graph == None:
             log.debug("No annotation graph: ann_uri: "+str(ann_uri))

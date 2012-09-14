@@ -201,6 +201,29 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testAnnotateFileWithEscapes(self):
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile1 = rodir+"/"+"filename with spaces.txt"
+        rofile2 = rodir+"/"+"filename#with#hashes.txt"
+        with SwitchStdout(self.outstr):
+            for rofile in [rofile1,rofile2]:
+                args = ["ro", "annotate", rofile, "type", "atype"]
+                status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+                outtxt = self.outstr.getvalue()
+                assert status == 0, outtxt
+        # Reset output stream buffer closed
+        self.outstr = StringIO.StringIO()
+        # Read manifest and check for annotation
+        for rofile in [rofile1,rofile2]:
+            resourceuri = ro_manifest.getComponentUri(rodir, rofile)
+            annotations = ro_annotation._getFileAnnotations(rodir, rofile)
+            next = annotations.next()
+            self.assertEqual(next, (resourceuri, DCTERMS.type, rdflib.Literal("atype")))
+            self.assertRaises(StopIteration, annotations.next)
+        # Clean up
+        self.deleteTestRo(rodir)
+        return
+
     # Test annotation display
     def testAnnotationDisplayRo(self):
         # Construct annotated RO
@@ -322,6 +345,97 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    # Test annotation with wildcard pattern
+    def testAnnotateWildcardPattern1(self):
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        self.populateTestRo(testbase, rodir)
+        # Apply annotation to filename pattern
+        rouri = ro_manifest.getRoUri(rodir)
+        args = ["ro", "annotate"
+               ,"-d", rodir+"/"
+               , "-w", "subdir./.*\\.txt$"
+               , "dcterms:description", "pattern annotation" ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        # Read manifest and check for annotation
+        annotations = ro_annotation.getAllAnnotations(rodir)
+        resource1uri = ro_manifest.getComponentUriAbs(rodir, "subdir1/subdir1-file.txt")
+        resource2uri = ro_manifest.getComponentUriAbs(rodir, "subdir2/subdir2-file.txt")
+        expected_annotations = (
+            [ ( rouri, DCTERMS.identifier,  rdflib.Literal('ro-testRoAnnotate')  )
+            , ( rouri, DCTERMS.description, rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.title,       rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.creator,     rdflib.Literal('Test User') )
+            , ( rouri, RDF.type,            RO.ResearchObject )
+            , ( resource1uri, DCTERMS.description, rdflib.Literal('pattern annotation') )
+            , ( resource2uri, DCTERMS.description, rdflib.Literal('pattern annotation') )
+            ])
+        count = 0
+        for next in list(annotations):
+            if ( not isinstance(next[2], rdflib.BNode) and
+                 not next[1] in [ORE.aggregates, DCTERMS.created] ):
+                log.debug("- next %s"%(str(next[0])) )
+                log.debug("       - (%s, %s)"%(str(next[1]),str(next[2])) )
+                if next in expected_annotations:
+                    count += 1
+                else:
+                    self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
+        self.assertEqual(count,7)
+        # Clean up
+        #self.deleteTestRo(rodir)
+        return
+
+    # Test annotation with wildcard pattern
+    def testAnnotateWildcardPattern2(self):
+        """
+        Same as previous test, but includes filenames with spaces and hashes
+        """
+        rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        self.populateTestRo(testbase, rodir)
+        # Apply annotation to filename pattern
+        rouri = ro_manifest.getRoUri(rodir)
+        args = ["ro", "annotate"
+               ,"-d", rodir+"/"
+               , "-w", "\\.txt$"
+               , "dcterms:description", "pattern annotation" ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        # Read manifest and check for annotation
+        annotations = ro_annotation.getAllAnnotations(rodir)
+        res_spc_uri = ro_manifest.getComponentUriAbs(rodir, "filename%20with%20spaces.txt")
+        res_hsh_uri = ro_manifest.getComponentUriAbs(rodir, "filename%23with%23hashes.txt")
+        resource1uri = ro_manifest.getComponentUriAbs(rodir, "subdir1/subdir1-file.txt")
+        resource2uri = ro_manifest.getComponentUriAbs(rodir, "subdir2/subdir2-file.txt")
+        expected_annotations = (
+            [ ( rouri, DCTERMS.identifier,  rdflib.Literal('ro-testRoAnnotate')  )
+            , ( rouri, DCTERMS.description, rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.title,       rdflib.Literal('RO test annotation') )
+            , ( rouri, DCTERMS.creator,     rdflib.Literal('Test User') )
+            , ( rouri, RDF.type,            RO.ResearchObject )
+            , ( res_spc_uri,  DCTERMS.description, rdflib.Literal('pattern annotation') )
+            , ( res_hsh_uri,  DCTERMS.description, rdflib.Literal('pattern annotation') )
+            , ( resource1uri, DCTERMS.description, rdflib.Literal('pattern annotation') )
+            , ( resource2uri, DCTERMS.description, rdflib.Literal('pattern annotation') )
+            ])
+        count = 0
+        for next in list(annotations):
+            if ( not isinstance(next[2], rdflib.BNode) and
+                 not next[1] in [ORE.aggregates, DCTERMS.created] ):
+                log.debug("- next %s"%(str(next[0])) )
+                log.debug("       - (%s, %s)"%(str(next[1]),str(next[2])) )
+                if next in expected_annotations:
+                    count += 1
+                else:
+                    self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
+        self.assertEqual(count,9)
+        # Clean up
+        #self.deleteTestRo(rodir)
+        return
+
     # Test display of annotations for entire RO
 
     # @@TODO: Test annotations shown in RO listing
@@ -365,10 +479,13 @@ def getTestSuite(select="unit"):
             , "testAnnotateTypeUri"
             , "testAnnotateTypeCurie"
             , "testAnnotateMultiple"
+            , "testAnnotateFileWithEscapes"
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"
             , "testAnnotateWithGraph"
             , "testAnnotateWithNotExistentGraph"
+            , "testAnnotateWildcardPattern1"
+            , "testAnnotateWildcardPattern2"
             ],
         "component":
             [ "testComponents"

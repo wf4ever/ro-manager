@@ -146,7 +146,7 @@ def getComponentUriAbs(ro_dir, path):
 
 def getComponentUriRel(ro_dir, path):
     #log.debug("getComponentUriRel: ro_dir %s, path %s"%(ro_dir, path))
-    file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(getComponentUri(ro_dir, path))))
+    file_uri = urlparse.urlunsplit(urlparse.urlsplit(str(getComponentUriAbs(ro_dir, path))))
     ro_uri   = urlparse.urlunsplit(urlparse.urlsplit(str(getRoUri(ro_dir))))
     #log.debug("getComponentUriRel: ro_uri %s, file_uri %s"%(ro_uri, file_uri))
     if ro_uri is not None and file_uri.startswith(ro_uri):
