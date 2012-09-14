@@ -20,7 +20,7 @@ TODO:
 * ro show config
 * ro create should fail if RO already created
 
-* Refactor sync code to use ro_metadata to access manifest
+* Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
 
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
@@ -28,8 +28,6 @@ TODO:
 ** Test that aggregated files actually exist - part of liveness?
 ** Target specification is very error prone
 ** Error handling when target not found is poor
-
-* option to change ro manifest aggregation details - ro modify?
 
 * ro users
 * ro create: create manifest file via rdflib serialization
@@ -40,7 +38,6 @@ TODO:
 Other functions:
 - display serialization of manifest graph
 - display serialization of annotation graph
-- read RO from web server
 
 Technical debt:
 - Mop up @@TODOs
@@ -95,6 +92,10 @@ DONE
 * Refactor ro_metadata to handle manifest access and updates locally, rather than via ro_annotations.
   Also, add logic to cache ro_annotation graph.
   (Keep ro_annotations for annotation support methods)
+
+* option to change ro manifest aggregation details - ro modify?  ro remove command added.
+
+- read RO from web server
 
 
 ----
