@@ -305,11 +305,15 @@ class TestAnnotations(TestROSupport.TestROSupport):
             [ (resourceuri, a["atypeuri"], rdflib.Literal(a["aexpect"]))
                 for a in define_annotations
             ])
-        for i in range(6):
-            next = annotations.next()
-            if ( next not in expected_annotations):
-                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
-        self.assertRaises(StopIteration, annotations.next)
+        count = 0
+        for next in list(annotations):
+            log.debug("- next %s"%(str(next[0])) )
+            log.debug("       - (%s, %s)"%(str(next[1]),str(next[2])) )
+            if next in expected_annotations:
+                count += 1
+            else:
+                self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
+        self.assertEqual(count,6)
         # Clean up
         self.deleteTestRo(rodir)
         return
@@ -335,12 +339,18 @@ class TestAnnotations(TestROSupport.TestROSupport):
             , ( rouri, DCTERMS.creator,     rdflib.Literal('Test User') )
             , ( rouri, RDF.type,            RO.ResearchObject )
             ])
-        for i in range(8):
-            next = annotations.next()
-            if (next not in expected_annotations
-                and not isinstance(next[2], rdflib.BNode)
-                and not next[1] == DCTERMS.created):
-                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
+        count = 0
+        for next in list(annotations):
+            if ( # not isinstance(next[2], rdflib.BNode) and
+                 not next[1] in [ORE.aggregates, DCTERMS.created] and
+                 not next[1] == DCTERMS.created ):
+                log.debug("- next %s"%(str(next[0])) )
+                log.debug("       - (%s, %s)"%(str(next[1]),str(next[2])) )
+                if next in expected_annotations:
+                    count += 1
+                else:
+                    self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
+        self.assertEqual(count,5)
         # Clean up
         self.deleteTestRo(rodir)
         return

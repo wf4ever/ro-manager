@@ -32,7 +32,7 @@ from MiscLib import TestUtils
 from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_annotation
-from rocommand.ro_namespaces import RDF, RDFS, ORE, RO, AO, DCTERMS
+from rocommand.ro_namespaces import RDF, RDFS, ORE, RO, ROEVO, AO, DCTERMS
 
 from ROSRS_Session import ROSRS_Error, ROSRS_Session
 
@@ -90,23 +90,29 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         (status, reason, rouri, manifest) = self.rosrs.createRO(Config.TEST_RO_NAME,
             "Test RO for ROSRSMetadata", "TestROSRSMetadata.py", "2012-09-11")
         self.assertEqual(status, 201)
+        # Include manifest as annotation of RO
+        (s1, r1, h1, manifesturi, manifest) = self.rosrs.getROManifest(rouri)
+        self.assertEqual(s1, 200)
+        (s2, r2, annuri) = self.rosrs.createROAnnotationExt(
+            rouri, rouri, manifesturi)
+        self.assertEqual(s2, 201)
         # Aggregate internal resource
         rescontent = "Resource content\n"
-        (s1, r1, proxyuri, resuri) = self.rosrs.aggregateResourceInt(
+        (s3, r3, proxyuri, resuri) = self.rosrs.aggregateResourceInt(
             rouri, Config.TEST_RESOURCE, ctype="text/plain", body=rescontent)
-        self.assertEqual(s1, 201)
-        self.assertEqual(r1, "Created")
+        self.assertEqual(s3, 201)
+        self.assertEqual(r3, "Created")
         self.assertEqual(str(resuri), str(rouri)+Config.TEST_RESOURCE)
         # Aggregate external resource
         externaluri = rdflib.URIRef(Config.TEST_EXTERNAL)
-        (s2, r2, proxyuri, resuri) = self.rosrs.aggregateResourceExt(
+        (s4, r4, proxyuri, resuri) = self.rosrs.aggregateResourceExt(
             rouri, externaluri)
-        self.assertEqual(s2, 201)
-        self.assertEqual(r2, "Created")
+        self.assertEqual(s4, 201)
+        self.assertEqual(r4, "Created")
         self.assertEqual(str(resuri), Config.TEST_EXTERNAL)
         return (status, reason, rouri, manifest)
 
-    def createTestAnnotation(self, rouri, resuri):
+    def createTestAnnotation(self, rouri, resuri, resref):
         annbody = """<?xml version="1.0" encoding="UTF-8"?>
             <rdf:RDF
                xmlns:dct="http://purl.org/dc/terms/"
@@ -115,11 +121,11 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
                xml:base="%(rouri)s"
             >
               <rdf:Description rdf:about="%(resuri)s">
-                <dct:title>Title for %(resuri)s</dct:title>
+                <dct:title>Title for %(resref)s</dct:title>
                 <rdfs:seeAlso rdf:resource="http://example.org/test" />
               </rdf:Description>
             </rdf:RDF>
-            """%{"rouri": str(rouri), "resuri": str(resuri)}
+            """%{"rouri": str(rouri), "resuri": str(resuri), "resref": resref}
         agraph = rdflib.graph.Graph()
         agraph.parse(data=annbody, format="xml")
         (status, reason, annuri, bodyuri) = self.rosrs.createROAnnotationInt(
@@ -144,7 +150,8 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
         exturi = romd.getComponentUriAbs(Config.TEST_EXTERNAL)
-        (status, reason, annuri, bodyuri) = self.createTestAnnotation(rouri, resuri)
+        resref = Config.TEST_RESOURCE
+        (status, reason, annuri, bodyuri) = self.createTestAnnotation(rouri, resuri, resref)
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
         #
@@ -162,7 +169,8 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
-        (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri)
+        resref = Config.TEST_RESOURCE
+        (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri, resref)
         self.assertEqual(status, 201)
         # Retrieve annotations
         anns = list(romd.getFileAnnotations(Config.TEST_RESOURCE))
@@ -178,22 +186,26 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         annotations = romd.getRoAnnotations()
         rouri = romd.getRoUri()
         expected_annotations = (
-            [ (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
-            , (rouri, DCTERMS.title,        rdflib.Literal('Test init RO annotation'))
-            , (rouri, DCTERMS.created,      rdflib.Literal('unknown'))
-            , (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
-            , (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
-            , (rouri, RDF.type,             RO.ResearchObject)
+            [ (rouri, RDF.type,             RO.ResearchObject)
+            , (rouri, RDF.type,             ROEVO.LiveRO)
+            , (rouri, ORE.isDescribedBy,    romd.getComponentUriAbs(ro_test_config.ROMANIFESTPATH))
+            #, (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
+            #, (rouri, DCTERMS.title,        rdflib.Literal('Test init RO annotation'))
+            #, (rouri, DCTERMS.created,      rdflib.Literal('unknown'))
+            #, (rouri, DCTERMS.creator,      rdflib.Literal('Test User'))
+            #, (rouri, DCTERMS.identifier,   rdflib.Literal('ro-testRoAnnotate'))
             ])
-        for i in range(6+1):      # Annotations + aggregations
-            next = annotations.next()
-            log.debug("Next %s"%(repr(next)))
-            if ( next not in expected_annotations and
-                 next[1] != DCTERMS.created       and
-                 next[1] != ORE.aggregates        ):
-                self.assertTrue(False, "Not expected (%d) %s"%(i, repr(next)))
-        self.assertRaises(StopIteration, annotations.next)
-        self.deleteTestRo(rodir)
+        count = 0
+        for next in list(annotations):
+            if ( not isinstance(next[2], rdflib.BNode) and
+                 not next[1] in [ORE.aggregates, DCTERMS.created, DCTERMS.creator] ):
+                log.debug("- next %s"%(str(next[0])) )
+                log.debug("       - (%s, %s)"%(str(next[1]),str(next[2])) )
+                if next in expected_annotations:
+                    count += 1
+                else:
+                    self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
+        self.assertEqual(count,3)
         return
 
     def testQueryAnnotations(self):
@@ -201,7 +213,8 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
-        (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri)
+        resref = Config.TEST_RESOURCE
+        (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri, resref)
         self.assertEqual(status, 201)
         # Query the file anotations
         queryprefixes = """
@@ -217,7 +230,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
             ASK
             {
                 ?ro rdf:type ro:ResearchObject ;
-                    dcterms:creator "Test User" .
+                    dcterms:creator ?user .
             }
             """)
         resp = romd.queryAnnotations(query)
@@ -226,7 +239,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
             """
             ASK
             {
-                %(resuri)s dcterms:title ?title .
+                <%(resuri)s> dcterms:title ?title .
             }
             """%{"resuri": str(resuri)})
         resp = romd.queryAnnotations(query)
@@ -245,68 +258,16 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
             """
             SELECT * WHERE
             {
-                ?res dcterms:title ?title .
+                ?ro rdf:type ro:ResearchObject ;
+                    ore:aggregates ?file .
+                ?file dcterms:title ?title .
             }
             """)
         rouri       = romd.getRoUri()
-        resourceuri = romd.getComponentUri(roresource)
         resp = romd.queryAnnotations(query)
-        self.assertEqual(resp[0]['ro'],   rouri)
-        self.assertEqual(resp[0]['file'], romd.getComponentUri(roresource))
-        self.assertEqual(resp[0]['date'], rdflib.Literal("2011-12-07"))
-        self.deleteTestRo(rodir)
-        return
-
-    def testQueryAnnotationsRemote(self):
-        romd  = ro_metadata.ro_metadata(
-            ro_config,
-            "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
-            )
-        # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
-        query = (queryprefixes +
-            """
-            ASK
-            {
-                ?ro rdf:type ro:ResearchObject ;
-                    dcterms:creator "Test user" ;
-                    ore:aggregates ?file .
-            }
-            """)
-        resp = romd.queryAnnotations(query)
-        self.assertTrue(resp, "Expected 'True' result for query: %s")
-        query = (queryprefixes +
-            """
-            ASK
-            {
-                ?ro rdf:type ro:ResearchObject ;
-                    dcterms:creator "Not user" .
-            }
-            """)
-        resp = romd.queryAnnotations(query)
-        self.assertFalse(resp, "Expected 'False' result for query: %s")
-        query = (queryprefixes +
-            """
-            SELECT * WHERE
-            {
-                ?ro rdf:type ro:ResearchObject ;
-                    dcterms:creator "Test user" ;
-                    ore:aggregates ?file .
-            }
-            """)
-        rouri       = romd.getRoUri()
-        resourceuri = romd.getComponentUri("README")
-        resp = romd.queryAnnotations(query)
-        self.assertEqual(resp[0]['ro'],   rouri)
-        aggs = [ respn['file'] for respn in resp ]
-        self.assertIn( resourceuri, aggs, repr(aggs))
+        self.assertEqual(resp[0]['ro'],    rouri)
+        self.assertEqual(resp[0]['file'],  resuri)
+        self.assertEqual(resp[0]['title'], rdflib.Literal("Title for %s"%(Config.TEST_RESOURCE)))
         return
 
     # Sentinel/placeholder tests
@@ -353,7 +314,6 @@ def getTestSuite(select="unit"):
             ],
         "pending":
             [ "testPending"
-            , "testQueryAnnotationsRemote"
             ]
         }
     return TestUtils.getTestSuite(TestROSRSMetadata, testdict, select=select)

@@ -29,6 +29,7 @@ ao      = rdflib.URIRef("http://purl.org/ao/")
 ore     = rdflib.URIRef("http://www.openarchives.org/ore/terms/")
 foaf    = rdflib.URIRef("http://xmlns.com/foaf/0.1/")
 ro      = rdflib.URIRef("http://purl.org/wf4ever/ro#")
+roevo   = rdflib.URIRef("http://purl.org/wf4ever/roevo#")
 wfprov  = rdflib.URIRef("http://purl.org/wf4ever/wfprov#")
 wfdesc  = rdflib.URIRef("http://purl.org/wf4ever/wfdesc#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
@@ -47,6 +48,9 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
 RO = makeNamespace(ro, 
             [ "ResearchObject", "AggregatedAnnotation"
             , "annotatesAggregatedResource" # @@TODO: deprecated
+            ])
+ROEVO = makeNamespace(roevo, 
+            [ "LiveRO"
             ])
 ORE = makeNamespace(ore,
             [ "Aggregation", "AggregatedResource", "Proxy"

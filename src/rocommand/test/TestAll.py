@@ -19,6 +19,7 @@ import TestLinks
 import TestMinimAccess
 import TestEvalChecklist
 import TestROSRS_Session
+import TestROSRSMetadata
 import TestSyncCommands
 import TestRemoteROMetadata
 import TestRosrsSync
@@ -38,6 +39,7 @@ def getTestSuite(select="unit"):
         suite.addTest(TestROSRS_Session.getTestSuite(select=select))
         suite.addTest(TestRosrsSync.getTestSuite(select=select))
         suite.addTest(TestRemoteROMetadata.getTestSuite(select=select))
+        suite.addTest(TestROSRSMetadata.getTestSuite(select=select))
         suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
