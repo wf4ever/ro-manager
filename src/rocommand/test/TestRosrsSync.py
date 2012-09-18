@@ -21,9 +21,9 @@ from rocommand.test import TestROSupport
 from rocommand.test.TestConfig import ro_test_config
 from rocommand.ro_metadata import ro_metadata
 from rocommand.ro_remote_metadata import ro_remote_metadata, createRO, deleteRO
-from rocommand.HTTPSession import HTTP_Session
 from rocommand import ro_rosrs_sync
 from rocommand.ro_namespaces import ROTERMS
+from rocommand.ROSRS_Session import ROSRS_Session
 
 # Local ro_config for testing
 ro_config = {
@@ -43,7 +43,7 @@ class TestRosrsSync(TestROSupport.TestROSupport):
 
     def setUp(self):
         super(TestRosrsSync, self).setUp()
-        self.rosrs = HTTP_Session(ro_test_config.ROSRS_URI,
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         return
 

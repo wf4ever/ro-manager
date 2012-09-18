@@ -33,7 +33,7 @@ from MiscLib import TestUtils
 from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_remote_metadata
-from rocommand.HTTPSession import HTTP_Session
+from rocommand.ROSRS_Session import ROSRS_Session
 from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
 from rocommand.ro_annotation import annotationTypes
 
@@ -77,7 +77,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         assert True, 'Null test failed'
         
     def testCreateRo(self):
-        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())  
         (status, reason, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         if status == 409:
@@ -89,7 +89,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         """
         Test function that adds aggregated resources to a research object manifest
         """
-        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())      
         (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
@@ -132,7 +132,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         """
         Test functions that identify external and internal resource
         """
-        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())      
         (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
@@ -147,7 +147,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         return
 
     def testGetAsZip(self):
-        httpsession = HTTP_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         roid = "romanagertest-" + str(uuid.uuid4())      
         (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)

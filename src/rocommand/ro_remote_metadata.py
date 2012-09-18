@@ -78,7 +78,7 @@ def createRO(httpsession, roid, title = None, creator = None, date = None):
         }
     roinfotext = json.dumps(roinfo)
     (status, reason, headers, data) = httpsession.doRequestRDF("",
-        method="POST", body=roinfotext, headers=reqheaders)
+        method="POST", body=roinfotext, reqheaders=reqheaders)
     log.debug("ROSRS_session.createRO: %03d %s: %s"%(status, reason, repr(data)))
     if status == 201:
         return (status, reason, rdflib.URIRef(headers["location"]), data)
@@ -280,6 +280,7 @@ class ro_remote_metadata(object):
                             "Proxy URI %s"%str(proxyuri))
         resuri   = rdflib.URIRef(links["http://www.openarchives.org/ore/terms/proxyFor"])
         # PUT resource content to indicated URI
+        log.debug("Ctype=%s"%ctype)
         (status, reason, headers, _) = self.httpsession.doRequest(resuri,
             method="PUT", ctype=ctype, body=body)
         if status not in [200,201]:

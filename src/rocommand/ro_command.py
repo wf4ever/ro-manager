@@ -31,7 +31,7 @@ import ro_uriutils
 from ro_annotation import annotationTypes, annotationPrefixes
 from ro_metadata   import ro_metadata
 import ro_remote_metadata
-from HTTPSession import HTTP_Session
+from ROSRS_Session import ROSRS_Session 
 import ro_rosrs_sync
 
 from iaeval import ro_eval_minim
@@ -581,7 +581,7 @@ def push(progname, configbase, options, args):
     roId = ro_dir.replace(ro_config["robase"], "", 1)
     if roId.startswith("/"): 
         roId = roId.replace("/", "", 1)
-    rosrs = HTTP_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
+    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
     (status, _, rouri,_) = ro_remote_metadata.createRO(rosrs, roId)
     if status == 201:
         print "Created RO: %s"%(rouri)

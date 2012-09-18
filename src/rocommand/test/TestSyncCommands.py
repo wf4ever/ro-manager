@@ -31,7 +31,7 @@ if __name__ == "__main__":
 from MiscLib import TestUtils
 
 from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation, ro_settings
-from rocommand.HTTPSession import HTTP_Session
+from rocommand.ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -85,7 +85,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
-        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -96,7 +96,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
         # Clean up
         self.deleteTestRo(rodir)
-        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         return
 
@@ -165,7 +165,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         # delete the checked out copy
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
-        httpsession = HTTP_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_checkout/")
         return
 
