@@ -6,6 +6,7 @@ Created on 22-08-2012
 
 import logging
 import rdflib
+import mimetypes
 
 from rocommand import ro_uriutils
 
@@ -26,6 +27,7 @@ def pushResearchObject(localRo, remoteRo, force = False):
     Scans a given RO version directory for files that have been modified since last synchronization
     and pushes them to ROSRS. Modification is detected by checking modification times and checksums.
     '''        
+    mimetypes.init()
     for localResuri in localRo.getAggregatedResources():
         respath = localRo.getComponentUriRel(localResuri)
         if not remoteRo.isAggregatedResource(respath):
@@ -41,8 +43,8 @@ def pushResearchObject(localRo, remoteRo, force = False):
                     currentChecksum = localRo.calculateChecksum(filename)
                     rf = open(filename, 'r')
                     (status, reason, headers, resuri) = remoteRo.aggregateResourceInt(
-                                             respath, 
-                                              localRo.getResourceType(respath), 
+                                              respath, 
+                                              mimetypes.guess_type(respath)[0], 
                                               rf)
                     localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
                     localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
@@ -83,7 +85,7 @@ def pushResearchObject(localRo, remoteRo, force = False):
                     if overwrite:
                         rf = open(ro_uriutils.getFilenameFromUri(localResuri), 'r')
                         (status, reason, headers, resuri) = remoteRo.updateResourceInt(respath, 
-                                                   localRo.getResourceType(localResuri),
+                                                   mimetypes.guess_type(localResuri)[0],
                                                    rf)
                         localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
                         localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
