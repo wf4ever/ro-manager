@@ -32,16 +32,20 @@ def pushResearchObject(localRo, remoteRo, force = False):
             log.debug("ResourceSync.pushResearchObject: %s does was not aggregated in the remote RO"%(respath))
             if localRo.isInternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is internal"%(localResuri))
-                yield (ACTION_AGGREGATE_INTERNAL, respath)
-                filename = ro_uriutils.getFilenameFromUri(localResuri)
-                currentChecksum = localRo.calculateChecksum(filename)
-                rf = open(filename, 'r')
-                (status, reason, headers, resuri) = remoteRo.aggregateResourceInt(
-                                         respath, 
-                                          localRo.getResourceType(respath), 
-                                          rf)
-                localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
-                localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
+                if localRo.isAnnotationNode(respath):
+                    # annotations are handled separately
+                    pass
+                else:
+                    yield (ACTION_AGGREGATE_INTERNAL, respath)
+                    filename = ro_uriutils.getFilenameFromUri(localResuri)
+                    currentChecksum = localRo.calculateChecksum(filename)
+                    rf = open(filename, 'r')
+                    (status, reason, headers, resuri) = remoteRo.aggregateResourceInt(
+                                             respath, 
+                                              localRo.getResourceType(respath), 
+                                              rf)
+                    localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
+                    localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
             elif localRo.isExternalResource(localResuri):
                 log.debug("ResourceSync.pushResearchObject: %s is external"%(localResuri))
                 yield (ACTION_AGGREGATE_EXTERNAL, respath)

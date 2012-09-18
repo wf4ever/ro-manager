@@ -67,9 +67,9 @@ class TestRosrsSync(TestROSupport.TestROSupport):
 #        localRo.aggregateResourceExt("http://www.example.org")
         roresource = "subdir1/subdir1-file.txt"
         # Add anotations for file
-        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
-        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
-        localRo.addSimpleAnnotation(roresource, "rdf:type",     ROTERMS.resource)
+        ann1 = localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        ann2 = localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
+        ann3 = localRo.addSimpleAnnotation(roresource, "rdf:type",     ROTERMS.resource)
         annotationsCnt = 0
         
         deleteRO(self.rosrs, urlparse.urljoin(self.rosrs.baseuri(), "TestPushRO/"))
@@ -84,6 +84,9 @@ class TestRosrsSync(TestROSupport.TestROSupport):
           , rdflib.URIRef("subdir2/subdir2-file.txt")
           , rdflib.URIRef("filename%20with%20spaces.txt")
           , rdflib.URIRef("filename%23with%23hashes.txt")
+          , rdflib.URIRef(ann1)
+          , rdflib.URIRef(ann2)
+          , rdflib.URIRef(ann3)
           ])
         resourcesIntCnt = 0
         
