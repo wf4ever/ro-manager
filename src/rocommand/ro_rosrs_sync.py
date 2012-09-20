@@ -75,11 +75,11 @@ def pushResearchObject(localRo, remoteRo, force = False):
                     previousChecksum = localRo.getRegistries().get("%s,checksum"%filename, None)
                     overwrite = False
                     if not previousETag or previousETag != currentETag:
-                        log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS"%(respath))
+                        log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS (ETag was %s is %s)"%(respath, previousETag, currentETag))
                         yield (ACTION_UPDATE_OVERWRITE, respath)
                         overwrite = True
                     elif not previousChecksum or previousChecksum != currentChecksum:
-                        log.debug("ResourceSync.pushResearchObject: %s has been modified locally"%(respath))
+                        log.debug("ResourceSync.pushResearchObject: %s has been modified locally (checksum was %s is %s)"%(respath, previousChecksum, currentChecksum))
                         yield (ACTION_UPDATE, respath)
                         overwrite = True
                     if overwrite:

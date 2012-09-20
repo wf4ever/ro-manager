@@ -117,6 +117,9 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         for (action, resuri) in ro_rosrs_sync.pushResearchObject(localRo, remoteRo):
             if action == ro_rosrs_sync.ACTION_UPDATE_ANNOTATION:
                 self.assertTrue(localRo.isAnnotationNode(resuri), "Annotations that is updated is aggregated locally (%s)"%(resuri))
+            elif action == ro_rosrs_sync.ACTION_UPDATE_OVERWRITE:
+                # see https://jira.man.poznan.pl/jira/browse/WFE-671
+                self.assertTrue(resuri in [rdflib.URIRef(ann1), rdflib.URIRef(ann2), rdflib.URIRef(ann3)], "Annotation bodies can be uploaded twice")
             elif not action == ro_rosrs_sync.ACTION_SKIP:
                 self.fail("Nothing else should be pushed again (%s, %s)"%(action, resuri))
 
