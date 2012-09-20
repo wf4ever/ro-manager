@@ -216,7 +216,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             , (rouri, ROTERMS.note,         rdflib.Literal('Research object for annotation testing'))
             , (rouri, DCTERMS.description,  rdflib.Literal('Added description'))
             ])
-        for i in range(9+4):      # Annotations + aggregations
+        for i in range(9+4+3):      # Annotations + aggregations + aggregated annotations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
             if ( next not in expected_annotations and
@@ -409,7 +409,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             , (resourceuri, DCTERMS.created,      rdflib.Literal('2011-12-07'))
             , (resourceuri, RDF.type,             ROTERMS.resource)
             ])
-        for i in range(12+1+6):      # Annotations + aggregations
+        for i in range(12+1+6+6):      # Annotations + aggregations + aggregated annotations
             next = annotations.next()
             #log.debug("Next %s"%(repr(next)))
             if ( next not in expected_annotations and
