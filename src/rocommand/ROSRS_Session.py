@@ -541,7 +541,7 @@ class ROSRS_Session(object):
 
     def createROAnnotation(self, rouri, resuri, bodyuri):
         """
-        Create an annotation for supplied resource using imndiocated body
+        Create an annotation stub for supplied resource using indicated body
         
         Returns: (status, reason, annuri)
         """
