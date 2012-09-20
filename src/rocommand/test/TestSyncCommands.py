@@ -90,7 +90,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("Resource uploaded:"), 6)
+        self.assertEqual(self.outstr.getvalue().count("Resource uploaded:"), 8)
         self.assertEqual(self.outstr.getvalue().count("Resource deleted in ROSRS:"), 0)
         self.assertEqual(self.outstr.getvalue().count("Annotation pushed:"), 3)
         self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
@@ -147,8 +147,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
           , "robase/RO_test_ro_checkout/filename with spaces.txt"
           , "robase/RO_test_ro_checkout/filename#with#hashes.txt"
           , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
-#          , "robase/RO_test_ro_checkout/" + ann1
-#          , "robase/RO_test_ro_checkout/" + ann2
+          , "robase/RO_test_ro_checkout/" + ann1
+          , "robase/RO_test_ro_checkout/" + ann2
           ]
 
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
