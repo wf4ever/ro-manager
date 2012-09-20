@@ -250,6 +250,8 @@ class ro_metadata(object):
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))
+        # Aggregate the annotatiom
+        self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
         # Aggregate annotation body if it is RO metadata.
         # Otherwaise aggregation is the caller's responsibility
         if self.isRoMetadataRef(bodyuri):
@@ -526,13 +528,13 @@ class ro_metadata(object):
         return
     
     def replaceUri(self, ann_node, remote_ann_node_uri):
-        log.debug("Replacing %s with %s"%(ann_node, remote_ann_node_uri))
         for (p, o) in self.manifestgraph.predicate_objects(subject = ann_node):
             self.manifestgraph.remove((ann_node, p, o))
             self.manifestgraph.add((remote_ann_node_uri, p, o))
         for (s, p) in self.manifestgraph.subject_predicates(object = ann_node):
             self.manifestgraph.remove((s, p, ann_node))
             self.manifestgraph.add((s, p, remote_ann_node_uri))
+        self._updateManifest()
         return
 
     # Support methods for accessing the manifest graph
