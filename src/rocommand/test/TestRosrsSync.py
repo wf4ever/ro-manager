@@ -11,8 +11,6 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 import logging
-import random
-import string
 import os.path
 import rdflib
 from MiscLib import TestUtils

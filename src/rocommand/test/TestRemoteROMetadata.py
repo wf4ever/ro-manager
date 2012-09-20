@@ -4,14 +4,9 @@
 Module to test remote RO metadata handling class
 """
 
-import os, os.path
+import os.path
 import sys
-import re
-import shutil
-import unittest
 import logging
-import datetime
-import StringIO
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -30,15 +25,12 @@ import uuid
 
 from MiscLib import TestUtils
 
-from rocommand import ro_settings
-from rocommand import ro_metadata
 from rocommand import ro_remote_metadata
 from rocommand.ROSRS_Session import ROSRS_Session
-from rocommand.ro_namespaces import RDF, RO, ORE, DCTERMS, ROTERMS
+from rocommand.ro_namespaces import RO
 from rocommand.ro_annotation import annotationTypes
 
 from TestConfig import ro_test_config
-from StdoutContext import SwitchStdout
 
 from zipfile import ZipFile
 

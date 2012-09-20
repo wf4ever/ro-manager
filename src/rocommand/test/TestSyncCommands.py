@@ -10,8 +10,6 @@ import sys
 import os.path
 import filecmp
 import logging
-import random
-import string
 import shutil
 try:
     # Running Python 2.5 with simplejson?
@@ -19,8 +17,6 @@ try:
 except ImportError:
     import json
     
-from os import remove, path
-
 log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
