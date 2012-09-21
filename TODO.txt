@@ -15,6 +15,8 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
+* When creating resource, try to guess or retain media type information
+
 * Update documentation to reflect new link command
 
 * ro show config
