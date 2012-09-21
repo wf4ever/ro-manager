@@ -10,16 +10,13 @@ import sys
 import os.path
 import filecmp
 import logging
-import random
-import string
+import shutil
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
 except ImportError:
     import json
     
-from os import remove, path
-
 log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
@@ -28,10 +25,9 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscLib import TestUtils
-from sync.RosrsApi import RosrsApi
-from sync.ResourceSync import ResourceSync
 
-from rocommand import ro, ro_command
+from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation, ro_settings
+from rocommand.ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -40,43 +36,24 @@ import TestROSupport
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
 
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes":      ro_annotation.annotationTypes,
+    "annotationPrefixes":   ro_annotation.annotationPrefixes
+    }
+
+
 class TestSyncCommands(TestROSupport.TestROSupport):
     """
     Test sync ro commands
     """
     
-    files = ["subdir1/subdir1-file.txt"
-             , "subdir2/subdir2-file.txt"
-             , "README-ro-test-1"
-             , ".ro/manifest.rdf"
-             , "minim.rdf" ]
-
-    fileToModify = "subdir1/subdir1-file.txt"
-    fileToDelete = "README-ro-test-1"
-
-
     def setUp(self):
         super(TestSyncCommands, self).setUp()
-        self.ident1 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
-        self.ident2 = ''.join(random.choice(string.ascii_uppercase + string.digits) for x in range(16))
-        self.rodir = self.createTestRo(testbase, "data/ro-test-1", self.ident1, self.ident1)
-        self.rodir2 = self.createTestRo(testbase, "data/ro-test-1", self.ident2, self.ident2)
         return
 
     def tearDown(self):
         super(TestSyncCommands, self).tearDown()
-        self.deleteTestRo(self.rodir)
-        self.deleteTestRo(self.rodir2)
-        try:
-            api = RosrsApi(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-            ros = api.getRos()
-            for ro in ros:
-                try:
-                    api.deleteRoByUrl(ro)
-                except:
-                    pass
-        except:
-            pass
         return
 
     # Actual tests follow
@@ -84,95 +61,39 @@ class TestSyncCommands(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testPushAllForce(self):
-        """
-        Push all Research Objects to ROSRS, even unchanged.
-
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-        
-        args = [
-            "ro", "push",
-            "-v",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro push"), 1)
-        # must send each file exactly once
-        for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(self.rodir + "/" + f), 1)
-        return
-
-    def testPushAll(self):
-        """
-        Push all Research Objects to ROSRS.
-
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-
-        # first, send all        
-        args = [
-            "ro", "push",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        # touch one file in 1st RO
-        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
-            f.write("foobar")
-            f.close()
-        # delete one file in 2nd RO
-        remove(path.join(self.rodir2, self.fileToDelete))
-
-        # push again
-        args = [
-            "ro", "push",
-            "-v"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
-        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 1)
-        return
-
-    def testPushOneRO(self):
+    def testPush(self):
         """
         Push a Research Object to ROSRS.
 
         ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
-        # first, send all        
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
+        localRo  = ro_metadata.ro_metadata(ro_config, rodir)
+        localRo.addAggregatedResources(rodir, recurse=True)
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         args = [
             "ro", "push",
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        # touch one file in 1st RO
-        with open(path.join(self.rodir, self.fileToModify), 'a') as f:
-            f.write("foobar")
-            f.close()
-        # delete one file in 2nd RO
-        remove(path.join(self.rodir2, self.fileToDelete))
-
-        # push again, only 1st
-        args = [
-            "ro", "push",
-            "-d", self.rodir,
+            "-d", rodir,
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("Updated:"), 1)
-        self.assertEqual(self.outstr.getvalue().count("Deleted:"), 0)
+        self.assertEqual(self.outstr.getvalue().count("Resource uploaded:"), 8)
+        self.assertEqual(self.outstr.getvalue().count("Resource deleted in ROSRS:"), 0)
+        self.assertEqual(self.outstr.getvalue().count("Annotation pushed:"), 3)
+        self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
+        # Clean up
+        self.deleteTestRo(rodir)
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         return
 
     def testCheckout(self):
@@ -181,11 +102,20 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
         ro checkout [ <RO-identifier> ] [ -d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro checkout", "ro-testRoPush")
+        localRo  = ro_metadata.ro_metadata(ro_config, rodir)
+        localRo.addAggregatedResources(rodir, recurse=True)
+        roresource = "subdir1/subdir1-file.txt"
+        # Add anotations for file
+        ann1 = localRo.addSimpleAnnotation(roresource, "type",         "Test file")
+        ann2 = localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
         # push an RO
         args = [
             "ro", "push",
-            "-d", self.rodir,
-            "-f"
+            "-d", rodir,
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "a7685677-efd9-4b80-a",
+            "-v"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -193,65 +123,46 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         
         # check it out as a copy
         rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
-        os.rename(self.rodir, rodir2)
+        shutil.rmtree(rodir2, ignore_errors = True)
+        shutil.move(rodir, rodir2)
         args = [
-            "ro", "checkout", self.ident1,
+            "ro", "checkout", "RO_test_ro_checkout",
             "-d", ro_test_config.ROBASEDIR,
+            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
+        
+        files = [ "robase/RO_test_ro_checkout/README-ro-test-1"
+          , "robase/RO_test_ro_checkout/minim.rdf"
+          , "robase/RO_test_ro_checkout/subdir1/subdir1-file.txt"
+          , "robase/RO_test_ro_checkout/subdir2/subdir2-file.txt"
+          , "robase/RO_test_ro_checkout/filename with spaces.txt"
+          , "robase/RO_test_ro_checkout/filename#with#hashes.txt"
+          , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
+          , "robase/RO_test_ro_checkout/" + ann1
+          , "robase/RO_test_ro_checkout/" + ann2
+          ]
+
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
-        for f in self.files:
-            self.assertEqual(self.outstr.getvalue().count(f), 1)
-        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
+        for f in files:
+            self.assertEqual(self.outstr.getvalue().count(f), 1, "file: %s"%f)
+        self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(files)), 1)
         
         # compare they're identical, with the exception of registries.pickle
-        cmpres = filecmp.dircmp(rodir2, self.rodir)
-        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
+        cmpres = filecmp.dircmp(rodir2, rodir)
+        self.assertEquals(cmpres.left_only, [ro_settings.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
         # delete the checked out copy
+        self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
-        return
-
-    def testCheckoutAll(self):
-        """
-        Checkout a Research Object from ROSRS.
-
-        ro checkout [ <RO-identifier> ] [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]
-        """
-        args = [
-            "ro", "push",
-            "-d", self.rodir,
-            "-f"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        
-        rodir2 = os.path.join(ro_test_config.ROBASEDIR, self.ident2)
-        args = [
-            "ro", "checkout",
-            "-d", ro_test_config.ROBASEDIR,
-            "-v"
-            ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-        assert status == 0
-        self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
-        for f in self.files:
-            self.assertGreaterEqual(self.outstr.getvalue().count(f), 1, "counting %s" % f)
-        self.assertGreaterEqual(self.outstr.getvalue().count("%d files checked out" % len(self.files)), 1)
-        
-        cmpres = filecmp.dircmp(self.rodir, rodir2)
-        self.assertEquals(cmpres.left_only, [ResourceSync.REGISTRIES_FILE])
-        self.assertEquals(cmpres.right_only, [])
-        self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
-
-        self.deleteTestRo(rodir2)
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_checkout/")
         return
 
     # Sentinel/placeholder tests
@@ -288,11 +199,8 @@ def getTestSuite(select="unit"):
             ],
         "component":
             [ "testComponents"
-            , "testPushOneRO"
-            #, "testPushAll"
-            #, "testPushAllForce"
+            , "testPush"
             , "testCheckout"
-            , "testCheckoutAll"
             ],
         "integration":
             [ "testIntegration"

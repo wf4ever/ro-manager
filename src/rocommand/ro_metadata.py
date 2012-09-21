@@ -25,6 +25,8 @@ from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFrom
 from ROSRS_Session import ROSRS_Error, ROSRS_Session
 import ro_manifest
 import ro_annotation
+import json
+import hashlib
 
 
 class ro_metadata(object):
@@ -47,6 +49,7 @@ class ro_metadata(object):
         self.dummyfortest  = dummysetupfortest
         self.manifestgraph = None
         self.roannotations = None
+        self.registries = None
         uri = resolveFileAsUri(roref)
         if not uri.endswith("/"): uri += "/"
         self.rouri    = rdflib.URIRef(uri)
@@ -114,6 +117,14 @@ class ro_metadata(object):
                 yield anode
         return
 
+    def isAggregatedResource(self, rofile):
+        '''
+        Returns true if the manifest says that the research object aggregates the
+        resource. Resource URI is resolved against the RO URI unless it's absolute.
+        '''
+        resuri = self.getComponentUriAbs(rofile)
+        return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph
+
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
         # Assemble annotation graph
@@ -129,6 +140,21 @@ class ro_metadata(object):
         log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
 
+    def isInternalResource(self, resuri):
+        '''
+        Check if the resource is internal, i.e. should the resource content be uploaded
+        to the ROSR service. Returns true if the resource URI has the RO URI as a prefix.
+        '''
+        return resuri.startswith(self.rouri)
+
+    def isExternalResource(self, resuri):
+        '''
+        Check if the resource is external, i.e. can be aggregated as a URI reference.
+        Returns true if the URI has 'http' or 'https' scheme.
+        '''
+        parseduri = urlparse.urlsplit(resuri)
+        return parseduri.scheme in ["http", "https"]
+    
     def _createAnnotationBody(self, roresource, attrdict, defaultType="string"):
         """
         Create a new annotation body for a single resource in a research object, based
@@ -224,6 +250,8 @@ class ro_metadata(object):
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))
+        # Aggregate the annotatiom
+        self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
         # Aggregate annotation body if it is RO metadata.
         # Otherwaise aggregation is the caller's responsibility
         if self.isRoMetadataRef(bodyuri):
@@ -332,6 +360,17 @@ class ro_metadata(object):
         self._updateManifest()
         return
 
+    def isAnnotationNode(self, respath):
+        '''
+        Returns true if the manifest says that the research object aggregates the
+        annotation and it is an ro:AggregatedAnnotation.
+        Resource URI is resolved against the RO URI unless it's absolute.
+        '''
+        resuri = self.getComponentUriAbs(respath)
+        log.debug("isAnnotationNode: ro uri %s res uri %s"%(self.rouri, resuri))
+        return (self.rouri, ORE.aggregates, resuri) in self.manifestgraph and \
+            (resuri, RDF.type, RO.AggregatedAnnotation) in self.manifestgraph
+
     def addSimpleAnnotation(self, rofile, attrname, attrvalue, defaultType="string"):
         """
         Add a simple annotation to a file in a research object.
@@ -345,7 +384,7 @@ class ro_metadata(object):
         annfile  = self._createAnnotationBody(rofile, {attrname: attrvalue}, defaultType)
         self._addAnnotationToManifest(rofile, annfile)
         self._updateManifest()
-        return
+        return annfile
 
     def removeSimpleAnnotation(self, rofile, attrname, attrvalue):
         """
@@ -449,6 +488,17 @@ class ro_metadata(object):
         """
         return self.iterateAnnotations()
 
+    def getAllAnnotationNodes(self):
+        """
+        Returns iterator over all annotations aggregated within the RO
+
+        Each value returned by the iterator is a (annuri, bodyuri, target) triple.
+        """
+        for (ann_node, ann_target) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+            ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
+            yield (ann_node, ann_body, ann_target)
+        return
+
     def getAnnotationValues(self, rofile, attrname):
         """
         Returns iterator over annotation values for given subject and attribute
@@ -475,6 +525,16 @@ class ro_metadata(object):
 
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
+        return
+    
+    def replaceUri(self, ann_node, remote_ann_node_uri):
+        for (p, o) in self.manifestgraph.predicate_objects(subject = ann_node):
+            self.manifestgraph.remove((ann_node, p, o))
+            self.manifestgraph.add((remote_ann_node_uri, p, o))
+        for (s, p) in self.manifestgraph.subject_predicates(object = ann_node):
+            self.manifestgraph.remove((s, p, ann_node))
+            self.manifestgraph.add((s, p, remote_ann_node_uri))
+        self._updateManifest()
         return
 
     # Support methods for accessing the manifest graph
@@ -572,11 +632,49 @@ class ro_metadata(object):
 
     def getManifestFilename(self):
         """
-        Return manifesrt file name: used for local updates
+        Return manifest file name: used for local updates
         """
         assert self._isLocal()
         return os.path.join(self.getRoFilename(), ro_settings.MANIFEST_DIR+"/",
                             ro_settings.MANIFEST_FILE)
+        
+    def getRegistries(self):
+        '''
+        Load a dictionary of synchronization data from memory or from a JSON file.
+        '''
+        log.debug("Get registries")
+        if self.registries:
+            return self.registries
+        try:
+            rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'r')
+            self.registries = json.load(rf)
+        except IOError:
+            self.registries = dict()
+        except Exception as e:
+            log.exception(e)
+            self.registries = dict()
+        return self.registries
+        
+    def saveRegistries(self):
+        '''
+        Save a dictionary of synchronization data to a JSON file.
+        '''
+        log.debug("Save registries")
+        rf = open(os.path.join(self.getRoFilename(), ro_settings.REGISTRIES_FILE), 'w')
+        if self.registries:
+            json.dump(self.registries, rf)
+        return
+    
+    def calculateChecksum(self, rofile):
+        '''
+        Calculate a file checksum.
+        '''
+        m = hashlib.md5()
+        with open(rofile) as f:
+            for line in f:
+                m.update(line)
+            f.close()
+        return m.hexdigest()
 
 # End.
 

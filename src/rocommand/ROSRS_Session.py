@@ -160,7 +160,7 @@ class ROSRS_Session(object):
     * http://www.wf4ever-project.org/wiki/display/docs/User+Management+2
     """
 
-    def __init__(self, srsuri, accesskey):
+    def __init__(self, srsuri, accesskey = None):
         log.debug("ROSRS_Session.__init__: srsuri "+srsuri)
         self._srsuri    = srsuri
         self._key       = accesskey

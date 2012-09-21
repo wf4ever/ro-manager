@@ -13,7 +13,7 @@ import urllib
 import urlparse
 import logging
 
-import HTTPSession
+import ROSRS_Session
 
 log = logging.getLogger(__name__)
 
@@ -65,7 +65,7 @@ def isLiveUri(uriref):
     if isFileUri(fileuri):
         islive = os.path.exists(getFilenameFromUri(fileuri))
     else:
-        hs = HTTP_Session(uriref)
+        hs = ROSRS_Session(uriref)
         (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
         islive = (status == 200)
     return islive

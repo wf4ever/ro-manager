@@ -20,9 +20,9 @@ import TestMinimAccess
 import TestEvalChecklist
 import TestROSRS_Session
 import TestROSRSMetadata
-import TestRosrsApi
-import TestResourceSync
 import TestSyncCommands
+import TestRemoteROMetadata
+import TestRosrsSync
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
@@ -37,9 +37,9 @@ def getTestSuite(select="unit"):
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
     if select != "unit":
         suite.addTest(TestROSRS_Session.getTestSuite(select=select))
+        suite.addTest(TestRosrsSync.getTestSuite(select=select))
+        suite.addTest(TestRemoteROMetadata.getTestSuite(select=select))
         suite.addTest(TestROSRSMetadata.getTestSuite(select=select))
-        suite.addTest(TestRosrsApi.getTestSuite(select=select))
-        suite.addTest(TestResourceSync.getTestSuite(select=select))
         suite.addTest(TestSyncCommands.getTestSuite(select=select))
     return suite
 
