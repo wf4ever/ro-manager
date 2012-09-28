@@ -29,9 +29,9 @@ here = os.path.dirname(os.path.abspath(__file__))
 
 # @@TODO: use proper configuration and credentials
 ro_config = {
-    "annotationTypes":      annotationTypes
+    "annotationTypes":      annotationTypes,
     "annotationPrefixes":   annotationPrefixes,
-    "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/"
+    "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
     "rosrs_access_token":   "47d5423c-b507-4e1c-8", 
     }
 
