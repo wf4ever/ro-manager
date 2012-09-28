@@ -27,14 +27,6 @@ from iaeval.ro_minim import MINIM, RESULT
 log  = logging.getLogger(__file__)
 here = os.path.dirname(os.path.abspath(__file__))
 
-# @@TODO: use proper configuration and credentials
-ro_config = {
-    "annotationTypes":      annotationTypes,
-    "annotationPrefixes":   annotationPrefixes,
-    "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
-    "rosrs_access_token":   "47d5423c-b507-4e1c-8", 
-    }
-
 @view_config(route_name='hello', request_method='GET')
 def hello(request):
     #return Response(repr(request.host))
@@ -112,6 +104,14 @@ def real_evaluate(request):
     target  = request.params.get("target",".")
     purpose = request.params["purpose"]
     # create rometa object
+    # @@TODO: use proper configuration and credentials
+    ro_config = {
+        "annotationTypes":      annotationTypes,
+        "annotationPrefixes":   annotationPrefixes,
+        "rosrs_uri":            target,
+        #"rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
+        "rosrs_access_token":   "47d5423c-b507-4e1c-8", 
+        }
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
     #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
