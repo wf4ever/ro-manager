@@ -18,7 +18,7 @@ if __name__ == '__main__':
 from uritemplate import uritemplate
 
 from rocommand.ro_namespaces import RDF, RDFS
-from rocommand.ro_annotation import annotationTypes
+from rocommand.ro_annotation import annotationTypes, annotationPrefixes
 from rocommand.ro_metadata   import ro_metadata
 
 from iaeval          import ro_eval_minim
@@ -26,6 +26,14 @@ from iaeval.ro_minim import MINIM, RESULT
 
 log  = logging.getLogger(__file__)
 here = os.path.dirname(os.path.abspath(__file__))
+
+# @@TODO: use proper configuration and credentials
+ro_config = {
+    "annotationTypes":      annotationTypes
+    "annotationPrefixes":   annotationPrefixes,
+    "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/"
+    "rosrs_access_token":   "47d5423c-b507-4e1c-8", 
+    }
 
 @view_config(route_name='hello', request_method='GET')
 def hello(request):
@@ -104,9 +112,6 @@ def real_evaluate(request):
     target  = request.params.get("target",".")
     purpose = request.params["purpose"]
     # create rometa object
-    ro_config = {
-        "annotationTypes": annotationTypes
-        }
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
     #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
