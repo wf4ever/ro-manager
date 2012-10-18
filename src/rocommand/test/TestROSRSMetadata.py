@@ -53,7 +53,7 @@ ro_config = {
     }
 
 class Config:
-    #ROSRS_API_URI = "http://localhost:8080/ROs/"
+    #ROSRS_API_URI = "http://localhost:8082/ROs/"
     ROSRS_API_URI = ro_test_config.ROSRS_URI            # "http://sandbox.wf4ever-project.org/rodl/ROs/"
     AUTHORIZATION = ro_test_config.ROSRS_ACCESS_TOKEN   # "47d5423c-b507-4e1c-8"
     TEST_RO_NAME  = "TestROSRSMetadataRO"

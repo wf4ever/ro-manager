@@ -41,7 +41,7 @@ installed:
 
     cd (some working directory)
     git clone https://github.com/wf4ever/ro-manager.git ro-manager
-    cd ro-manager
+    cd ro-manager/src
     python setup.py build
     python setup.py install
     ro-manager-test
