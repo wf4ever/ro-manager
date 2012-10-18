@@ -13,7 +13,7 @@ mkdir -p $ROBASE
 
 ro config -v \
   -b $ROBASE \
-  -r http://sandbox.wf4ever-project.org/rosrs5 \
+  -r http://sandbox.wf4ever-project.org/rodl/ROs/ \
   -t "47d5423c-b507-4e1c-8" \
   -n "Test user" \
   -e "testuser@example.org"
