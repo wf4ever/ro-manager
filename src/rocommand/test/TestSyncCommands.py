@@ -78,7 +78,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "ro", "push",
             "-d", rodir,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "a7685677-efd9-4b80-a",
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
         httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
@@ -116,7 +116,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "ro", "push",
             "-d", rodir,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "a7685677-efd9-4b80-a",
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
         with SwitchStdout(self.outstr):
@@ -131,7 +131,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "ro", "checkout", "RO_test_ro_checkout",
             "-d", ro_test_config.ROBASEDIR,
             "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
-            "-t", "a7685677-efd9-4b80-a",
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
         with SwitchStdout(self.outstr):
