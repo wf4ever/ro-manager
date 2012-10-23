@@ -231,7 +231,7 @@ class ro_metadata(object):
         """
         Add a new annotation body to an RO graph
 
-        rofile      is the research object file being annotated
+        rofile      is the research object resource being annotated
         annfile     is the file name of the annotation body to be added,
                     possibly relative to the RO URI, with special characters
                     already URI-escaped.
@@ -246,7 +246,7 @@ class ro_metadata(object):
         log.debug("_addAnnotationToManifest annfile %s"%(annfile))
         ann     = rdflib.BNode()
         resuri  = self.getComponentUri(rofile)
-        bodyuri = self.getComponentUriAbs(annfile)
+        bodyuri = self.getComponentUriRel(annfile)
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))
