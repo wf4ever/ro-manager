@@ -81,7 +81,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "-t", "a7685677-efd9-4b80-a",
             "-v"
             ]
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+            accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
@@ -92,7 +93,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
         # Clean up
         self.deleteTestRo(rodir)
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+            accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
         return
 
@@ -161,7 +163,8 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         # delete the checked out copy
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/", "a7685677-efd9-4b80-a")
+        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+            accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_checkout/")
         return
 
