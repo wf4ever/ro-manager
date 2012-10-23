@@ -39,7 +39,6 @@ setup(
     url=URL,
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
-               ,'sync','sync.test'
                ,'MiscLib'
                ,'samples'
                ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
@@ -52,7 +51,6 @@ setup(
                         ,'test/data/data/*','test/data/docs/*'
                         ,'test/data/*.rdf'
                         ],
-        'sync':         ['test/config/*','test/robase/*'],
         'samples':      ['*.sh', '*.py', 'prefixes.*', 'README'],
         },
     exclude_package_data = {
