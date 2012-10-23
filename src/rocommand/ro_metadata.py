@@ -250,10 +250,10 @@ class ro_metadata(object):
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))
-        # Aggregate the annotatiom
+        # Aggregate the annotation
         self.manifestgraph.add((self.getRoUri(), ORE.aggregates, ann))
         # Aggregate annotation body if it is RO metadata.
-        # Otherwaise aggregation is the caller's responsibility
+        # Otherwise aggregation is the caller's responsibility
         if self.isRoMetadataRef(bodyuri):
             self.manifestgraph.add((self.getRoUri(), ORE.aggregates, bodyuri))
         return
@@ -353,10 +353,12 @@ class ro_metadata(object):
         """
         assert self._isLocal()
         ro_graph = self._loadManifest()
-        ann = rdflib.BNode()
-        ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-        ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
-        ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
+        self._addAnnotationToManifest(rofile, graph)
+        # ann = rdflib.BNode()
+        # ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
+        # ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
+        # ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
+        # ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
         self._updateManifest()
         return
 
