@@ -28,8 +28,8 @@ from ro_minim import MINIM
 
 def evaluate(rometa, minim, target, purpose):
     """
-    Evaluate a RO against a minimuminformation model for a particular
-    purpose with respect to a particular targetresource.
+    Evaluate a RO against a minimum information model for a particular
+    purpose with respect to a particular target resource.
 
     rometa      is an ro_metadata object used to access the RO being evaluated
     minim       is a URI-reference (relative to the RO, or absolute) of the
