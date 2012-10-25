@@ -1,0 +1,49 @@
+"Wf4Ever astrophysics user requirements","","","","","","",""
+"","","","","","","",""
+".keys","role","require","reason","benefit","impact","source","comment"
+".types","multiple","single","multiple","multiple","multiple","source","multiple"
+"","","","","","","",""
+".ref","1","D4.1","","","","",""
+".ref","2","D5.1","","","","",""
+"","","","","","","",""
+"Id","As a...","I want...","So that...","Benefit","Impact","Source","Comment"
+"","","","","(for me)","(to all)","",""
+"","","","","","","",""
+".start","","From D4.1","","","","",""
+"UA1","comparator","to know details about the data used as input to a workflow execution","I can know under which conditions was the original data retrieved, and the provenance of that data itself. It is extremely relevant to know the provenance/ conditions of your data in a sense these two factors are related with quality of the science involved in the workflow.","4","5","D4.1 [1]",""
+"","re-user","","","4","","",""
+"","evaluator","","","5","","",""
+"UA2","comparator, re-user, evaluator","to know the details about the data transformations that take place during the workflow execution","I can check all the transitory data. For astronomers this is quite important since they are looking to see what happens when one upgrades properties of objects in catalogues, and how this updates propagates to other quantities.","4","5","D4.1 [1]",""
+"UA3","comparator","to know the status of the decision points in the execution of a workflow","I can see the branches taken in a workflow execution and the rationale behind them","3","2","D4.1 [1]","OK as long as it does not affect the quality of the science"
+"","re-user, evaluator","","","4.5","","",""
+"UA4","comparator, re-user, evaluator","to move (back and forth) from different versions of the same RO/workflow","I can inspect their differences. This is very relevant, as the different versions of the same workflow may lead to better quality of science.","4.5","4","D4.1 [1]",""
+"UA5","comparator, re-user, evaluator","to navigate relevant metadata information by following the links among them and to have an advanced visualization of this information","I can have a more human-oriented presentation of and access to the metadata information. This is really important for the users since we are talking about visual influence over the user independently of his/her role; having all the data available with the touch of a click is a fundamental idea.","5","2.5","D4.1 [1]",""
+"UA6","comparator, re-user, evaluator","to visually see the evolution of Ros/workflows over time","I can see how they change from version to version. A picture is worth a 1000 words, and this is something that is valuable for Astronomy.","5","5","D4.1 [1]",""
+"UA7","comparator, re-user, evaluator","to express a (subjective) opinion about the quality of external data sources","I or my colleagues can use these external data sources with care. This is very controversial matter, as assessing the quality of data/articles/software is quite subjective. (Users might have biased opinions about data/services that make this a very complicated matter.) However, overall the importance for science is huge, as good quality data / reliable services all improve science.","3","4.5","D4.1 [1]",""
+"UA8","comparator, re-user, evaluator","to know the Quality of Service of external data sources","I can choose the most reliable ones among services of similar functionality.","3","4.5","D4.1 [1]","See UA7"
+"UA9","comparator, re-user, evaluator","to reproduce a scientific experiment consistently.","I can obtain the same results if the inputs and transformations are the same. This is very important; it means that if a workflow is clear enough to be reproducible and consistent, it saves time, and it is trustworthy. It also means that if you fully understand it you can improve it. If methodologies become easily repeatable, the science results can be easily verified by independent teams leading to accuracy and quality.","5","5","D4.1 [1]",""
+"UA10","comparator, re-user, evaluator","to debug a workflow","I can fix it if the results of their execution seem to be inconsistent, incomplete, etc. This is very important, as this directly affects the quality of you final product","5","5","D4.1 [1]",""
+".end","","","","","","",""
+"","","","","","","",""
+".start","","From D5.1","","","","",""
+"UA11","General User","to identify and choose the platform interface.","","","","D5.1 [2]","The collaborative platform should differentiate the specific basic stage of the RO lifecycle (Live Objects, Publication Objects, Archived Objects). Since the potential actions and decisions to be taken by the user depend on these different levels of the RO lifecycle, the user should have the possibility to choose whether working in a living RO platform or consulting the digital library of RO."
+"UA12","Collaborator,
+Re(User)","to build, manage, re-use and enact scientific workflows.","","","","D5.1 [2]","Given the current state of the art of astronomical workflows as characterized in this document, astronomers will need a tool for these tasks, as it is already the case with other scientific communities using software as Taverna. This workflow management tool should integrate access to both VO data repositories and VO compliant web services, considering communication and interoperability with widely used VO software as Topcat1, Aladin2 and VOSpec3
+The re(user) would also like to have the possibility to concatenate existing workflows and to extract useful components from RO (data, processes, web services, scripts) in order to use them in his own research."
+"UA13","Collaborator","to create a and share and research information in a research group","","","","D5.1 [2]","Seamless integration of newcomers in the Wf4Ever platform"
+"UA14","Reader,
+Comparator,
+Re(User),
+Evaluator,","to search and retrieve research information","","","","D5.1 [2]","The way searching and retrieving of research objects is performed would not be very different from current procedures for searching bibliography, allowing search in fields like author, abstract, keywords, publication dates, etc. Since a primary goal is to bring astronomers into the platform, thre are more chances of succeeding if proposing well-known friendly procedures. This is particularly relevant, and the concept of “familiarity” is a shared concern amongst astronomers and biologists (as mention in D6.1). In addition, providing the user with a good tagging system is also a common necessity amongst biologists and astronomers."
+"UA15","Collaborator","to update and delete research information or part of its content","","","","D5.1 [2]",""
+"UA16","Publisher","to publish research information with appropriate supporting details","","","","D5.1 [2]","The way to define how the RO is ""advertised"" or indexed should be an efficient and easy task for the publisher."
+"UA17","Collaborator","to control and manage access to research information","","","","D5.1 [2]","In general Publication Objects may be freely accessible to all users for re-use and Live Objects should be subject to more restraint access privileges. Functionalities for access management should be provided, modular and flexible enough to deal with users and groups, and at different levels of granularity in the components of the RO."
+"UA18","Collaborator,
+Re(User),
+Evaluator","to store and identify different versions of the research information or its components","","","","D5.1 [2]","Versioning may depend on whether we deal with Live Objects, Publication Objects or Archived Objects. When working with Live Objects, the platform should allow the users to choose not to backup full versions of the RO when a modification is made in the components (data or processes involved). Because of the big volumes of data involved it may be reasonable not to store multiple versions of the same RO. On the contrary, it may be useful in this case to allow versioning of individual components of a RO, those not suffering of heavy sized issues. For example, automatic versioning of metadata (contributors, access privileges, modification date, etc.) may be implemented to trace the timeline provenance of these metadata. Publication Objects or Archived Objects may depend on external resources that may evolve or being suppressed with time. In this case versioning of these RO may be useful to check their integrity and authenticity."
+"UA19","Collaborator,
+Publisher","seamless integration of metadata","","","","D5.1 [2]","As opposed to other users, astronomers are not familiar with Linked Data principles and RDF syntax; because of this all declarations of metadata information related to a RO should be transparent at the moment of creating a Live Object, publishing a Publication Object. The platform should provide a protocol or interface for an easy publication of a RO with assistance on metadata, with the aim of not discouraging contribution. The ROBox developed in WP1 is a very good example of how research objects and users are seamlessly integrated in the Wf4Ever platform in an unobtrusive way."
+"UA20","Evaluator","to rate, comment, recommend research information","","","","D5.1 [2]","These actions apply not only the whole RO but also to specific components of it, relating to quality criteria in reproducibility, repeatability of the results and re-usability and usefulness."
+"UA21","Re(User)","to take advantage of the modular and decomposable nature of Research Objects.","","","","D5.1 [2]","It should be possible to import other RO or their components into a Live Object. In this respect, RO should not be closed entities but fully decomposable with seamlessly accessible components."
+".end","","","","","","",""
+

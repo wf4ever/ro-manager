@@ -1,0 +1,43 @@
+TODO for simple-requirements RO example
+
+See also: https://www.pivotaltracker.com/story/show/26123933
+
+* need to dig out mechanism in wfdesc for referencing executable WF description or script
+/ need minimal model to check for existence of executable WF or script
+* requirement description that exposes intermediate steps in workflow
+* minim requirement that workflow provenance must be present (currently only checks for presence of WorkflowRun description, not detailed provenance content)
+
+
+== implemented minim rules ==
+
+  <minim:DataRequirementRule>
+    <minim:aggregates rdf:resource="(specified URI)" />
+  </minim:DataRequirementRule>
+
+Deprecate this in favour of <minim:ContentMatchRequirementRule> ?
+
+
+== minim rule elements to implement ==
+
+  <minim:SoftwareEnvironmentRule>
+    <minim:command>(command to issue)</minim:command>
+    <minim:response>(pattern for response to match)</minim:response>
+  </minim:SoftwareEnvironmentRule>
+
+  <minim:ContentMatchRequirementRule>
+    <minim:exists>
+      (SPARQL query pattern that is executed as an ASK query over merge of all RDF annotations)
+    </minim:exists>
+  </minim:ContentMatchRequirementRule>
+
+  <minim:ContentMatchRequirementRule>
+    <minim:forall>
+      (SPARQL query pattern used in SELECT query over merge of all RDF annotations)
+    </minim:forall>
+    <minim:aggregatesTemplate>URI template string</minim:aggregatesTemplate>
+  </minim:ContentMatchRequirementRule>
+
+Cf. https://datatracker.ietf.org/doc/draft-gregorio-uritemplate/ - variables from the SPARQL query are used for substitutions into the template.
+
+See http://code.google.com/p/uri-templates/ for Python implementation.
+

@@ -1,0 +1,1339 @@
+{
+    "refs": {
+        "1": "D2.1", 
+        "2": "D3.1"
+    }, 
+    "reqs": [
+        [
+            "UR1", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to create workflows", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can automate and streamline aspects of my investigation"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR1"
+            }
+        ], 
+        [
+            "UR2", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to collect data", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can conduct an investigation"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR2"
+            }
+        ], 
+        [
+            "UR3", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to aggregate existing resources (workflows, datasets, experiments, etc\u2026)", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can conveniently access related resources from a single place", 
+                    "I can be sure that I have a matching collection of resources"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR3"
+            }
+        ], 
+        [
+            "UR4", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@CHECK: \u201crestricted\u201d?"
+                ], 
+                "require": "to reference data stored elsewhere", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can aggregate data that is larger/more complex/restricted"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR4"
+            }
+        ], 
+        [
+            "UR5", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to describe the relationships between aggregated resources", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "other researchers can see how the resources fit together"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR5"
+            }
+        ], 
+        [
+            "UR6", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to describe the relationships between aggregated resources", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1"
+                }, 
+                "reason": [
+                    "I can facilitate the automation of processing of aggregated resources"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR6"
+            }
+        ], 
+        [
+            "UR7", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to be recognised as the creator of an a given scientific output or result", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I get credit"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR7"
+            }
+        ], 
+        [
+            "UR8", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to assign a persistent URL to an aggregate scientific content", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can include the link in my book"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR8"
+            }
+        ], 
+        [
+            "UR9", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to record which web services were used by workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can track web service changes", 
+                    "I can give citations to external resources used"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR9"
+            }
+        ], 
+        [
+            "UR10", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@TODO: reworded, check"
+                ], 
+                "require": "to embed (links to?) other\u2019s publications in my working notes", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can later find related reference material/citations", 
+                    "I can get information when designing my experiment"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR10"
+            }
+        ], 
+        [
+            "UR11", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to record notes while designing a workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can later pick up my thoughts around a part of workflow", 
+                    "I can disseminate reasoning behind my design decisions"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR11"
+            }
+        ], 
+        [
+            "UR12", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@TODO: What is meant here by \u201csemantic models\u201d?"
+                ], 
+                "require": "to annotate experimental results using semantic models", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can find/show links to other, relevant research objects"
+                ], 
+                "role": [
+                    "Creator"
+                ], 
+                "id": "UR12"
+            }
+        ], 
+        [
+            "UR13", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to provide a workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 3, 
+                "source": {
+                    "D2.1": "1"
+                }, 
+                "reason": [
+                    "it can be incorporated or used in an investigation", 
+                    "other researchers can review the processing performed", 
+                    "other researchers can repeat the processing performed"
+                ], 
+                "role": [
+                    "Contributor"
+                ], 
+                "id": "UR13"
+            }
+        ], 
+        [
+            "UR14", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to provide new or updated scientific data/results", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "investigations are up to date"
+                ], 
+                "role": [
+                    "Contributor"
+                ], 
+                "id": "UR14"
+            }
+        ], 
+        [
+            "UR15", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to modify contents", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can fix a known error with a workflow or investigation"
+                ], 
+                "role": [
+                    "Contributor"
+                ], 
+                "id": "UR15"
+            }
+        ], 
+        [
+            "UR16", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to be credited for my contributions to a research publication", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I get credit"
+                ], 
+                "role": [
+                    "Contributor"
+                ], 
+                "id": "UR16"
+            }
+        ], 
+        [
+            "UR17", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to have access to the work and scientific content carried out by another researcher", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can contribute to shaping the work before it\u2019s public"
+                ], 
+                "role": [
+                    "Contributor"
+                ], 
+                "id": "UR17"
+            }
+        ], 
+        [
+            "UR18", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "", 
+                    "", 
+                    "@@TODO: how does providing content help here?"
+                ], 
+                "require": "to provide content", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 3, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "it can be incorporated or used in an investigation", 
+                    "other researchers can review the processing performed", 
+                    "other researchers can repeat the processing performed"
+                ], 
+                "role": [
+                    "Collaborator"
+                ], 
+                "id": "UR18"
+            }
+        ], 
+        [
+            "UR19", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to find relevant materials", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can understand the field"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR19"
+            }
+        ], 
+        [
+            "UR20", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to browse an overview", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can determine whether there is something useful for me"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR20"
+            }
+        ], 
+        [
+            "UR21", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to survey the field", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "check whether something has been done before"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR21"
+            }
+        ], 
+        [
+            "UR22", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to examine the relationships between resources", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1"
+                }, 
+                "reason": [
+                    "I can understand the relationships between resources"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR22"
+            }
+        ], 
+        [
+            "UR23", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to access data", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can look at it and use it for my own purposes"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR23"
+            }
+        ], 
+        [
+            "UR24", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to access metadata", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can see where data/methods came from"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR24"
+            }
+        ], 
+        [
+            "UR25", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to follow the steps taken in certain research activity", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can understand the investigative process or method"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR25"
+            }
+        ], 
+        [
+            "UR26", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to find workflows by purpose", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can investigate different approaches to the same problem"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR26"
+            }
+        ], 
+        [
+            "UR27", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@TODO: or reputation of their creator?"
+                ], 
+                "require": "to find workflows according to their reputation", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can investigate approaches that have been acknowledged as being correct for the same problem"
+                ], 
+                "role": [
+                    "Reader"
+                ], 
+                "id": "UR27"
+            }
+        ], 
+        [
+            "UR28", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to rerun an investigation", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can validate that the results are as given"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR28"
+            }
+        ], 
+        [
+            "UR29", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to examine the relationships between resources", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can validate those relationships"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR29"
+            }
+        ], 
+        [
+            "UR30", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to access data", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can validate the data used"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR30"
+            }
+        ], 
+        [
+            "UR31", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to check if external data has changed", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can determine if results are still valid"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR31"
+            }
+        ], 
+        [
+            "UR32", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to follow the steps taken", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1"
+                }, 
+                "reason": [
+                    "I can validate the investigative process and identify any problems"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR32"
+            }
+        ], 
+        [
+            "UR33", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to examine the resources related with a given research", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can determine the source of those resources"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR33"
+            }
+        ], 
+        [
+            "UR34", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to rate research content", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can recommend materials to colleagues"
+                ], 
+                "role": [
+                    "Reviewer"
+                ], 
+                "id": "UR34"
+            }
+        ], 
+        [
+            "UR35", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to compare some scientific data/results with others", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 3, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can determine whether the investigation is novel", 
+                    "I can understand the differences between investigations", 
+                    "I can consider reusing it in the future"
+                ], 
+                "role": [
+                    "Comparator"
+                ], 
+                "id": "UR35"
+            }
+        ], 
+        [
+            "UR36", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to build a new workflow based on an existing one", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can do something new with less effort", 
+                    "I can use an existing, known, validated methodology"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR36"
+            }
+        ], 
+        [
+            "UR37", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to build a workflow using components/parts of another workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I don\u2019t have to investigate how to use a service"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR37"
+            }
+        ], 
+        [
+            "UR38", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to run an existing workflow with new data", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can get new results by using existing procedures"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR38"
+            }
+        ], 
+        [
+            "UR39", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to rerun parts of a workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1"
+                }, 
+                "reason": [
+                    "I can avoid re-running long-processing parts of workflow when only some of the data has changed"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR39"
+            }
+        ], 
+        [
+            "UR40", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to use results from an existing investigation as input to a new one", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can build on existing results", 
+                    "I can build on existing data"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR40"
+            }
+        ], 
+        [
+            "UR41", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to see and navigate versions of a workflow", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 3, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can use the latest working version", 
+                    "I can better understand a workflow by understanding how it has evolved", 
+                    "I can see how the latest version of a workflow differs from an earlier version I may have used"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR41"
+            }
+        ], 
+        [
+            "UR42", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to extract content from a collection research details", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can reuse that content for other investigations"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR42"
+            }
+        ], 
+        [
+            "UR43", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to be able to work in a collaborative fashion on the same workflow and associated scientific material", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can work with my team without having to carry out the manual synchronization process based in the interchange exchange mails with custom scripts, workflows and draft versions of papers and having to update"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR43"
+            }
+        ], 
+        [
+            "UR44", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@CHECK: duplicate above?"
+                ], 
+                "require": "to find workflows and their associated scientific material according to their reputation", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "I can reuse approaches that have been acknowledged by the community as being correct for the same problem"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR44"
+            }
+        ], 
+        [
+            "UR45", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "the system to take into account my past workflow and dataset selections", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "in next iterations with the system it filters scientific material that doesn\u2019t match my past criteria"
+                ], 
+                "role": [
+                    "Re-user"
+                ], 
+                "id": "UR45"
+            }
+        ], 
+        [
+            "UR46", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@CHECK: reworded"
+                ], 
+                "require": "to publish a scientific result with appropriate supporting materials", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "it is available for others to see or use"
+                ], 
+                "role": [
+                    "Publisher"
+                ], 
+                "id": "UR46"
+            }
+        ], 
+        [
+            "UR47", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    "@@CHECK: reworded"
+                ], 
+                "require": "to provide references to existing scientific data/results and supporting materials", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "they can be cited (leading to credit)"
+                ], 
+                "role": [
+                    "Publisher"
+                ], 
+                "id": "UR47"
+            }
+        ], 
+        [
+            "UR48", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to be able to advertise certain scientific data/results", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 1, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "It reaches its target audience"
+                ], 
+                "role": [
+                    "Publisher"
+                ], 
+                "id": "UR48"
+            }
+        ], 
+        [
+            "UR49", 
+            {
+                "impact": [
+                    ""
+                ], 
+                "comment": [
+                    ""
+                ], 
+                "require": "to restrict access to subparts of a research work", 
+                "benefit": [
+                    ""
+                ], 
+                "len": 2, 
+                "source": {
+                    "D2.1": "1", 
+                    "D3.1": "2"
+                }, 
+                "reason": [
+                    "publication complies with license restrictions", 
+                    "data owners are happy"
+                ], 
+                "role": [
+                    "Publisher"
+                ], 
+                "id": "UR49"
+            }
+        ]
+    ]
+}
