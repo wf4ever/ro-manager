@@ -99,7 +99,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
         (g,evalresult) = ro_eval_minim.evaluate(rometa,
@@ -128,7 +128,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
@@ -163,7 +163,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
@@ -198,7 +198,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
@@ -239,7 +239,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
 
     def setupEvalFormat(self):
         self.setupConfig()
-        rodir       = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir       = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rometa = ro_metadata(ro_config, rodir)
         minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
         modeluri    = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
@@ -337,7 +337,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
 
     def testEvaluateChecklistCommand(self):
         self.setupConfig()
-        rodir = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
         rometa   = ro_metadata(ro_config, rodir)
         minimuri = rometa.getComponentUri("Minim-UserRequirements.rdf")

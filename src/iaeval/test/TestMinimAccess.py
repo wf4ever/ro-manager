@@ -89,7 +89,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         Basic test that Minim test file can be read
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         target     = ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv")
@@ -109,7 +109,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
 
     def testGetConstraints(self):
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
@@ -131,7 +131,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
 
     def testGetConstraint(self):
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
@@ -150,7 +150,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
 
     def testGetModels(self):
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
@@ -167,7 +167,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
     
     def testGetModel(self):
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
@@ -190,7 +190,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
                     return False
             return True
         self.setupConfig()
-        rodir        = self.createTestRo(testbase, "data", "RO test minim", "ro-testMinim")
+        rodir        = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         rouri        = ro_manifest.getRoUri(rodir)
         minimbase    = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements.rdf")
         model        = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
