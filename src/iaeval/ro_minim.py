@@ -12,6 +12,7 @@ log = logging.getLogger(__name__)
 
 import rdflib
 import rdflib.namespace
+from uritemplate import uritemplate
 
 from rocommand import ro_manifest
 from rocommand import ro_namespaces
@@ -21,7 +22,8 @@ minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
 MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             [ "Constraint", "Model", "Requirement", "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
-            , "hasConstraint", "forPurpose", "onResource", "toModel"
+            , "hasConstraint" 
+            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             , "derives", "reports", "isDerivedBy"
             , "show", "showpass", "showfail"
@@ -61,23 +63,35 @@ def readMinimGraph(minimuri):
 
 def getConstraints(minimgraph):
     for (target, constraint) in minimgraph.subject_objects(predicate=MINIM.hasConstraint):
+        # @@TODO: use property of constraint for this, one day
         c = {'target': target, 'uri': constraint}
-        c['purpose']  = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
-        c['resource'] = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
-        c['model']    = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
+        c['target_t']   = minimgraph.value(subject=constraint, predicate=MINIM.forTargetTemplate)
+        c['purpose']    = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
+        c['resource']   = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
+        c['resource_t'] = minimgraph.value(subject=constraint, predicate=MINIM.onResourceTemplate)
+        c['model']      = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
         yield c
     return
 
-def getConstraint(minimgraph, roref, target_ref, purpose_regex_string):
-    log.debug("getConstraint: roref %s, target_ref %s"%(roref,target_ref))
-    target  = target_ref and ro_manifest.getComponentUri(roref, target_ref)
+def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
+    log.debug("getConstraint: rouri %s, target_ref %s"%(rouri, target_ref))
+    target = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
+    targetstr = target and str(target)
     #log.debug("- target %s"%(target))
     purpose = purpose_regex_string and re.compile(purpose_regex_string)
     for c in getConstraints(minimgraph):
         #log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
-        if ( ( not target  or target == c['target'] ) and
-             ( not purpose or purpose.match(c['purpose']) ) ):
-            return c
+        log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
+        if not purpose or purpose.match(c['purpose']):
+            if not target or target == c['target']:
+                return c
+            log.debug("- targetstr %s, c['target_t'] %s"%(targetstr, c['target_t']))
+            if targetstr and c['target_t']:
+                # Expand template from constraint, look for match to supplied target
+                templatedict = {'targetro': str(rouri)}
+                constrainttarget = uritemplate.expand(c['target_t'], templatedict)
+                if targetstr == constrainttarget: 
+                    return c
     return None
 
 def getModels(minimgraph, modeluri=None):

@@ -378,9 +378,72 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
 
     # @@TODO Add test cases for software environment rule pass/fail, based on previous
 
-    # @@TODO Add test cases for content match rule pass/fail, based on previous
+    def annotateWfRo(self, testbase, rodir):
+        """
+        Annotate test workflow research object
+        Returns name of research object directory
+        """
+        # $RO annotate -v $TESTRO/simple-wf-wfdesc.rdf rdf:type wfdesc:Workflow
+        args1 = [
+            "ro", "annotate", rodir+"/simple-wf-wfdesc.rdf", "rdf:type", "wfdesc:Workflow"
+            ]
+        # $RO annotate -v $TESTRO/docs/mkjson.sh -g $TESTRO/simple-requirements-wfdesc.rdf
+        args2 = [
+            "ro", "annotate", rodir+"/docs/mkjson.sh", "-g", rodir+"/simple-requirements-wfdesc.rdf"
+            ]
+        with StdoutContext.SwitchStdout(self.outstr):
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status = ro.runCommand(configdir, robasedir, args1)
+            if status == 0:
+                status = ro.runCommand(configdir, robasedir, args2)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        return rodir
 
-    # @@TODO Add test cases for forall => exists conteht match
+    def testEvaluateWfInputs(self):
+        # Test cases usiung content match rule
+        # Also tests constraint that is not directly linked to RO,
+        # and use of designated target resource in probe query
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-simple-wf", "RO test minim", "ro-testMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateWfRo(testbase, rodir)
+        rometa   = ro_metadata(ro_config, rodir)
+        minimuri = rometa.getComponentUri("simple-wf-minim.rdf")
+        # Evaluate
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , "simple-wf-minim.rdf"
+               , "Runnable"
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: %s"%(status, outtxt))
+        # Check response returned
+        expect = (
+            [ "Research Object file://%s/:"%(rodir)
+            , "Fully complete for Runnable of resource ."
+            , "Satisfied requirements:"
+            , "  Workflow instance or template found" 
+            , "  All workflow inputs referenced or present"
+            , "Research object URI:     %s"%(rometa.getRoUri())
+            , "Minimum information URI: %s"%(minimuri)
+            ])
+        self.outstr.seek(0)
+        for line in self.outstr:
+            self.assertIn(str(line)[:-1], expect)
+        self.deleteTestRo(rodir)
+        return
     
     # @@TODO Add test cases for liveness test
 
@@ -485,6 +548,7 @@ def getTestSuite(select="unit"):
             , "testEvalFormatSummary"
             , "testEvalFormatDetail"
             , "testEvaluateChecklistCommand"
+            , "testEvaluateWfInputs"
             ],
         "component":
             [ "testComponents"

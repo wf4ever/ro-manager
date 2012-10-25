@@ -148,6 +148,7 @@ def runCommand(configbase, robase, argv):
 
     Returns exit status.
     """
+    # @@TODO: robase is ignored: remove parameter here and from all calls
     (options, args) = parseCommandArgs(argv)
     if not options or options.debug:
         logging.basicConfig(level=logging.DEBUG)

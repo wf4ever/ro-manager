@@ -3,19 +3,26 @@
 # RO manager script
 #
 
-RONAME="test-wf-requirements"
-TESTRO="../robase/$RONAME"
+pushd ../robase
+ROBASE=`pwd -P`
+popd
+
+RONAME="test-simple-wf"
+TESTRO="$ROBASE/$RONAME"
+RO="../../../ro"
 
 echo "--------"
 
 $RO config -v \
-  -b $ROPATH \
+  -b ../robase \
   -r ROSRS_URI \
   -t "ROSRS_ACCESS_TOKEN" \
   -n "Test user" \
   -e "testuser@example.org"
 
-rm .ro/*
+rm -rf $TESTRO
+mkdir $TESTRO
+cp -rv . $TESTRO
 
 $RO create -v "Simple requirements RO" -d $TESTRO -i $RONAME
 
@@ -31,17 +38,18 @@ $RO list -v -d $TESTRO
 
 echo "--------"
 
-$RO annotations
+$RO annotations -d $TESTRO
 
 echo "--------"
 
-$RO annotate -v $TESTRO/simple-wf-wfdesc.rdf type "workflow-description"
-$RO annotate -v $TESTRO/simple-wf-minim.rdf type "minim"
+$RO annotate -v $TESTRO/simple-wf-wfdesc.rdf rdf:type wfdesc:Workflow
 
-$RO annotate -v docs/mkjson.sh -g $TESTRO/simple-requirements-wfdesc.rdf
+$RO annotate -v $TESTRO/docs/mkjson.sh -g $TESTRO/simple-requirements-wfdesc.rdf
 
-$RO annotations
+$RO annotations -d $TESTRO
 
 echo "--------"
+
+$RO evaluate checklist -a -d $TESTRO "simple-wf-minim.rdf" "Runnable" "."
 
 # End.

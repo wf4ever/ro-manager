@@ -53,8 +53,9 @@
   <rdf:Description rdf:about="http://example.com/ConstraintCollection">
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#runnable_RO">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
         <minim:forPurpose>Runnable</minim:forPurpose>
-        <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate>
+        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
         <minim:toModel rdf:resource="#runnable_RO_model" />
         <rdfs:comment>
           Constraint to be satisfied if the RO is to be runnable
