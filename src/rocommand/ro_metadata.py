@@ -246,7 +246,7 @@ class ro_metadata(object):
         log.debug("_addAnnotationToManifest annfile %s"%(annfile))
         ann     = rdflib.BNode()
         resuri  = self.getComponentUri(rofile)
-        bodyuri = self.getComponentUriRel(annfile)
+        bodyuri = self.getComponentUriAbs(annfile)
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))
