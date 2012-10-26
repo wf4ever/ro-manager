@@ -43,15 +43,18 @@ setup(
                ,'samples'
                ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
     package_data = {
-        'rocommand':    ['test/config/*','test/robase/README','test/nobase/README'
-                        ,'test/data/ro-test-1/subdir1/*','test/data/ro-test-1/subdir2/*'
-                        ,'test/data/ro-test-1/*.rdf','test/data/ro-test-1/README*','test/data/ro-test-1/file*'
+        'rocommand':    [ 'test/config/*','test/robase/README','test/nobase/README'
+                        , 'test/data/ro-test-1/subdir1/*','test/data/ro-test-1/subdir2/*'
+                        , 'test/data/ro-test-1/*.rdf','test/data/ro-test-1/README*','test/data/ro-test-1/file*'
                         ],
-        'iaeval':       ['test/config/*','test/robase/*'
-                        ,'test/data/data/*','test/data/docs/*'
-                        ,'test/data/*.rdf'
+        'iaeval':       [ 'test/config/*','test/robase/README'
+                        , 'test/test-data-1/*.rdf'
+                        , 'test/test-data-1/data/*', 'test/test-data-1/docs/*'
+                        , 'test/test-simple-wf/TODO'
+                        , 'test/test-simple-wf/*.rdf', 'test/test-simple-wf/*.sh'
+                        , 'test/test-simple-wf/data/*', 'test/test-simple-wf/docs/*'
                         ],
-        'samples':      ['*.sh', '*.py', 'prefixes.*', 'README'],
+        'samples':      [ '*.sh', '*.py', 'prefixes.*', 'README' ],
         },
     exclude_package_data = {
         '': ['spike/*'] 
