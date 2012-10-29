@@ -634,6 +634,8 @@ def push(progname, configbase, options, args):
                 print "Annotation deleted in ROSRS: %s"%(resuri)
             log.debug("Annotation deleted in ROSRS: %s"%(resuri))
             deletedAnnCnt += 1
+        elif action == ro_rosrs_sync.ACTION_ERROR:
+            print "Error: %s"%resuri
     print "%d resources pushed, %d annotations pushed, %d resources deleted, %d annotations deleted" \
         %(pushedResCnt, pushedAnnCnt, deletedResCnt, deletedAnnCnt)
     return 0

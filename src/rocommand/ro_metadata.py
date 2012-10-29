@@ -64,6 +64,8 @@ class ro_metadata(object):
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Check that the manifest contained at least one RO URI
+        assert self.rouri is not None
         return
 
     def _isLocal(self):
