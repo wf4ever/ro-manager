@@ -59,18 +59,29 @@ class TestRosrsSync(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testPushZip(self):
-
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+    def testPushConflictedZip(self):
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         
-        (status, reason, headers, data) = sendZipRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/", "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/ro1/")
-        #asserts
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
+        self.assertEqual(status, 409)
+        self.assertEqual(reason, "Conflict")    
+        
+    def testPushZip(self):
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")    
         self.assertTrue("ro1" in headers['location'])
-        
             
     
     def testPush(self):
