@@ -236,7 +236,7 @@ class ROSRS_Session(object):
         if status < 200 or status >= 300: data = None
         log.debug("ROSRS_Session.doRequest response: "+str(status)+" "+reason)
         log.debug("ROSRS_Session.doRequest headers:  "+repr(headers))
-        log.debug("ROSRS_Session.doRequest data:     "+repr(data))
+        ###log.debug("ROSRS_Session.doRequest data:     "+repr(data))
         return (status, reason, headers, data)
 
     def doRequestFollowRedirect(

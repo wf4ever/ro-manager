@@ -222,7 +222,9 @@ def evalContentMatch(rometa, rule):
             , 'querypattern': rule['exists']
             })
         query = querytemplate%queryparams
+        log.debug("- query %s"%(query))
         satisfied = rometa.queryAnnotations(query)
+        log.debug("- satisfied %s"%(satisfied))
     else:
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)

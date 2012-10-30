@@ -129,6 +129,7 @@ class ro_metadata(object):
 
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
+        log.debug("_loadannotations")
         # Assemble annotation graph
         # NOTE: the manifest itself is included as an annotation by the RO setup
         if self._isLocal():
