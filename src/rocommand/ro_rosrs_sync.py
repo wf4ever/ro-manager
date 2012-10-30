@@ -135,6 +135,6 @@ def pushResearchObject(localRo, remoteRo, force = False):
     
     localRo.saveRegistries()
     return
-    
-    
-        
+
+def pushZipRO(localRo, remoteRo, force = False):
+    return

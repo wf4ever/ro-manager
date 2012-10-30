@@ -60,13 +60,71 @@ class TestSyncCommands(TestROSupport.TestROSupport):
 
     def testNull(self):
         assert True, 'Null test failed'
+    
+    def testPushZip(self):
+        """
+        Push a Research Object in zip format to ROSRS.
 
+        ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
+        """
+        args = [
+            "ro", "push", "data/ro1.zip",
+            "-r", ro_test_config.ROSRS_URI,
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-v"
+            ]
+        
+        #preparing
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        
+        #cleaning
+        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("Status: 201"),1)
+        self.assertEqual(self.outstr.getvalue().count("Reason: Created"),1)
+
+    def testPushConflictedZip(self):
+        """
+        Push a Research Object in zip format to ROSRS.
+
+        ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
+        """
+        args = [
+            "ro", "push", "data/ro1.zip",
+            "-r", ro_test_config.ROSRS_URI,
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-v"
+            ]
+        
+        #preparing
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI +"ro1/")
+        status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        #cleaning
+        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI +"ro1/")
+        
+        assert status == 0        
+        self.assertEqual(self.outstr.getvalue().count("Status: 409"),1)
+        self.assertEqual(self.outstr.getvalue().count("Reason: Conflict"),1)
+                
+        
     def testPush(self):
         """
         Push a Research Object to ROSRS.
 
-        ro push [ -d <dir> ] [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
+        ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
         """
+
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test ro push", "ro-testRoPush")
         localRo  = ro_metadata.ro_metadata(ro_config, rodir)
         localRo.addAggregatedResources(rodir, recurse=True)
