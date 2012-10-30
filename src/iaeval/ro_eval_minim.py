@@ -74,7 +74,7 @@ def evaluate(rometa, minim, target, purpose):
     # Evaluate the individual model requirements
     reqeval = []
     for r in requirements:
-        log.info("evaluate: requirement: %s"%(repr(r)))
+        log.info("evaluate: %s %s"%(r['level'],str(r['uri'])))
         if 'datarule' in r:
             # @@TODO: factor to separate function?
             satisfied = rometa.roManifestContains( (rouri, ORE.aggregates, r['datarule']['aggregates']) )

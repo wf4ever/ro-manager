@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server
 
 if __name__ == '__main__':
     sys.path.append("..")
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
 from uritemplate import uritemplate
 
