@@ -672,7 +672,7 @@ class ROSRS_Session(object):
         agraph = rdflib.graph.Graph()
         annotation_body_uris_loaded = set()
         for buri in [ b for b in self.getROAnnotationBodyUris(rouri, resuri)
-                      if b not in annotation_body_uris_loaded ]:
+                      if str(b) not in annotation_body_uris_loaded ]:
             ###(status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
             (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
             if status == 200:
@@ -687,7 +687,7 @@ class ROSRS_Session(object):
             else:
                 log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
                          (str(buri), status, reason))
-            annotation_body_uris_loaded.add(buri)
+            annotation_body_uris_loaded.add(str(buri))
         return agraph
 
     def getROAnnotation(self, annuri):
