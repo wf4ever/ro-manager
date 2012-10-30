@@ -119,6 +119,16 @@ def getAsZip(rouri):
     log.debug("Ro %s retrieved as zip" % rouri)
     return tmp
 
+def sendZipRO(httpsession, uripath, roId, zip):
+    """
+    Send a research object in the zip format. 
+    Returns: status
+    """
+    reqheaders   = {
+        "slug":     roId,
+    }
+    return httpsession.doRequest(uripath, "POST", zip, "application/zip", "text/turtle", reqheaders);
+    
 class ro_remote_metadata(object):
     """
     Class for accessing metadata of an RO stored by a ROSR service

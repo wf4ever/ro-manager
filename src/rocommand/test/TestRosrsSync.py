@@ -5,6 +5,7 @@ Created on 15-09-2011
 '''
 import sys
 import urlparse
+from compiler.ast import Assert
 if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
     sys.path.insert(0, "../..")
@@ -18,7 +19,7 @@ from rocommand import ro_annotation
 from rocommand.test import TestROSupport
 from rocommand.test.TestConfig import ro_test_config
 from rocommand.ro_metadata import ro_metadata
-from rocommand.ro_remote_metadata import ro_remote_metadata, createRO, deleteRO
+from rocommand.ro_remote_metadata import ro_remote_metadata, createRO, deleteRO, sendZipRO
 from rocommand import ro_rosrs_sync
 from rocommand.ro_namespaces import ROTERMS
 from rocommand.ROSRS_Session import ROSRS_Session
@@ -58,6 +59,31 @@ class TestRosrsSync(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
+    def testPushConflictedZip(self):
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
+        self.assertEqual(status, 409)
+        self.assertEqual(reason, "Conflict")    
+        
+    def testPushZip(self):
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
+        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        
+        self.assertEqual(status, 201)
+        self.assertEqual(reason, "Created")    
+        self.assertTrue("ro1" in headers['location'])
+            
+    
     def testPush(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
         localRo  = ro_metadata(ro_config, rodir)
