@@ -377,7 +377,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         return
 
     # @@TODO Add test cases for software environment rule pass/fail, based on previous
-
     def annotateWfRo(self, testbase, rodir):
         """
         Annotate test workflow research object
@@ -394,6 +393,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         with StdoutContext.SwitchStdout(self.outstr):
             configdir = self.getConfigDir(testbase)
             robasedir = self.getRoBaseDir(testbase)
+            #print "testbase %s, configdir %s, robasedir %s"%(testbase, configdir, robasedir)
             status = ro.runCommand(configdir, robasedir, args1)
             if status == 0:
                 status = ro.runCommand(configdir, robasedir, args2)

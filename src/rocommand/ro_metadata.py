@@ -64,6 +64,8 @@ class ro_metadata(object):
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
         self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Check that the manifest contained at least one RO URI
+        assert self.rouri is not None
         return
 
     def _isLocal(self):
@@ -246,7 +248,7 @@ class ro_metadata(object):
         log.debug("_addAnnotationToManifest annfile %s"%(annfile))
         ann     = rdflib.BNode()
         resuri  = self.getComponentUri(rofile)
-        bodyuri = self.getComponentUriRel(annfile)
+        bodyuri = self.getComponentUriAbs(annfile)
         self.manifestgraph.add((ann, RDF.type, RO.AggregatedAnnotation))
         self.manifestgraph.add((ann, RO.annotatesAggregatedResource, resuri))
         self.manifestgraph.add((ann, AO.body, bodyuri))

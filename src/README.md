@@ -271,3 +271,15 @@ The output should look something like this:
       description: subdir2-file.txt description\nline 2
     --------
 
+## Revision history
+
+### Changes for V0.2.7
+
+* Add `ro remove` command, fix URI escaping problems that werer occurring when an RO was created from files containing space or '#' characters
+* Add `ro link` command; this works just like `ro annotate`, except that the default treatment of the target value (i.e. for unrecognized annotation types) is as a URI, this providing a mechanism to create arbitrary links between RO resources, or between an RO resource and an external resource.
+* Allow annotation and links  with CURIE (QName) properties.  A predefined set of recognized URI prefixes are defined (see `~/.ro-config`) which can be used to create annotations with CURIES; e.g. `ro link foo rdfs:seeAlso bar`.
+* Create multiple annotations and links with wildcard resource matching; e.g. `ro link -w "/workflow/.*t2flow$" rdf:type wfdesc:Workflow" will create an rdf:type wfdesc:Workflow link for all aggregated resources in a directory named "/Workflow" and with file extension ".t2flow".
+* ROSRS (v6) support
+* Support for checklist evaluation of ROs stored in RODL or some other ROSRS service (used primarily by the `roweb` service component)
+* Decouple MINIM constraints from target RO.  Allow creation of MINIM descriptions that can be applied to arbitrary ROs:  this paves the way for creating and using checklists that encode community norms for RO quality.
+

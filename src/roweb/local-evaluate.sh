@@ -15,7 +15,7 @@ cat >sample-params.txt <<END
   "template": "$TEMPLATE",
   "params":
   {
-    "RO": "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/",
+    "RO": "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/",
     "minim": "simple-requirements-minim.rdf",
     "purpose": "Runnable"
   }
