@@ -636,8 +636,17 @@ class ROSRS_Session(object):
         
         Returns an iterator over annotation URIs
         """
-        for annuri in self.getROAnnotationUris(rouri, resuri):
-            yield self.getROAnnotationBodyUri(annuri)
+        ### This works, but needs an additional HTTP operation for each annotation
+        # for annuri in self.getROAnnotationUris(rouri, resuri):
+        #     yield self.getROAnnotationBodyUri(annuri)
+        (status, reason, headers, manifesturi, manifest) = self.getROManifest(rouri)
+        if status != 200:
+            raise self.error("No manifest",
+                "%03d %s (%s)"%(status, reason, str(rouri)))
+        for (a,p) in manifest.subject_predicates(object=resuri):
+            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
+            if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
+                yield manifest.value(subject=a, predicate=AO.body)
         return
 
     def getROAnnotationBodyUri(self, annuri):
@@ -661,10 +670,11 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
-        annotation_uris_loaded = set()
-        for auri in [ a for a in self.getROAnnotationUris(rouri, resuri)
-                      if a not in annotation_uris_loaded ]:
-            (status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
+        annotation_body_uris_loaded = set()
+        for buri in [ b for b in self.getROAnnotationBodyUris(rouri, resuri)
+                      if b not in annotation_body_uris_loaded ]:
+            ###(status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
+            (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
             if status == 200:
                 content_type = headers['content-type'].split(";", 1)[0]
                 content_type = content_type.strip().lower()
@@ -677,7 +687,7 @@ class ROSRS_Session(object):
             else:
                 log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
                          (str(buri), status, reason))
-            annotation_uris_loaded.add(auri)
+            annotation_body_uris_loaded.add(buri)
         return agraph
 
     def getROAnnotation(self, annuri):
