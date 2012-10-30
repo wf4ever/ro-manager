@@ -661,7 +661,9 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
-        for auri in self.getROAnnotationUris(rouri, resuri):
+        annotation_uris_loaded = set()
+        for auri in [ a for a in self.getROAnnotationUris(rouri, resuri)
+                      if a not in annotation_uris_loaded ]:
             (status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
             if status == 200:
                 content_type = headers['content-type'].split(";", 1)[0]
@@ -675,6 +677,7 @@ class ROSRS_Session(object):
             else:
                 log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
                          (str(buri), status, reason))
+            annotation_uris_loaded.add(auri)
         return agraph
 
     def getROAnnotation(self, annuri):
