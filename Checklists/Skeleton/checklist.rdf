@@ -92,7 +92,7 @@
     <minim:hasMayRequirement rdf:resource="#ZZZ1-May" />
   </minim:Model>
 
-  <!-- Model (checklist) enumerating requirements for target to be ZZZ1.
+  <!-- Model (checklist) enumerating requirements for target to be ZZZ2.
     -->
   <minim:Model rdf:about="#ZZZ2_model">
     <rdfs:label>ZZZ2</rdfs:label>
