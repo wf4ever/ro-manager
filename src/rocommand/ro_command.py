@@ -81,7 +81,21 @@ def ro_root_directory(cmdname, ro_config, rodir):
            (cmdname, ro_dir))
     return None
 
-# Argumemnt count checking and usage summary
+def ro_root_reference(cmdname, ro_config, rodir):
+    """
+    Find research object root directory.  If the supplied rodir is not a local file
+    reference, it is returned as-is, otherwise ro_root_directory is used to locate
+    the RO root directory containing the indicated file.
+
+    Returns directory path string, or None if not found, in which
+    case an error message is displayed.
+    """
+    roref = ro_uriutils.resolveFileAsUri(rodir)
+    if ro_uriutils.isFileUri(roref):
+        roref = ro_root_directory(cmdname, ro_config, rodir)
+    return roref
+
+# Argument count checking and usage summary
 
 def argminmax(min, max):
     return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
@@ -732,8 +746,8 @@ def evaluate(progname, configbase, options, args):
         , "function":     args[2]
         })
     log.debug("ro_options: " + repr(ro_options))
-    ro_dir = ro_root_directory(progname + " annotations", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
+    ro_ref = ro_root_reference(progname + " annotations", ro_config, ro_options['rodir'])
+    if not ro_ref: return 1
     # Evaluate...
     if ro_options["function"] == "checklist":
         if len(args) not in [5, 6]:
@@ -745,12 +759,12 @@ def evaluate(progname, configbase, options, args):
             print ("%s evaluate checklist: invalid reporting level %s, must be one of %s" % 
                     (progname, options.level, repr(levels)))
             return 1
-        ro_options["minim"] = ((len(args) > 3) and args[3]) or "minim.rdf"
+        ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
-        ro_options["target"] = ((len(args) > 5) and args[5]) or "."
+        ro_options["target"]  = ((len(args) > 5) and args[5]) or "."
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s" % ro_options
-        rometa = ro_metadata(ro_config, ro_dir)
+        rometa = ro_metadata(ro_config, ro_ref)
         (minimgraph, evalresult) = ro_eval_minim.evaluate(rometa,
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
         if options.verbose:
