@@ -77,6 +77,7 @@
     <minim:hasMustRequirement rdf:resource="#has_workflow" />
     <minim:hasMustRequirement rdf:resource="#workflows_aggregated" />
     <minim:hasShouldRequirement rdf:resource="#workflows_accessible" />
+    <minim:hasMustRequirement rdf:resource="#has_workflow_inputs" />
     <minim:hasMustRequirement rdf:resource="#workflow_inputs_aggregated" />
     <minim:hasShouldRequirement rdf:resource="#workflow_inputs_accessible" />
   </minim:Model>
@@ -130,6 +131,21 @@
         <minim:showpass>All declared workflow descriptions are accessible</minim:showpass>
         <minim:showfail>Workflow description %(wf)s is not accessible</minim:showfail>
         <minim:derives rdf:resource="#workflows_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow description must be present -->
+  <minim:Requirement rdf:about="#has_workflow_inputs">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:exists>
+        <minim:showpass>Workflow input(s) found</minim:showpass>
+        <minim:showfail>No workflow inputs found</minim:showfail>
+        <minim:derives rdf:resource="#has_workflow_inputs" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
   </minim:Requirement>
