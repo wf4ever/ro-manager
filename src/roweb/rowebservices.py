@@ -13,7 +13,7 @@ from wsgiref.simple_server import make_server
 
 if __name__ == '__main__':
     sys.path.append("..")
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
 from uritemplate import uritemplate
 
@@ -115,6 +115,7 @@ def real_evaluate(request):
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
     #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
+    log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
@@ -129,6 +130,7 @@ def real_evaluate(request):
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     for level in evalresult['summary']:
+        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
         graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all rules tested...
     def addRequirementsDetail(results, satlevel):

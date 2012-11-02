@@ -74,6 +74,7 @@ def evaluate(rometa, minim, target, purpose):
     # Evaluate the individual model requirements
     reqeval = []
     for r in requirements:
+        log.info("evaluate: %s %s"%(r['level'],str(r['uri'])))
         if 'datarule' in r:
             # @@TODO: factor to separate function?
             satisfied = rometa.roManifestContains( (rouri, ORE.aggregates, r['datarule']['aggregates']) )
@@ -221,7 +222,9 @@ def evalContentMatch(rometa, rule):
             , 'querypattern': rule['exists']
             })
         query = querytemplate%queryparams
+        log.debug("- query %s"%(query))
         satisfied = rometa.queryAnnotations(query)
+        log.debug("- satisfied %s"%(satisfied))
     else:
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)

@@ -129,14 +129,18 @@ class ro_metadata(object):
 
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
+        log.debug("_loadannotations")
         # Assemble annotation graph
         # NOTE: the manifest itself is included as an annotation by the RO setup
         if self._isLocal():
             manifest = self._loadManifest()
             self.roannotations = rdflib.Graph()
+            annotation_uris_loaded = set()
             for anode in self._iterAnnotations():
                 auri = manifest.value(subject=anode, predicate=AO.body)
-                self._readAnnotationBody(auri, self.roannotations)
+                if auri not in annotation_uris_loaded:
+                    self._readAnnotationBody(auri, self.roannotations)
+                    annotation_uris_loaded.add(auri)
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
         log.debug("roannotations graph:\n"+self.roannotations.serialize())

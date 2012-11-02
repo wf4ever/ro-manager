@@ -236,7 +236,7 @@ class ROSRS_Session(object):
         if status < 200 or status >= 300: data = None
         log.debug("ROSRS_Session.doRequest response: "+str(status)+" "+reason)
         log.debug("ROSRS_Session.doRequest headers:  "+repr(headers))
-        log.debug("ROSRS_Session.doRequest data:     "+repr(data))
+        ###log.debug("ROSRS_Session.doRequest data:     "+repr(data))
         return (status, reason, headers, data)
 
     def doRequestFollowRedirect(
@@ -636,8 +636,17 @@ class ROSRS_Session(object):
         
         Returns an iterator over annotation URIs
         """
-        for annuri in self.getROAnnotationUris(rouri, resuri):
-            yield self.getROAnnotationBodyUri(annuri)
+        ### This works, but needs an additional HTTP operation for each annotation
+        # for annuri in self.getROAnnotationUris(rouri, resuri):
+        #     yield self.getROAnnotationBodyUri(annuri)
+        (status, reason, headers, manifesturi, manifest) = self.getROManifest(rouri)
+        if status != 200:
+            raise self.error("No manifest",
+                "%03d %s (%s)"%(status, reason, str(rouri)))
+        for (a,p) in manifest.subject_predicates(object=resuri):
+            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
+            if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
+                yield manifest.value(subject=a, predicate=AO.body)
         return
 
     def getROAnnotationBodyUri(self, annuri):
@@ -661,8 +670,9 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
-        for auri in self.getROAnnotationUris(rouri, resuri):
-            (status, reason, headers, buri, bodytext) = self.doRequestFollowRedirect(auri)
+        for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
+            (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
+            log.debug("- body uri %s, content uri %s"%(buri, curi))
             if status == 200:
                 content_type = headers['content-type'].split(";", 1)[0]
                 content_type = content_type.strip().lower()
