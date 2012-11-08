@@ -45,18 +45,22 @@ class PushResearchObject:
         for localResuri in self._localRo.getAggregatedResources():
             for (action, uri) in self.__uploadLocalResource(localResuri):
                 yield (action, uri)
+        self._remoteRo.reloadManifest()
         
         for resuri in self._remoteRo.getAggregatedResources():
             for (action, uri) in self.__checkRemoteResource(resuri):
                 yield (action, uri)
+        self._remoteRo.reloadManifest()
                     
         for (ann_node, ann_body, ann_target) in self._localRo.getAllAnnotationNodes():
             for (action, uri) in self.__uploadLocalAnnotation(ann_node, ann_body, ann_target):
                 yield (action, uri)
+        self._remoteRo.reloadManifest()
                 
         for (ann_node, ann_body, ann_target) in self._remoteRo.getAllAnnotationNodes():
             for (action, uri) in self.__checkRemoteAnnotation(ann_node):
                 yield (action, uri)
+        self._remoteRo.reloadManifest()
         
         self._localRo.saveRegistries()
         return
