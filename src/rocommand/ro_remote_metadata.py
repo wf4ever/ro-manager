@@ -178,6 +178,9 @@ class ro_remote_metadata(object):
             # Read manifest graph
             self.manifestgraph.parse(self.manifesturi)
         return self.manifestgraph
+    
+    def reloadManifest(self):
+        self._loadManifest(refresh = True)
 
     def _loadAnnotations(self):
         if self.roannotations: return self.roannotations
@@ -262,7 +265,7 @@ class ro_remote_metadata(object):
         return parseduri.scheme in ["http", "https"] and not self.isResourceInternal(resuri)
 
     def aggregateResourceInt(
-            self, respath, ctype="application/octet-stream", body=None):
+            self, respath, ctype="application/octet-stream", body=None, _refresh = True):
         """
         Aggegate internal resource
         Return (status, reason, proxyuri, resuri), where status is 201
@@ -298,7 +301,7 @@ class ro_remote_metadata(object):
         if status not in [200,201]:
             raise self.error("Error creating aggregated resource content",
                 "%d03 %s (%s)"%(status, reason, respath))
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason, headers, resuri)
 
     def updateResourceInt(
@@ -342,7 +345,7 @@ class ro_remote_metadata(object):
             raise self.error("Error creating aggregation proxy",
                 "%d03 %s (%s)"%(status, reason, str(resuri)))
         proxyuri = rdflib.URIRef(headers["location"])
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason, proxyuri, rdflib.URIRef(resuri))
     
     def getROResourceProxy(self, resuriref):
@@ -376,7 +379,7 @@ class ro_remote_metadata(object):
         if status != 204:
             raise self.error("Error deleting aggregated resource",
                 "%d03 %s (%s)"%(status, reason, resuriref))
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason, headers, resuriref)
 
     def getHead(self, resuriref):
@@ -432,7 +435,7 @@ class ro_remote_metadata(object):
             raise self.error("Error creating annotation",
                 "%d03 %s"%(status, reason))
         annuri = rdflib.URIRef(headers["location"])
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason, rdflib.URIRef(annuri))
     
     def updateAnnotationNode(self, annpath, bodypath, targetpath):
@@ -465,7 +468,7 @@ class ro_remote_metadata(object):
         if status != 200:
             raise self.error("Error updating annotation",
                 "%d03 %s (%s)"%(status, reason, annuri))
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason)
 
     def deleteAnnotationNode(self, annpath):
@@ -479,7 +482,7 @@ class ro_remote_metadata(object):
         if not status in [204, 404]:
             raise self.error("Error deleting aggregated annotation",
                 "%d03 %s (%s)"%(status, reason, annuri))
-        self._loadManifest(refresh = True)
+        self._loadManifest()
         return (status, reason, headers, annuri)
 
     def getAllAnnotationNodes(self):
