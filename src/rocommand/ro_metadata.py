@@ -90,6 +90,7 @@ class ro_metadata(object):
             assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
                                     (str(self.rouri), status, reason))
             self.manifestgraph = manifest 
+        log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
 
     def _updateManifest(self):
@@ -139,7 +140,9 @@ class ro_metadata(object):
             for anode in self._iterAnnotations():
                 auri = manifest.value(subject=anode, predicate=AO.body)
                 if auri not in annotation_uris_loaded:
-                    self._readAnnotationBody(auri, self.roannotations)
+                    aref = self.getComponentUriRel(auri)
+                    log.debug("_loadAnnotations: aref "+str(aref))
+                    self._readAnnotationBody(aref, self.roannotations)
                     annotation_uris_loaded.add(auri)
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
