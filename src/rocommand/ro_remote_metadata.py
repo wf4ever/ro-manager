@@ -48,7 +48,7 @@ class ROSRS_Error(Exception):
 
     def __str__(self):
         txt = self._msg
-        if self._srsuri: txt += " for "+str(self._srsuri)
+#        if self._srsuri: txt += " for "+str(self._srsuri)
         if self._value:  txt += ": "+repr(self._value)
         return txt
 
@@ -287,7 +287,7 @@ class ro_remote_metadata(object):
             reqheaders=reqheaders, body=proxydata)
         if status != 201:
             raise self.error("Error creating aggregation proxy",
-                            "%d03 %s (%s)"%(status, reason, respath))
+                            "%03d %s (%s)"%(status, reason, respath))
         proxyuri = rdflib.URIRef(headers["location"])
         links    = self.httpsession.parseLinks(headers)
         if "http://www.openarchives.org/ore/terms/proxyFor" not in links:
@@ -300,7 +300,7 @@ class ro_remote_metadata(object):
             method="PUT", ctype=ctype, body=body)
         if status not in [200,201]:
             raise self.error("Error creating aggregated resource content",
-                "%d03 %s (%s)"%(status, reason, respath))
+                "%03d %s (%s)"%(status, reason, respath))
         self._loadManifest()
         return (status, reason, headers, resuri)
 
@@ -318,7 +318,7 @@ class ro_remote_metadata(object):
             resuri, method="PUT", ctype=ctype, body=body)
         if status != 200:
             raise self.error("Error updating aggregated resource content",
-                "%d03 %s (%s)"%(status, reason, respath))
+                "%03d %s (%s)"%(status, reason, respath))
         return (status, reason, headers, respath)
 
     def aggregateResourceExt(self, resuri):
@@ -343,7 +343,7 @@ class ro_remote_metadata(object):
             body=proxydata)
         if status != 201:
             raise self.error("Error creating aggregation proxy",
-                "%d03 %s (%s)"%(status, reason, str(resuri)))
+                "%03d %s (%s)"%(status, reason, str(resuri)))
         proxyuri = rdflib.URIRef(headers["location"])
         self._loadManifest()
         return (status, reason, proxyuri, rdflib.URIRef(resuri))
@@ -369,16 +369,19 @@ class ro_remote_metadata(object):
         Return (status, reason, None, resuri), where status is 204 or 404
         """
         proxyuri = self.getROResourceProxy(resuriref)
-        if not proxyuri:
-            raise self.error("Could not find proxy for %s"%str(resuriref))
-        (status, reason, headers, _) = self.httpsession.doRequest(
-            proxyuri, method="DELETE")
+        if proxyuri:
+            (status, reason, headers, _) = self.httpsession.doRequest(
+                proxyuri, method="DELETE")
+        else:
+            log.debug("Could not find proxy for %s"%str(resuriref))
+            (status, reason, headers, _) = self.httpsession.doRequest(
+                resuriref, method="DELETE")
         if status == 307:
             (status, reason, headers, _) = self.httpsession.doRequest(
                     headers["location"], method="DELETE")
         if status != 204:
-            raise self.error("Error deleting aggregated resource",
-                "%d03 %s (%s)"%(status, reason, resuriref))
+            raise self.error("Could not delete aggregated resource",
+                "%03d %s (%s)"%(status, reason, resuriref))
         self._loadManifest()
         return (status, reason, headers, resuriref)
 
@@ -433,7 +436,7 @@ class ro_remote_metadata(object):
             body=annotation)
         if status != 201:
             raise self.error("Error creating annotation",
-                "%d03 %s"%(status, reason))
+                "%03d %s"%(status, reason))
         annuri = rdflib.URIRef(headers["location"])
         self._loadManifest()
         return (status, reason, rdflib.URIRef(annuri))
@@ -467,7 +470,7 @@ class ro_remote_metadata(object):
             body=annotation)
         if status != 200:
             raise self.error("Error updating annotation",
-                "%d03 %s (%s)"%(status, reason, annuri))
+                "%03d %s (%s)"%(status, reason, annuri))
         self._loadManifest()
         return (status, reason)
 
@@ -480,8 +483,8 @@ class ro_remote_metadata(object):
         (status, reason, headers, _) = self.httpsession.doRequest(
             annuri, method="DELETE")
         if not status in [204, 404]:
-            raise self.error("Error deleting aggregated annotation",
-                "%d03 %s (%s)"%(status, reason, annuri))
+            raise self.error("Could not delete aggregated annotation",
+                "%03d %s (%s)"%(status, reason, annuri))
         self._loadManifest()
         return (status, reason, headers, annuri)
 

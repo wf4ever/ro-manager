@@ -9,6 +9,7 @@ import rdflib
 import mimetypes
 
 from rocommand import ro_uriutils
+from rocommand.ro_remote_metadata import ROSRS_Error
 
 log = logging.getLogger(__name__)
 
@@ -123,22 +124,22 @@ class PushResearchObject:
                 # Check locally stored ETag
                 previousETag = self._localRo.getRegistries().get("%s,etag"%filename, None)
                 previousChecksum = self._localRo.getRegistries().get("%s,checksum"%filename, None)
-                overwrite = False
-                if not previousETag or previousETag != currentETag:
-                    log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS (ETag was %s is %s)"%(respath, previousETag, currentETag))
-                    yield (ACTION_UPDATE_OVERWRITE, respath)
-                    overwrite = True
-                elif not previousChecksum or previousChecksum != currentChecksum:
-                    log.debug("ResourceSync.pushResearchObject: %s has been modified locally (checksum was %s is %s)"%(respath, previousChecksum, currentChecksum))
-                    yield (ACTION_UPDATE, respath)
-                    overwrite = True
-                if overwrite:
+                if not previousETag or previousETag != currentETag or not previousChecksum or previousChecksum != currentChecksum:
                     rf = open(ro_uriutils.getFilenameFromUri(localResuri), 'r')
-                    (status, reason, headers, resuri) = self._remoteRo.updateResourceInt(respath, 
-                                               mimetypes.guess_type(localResuri)[0],
-                                               rf)
-                    self._localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
-                    self._localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
+                    try:
+                        (status, reason, headers, resuri) = self._remoteRo.updateResourceInt(respath, 
+                                                   mimetypes.guess_type(localResuri)[0],
+                                                   rf)
+                        self._localRo.getRegistries()["%s,etag"%filename] = headers.get("etag", None)
+                        self._localRo.getRegistries()["%s,checksum"%filename] = currentChecksum
+                        if not previousETag or previousETag != currentETag:
+                            log.debug("ResourceSync.pushResearchObject: %s has been modified in ROSRS (ETag was %s is %s)"%(respath, previousETag, currentETag))
+                            yield (ACTION_UPDATE_OVERWRITE, respath)
+                        elif not previousChecksum or previousChecksum != currentChecksum:
+                            log.debug("ResourceSync.pushResearchObject: %s has been modified locally (checksum was %s is %s)"%(respath, previousChecksum, currentChecksum))
+                            yield (ACTION_UPDATE, respath)
+                    except ROSRS_Error as e:
+                        yield (ACTION_ERROR, e)
                 else:
                     log.debug("ResourceSync.pushResearchObject: %s has NOT been modified"%(respath))
                     yield (ACTION_SKIP, respath)
@@ -156,8 +157,12 @@ class PushResearchObject:
                 pass
             else:
                 log.debug("ResourceSync.pushResearchObject: %s will be deaggregated"%(resuri))
-                yield (ACTION_DELETE, resuri)
-                self._remoteRo.deaggregateResource(resuri)
+                try:
+                    self._remoteRo.deaggregateResource(resuri)
+                    yield (ACTION_DELETE, resuri)
+                except ROSRS_Error as e:
+                    yield (ACTION_ERROR, e)
+                        
                 
     def __uploadLocalAnnotation(self, ann_node, ann_body, ann_target):
         annpath = self._localRo.getComponentUriRel(ann_node)
@@ -165,10 +170,13 @@ class PushResearchObject:
         targetpath = self._localRo.getComponentUriRel(ann_target)
         if isinstance(ann_node, rdflib.BNode) or not self._remoteRo.isAnnotationNode(annpath):
             log.debug("ResourceSync.pushResearchObject: %s is a new annotation"%(annpath))
-            (_, _, remote_ann_node_uri) = self._remoteRo.addAnnotationNode(bodypath, targetpath)
-            remote_ann_node_path = self._remoteRo.getComponentUriRel(remote_ann_node_uri)
-            self._localRo.replaceUri(ann_node, self._localRo.getComponentUriAbs(remote_ann_node_path))
-            yield (ACTION_AGGREGATE_ANNOTATION, remote_ann_node_path)
+            try:
+                (_, _, remote_ann_node_uri) = self._remoteRo.addAnnotationNode(bodypath, targetpath)
+                remote_ann_node_path = self._remoteRo.getComponentUriRel(remote_ann_node_uri)
+                self._localRo.replaceUri(ann_node, self._localRo.getComponentUriAbs(remote_ann_node_path))
+                yield (ACTION_AGGREGATE_ANNOTATION, remote_ann_node_path)
+            except ROSRS_Error as e:
+                yield (ACTION_ERROR, e)
         else:
             log.debug("ResourceSync.pushResearchObject: %s is an existing annotation"%(annpath))
             self._remoteRo.updateAnnotationNode(annpath, bodypath, targetpath)
@@ -178,8 +186,11 @@ class PushResearchObject:
         annpath = self._remoteRo.getComponentUriRel(ann_node)
         if not self._localRo.isAnnotationNode(annpath):
             log.debug("ResourceSync.pushResearchObject: annotation %s will be deleted"%(ann_node))
-            yield (ACTION_DELETE_ANNOTATION, ann_node)
-            self._remoteRo.deleteAnnotationNode(ann_node)
+            try:
+                self._remoteRo.deleteAnnotationNode(ann_node)
+                yield (ACTION_DELETE_ANNOTATION, ann_node)
+            except ROSRS_Error as e:
+                yield (ACTION_ERROR, e)
         pass
 
 def pushZipRO(localRo, remoteRo, force = False):

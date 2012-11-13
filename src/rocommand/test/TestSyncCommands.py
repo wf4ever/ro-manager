@@ -211,6 +211,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
           , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
           , "robase/RO_test_ro_checkout/" + ann1
           , "robase/RO_test_ro_checkout/" + ann2
+          , "robase/RO_test_ro_checkout/.ro/evo_info.ttl"
           ]
 
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
