@@ -140,7 +140,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
 
     def testGetAsZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        roid = "romanagertest-" + str(uuid.uuid4())      
+        roid = "testGetAsZip"      
         (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
