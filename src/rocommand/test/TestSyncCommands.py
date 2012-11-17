@@ -11,6 +11,7 @@ import os.path
 import filecmp
 import logging
 import shutil
+import urlparse
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -135,13 +136,13 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         args = [
             "ro", "push",
             "-d", rodir,
-            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
+        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_push/"))
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
@@ -151,9 +152,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.assertEqual(self.outstr.getvalue().count("Annotation deleted in ROSRS:"), 0)
         # Clean up
         self.deleteTestRo(rodir)
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_push/")
+        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_push/"))
         return
 
     def testCheckout(self):
@@ -169,11 +170,16 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         # Add anotations for file
         ann1 = localRo.addSimpleAnnotation(roresource, "type",         "Test file")
         ann2 = localRo.addSimpleAnnotation(roresource, "description",  "File in test research object")
+        # remove previous RO
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+            accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_checkout/"))
+
         # push an RO
         args = [
             "ro", "push",
             "-d", rodir,
-            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
@@ -188,7 +194,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         args = [
             "ro", "checkout", "RO_test_ro_checkout",
             "-d", ro_test_config.ROBASEDIR,
-            "-r", "http://sandbox.wf4ever-project.org/rodl/ROs/",
+            "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
             ]
@@ -205,6 +211,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
           , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
           , "robase/RO_test_ro_checkout/" + ann1
           , "robase/RO_test_ro_checkout/" + ann2
+          , "robase/RO_test_ro_checkout/.ro/evo_info.ttl"
           ]
 
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
@@ -221,9 +228,9 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         # delete the checked out copy
         self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
-        httpsession = ROSRS_Session("http://sandbox.wf4ever-project.org/rodl/ROs/",
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, "http://sandbox.wf4ever-project.org/rodl/ROs/RO_test_ro_checkout/")
+        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_checkout/"))
         return
 
     # Sentinel/placeholder tests
