@@ -5,5 +5,55 @@
 
 .trafficlight {
     text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+/*
+.trafficlight.large {
+    width: 64px;
+    height: 64px;
+}
+*/
+
+/*
+.trafficlight.small {
+    width: 32px;
+    height: 32px;
+}
+*/
+
+.trafficlight.large div {
+    width: 64px;
+    height: 64px;
+}
+
+.trafficlight.small div {
+    width: 32px;
+    height: 32px;
+}
+
+.trafficlight.large.green {
+    background-image: url(images/button_green_64.png);
+}
+
+.trafficlight.small.green {
+    background-image: url(images/button_green_32.png);
+}
+
+.trafficlight.large.amber {
+    background-image: url(images/button_yellow_64.png);
+}
+
+.trafficlight.small.amber {
+    background-image: url(images/button_yellow_32.png);
+}
+
+.trafficlight.large.red {
+    background-image: url(images/button_red_64.png);
+}
+
+.trafficlight.small.red {
+    background-image: url(images/button_red_32.png);
 }
 
