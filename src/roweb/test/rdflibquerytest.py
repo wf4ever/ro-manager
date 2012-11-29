@@ -31,30 +31,49 @@ class TestRdfQuery(unittest.TestCase):
                xmlns:dct="http://purl.org/dc/terms/"
                xmlns:ex="http://example.org/terms/"
             >
-              <rdf:Description rdf:about="simple-test-data.rdf">
+              <rdf:Description rdf:about="test1.rdf">
                 <rdfs:label>Label</rdfs:label>
                 <dct:title>Title</dct:title>
               </rdf:Description>
+              <!--
+              <rdf:Description rdf:about="test2.rdf">
+                <rdfs:label>Label2</rdfs:label>
+                <dct:title>Title2</dct:title>
+              </rdf:Description>
+              <rdf:Description rdf:about="test3.rdf">
+                <rdfs:label>Label3</rdfs:label>
+                <dct:title>Title3</dct:title>
+              </rdf:Description>
+              -->
             </rdf:RDF>
             """
         teststream = StringIO.StringIO(testdata)
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(teststream)
-        query = """
+        if True:
+            print "\n-----"
+            for s, p, o in rdfgraph:
+                print str(s)
+                print str(p)
+                print str(o)
+                print "---"
+        query1 = """
             PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
+            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } 
+            ORDER DESC BY ?s
             """
-        query = """
+        query2 = """
             PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
             SELECT * WHERE { ?s rdfs:label ?label . }
             """
-        resp = rdfgraph.query(query, initBindings={ 'title': "foo" })
+        resp = rdfgraph.query(query1)
+        #resp = rdfgraph.query(query2, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')
         bindings = resp.bindings
         count = 0
@@ -62,8 +81,10 @@ class TestRdfQuery(unittest.TestCase):
         for b in bindings:
             count += 1
             print "Result bindings %d:"%count
+            print repr(b)
             for k in b:
                 print "%s: %s"%(str(k), str(b[k]))
+        for b in bindings:
             self.assertEquals(b['title'], "Title")
             self.assertEquals(b['label'], "Label")
         return
