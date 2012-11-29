@@ -85,9 +85,9 @@ def parseCommandArgs(argv):
     parser.add_option("-b", "--ro-base",
                       dest="robasedir",
                       help="Base of local directory tree used for ROs")
-    parser.add_option("-d", "--ro-directory",
+    parser.add_option("-d", "--ro-directory", "--ro-uri",
                       dest="rodir",
-                      help="Directory of Research Object to process (defaults to current directory)")
+                      help="Directory or URI of Research Object to process (defaults to current directory)")
     parser.add_option("-e", "--user-email",
                       dest="useremail",
                       help="Email address of research objects owner")

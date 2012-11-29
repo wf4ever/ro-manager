@@ -41,7 +41,7 @@ def resolveFileAsUri(path):
     (for idempotency and non-file URIs)
     """
     if urlparse.urlsplit(path).scheme == "":
-        path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
+        path = resolveUri("", fileuribase, os.path.abspath(path))
     return path
 
 def getFilenameFromUri(uri):

@@ -1,0 +1,20 @@
+Templated output based on SPARQL templates
+
+
+1. Rough syntax for template DSL (using JSON-like notation)
+
+Report-template = { 'report': template-item, ... (may need to add more?) }
+
+template-item = sequence | query-template
+
+sequence = [ template-item, ... ]
+
+query-template = { 'output': python-format-string, 
+                   'query': sparql-query[NONE], 
+                   'alt-output': python-format-string[None], 
+                   'max': integer[1] }
+
+
+
+
+

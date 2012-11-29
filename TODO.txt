@@ -20,8 +20,6 @@ TODO:
 * ro show config
 * ro create should fail if RO already created
 
-* Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
-
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** See: https://www.pivotaltracker.com/story/show/26123933
@@ -49,6 +47,8 @@ Technical debt:
 ----
 
 DONE
+
+* Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
 
 * ro config: configure research object management tool
 * ro create: create new research object
@@ -105,7 +105,7 @@ Option table
 ("-a", "--all",                 help="All, list all files, depends on the context")
 ("-b", "--ro-base",             help="Base of local directory tree used for ROs")
   -c
-("-d", "--ro-directory",        help="Directory of Research Object to process (defaults to current directory)")
+("-d", "--ro-directory", "--ro-uri", help="Directory or URI of Research Object to process (defaults to current directory)")
 ("-e", "--user-email",          help="Email address of research objects owner")
 ("-f", "--force",               help="Force, depends on the context")
 ("-g", "--graph",               help="Name of existing RDF graph used for annotation")

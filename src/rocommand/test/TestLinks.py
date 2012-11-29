@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Module to test RO manager annotation commands
+Module to test RO manager link command
 
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
