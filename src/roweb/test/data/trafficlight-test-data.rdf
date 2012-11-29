@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:result="http://www.w3.org/2001/sw/DataAccess/tests/result-set#"
+  xmlns:minim="http://purl.org/minim/minim#"
+>
+  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO">
+    <rdfs:comment>
+          Constraint to be satisfied if the RO is to be repeatable; 
+          i.e. a reviewer can rerun the execution and compare results 
+          with those obtained previously.
+        </rdfs:comment>
+
+    <minim:onResource>
+      <rdf:Description rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/">
+        <minim:testedPurpose>Runnable</minim:testedPurpose>
+        <minim:modelUri rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
+        <minim:minimallySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
+        <minim:satisfied>
+          <rdf:Description rdf:nodeID="_31dc4a62-d208-45b8-aa2a-303abfd259c1">
+            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
+          </rdf:Description>
+        </minim:satisfied>
+        <minim:satisfied>
+          <rdf:Description rdf:nodeID="_5c372831-03a6-4ea9-b5d9-e8e46a01b72b">
+            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
+          </rdf:Description>
+        </minim:satisfied>
+        <minim:satisfied>
+          <rdf:Description rdf:nodeID="_5c454bf3-6573-413f-abbf-7493d8594022">
+            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
+            <result:binding>
+              <rdf:Description rdf:nodeID="_4e49ce06-c848-450d-9261-33843e295927">
+                <result:value>_166b4022-b24b-4b03-afb4-62c3695139a7</result:value>
+                <result:variable>wi</result:variable>
+              </rdf:Description>
+            </result:binding>
+            <result:binding>
+              <rdf:Description rdf:nodeID="_ca8a541d-458c-48a3-903b-e8899644bf7e">
+                <result:value>http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/data/UserRequirements-gen.ods</result:value>
+                <result:variable>if</result:variable>
+              </rdf:Description>
+            </result:binding>
+            <result:binding>
+              <rdf:Description rdf:nodeID="_4541cb21-3e76-4351-bbb2-cc60a8df8eb3">
+                <result:value>http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/docs/mkjson.sh</result:value>
+                <result:variable>wf</result:variable>
+              </rdf:Description>
+            </result:binding>
+          </rdf:Description>
+        </minim:satisfied>
+        <minim:satisfied>
+          <rdf:Description rdf:nodeID="_606f37a9-3d11-41c2-85b0-ae6d94c3a54a">
+            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
+          </rdf:Description>
+        </minim:satisfied>
+        <minim:testedTarget>.</minim:testedTarget>
+        <minim:fullySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
+        <minim:minimUri rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf"/>
+        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO"/>
+        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO"/>
+        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO"/>
+        <minim:testedConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO"/>
+        <minim:nominallySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
+      </rdf:Description>
+    </minim:onResource>
+
+    <minim:forPurpose>Repeatable</minim:forPurpose>
+
+    <minim:toModel>
+
+      <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO_model">
+        <rdfs:label>Repeatable RO</rdfs:label>
+        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
+        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
+        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles"/>
+        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
+        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
+        <rdfs:comment>
+      This model defines information that must be available for the 
+      requirements Research Object to be repeatable; i.e. to re-run it and
+      compare results with a previous run.
+        </rdfs:comment>
+      </minim:Model>
+
+    </minim:toModel>
+
+  </minim:Constraint>
+
+  <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO_model">
+    <rdfs:label>Reviewable requirements RO</rdfs:label>
+    <minim:hasMustRequirement>
+      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles">
+        <minim:isDerivedBy>
+          <minim:ContentMatchRequirementRule rdf:nodeID="_f055c80b-b29a-4f2c-9183-7d9e6bae1aa2">
+            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
+            <minim:aggregatesTemplate>{+if}</minim:aggregatesTemplate>
+            <minim:showfail>Workflow %(wf)s input %(if)s not found</minim:showfail>
+            <minim:forall>
+          
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput ?wi .
+          ?wi wfdesc:hasArtifact ?if .
+        </minim:forall>
+            <minim:showpass>All workflow inputs referenced or present</minim:showpass>
+          </minim:ContentMatchRequirementRule>
+        </minim:isDerivedBy>
+      </minim:Requirement>
+    </minim:hasMustRequirement>
+    <minim:hasMustRequirement>
+      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-run">
+        <minim:isDerivedBy>
+          <minim:ContentMatchRequirementRule rdf:nodeID="_d9bf372e-9e19-4503-9596-d72930c5d373">
+            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-run"/>
+            <minim:showfail>No workflow run found</minim:showfail>
+            <minim:exists>
+          ?wf rdf:type wfprov:WorkflowRun .
+        </minim:exists>
+            <minim:showpass>Workflow run found</minim:showpass>
+          </minim:ContentMatchRequirementRule>
+        </minim:isDerivedBy>
+      </minim:Requirement>
+    </minim:hasMustRequirement>
+    <minim:hasMustRequirement>
+      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance">
+        <minim:isDerivedBy>
+          <minim:ContentMatchRequirementRule rdf:nodeID="_3df93ac4-7cad-46bd-9c17-c27593eeeda3">
+            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
+            <minim:showfail>No workflow instance or template found</minim:showfail>
+            <minim:exists>
+          ?wf rdf:type wfdesc:Workflow .
+        </minim:exists>
+            <minim:showpass>Workflow instance or template found</minim:showpass>
+          </minim:ContentMatchRequirementRule>
+        </minim:isDerivedBy>
+      </minim:Requirement>
+    </minim:hasMustRequirement>
+    <minim:hasMustRequirement>
+      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles">
+        <minim:isDerivedBy>
+          <minim:ContentMatchRequirementRule rdf:nodeID="_4fa764ae-867b-4ccc-8a12-89167d4ef8ee">
+            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles"/>
+            <minim:aggregatesTemplate>{+of}</minim:aggregatesTemplate>
+            <minim:showfail>Workflow %(wf)s output %(of)s not found</minim:showfail>
+            <minim:forall>
+          
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasOutput ?wo .
+          ?wo wfdesc:hasArtifact ?of .
+        </minim:forall>
+            <minim:showpass>All workflow outputs referenced or present</minim:showpass>
+          </minim:ContentMatchRequirementRule>
+        </minim:isDerivedBy>
+      </minim:Requirement>
+    </minim:hasMustRequirement>
+    <rdfs:comment>
+      This model defines information that must be available for the 
+      requirements Research Object to be reviewable; i.e. so that a reviewer
+      can see all the workflow executions, with inputs and outputs generated.
+      
+      (This does not require visibility of intermediate steps within the WF.)
+    </rdfs:comment>
+  </minim:Model>
+
+  <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show">
+    <minim:isDerivedBy>
+      <minim:SoftwareEnvironmentRule rdf:nodeID="_e2198628-6bbb-49c0-9c3f-66269bdc5072">
+        <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
+        <minim:show>lpOD command %(command)s returns %(response)s</minim:show>
+        <minim:command>lpod-show.py --version</minim:command>
+        <minim:response>0.9.3</minim:response>
+      </minim:SoftwareEnvironmentRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+  <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python">
+    <minim:isDerivedBy>
+      <minim:SoftwareEnvironmentRule rdf:nodeID="_1db289c3-3900-409c-9d7a-af9a9b5830e8">
+        <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
+        <minim:show>Installed python version %(response)s</minim:show>
+        <minim:command>python --version</minim:command>
+        <minim:response>Python 2.7</minim:response>
+      </minim:SoftwareEnvironmentRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model">
+    <rdfs:label>Runnable RO</rdfs:label>
+    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
+    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
+    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
+    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
+    <rdfs:comment>
+      This model defines information that must be available for the 
+      requirements Research Object to be runnable.
+    </rdfs:comment>
+  </minim:Model>
+
+  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO">
+    <rdfs:comment>
+          Constraint to be satisfied if the RO is to be reviewable; 
+          i.e. a reviewer can retrace the execution steps, including inputs and outputs, 
+          and appropriate annotations, without actually running the RO.
+        </rdfs:comment>
+    <minim:onResource rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"/>
+    <minim:forPurpose>Reviewable</minim:forPurpose>
+    <minim:toModel rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO_model"/>
+  </minim:Constraint>
+
+  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO">
+    <rdfs:comment>
+          Constraint to be satisfied if the RO is to be runnable
+        </rdfs:comment>
+    <minim:onResource rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"/>
+    <minim:forPurpose>Runnable</minim:forPurpose>
+    <minim:toModel rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
+  </minim:Constraint>
+
+</rdf:RDF>
+

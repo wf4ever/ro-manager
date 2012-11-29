@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY rdf     "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY rdfs    "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY owl     "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd     "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml     "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfg    "http://www.w3.org/2004/03/trix/rdfg-1/" >
+    <!ENTITY ore     "http://www.openarchives.org/ore/terms/" >
+    <!ENTITY ao      "http://purl.org/ao/" >
+    <!ENTITY dcterms "http://purl.org/dc/terms/" >
+    <!ENTITY foaf    "http://xmlns.com/foaf/0.1/" >
+    <!ENTITY ro      "http://purl.org/wf4ever/ro#" >
+    <!ENTITY wfprov  "http://purl.org/wf4ever/wfprov#" >
+    <!ENTITY wfdesc  "http://purl.org/wf4ever/wfdesc#" >
+    <!ENTITY minim   "http://purl.org/minim/minim#" >
+]>
+
+<rdf:RDF xmlns="."
+     xmlns:rdf="&rdf;"
+     xmlns:rdfs="&rdfs;"
+     xmlns:owl="&owl;"
+     xmlns:xsd="&xsd;"
+     xmlns:xml="&xml;"
+     xmlns:rdfg="&rdfg;"
+     xmlns:ore="&ore;"
+     xmlns:ao="&ao;"
+     xmlns:dcterms="&dcterms;"
+     xmlns:foaf="&foaf;"
+     xmlns:ro="&ro;"
+     xmlns:wfprov="&wfprov;"
+     xmlns:wfdesc="&wfdesc;"
+     xmlns:minim="&minim;"
+>
+
+  <!-- ===========
+       CONSTRAINTS 
+       ===========
+    -->
+
+  <!-- Target for Minimum information requirement "Runnable"
+
+       Minim invokes minimum information models on for a specified purpose
+       relating to a specified target.  The requirement may apply to some
+       resource other than the specified target.
+    -->
+
+  <rdf:Description rdf:about="http://purl.org/wf4ever/checklists//runnable-wf-trafficlight/checklist.rdf#constraints">
+
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#Runnable">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>Runnable</minim:forPurpose>
+        <minim:toModel rdf:resource="#Runnable_model" />
+        <rdfs:comment>
+          Constraint to be satisfied if the target is to be Runnable
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+
+  </rdf:Description>
+
+  <!-- ======
+       MODELS
+       ======
+    -->
+
+  <!-- Model (checklist) enumerating requirements for target to be Runnable.
+    -->
+  <minim:Model rdf:about="#Runnable_model">
+    <rdfs:label>Runnable</rdfs:label>
+    <rdfs:comment>
+      This model defines information that must be satisfied by the target RO
+      for the target resource to be Runnable.
+    </rdfs:comment>
+    <minim:hasMustRequirement rdf:resource="#has_workflow" />
+    <minim:hasMustRequirement rdf:resource="#workflows_aggregated" />
+    <minim:hasShouldRequirement rdf:resource="#workflows_accessible" />
+    <minim:hasMustRequirement rdf:resource="#has_workflow_inputs" />
+    <minim:hasMustRequirement rdf:resource="#workflow_inputs_aggregated" />
+    <minim:hasShouldRequirement rdf:resource="#workflow_inputs_accessible" />
+  </minim:Model>
+
+  <!-- =================
+       REQUIREMENT RULES
+       =================
+    -->
+
+  <!-- Workflow description must be present -->
+  <minim:Requirement rdf:about="#has_workflow">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?wf rdf:type wfdesc:Workflow .
+        </minim:exists>
+        <minim:showpass>Workflow description found</minim:showpass>
+        <minim:showfail>No workflow description found</minim:showfail>
+        <minim:derives rdf:resource="#has_workflow" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow descriptions must be aggregated -->
+  <minim:Requirement rdf:about="#workflows_aggregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+wf}
+        </minim:aggregatesTemplate>
+        <minim:showpass>All declared workflow descriptions are aggregated</minim:showpass>
+        <minim:showfail>Workflow description %(wf)s is not aggregated</minim:showfail>
+        <minim:derives rdf:resource="#workflows_aggregated" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow descriptions must be accessible (live) -->
+  <minim:Requirement rdf:about="#workflows_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+wf}
+        </minim:isLiveTemplate>
+        <minim:showpass>All declared workflow descriptions are accessible</minim:showpass>
+        <minim:showfail>Workflow description %(wf)s is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#workflows_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow description must be present -->
+  <minim:Requirement rdf:about="#has_workflow_inputs">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:exists>
+        <minim:showpass>Workflow input(s) found</minim:showpass>
+        <minim:showfail>No workflow inputs found</minim:showfail>
+        <minim:derives rdf:resource="#has_workflow_inputs" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow inputs must be aggregated -->
+  <minim:Requirement rdf:about="#workflow_inputs_aggregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+if}
+        </minim:aggregatesTemplate>
+        <minim:showpass>All declared workflow inputs are aggregated</minim:showpass>
+        <minim:showfail>Workflow %(wf)s input %(if)s is not aggregated</minim:showfail>
+        <minim:derives rdf:resource="#workflow_inputs_aggregated" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow inputs must be accessible (live) -->
+  <minim:Requirement rdf:about="#workflow_inputs_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+if}
+        </minim:isLiveTemplate>
+        <minim:showpass>All declared workflow inputs are accessible</minim:showpass>
+        <minim:showfail>Workflow %(wf)s input %(if)s is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#workflow_inputs_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+</rdf:RDF>
