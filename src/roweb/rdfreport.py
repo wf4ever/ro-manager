@@ -26,7 +26,11 @@ query-template  = { 'query':    sparql-query [None],
 
 import sys
 import collections
+import re
+import logging
 import rdflib
+
+log = logging.getLogger(__file__)
 
 def generate_report(repdefn, rdfgraph, initvars, outstr):
     """
@@ -55,11 +59,13 @@ def process_item(repitem, rdfgraph, initvars, outstr):
                 report generation query process
     outstr      a stream to which the report is written
     """
+    log.debug("process_item: repitem:  "+repr(repitem))
+    log.debug("              initvars: "+repr(initvars))
     if isinstance(repitem, dict):
         # Single query template
         process_query(repitem, rdfgraph, initvars, outstr)
     elif isinstance(repitem, collections.Iterable):
-        # Iterable list of items - join query results from sequence
+        # Iterable list of items - apply each
         for q in repitem:
             process_query(q, rdfgraph, initvars, outstr)
     else:
@@ -79,9 +85,14 @@ def process_query(qitem, rdfgraph, initvars, outstr):
     Process a single query+template structure
     """
     # do query
+    log.debug("process_query:")
+    log.debug(" - initvars: "+repr(initvars))
     query       = qitem.get('query', None)
     newbindings = [initvars]
     if query:
+        for ql in query.split('\n'):
+            if not re.match("\s*(PREFIX|$)", ql):
+                log.debug(" - query: "+ql);
         resp = rdfgraph.query(qitem['query'],initBindings=initvars)
         if resp.type == 'ASK':
             if not resp.askAnswer: newbindings = []
@@ -89,6 +100,7 @@ def process_query(qitem, rdfgraph, initvars, outstr):
             newbindings = resp.bindings
         else:
             raise "Unexpected query response type %s"%resp.type
+    log.debug(" - newbindings: "+repr(newbindings))
     # Apply limit to result set
     maxrepeat   = qitem.get('max', sys.maxsize)
     newbindings = takefirst(maxrepeat, newbindings)
@@ -97,12 +109,13 @@ def process_query(qitem, rdfgraph, initvars, outstr):
     report  = qitem.get('report', None)
     alt     = qitem.get('alt', None)
     sep     = qitem.get('sep', None)
+    usealt  = alt
     nextsep = None
     for b in newbindings:
-        newbinding = initvars
+        newbinding = initvars.copy()
         for k in b:
             if not isinstance(k,rdflib.BNode):
-                newbinding[str(k)] = str(b[k])
+                newbinding[str(k)] = b[k]
         if nextsep:
             outstr.write(nextsep%newbinding)
         if output:
@@ -111,7 +124,7 @@ def process_query(qitem, rdfgraph, initvars, outstr):
             process_item(report, rdfgraph, newbinding, outstr)
         usealt  = False
         nextsep = sep
-    if alt:
+    if usealt:
         outstr.write(alt%initvars)
     return
 
