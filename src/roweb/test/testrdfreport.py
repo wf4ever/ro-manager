@@ -20,6 +20,8 @@ if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
+    # sys.path.insert(0, "/usr/workspace/github-rdfextras")
+    # sys.path.insert(0, "/usr/workspace/github-rdflib")
 
 import rdflib
 
@@ -118,7 +120,7 @@ class TestRdfReport(unittest.TestCase):
 
     def testQueryResultMerge(self):
         """
-        Test a simple query report
+        Test a simple query merged with existing results
         """
         report = (
             { 'report':
@@ -131,6 +133,26 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph.parse("data/simple-test-data.rdf")
         rdfreport.generate_report(report, rdfgraph, {'name': 'anyone'}, outstr)
         self.assertEqual("Hello Graham and anyone", outstr.getvalue())
+        return
+
+    def testQueryResultPreBinding(self):
+        """
+        Test a simple query with pre-bound result value
+        """
+        report = (
+            { 'report':
+              { 'query':  prefixes+"SELECT ?s ?creator ?label WHERE { ?s dct:creator ?creator; rdfs:label ?label }"
+              , 'output': "Hello %(creator)s"
+              }
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        self.assertEqual("Hello Graham", outstr.getvalue())
+        outstr   = StringIO.StringIO()
+        rdfreport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
+        self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
     def testSequence(self):
@@ -265,17 +287,19 @@ class TestRdfReport(unittest.TestCase):
         """
         report = (
             { 'report':
-              [ { 'query':  prefixes+"SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label"
+              [ { 'query':  prefixes+
+                            "SELECT ?s ?title ?label WHERE { ?s dct:title ?title; rdfs:label ?label } "+
+                            "ORDER BY DESC(?label)"
                 , 'output': "\nFound %(title)s:"
                 , 'report':
                   [ {'output': "\nTags for %(label)s: " }
-                  , { 'query':  prefixes+"SELECT * WHERE { ?s ex:notag ?tag } ORDER BY ?tag"
+                  , { 'query':  prefixes+"SELECT ?tag WHERE { ?s ex:tag ?tag } ORDER BY ?tag"
                     , 'output': "%(tag)s"
                     , 'sep':    ", "
                     , 'alt':    "none"
                     }
                   , { 'output': "." }
-                  , { 'output': "\nFinished: %(title)s." }
+                  , { 'output': "\nFinished %(title)s." }
                   ]
                 }
               , { 'output': "\nFinished all." }
@@ -288,10 +312,10 @@ class TestRdfReport(unittest.TestCase):
         expected = ("\n"+
             "Found Simple test data:\n"+
             "Tags for simple-test-data: tag1, tag2, tag3, tag4.\n"+
-            "Finished all."+
+            "Finished Simple test data.\n"+
             "Found More test data:\n"+
             "Tags for more-test-data: more1, more2.\n"+
-            "Finished all."+
+            "Finished More test data.\n"+
             "Finished all."+
             "")
         result = outstr.getvalue()
@@ -325,25 +349,27 @@ class TestRdfReport(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
+            SELECT ?s ?label ?title WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
             """
-        query = """
-            PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX dct:     <http://purl.org/dc/terms/>
-
-            SELECT * WHERE { ?s rdfs:label ?label . }
-            """
+        # query = """
+        #     PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        #     PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
+        #     PREFIX dct:     <http://purl.org/dc/terms/>
+        # 
+        #     SELECT ?s ?label ?title WHERE { ?s rdfs:label ?label . }
+        #     """
+        #     SELECT * WHERE { ?s rdfs:label ?label . }
+        #     SELECT ?s ?title ?label WHERE { ?s rdfs:label ?label . }
         resp = rdfgraph.query(query, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')
         bindings = resp.bindings
         count = 0
         for b in bindings:
             count += 1
-            print "Result bindings %d:"%count
+            print "\nResult bindings %d:"%count
             for k in b:
                 print "%s: %s"%(str(k), str(b[k]))
-            self.assertEquals(b['title'], "Title")
+            self.assertEquals(b['title'], "foo")
             self.assertEquals(b['label'], "Label")
         return
 
@@ -381,12 +407,14 @@ def getTestSuite(select="unit"):
             , "testHelloWorld"
             , "testSimpleQuery"
             , "testQueryResultMerge"
+            , "testQueryResultPreBinding"
             , "testSequence"
             , "testAlternative"
             , "testAlternativeMissing"
             , "testRepetition"
             , "testRepetitionMax"
             , "testRepetitionAlt"
+            , "testQueryForNesting"
             , "testNesting"
             #, "testTrafficlight"
             ],

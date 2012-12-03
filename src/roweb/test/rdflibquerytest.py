@@ -85,7 +85,7 @@ class TestRdfQuery(unittest.TestCase):
             PREFIX dct:     <http://purl.org/dc/terms/>
 
             SELECT ?s ?title ?label WHERE { ?s dct:title ?title; rdfs:label ?label } 
-            ORDER DESC BY ?s
+            ORDER BY DESC(?s)
             """
         resp = rdfgraph.query(query1)
         self.assertEqual(resp.type, 'SELECT')
