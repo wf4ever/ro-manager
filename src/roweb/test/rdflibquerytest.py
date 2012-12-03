@@ -19,8 +19,6 @@ if __name__ == '__main__':
 log  = logging.getLogger(__file__)
 here = os.path.dirname(os.path.abspath(__file__))
 
-log = logging.getLogger(__name__)
-
 import rdflib
 
 testdata1 = """<?xml version="1.0" encoding="UTF-8"?>
@@ -71,49 +69,6 @@ class TestRdfQuery(unittest.TestCase):
         return
 
     def testQuery1(self):
-        teststream = StringIO.StringIO(testdata)
-        rdfgraph = rdflib.Graph()
-        rdfgraph.parse(teststream)
-        if True:
-            print "\n-----"
-            for s, p, o in rdfgraph:
-                print str(s)
-                print str(p)
-                print str(o)
-                print "---"
-        query1 = """
-            PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX dct:     <http://purl.org/dc/terms/>
-
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } 
-            ORDER DESC BY ?s
-            """
-        query2 = """
-            PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX dct:     <http://purl.org/dc/terms/>
-
-            SELECT * WHERE { ?s rdfs:label ?label . }
-            """
-        resp = rdfgraph.query(query1)
-        #resp = rdfgraph.query(query2, initBindings={ 'title': "foo" })
-        self.assertEqual(resp.type, 'SELECT')
-        bindings = resp.bindings
-        count = 0
-        print "\n-----"
-        for b in bindings:
-            count += 1
-            print "Result bindings %d:"%count
-            print repr(b)
-            for k in b:
-                print "%s: %s"%(str(k), str(b[k]))
-        for b in bindings:
-            self.assertEquals(b['title'], "Title")
-            self.assertEquals(b['label'], "Label")
-        return
-
-    def testQuery1(self):
         teststream = StringIO.StringIO(testdata1)
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(teststream)
@@ -129,7 +84,7 @@ class TestRdfQuery(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } 
+            SELECT ?s ?title ?label WHERE { ?s dct:title ?title; rdfs:label ?label } 
             ORDER DESC BY ?s
             """
         resp = rdfgraph.query(query1)
@@ -164,7 +119,7 @@ class TestRdfQuery(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s rdfs:label ?label . }
+            SELECT ?s ?title ?label WHERE { ?s rdfs:label ?label . }
             """
         resp = rdfgraph.query(query2, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')
