@@ -114,39 +114,11 @@ def real_evaluate(request):
         }
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
-    #   ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
-    # @@TODO: replace with call to ro_eval_minim.evalResultGraph(graph, evalResult)
-    graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-    graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
-    graph.bind("minim",  "http://purl.org/minim/minim#")
-    rouri = rdflib.URIRef(evalresult['rouri'])
-    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
-    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))       )
-    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
-    for level in evalresult['summary']:
-        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
-        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
-    # Add details for all rules tested...
-    def addRequirementsDetail(results, satlevel):
-        for (req, binding) in results:
-            b = rdflib.BNode()
-            graph.add( (rouri, satlevel, b) )
-            graph.add( (b, MINIM.tryRequirement, req['uri']) )
-            for k in binding:
-                b2 = rdflib.BNode()
-                graph.add( (b,  RESULT.binding,  b2) )
-                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
-                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-    addRequirementsDetail(evalresult['satisfied'], MINIM.satisfied)
-    addRequirementsDetail(evalresult['missingMay'], MINIM.missingMay)
-    addRequirementsDetail(evalresult['missingShould'], MINIM.missingShould)
-    addRequirementsDetail(evalresult['missingMust'], MINIM.missingMust)
+    graph =  ro_eval_minim.evalResultGraph(graph, evalResult)
     return graph
 
 def fake_evaluate(request):
