@@ -119,14 +119,14 @@ def real_evaluate(request):
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
-    #graph = rdflib.Graph() // start with minim graph
+    # @@TODO: replace with call to ro_eval_minim.evalResultGraph(graph, evalResult)
     graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
     graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
     graph.bind("minim",  "http://purl.org/minim/minim#")
     rouri = rdflib.URIRef(evalresult['rouri'])
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))        )
+    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))       )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     for level in evalresult['summary']:

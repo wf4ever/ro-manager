@@ -116,7 +116,7 @@ Option table
   -l,  "--report-level",        help="Reporting level of detail to generate (summary, must, should, may or full)"
   -m
 ("-n", "--user-name",           help="Full name of research objects owner")
-  -o
+("-o", "--output",              help="Output format to generate: text, rdfxml, turtle")
 ("-p", "--rosrs-password",      help="ROSRS password")
   -q
 ("-r", "--rosrs-uri",           help="URI of ROSRS service")

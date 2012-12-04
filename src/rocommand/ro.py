@@ -109,6 +109,9 @@ def parseCommandArgs(argv):
     parser.add_option("-n", "--user-name",
                       dest="username",
                       help="Full name of research objects owner")
+    parser.add_option("-o", "--output",
+                      dest="outformat",
+                      help="Output format to generate: text, rdfxml, turtle")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri",
                       help="URI of ROSRS service")

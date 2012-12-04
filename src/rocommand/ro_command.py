@@ -39,6 +39,26 @@ import ro_rosrs_sync
 from iaeval import ro_eval_minim
 from zipfile import ZipFile
 
+RDFTYP = ["RDFXML","N3","TURTLE","NT","JSONLD","RDFA"]
+VARTYP = ["JSON","CSV","XML"]
+
+RDFTYPPARSERMAP = (
+    { "RDFXML": "xml"
+    , "N3":     "n3"
+    , "TURTLE": "n3"
+    , "NT":     "nt"
+    , "JSONLD": "jsonld"
+    , "RDFA":   "rdfa"
+    })
+
+RDFTYPSERIALIZERMAP = (
+    { "RDFXML": "pretty-xml"
+    , "N3":     "n3"
+    , "TURTLE": "turtle"
+    , "NT":     "nt"
+    , "JSONLD": "jsonld"
+    })
+
 def getoptionvalue(val, prompt):
     if not val:
         if sys.stdin.isatty():
@@ -132,9 +152,9 @@ ro_command_usage = (
           , "link -d <dir> -w <pattern> -g <RDF-graph>"
           ])
     , (["annotations"], argminmax(2, 3),
-          ["annotations [ <file> | -d <dir> ]"])
+          ["annotations [ <file> | -d <dir> ] [ -o <format> ]"])
     , (["evaluate", "eval"], argminmax(5, 6),
-          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"])
+          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] [ -o <format> ] <minim> <purpose> [ <target> ]"])
     , (["push"], (lambda options, args: (argminmax(2, 3) if options.rodir else len(args) == 3)),
           ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["checkout"], argminmax(2, 3),
@@ -770,9 +790,15 @@ def evaluate(progname, configbase, options, args):
         if options.verbose:
             print "== Evaluation result =="
             print json.dumps(evalresult, indent=2)
-        ro_eval_minim.format(evalresult,
-            { "detail" : "full" if options.all else options.level },
-            sys.stdout)
+        if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+            # RDF output
+            graph = ro_eval_minim.evalResultGraph(minimgraph, evalresult)
+            graph.serialize(destination=sys.stdout,
+                format=RDFTYPSERIALIZERMAP[options.outformat.upper()])
+        else:
+            ro_eval_minim.format(evalresult,
+                { "detail" : "full" if options.all else options.level },
+                sys.stdout)
     # elif ... other functions here
     else:
         print ("%s evaluate: unrecognized function provided (%s)" % (progname, ro_options["function"]))

@@ -24,7 +24,7 @@ from rocommand.ro_uriutils   import isLiveUri
 from rocommand.ro_namespaces import RDF, RDFS, ORE
 from rocommand.ro_metadata   import ro_metadata
 import ro_minim
-from ro_minim import MINIM
+from ro_minim import MINIM, RESULT
 
 def evaluate(rometa, minim, target, purpose):
     """
@@ -49,7 +49,11 @@ def evaluate(rometa, minim, target, purpose):
     1. locate the minim model constraint for the target resource and purpose
     2. evaluate the RO against the selected model.
     
-    The result indicates a summary and details of the analysis; e.g.
+    The function returns a pair of values (minimgraph, evalresult)
+    
+    minimgraph is a cpy of the minim graph on which the evaluation was based.
+    
+    The evalresult indicates a summary and details of the analysis; e.g.
     { 'summary':       [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
     , 'missingMust':   []
     , 'missingShould': []
@@ -94,7 +98,8 @@ def evaluate(rometa, minim, target, purpose):
             exp = re.compile(resp)
             satisfied = exp.match(out)
             reqeval.append((r,satisfied,{}))
-            log.debug("- Software %s: response %s,  satisfied %s"%(cmnd, resp, "OK" if satisfied else "Fail"))
+            log.debug("- Software %s: response %s,  satisfied %s"%
+                      (cmnd, resp, "OK" if satisfied else "Fail"))
         elif 'contentmatchrule' in r:
             (satisfied, bindings) = evalContentMatch(rometa, r['contentmatchrule'], cbindings)
             reqeval.append((r,satisfied,bindings))
@@ -139,6 +144,45 @@ def evaluate(rometa, minim, target, purpose):
                 sat_levels['MAY'] = None
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
     return (minimgraph, eval_result)
+
+def evalResultGraph(graph, evalresult):
+    """
+    This function combines the results from the evaluate function (above) to return
+    a single RDF result graph that is the result of the checklist evaluation service, 
+    and also is returned when RDF output is requested by 'ro evaluate checklist'.
+    
+    graph       is the minim graph used for the evaluation.
+                The supplied graph is updated and returned by this function.
+    evalresult  is the evaluation result returned by the evaluation
+    """
+    graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
+    graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
+    graph.bind("minim",  "http://purl.org/minim/minim#")
+    rouri = rdflib.URIRef(evalresult['rouri'])
+    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
+    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))       )
+    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
+    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
+    for level in evalresult['summary']:
+        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
+        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
+    # Add details for all rules tested...
+    def addRequirementsDetail(results, satlevel):
+        for (req, binding) in results:
+            b = rdflib.BNode()
+            graph.add( (rouri, satlevel, b) )
+            graph.add( (b, MINIM.tryRequirement, req['uri']) )
+            for k in binding:
+                b2 = rdflib.BNode()
+                graph.add( (b,  RESULT.binding,  b2) )
+                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
+                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+    addRequirementsDetail(evalresult['satisfied'], MINIM.satisfied)
+    addRequirementsDetail(evalresult['missingMay'], MINIM.missingMay)
+    addRequirementsDetail(evalresult['missingShould'], MINIM.missingShould)
+    addRequirementsDetail(evalresult['missingMust'], MINIM.missingMust)
+    return graph
 
 def evalContentMatch(rometa, rule, constraintbinding):
     """
@@ -208,7 +252,8 @@ def evalContentMatch(rometa, rule, constraintbinding):
                     , 'querypattern': exists
                     })
                 query = querytemplate%existsparams
-                log.debug("***** evalContentMatch RO test exists: \nquery: %s \nbinding: %s)"%(query, repr(binding)))
+                log.debug("***** evalContentMatch RO test exists: \nquery: %s \nbinding: %s"%
+                          (query, repr(binding)))
                 satisfied = rometa.queryAnnotations(query,initBindings=binding)
             if template:
                 # Construct URI for file from template
