@@ -177,7 +177,7 @@
               wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
         </minim:forall>
         <minim:isLiveTemplate>
-          {+if}
+          {+if}-nothere
         </minim:isLiveTemplate>
         <minim:showpass>All declared workflow inputs are accessible</minim:showpass>
         <minim:showfail>Workflow %(wf)s input %(if)s is not accessible</minim:showfail>
