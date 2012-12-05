@@ -7,7 +7,7 @@ Basic command functions for ro, research object manager
 import sys
 import os
 import os.path
-import readline  # enable input editing for raw_input
+### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
@@ -16,7 +16,11 @@ import shutil
 import urlparse
 import urllib2
 import zipfile
-from _pyio import BytesIO
+
+###@@TODO:
+###Where did this come from???
+###from _pyio import BytesIO
+
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
