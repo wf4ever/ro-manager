@@ -30,7 +30,8 @@ TODO:
 * ro users
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
-* Options for RO logging of changes, etc
+  (done for eval checklist; annotations, list todo)
+* Options for RO logging of changes, etc.
 * ro list currently shows only files: want to show directories too?
 
 Other functions:
@@ -39,8 +40,11 @@ Other functions:
 
 Technical debt:
 - Mop up @@TODOs
+- try new rdflib SPARQL processor as drop-in for rdfextras 
 - new test cases for evaluation
-- Check out rdflib sparql query bnode bug - is it fixed? (I think it is - test cases to revert?)
+- Check out rdflib sparql query bnode bug - is it fixed?
+  (It was fixed, but a similar problem with query parameter ordering has been found.)
+  (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
 

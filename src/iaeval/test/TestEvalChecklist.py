@@ -558,8 +558,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEqual(evalresult['minimuri'],      rdflib.URIRef(minimuri))
         self.assertEqual(evalresult['target'],        rouri)
         self.assertEqual(evalresult['purpose'],       "Repeatable")
-        self.assertEqual(evalresult['constrainturi'], rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO"))
-        self.assertEqual(evalresult['modeluri'],      rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO_model"))
+        self.assertEqual(evalresult['constrainturi'],
+                         rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO"))
+        self.assertEqual(evalresult['modeluri'],
+                         rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO_model"))
         self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
         self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
         self.assertNotIn(MINIM.minimallySatisfies, evalresult['summary'])

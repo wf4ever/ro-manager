@@ -21,7 +21,7 @@ import rdflib
 from uritemplate import uritemplate
 
 from rocommand.ro_uriutils   import isLiveUri
-from rocommand.ro_namespaces import RDF, RDFS, ORE
+from rocommand.ro_namespaces import RDF, RDFS, ORE, DCTERMS
 from rocommand.ro_metadata   import ro_metadata
 import ro_minim
 from ro_minim import MINIM, RESULT
@@ -68,6 +68,7 @@ def evaluate(rometa, minim, target, purpose):
     """
     # Locate the constraint model requirements
     rouri        = rometa.getRoUri()
+    roid         = rometa.getResourceValue(rouri, DCTERMS.identifier  )
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
@@ -120,6 +121,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'missingMay':     []
         , 'satisfied':      []
         , 'rouri':          rouri
+        , 'roid':           roid
         , 'minimuri':       minimuri
         , 'target':         target
         , 'purpose':        purpose
@@ -167,21 +169,23 @@ def evalResultGraph(graph, evalresult):
     for level in evalresult['summary']:
         log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
         graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
-    # Add details for all rules tested...
-    def addRequirementsDetail(results, satlevel):
+    # Add details for all items tested...
+    def addRequirementsDetail(satisfied, results, satlevel):
         for (req, binding) in results:
             b = rdflib.BNode()
+            msg = formatRule(satisfied, req, binding)
             graph.add( (rouri, satlevel, b) )
             graph.add( (b, MINIM.tryRequirement, req['uri']) )
+            graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
             for k in binding:
                 b2 = rdflib.BNode()
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-    addRequirementsDetail(evalresult['satisfied'], MINIM.satisfied)
-    addRequirementsDetail(evalresult['missingMay'], MINIM.missingMay)
-    addRequirementsDetail(evalresult['missingShould'], MINIM.missingShould)
-    addRequirementsDetail(evalresult['missingMust'], MINIM.missingMust)
+    addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
+    addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
+    addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
+    addRequirementsDetail(False, evalresult['missingMust'], MINIM.missingMust)
     return graph
 
 def evalContentMatch(rometa, rule, constraintbinding):

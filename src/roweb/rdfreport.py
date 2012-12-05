@@ -108,8 +108,9 @@ def process_query(qitem, rdfgraph, initvars, outstr):
     output  = qitem.get('output', None)
     report  = qitem.get('report', None)
     alt     = qitem.get('alt', None)
+    altrep  = qitem.get('altreport', None)
     sep     = qitem.get('sep', None)
-    usealt  = alt
+    usealt  = altrep or alt
     nextsep = None
     for b in newbindings:
         newbinding = initvars.copy()
@@ -125,7 +126,10 @@ def process_query(qitem, rdfgraph, initvars, outstr):
         usealt  = False
         nextsep = sep
     if usealt:
-        outstr.write(alt%initvars)
+        if altrep:
+            process_item(altrep, rdfgraph, initvars, outstr)
+        if alt:
+            outstr.write(alt%initvars)
     return
 
 # End.

@@ -180,7 +180,8 @@ def evaluate_turtle(request):
 @view_config(route_name='evaluate', request_method='GET', accept='application/rdf+xml')
 def evaluate_rdf(request):
     resultgraph = evaluate(request)
-    return Response(resultgraph.serialize(format='pretty-xml'), content_type="application/rdf+xml", vary=['accept'])
+    return Response(resultgraph.serialize(format='pretty-xml'),
+                    content_type="application/rdf+xml", vary=['accept'])
 
 @view_config(route_name='template', request_method='POST')
 def expand_uri_template(request):

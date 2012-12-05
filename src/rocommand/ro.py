@@ -111,7 +111,7 @@ def parseCommandArgs(argv):
                       help="Full name of research objects owner")
     parser.add_option("-o", "--output",
                       dest="outformat",
-                      help="Output format to generate: text, rdfxml, turtle")
+                      help="Output format to generate: TEXT, RDFXML, TURTLE, etc.")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri",
                       help="URI of ROSRS service")

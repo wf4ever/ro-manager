@@ -46,12 +46,13 @@ prefixes = """
     PREFIX rdfg:    <http://www.w3.org/2004/03/trix/rdfg-1/>
     PREFIX ore:     <http://www.openarchives.org/ore/terms/>
     PREFIX ao:      <http://purl.org/ao/>
-    PREFIX dct:     <http://purl.org/dc/terms/>
+    PREFIX dcterms: <http://purl.org/dc/terms/>
     PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
     PREFIX ro:      <http://purl.org/wf4ever/ro#>
     PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
     PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
     PREFIX minim:   <http://purl.org/minim/minim#>
+    PREFIX result:  <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
     PREFIX ex:      <http://example.org/terms/>
     """
 
@@ -319,9 +320,9 @@ class TestRdfReport(unittest.TestCase):
             "Finished all."+
             "")
         result = outstr.getvalue()
-        print "\n-----"
-        print result
-        print "-----"
+        # print "\n-----"
+        # print result
+        # print "-----"
         self.assertEqual(expected, result)
         return
 
@@ -373,6 +374,292 @@ class TestRdfReport(unittest.TestCase):
             self.assertEquals(b['label'], "Label")
         return
 
+    # Report structure used to get evaluation result URI from result graph
+    # Query idiom adapted from http://lists.w3.org/Archives/Public/public-sparql-dev/2006JulSep/0000.html
+    # With SPARQL 1.1 I think this could use LET clauses top avoid double-matching
+    evalresultreport = (
+        { 'report':
+          { 'output': "%(satisfaction)s"
+          , 'alt':    "http://purl.org/minim/minim#potentiallySatisfies"
+          , 'query':
+            """
+            SELECT ?target ?satisfaction ?minim WHERE
+            {
+              {
+                ?target ?satisfaction ?minim .
+                FILTER ( ?satisfaction = <http://purl.org/minim/minim#fullySatisfies> )
+              }
+              UNION
+              {
+                ?target ?satisfaction ?minim .
+                FILTER ( ?satisfaction = <http://purl.org/minim/minim#nominallySatisfies> )
+                OPTIONAL
+                {
+                  ?target ?altsat ?minim .
+                  FILTER ( ?altsat = <http://purl.org/minim/minim#fullySatisfies> )
+                }
+                FILTER ( ! bound(?altsat) )
+              }
+              UNION
+              {
+                ?target ?satisfaction ?minim .
+                FILTER ( ?satisfaction = <http://purl.org/minim/minim#minimallySatisfies> )
+                OPTIONAL
+                {
+                  ?target ?altsat ?minim .
+                  FILTER ( ?altsat = <http://purl.org/minim/minim#nominallySatisfies> )
+                }
+                FILTER ( ! bound(?altsat) )
+              }
+            }
+            """
+          }
+        })
+
+    def testReportEvalResultUri(self):
+        """
+        Test report that selects one of the following test result status URIs from:
+            http://purl.org/minim/minim#fullySatifies
+            http://purl.org/minim/minim#nominallySatifies
+            http://purl.org/minim/minim#minimallySatifies
+            http://purl.org/minim/minim#potentiallySatisfies
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        initvars  = (
+            { 'target': rdflib.URIRef(rouristr)
+            , 'minim':  rdflib.URIRef(checklist+"#Runnable_model") 
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfreport.generate_report(self.evalresultreport, rdfgraph, initvars, outstr)
+        expected = "http://purl.org/minim/minim#nominallySatisfies"
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        self.assertEqual(expected, result)
+        return
+
+    # Report structure used to get evaluation result label from result graph
+    evalresultreportlabel = (
+        { 'report':
+          { 'output': "fully satisfies"
+          , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+          , 'altreport':
+            { 'output': "nominally satisfies"
+            , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+            , 'altreport':
+              { 'output': "minimally satisfies"
+              , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+              , 'alt': "does not satisfy"
+              }
+            }
+          }
+        })
+
+    def testReportEvalResultLabel(self):
+        """
+        Test report that selects one of the following test result status URIs from:
+            http://purl.org/minim/minim#fullySatifies
+            http://purl.org/minim/minim#nominallySatifies
+            http://purl.org/minim/minim#minimallySatifies
+            http://purl.org/minim/minim#potentiallySatisfies
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        initvars  = (
+            { 'target': rdflib.URIRef(rouristr)
+            , 'minim':  rdflib.URIRef(checklist+"#Runnable_model") 
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfreport.generate_report(self.evalresultreportlabel, rdfgraph, initvars, outstr)
+        expected = "nominally satisfies"
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        self.assertEqual(expected, result)
+        return
+
+    # Report structure used to get evaluation class labels from result graph
+    evalresultreportclass = (
+        { 'report':
+          { 'output': '"pass"'
+          , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+          , 'altreport':
+            { 'output': '"fail", "may"'
+            , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+            , 'altreport':
+              { 'output': '"fail", "should"'
+              , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+              , 'alt': '"fail", "must"'
+              }
+            }
+          }
+        })
+
+    def testReportEvalResultClass(self):
+        """
+        Test report that selects one of the following test result status URIs from:
+            http://purl.org/minim/minim#fullySatifies
+            http://purl.org/minim/minim#nominallySatifies
+            http://purl.org/minim/minim#minimallySatifies
+            http://purl.org/minim/minim#potentiallySatisfies
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        initvars  = (
+            { 'target': rdflib.URIRef(rouristr)
+            , 'minim':  rdflib.URIRef(checklist+"#Runnable_model") 
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfreport.generate_report(self.evalresultreportclass, rdfgraph, initvars, outstr)
+        expected = '"fail", "may"'
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        self.assertEqual(expected, result)
+        return
+
+
+    evalitemreport = (
+        { 'report':
+          [
+            { 'output':
+                """
+                { 'itemuri':        "%(itemuri)s"
+                , 'itemlabel':      "Workflow is present"
+                , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
+                , 'itemsatisfied':  True
+                , 'itemclass':      ["pass","must"]
+                },
+                """
+              , 'query': prefixes+
+                """
+                SELECT ... WHERE
+                {
+                ?itemuri
+                }
+                """
+            }
+
+
+          ]
+        })
+
+
+    def testTrafficlightJSON(self):
+        """
+        Test report generating traffic-light JSON (per data/mockup.json)
+        
+        Outer query for RO, evaluation parameters and overall result
+        Inner query/loop for checklist items and results
+        """
+        # @@TODO: add sequence to minim model for output ordering.
+        report = (
+            { 'report':
+              [ { 'output':
+                    """
+                    { 'rouri':                  "%(rouri)s"
+                    , 'roid':                   "%(roid)s"
+                    , 'checklisturi':           "%(modeluri)s"
+                    , 'checklisttarget':        "%(target)s"
+                    , 'checklisttargetlabel':   "%(targetlabel)s"
+                    , 'checklistpurpose':       "%(purpose)s"
+                    """
+                , 'query':
+                    prefixes+
+                    """
+                    SELECT ?rouri ?roid ?modeluri ?target ?targetlabel ?purpose WHERE
+                    {
+                      ?rouri
+                        dcterms:identifier ?roid ;
+                        minim:modelUri ?modeluri ;
+                        minim:testedTarget ?target ;
+                        minim:testedPurpose ?purpose .
+                    ?target rdfs:label ?targetlabel .
+                    }
+                    LIMIT 1
+                    """
+                , 'report':
+                  [ { 'output':
+                        '''
+                        , 'evalresult':        "'''
+                    }
+                  , { 'report': self.evalresultreport
+                    }
+                  , { 'output':
+                        '''"'''
+                    }
+                  , { 'output':
+                        '''
+                        , 'evalresultlabel':   "'''
+                    }
+                  , { 'report': self.evalresultreportlabel
+                    }
+                  , { 'output':
+                        '''"'''
+                    }
+                  , { 'output':
+                        '''
+                        , 'evalresultclass':   ['''
+                    }
+                  , { 'report': self.evalresultreportclass
+                    }
+                  , { 'output':
+                        ''']'''
+                    }
+                  , { 'output':
+                        """
+                        , 'checklistitems':
+                          [
+                        """
+                    }
+                  , { 'report': self.evalitemreport
+                      # 'output':
+                      #   """
+                      #   itemuri:   %(itemuri)s
+                      #   itemlevel: %(itemlevel)s
+                      #   modeluri:  %(modeluri)s
+                      #   """
+                    , 'query': prefixes+
+                      """
+                      SELECT ?itemuri ?itemlevel ?modeluri WHERE
+                      { ?modeluri ?itemlevel ?itemuri .
+                        ?itemuri a minim:Requirement .
+                      }
+                      """
+                    }
+                  , { 'output':
+                        """
+                          ]
+                        """
+                    }
+                  ]
+                }
+              ]
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        expected = ("\n"+
+            "<stuff>\n"+
+            "")
+        result = outstr.getvalue()
+        print "\n-----"
+        print result
+        print "-----"
+        self.assertEqual(expected, result)
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -416,7 +703,10 @@ def getTestSuite(select="unit"):
             , "testRepetitionAlt"
             , "testQueryForNesting"
             , "testNesting"
-            #, "testTrafficlight"
+            , "testReportEvalResultUri"
+            , "testReportEvalResultLabel"
+            , "testReportEvalResultClass"
+            , "testTrafficlightJSON"
             ],
         "component":
             [ "testComponents"

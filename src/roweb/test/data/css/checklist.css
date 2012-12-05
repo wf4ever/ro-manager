@@ -9,6 +9,16 @@
     background-position: center;
 }
 
+th {
+    font-weight: bold;
+    text-align: left;
+}
+
+th p {
+    font-weight: normal;
+    text-align: left;
+}
+
 /*
 .trafficlight.large {
     width: 64px;
@@ -23,6 +33,14 @@
 }
 */
 
+span.testresult {
+    font-style: italic;
+}
+
+span.testpurpose {
+    font-style: italic;
+}
+
 .trafficlight.large div {
     width: 64px;
     height: 64px;
@@ -33,27 +51,27 @@
     height: 32px;
 }
 
-.trafficlight.large.green {
+.trafficlight.large.pass {
     background-image: url(images/button_green_64.png);
 }
 
-.trafficlight.small.green {
+.trafficlight.small.pass {
     background-image: url(images/button_green_32.png);
 }
 
-.trafficlight.large.amber {
+.trafficlight.large.fail.should {
     background-image: url(images/button_yellow_64.png);
 }
 
-.trafficlight.small.amber {
+.trafficlight.small.fail.should {
     background-image: url(images/button_yellow_32.png);
 }
 
-.trafficlight.large.red {
+.trafficlight.large.fail.must {
     background-image: url(images/button_red_64.png);
 }
 
-.trafficlight.small.red {
+.trafficlight.small.fail.must {
     background-image: url(images/button_red_32.png);
 }
 

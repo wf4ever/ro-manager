@@ -35,8 +35,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "satisfied", "missingMay", "missingShould", "missingMust"
             , "testedConstraint", "testedPurpose", "testedTarget"
             , "minimUri", "modelUri"
-            #, "tryRule"
-            , "tryRequirement"
+            , "tryRequirement", "tryMessage"
             ])
 
 resultnsuri = rdflib.URIRef("http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
