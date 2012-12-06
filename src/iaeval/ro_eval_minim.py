@@ -20,7 +20,7 @@ import rdflib
 #from rdflib import Literal
 from uritemplate import uritemplate
 
-from rocommand.ro_uriutils   import isLiveUri
+from rocommand.ro_uriutils   import isLiveUri, resolveUri
 from rocommand.ro_namespaces import RDF, RDFS, ORE, DCTERMS
 from rocommand.ro_metadata   import ro_metadata
 import ro_minim
@@ -157,13 +157,18 @@ def evalResultGraph(graph, evalresult):
                 The supplied graph is updated and returned by this function.
     evalresult  is the evaluation result returned by the evaluation
     """
-    graph.bind("rdf",    "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-    graph.bind("result", "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
-    graph.bind("minim",  "http://purl.org/minim/minim#")
-    rouri = rdflib.URIRef(evalresult['rouri'])
+    graph.bind("rdf",     RDF.baseUri)
+    graph.bind("rdfs",    RDFS.baseUri)
+    graph.bind("dcterms", DCTERMS.baseUri)
+    graph.bind("result",  RESULT.baseUri)
+    graph.bind("minim",   MINIM.baseUri)
+    rouri     = rdflib.URIRef(evalresult['rouri'])
+    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['roid']))         )
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     rdflib.Literal(evalresult['target']))       )
+    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     for level in evalresult['summary']:
