@@ -9,19 +9,20 @@ the required "traffic light"
 
 Report definition structure:
 
-report-defn     = { 'report': template-item }   // May add more later
+    report-defn     = { 'report': template-item }
 
-template-item   = sequence | query-template     // Bindings to date are fed down into template-item processing
+    template-item   = sequence | query-template
 
-sequence        = [ template-item, ... ]
+    sequence        = [ template-item, ... ]
 
-query-template  = { 'query':    sparql-query [None],
-                    'output':   python-format-string [None],
-                    'report':   template-item [None],
-                    'sep':      python-format-string [None],
-                    'alt':      python-format-string [None],
-                    'max':      integer [no limit],
-                  }
+    query-template  = { 'query':      sparql-query [None],            # Probe query for input RDF data
+                        'max':        integer [1],                    # Max numberof query matches to use
+                        'output':     python-format-string [None],    # Output format string for query results
+                        'report':     template-item [None],           # Sub-report used with query results
+                        'alt':        python-format-string [None],    # Alternate string if querry not matched
+                        'altreport':  template-item [None],           # Alternate sub-report for query not matched
+                        'sep':        python-format-string [None],    # Separator between query result outputs
+                      }
 """
 
 import sys

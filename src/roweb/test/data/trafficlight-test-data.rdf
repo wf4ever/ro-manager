@@ -626,7 +626,7 @@
         <minim:showpass>All declared workflow inputs are accessible</minim:showpass>
         <minim:showfail>Workflow %(wf)s input %(if)s is not accessible</minim:showfail>
         <minim:isLiveTemplate>
-          {+if}-nothere
+          {+if}
         </minim:isLiveTemplate>
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>

@@ -29,13 +29,13 @@ from MiscLib import TestUtils
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
-import rdfreport
+import RdfReport
+import TrafficLightReports
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
 simple_test_data = testbase+"/data/simple-test-data.rdf"
 trafficlight_test_data = testbase+"/data/trafficlight-test-data.rdf"
-
 
 def LIT(l): return rdflib.Literal(l)
 def REF(u): return rdflib.URIRef(u)
@@ -102,7 +102,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello world", outstr.getvalue())
         return
 
@@ -118,7 +118,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
@@ -135,7 +135,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {'name': 'anyone'}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'name': 'anyone'}, outstr)
         self.assertEqual("Hello Graham and anyone", outstr.getvalue())
         return
 
@@ -152,10 +152,10 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         outstr   = StringIO.StringIO()
-        rdfreport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
@@ -175,7 +175,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Foreword: Hello Graham; afterword.", outstr.getvalue())
         return
 
@@ -196,7 +196,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
         self.assertEqual("Foreword: Is anyone there? afterword.", outstr.getvalue())
         return
 
@@ -216,7 +216,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
         self.assertEqual("Foreword: afterword.", outstr.getvalue())
         return
 
@@ -237,7 +237,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: tag1, tag2, tag3, tag4.", outstr.getvalue())
         return
 
@@ -259,7 +259,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: tag1, tag2.", outstr.getvalue())
         return
 
@@ -281,7 +281,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: none.", outstr.getvalue())
         return
 
@@ -312,7 +312,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(simple_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr)
         expected = ("\n"+
             "Found Simple test data:\n"+
             "Tags for simple-test-data: tag1, tag2, tag3, tag4.\n"+
@@ -368,48 +368,6 @@ class TestRdfReport(unittest.TestCase):
             self.assertEquals(b['label'], "Label")
         return
 
-    # Report structure used to get evaluation result URI from result graph
-    # Query idiom adapted from http://lists.w3.org/Archives/Public/public-sparql-dev/2006JulSep/0000.html
-    # With SPARQL 1.1 I think this could use LET clauses top avoid double-matching
-    evalresultreport = (
-        { 'report':
-          { 'output': "%(satisfaction)s"
-          , 'alt':    "http://purl.org/minim/minim#potentiallySatisfies"
-          , 'query':
-            """
-            SELECT ?target ?satisfaction ?minim WHERE
-            {
-              {
-                ?target ?satisfaction ?minim .
-                FILTER ( ?satisfaction = <http://purl.org/minim/minim#fullySatisfies> )
-              }
-              UNION
-              {
-                ?target ?satisfaction ?minim .
-                FILTER ( ?satisfaction = <http://purl.org/minim/minim#nominallySatisfies> )
-                OPTIONAL
-                {
-                  ?target ?altsat ?minim .
-                  FILTER ( ?altsat = <http://purl.org/minim/minim#fullySatisfies> )
-                }
-                FILTER ( ! bound(?altsat) )
-              }
-              UNION
-              {
-                ?target ?satisfaction ?minim .
-                FILTER ( ?satisfaction = <http://purl.org/minim/minim#minimallySatisfies> )
-                OPTIONAL
-                {
-                  ?target ?altsat ?minim .
-                  FILTER ( ?altsat = <http://purl.org/minim/minim#nominallySatisfies> )
-                }
-                FILTER ( ! bound(?altsat) )
-              }
-            }
-            """
-          }
-        })
-
     def testReportEvalResultUri(self):
         """
         Test report that selects one of the following test result status URIs from:
@@ -427,7 +385,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(trafficlight_test_data)
-        rdfreport.generate_report(self.evalresultreport, rdfgraph, initvars, outstr)
+        RdfReport.generate_report(TrafficLightReports.EvalTargetResultUri, rdfgraph, initvars, outstr)
         expected = "http://purl.org/minim/minim#minimallySatisfies"
         result = outstr.getvalue()
         # print "\n-----"
@@ -436,30 +394,9 @@ class TestRdfReport(unittest.TestCase):
         self.assertEqual(expected, result)
         return
 
-    # Report structure used to get evaluation result label from result graph
-    evalresultreportlabel = (
-        { 'report':
-          { 'output': "fully satisfies"
-          , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
-          , 'altreport':
-            { 'output': "nominally satisfies"
-            , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
-            , 'altreport':
-              { 'output': "minimally satisfies"
-              , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
-              , 'alt': "does not satisfy"
-              }
-            }
-          }
-        })
-
     def testReportEvalResultLabel(self):
         """
-        Test report that selects one of the following test result status URIs from:
-            http://purl.org/minim/minim#fullySatifies
-            http://purl.org/minim/minim#nominallySatifies
-            http://purl.org/minim/minim#minimallySatifies
-            http://purl.org/minim/minim#potentiallySatisfies
+        Test report that selects a result label string
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
@@ -470,7 +407,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(trafficlight_test_data)
-        rdfreport.generate_report(self.evalresultreportlabel, rdfgraph, initvars, outstr)
+        RdfReport.generate_report(TrafficLightReports.EvalTargetResultLabel, rdfgraph, initvars, outstr)
         expected = "minimally satisfies"
         result = outstr.getvalue()
         # print "\n-----"
@@ -478,23 +415,6 @@ class TestRdfReport(unittest.TestCase):
         # print "-----"
         self.assertEqual(expected, result)
         return
-
-    # Report structure used to get evaluation class labels from result graph
-    evalresultreportclass = (
-        { 'report':
-          { 'output': '"pass"'
-          , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
-          , 'altreport':
-            { 'output': '"fail", "may"'
-            , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
-            , 'altreport':
-              { 'output': '"fail", "should"'
-              , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
-              , 'alt': '"fail", "must"'
-              }
-            }
-          }
-        })
 
     def testReportEvalResultClass(self):
         """
@@ -509,7 +429,7 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(trafficlight_test_data)
-        rdfreport.generate_report(self.evalresultreportclass, rdfgraph, initvars, outstr)
+        RdfReport.generate_report(TrafficLightReports.EvalTargetResultClass, rdfgraph, initvars, outstr)
         expected = '"fail", "should"'
         result = outstr.getvalue()
         # print "\n-----"
@@ -517,54 +437,6 @@ class TestRdfReport(unittest.TestCase):
         # print "-----"
         self.assertEqual(expected, result)
         return
-
-    # Report for extracting content of checklist item as JSON
-    # ?rouri ?itemuri ?itemlevel ?modeluri are pre-bound values
-    evalitemreportjson = (
-        { 'report':
-          [
-            { 'output':
-                '''\n    { "itemuri":        "%(itemuri)s"'''+
-                '''\n    , "itemlabel":      "%(itemlabel)s"'''+
-                '''\n    , "itemlevel":      "%(itemlevel)s" '''
-            , 'alt':  '''\n    *** no match fort message/label ***'''
-            , 'query': prefixes+
-                """
-                SELECT * WHERE
-                {
-                ?s minim:tryRequirement ?itemuri ;
-                   minim:tryMessage ?itemlabel .
-                }"""
-            },
-            { 'output':
-                '''\n    , "itemsatisfied":  true'''
-            , 'alt':
-                '''\n    , "itemsatisfied":  false'''
-            , 'query': prefixes+
-                """
-                SELECT * WHERE
-                {
-                  ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ]
-                }
-                """
-            },
-            { 'query':  prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
-            , 'output':     '''\n    , "itemclass":      ["pass"]'''
-            , 'altreport':
-              { 'query':  prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
-              , 'output':   '''\n    , "itemclass":      ["fail", "may"]'''
-              , 'altreport':
-                { 'query':  prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
-                , 'output': '''\n    , "itemclass":      ["fail", "should"]'''
-                , 'alt':    '''\n    , "itemclass":      ["fail", "must"]'''
-                }
-              }
-            },
-            { 'output':
-                '''\n    }'''
-            },
-          ]
-        })
 
     def testReportEvalItemJSON(self):
         """
@@ -581,11 +453,12 @@ class TestRdfReport(unittest.TestCase):
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(trafficlight_test_data)
-        rdfreport.generate_report(self.evalitemreportjson, rdfgraph, initvars, outstr)
+        RdfReport.generate_report(TrafficLightReports.EvalItemJson, rdfgraph, initvars, outstr)
         expected = (
             [ ''
             , '''{ "itemuri":        "%s#workflow_inputs_accessible"'''%(checklist)
-            , ''', "itemlabel":      "Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible"'''%
+            , ''', "itemlabel":      '''+
+              '''"Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible"'''%
               (rouristr, rouristr)
             , ''', "itemlevel":      "http://purl.org/minim/minim#missingShould"'''
             , ''', "itemsatisfied":  false'''
@@ -603,83 +476,11 @@ class TestRdfReport(unittest.TestCase):
     def testTrafficlightJSON(self):
         """
         Test report generating traffic-light JSON (per data/mockup.json)
-        
-        Outer query for RO, evaluation parameters and overall result
-        Inner query/loop for checklist items and results
         """
-        # @@TODO: add sequence to minim model for output ordering.
-        report = (
-            { 'report':
-              [ { 'output':
-                    '''\n{ "rouri":                  "%(rouri)s"'''+
-                    '''\n, "roid":                   "%(roid)s"'''+
-                    '''\n, "checklisturi":           "%(modeluri)s"'''+
-                    '''\n, "checklisttarget":        "%(target)s"'''+
-                    '''\n, "checklisttargetlabel":   "%(targetlabel)s"'''+
-                    '''\n, "checklistpurpose":       "%(purpose)s"'''
-                , 'query':
-                    prefixes+
-                    """
-                    SELECT ?rouri ?roid ?modeluri ?target ?targetlabel ?purpose WHERE
-                    {
-                      ?rouri
-                        dcterms:identifier ?roid ;
-                        minim:modelUri ?modeluri ;
-                        minim:testedTarget ?target ;
-                        minim:testedPurpose ?purpose .
-                      ?target rdfs:label ?targetlabel .
-                    }
-                    LIMIT 1
-                    """
-                , 'report':
-                  [ { 'output':
-                        '''\n, "evalresult":             "'''
-                    }
-                  , { 'report': self.evalresultreport
-                    }
-                  , { 'output':
-                        '''"'''
-                    }
-                  , { 'output':
-                        '''\n, "evalresultlabel":        "'''
-                    }
-                  , { 'report': self.evalresultreportlabel
-                    }
-                  , { 'output':
-                        '''"'''
-                    }
-                  , { 'output':
-                        '''\n, "evalresultclass":        ['''
-                    }
-                  , { 'report': self.evalresultreportclass
-                    }
-                  , { 'output':
-                        ''']'''
-                    }
-                  , { 'output':
-                        '''\n, "checklistitems":\n  ['''
-                    }
-                  , { 'report': self.evalitemreportjson
-                    , 'sep':    ","
-                    , 'query': prefixes+
-                      """
-                      SELECT ?itemuri ?itemlevel ?modeluri WHERE
-                      { ?modeluri ?itemlevel ?itemuri .
-                        ?itemuri a minim:Requirement .
-                      }
-                      """
-                    }
-                  , { 'output':
-                        '''\n  ]\n}'''
-                    }
-                  ]
-                }
-              ]
-            })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
         rdfgraph.parse(trafficlight_test_data)
-        rdfreport.generate_report(report, rdfgraph, {}, outstr)
+        RdfReport.generate_report(TrafficLightReports.EvalChecklistJson, rdfgraph, {}, outstr)
         # Test the non-item output only.  The previous test checks itemized output.
         expected = (
           [ ''''''
@@ -702,7 +503,8 @@ class TestRdfReport(unittest.TestCase):
             self.assertEqual(expected[i], resultlines[i].strip())
         # Check that output is valid JSON
         resultdict = json.loads(result)
-        self.assertEqual(resultdict['rouri'], "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/")
+        self.assertEqual(resultdict['rouri'],
+            "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/")
         return
 
     # Sentinel/placeholder tests
