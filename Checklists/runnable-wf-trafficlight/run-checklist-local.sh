@@ -3,6 +3,10 @@
 # RO manager checklist sample script, using local copies of ROs
 #
 
+RO=ro
+RO=/usr/workspace/wf4ever-ro-manager/romenv/bin/ro
+RO=/usr/workspace/wf4ever-ro-manager/src/ro
+
 # URI if minim file (needs to be absolute URI)
 MINIMURI="file://`pwd -P`/checklist.rdf"
 
@@ -28,7 +32,7 @@ for ROURI in $ROURIS; do
 
     #ro evaluate checklist --debug -v -d $ROURI -a $MINIMURI "Runnable" $RESURI
     echo "ro evaluate checklist -d $ROURI -a  $MINIMURI "Runnable" $RESURI"
-    ro evaluate checklist -a -o RDFXML -d $ROURI $MINIMURI "Runnable" $RESURI >evalchecklistresult.rdf
+    $RO evaluate checklist --debug -a -o RDFXML -d $ROURI $MINIMURI "Runnable" $RESURI >evalchecklistresult.rdf
 
     echo "--------"
 

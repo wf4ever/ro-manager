@@ -109,7 +109,7 @@ class TestRdfReport(unittest.TestCase):
         """
         report = (
             { 'report':
-              { 'query':  prefixes+"SELECT * WHERE { ?s dct:creator ?creator }"
+              { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator }"
               , 'output': "Hello %(creator)s" }
             })
         outstr   = StringIO.StringIO()
@@ -125,7 +125,7 @@ class TestRdfReport(unittest.TestCase):
         """
         report = (
             { 'report':
-              { 'query':  prefixes+"SELECT * WHERE { ?s dct:creator ?creator }"
+              { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator }"
               , 'output': "Hello %(creator)s and %(name)s"
               }
             })
@@ -142,7 +142,7 @@ class TestRdfReport(unittest.TestCase):
         """
         report = (
             { 'report':
-              { 'query':  prefixes+"SELECT ?s ?creator ?label WHERE { ?s dct:creator ?creator; rdfs:label ?label }"
+              { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator; rdfs:label ?label }"
               , 'output': "Hello %(creator)s"
               }
             })
@@ -163,7 +163,7 @@ class TestRdfReport(unittest.TestCase):
         report = (
             { 'report':
               [ { 'output': "Foreword: " }
-              , { 'query':  prefixes+"SELECT * WHERE { ?s dct:creator ?creator }"
+              , { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator }"
                 , 'output': "Hello %(creator)s; "
                 }
               , { 'output': "afterword." }
@@ -224,7 +224,7 @@ class TestRdfReport(unittest.TestCase):
         report = (
             { 'report':
               [ { 'output': "Tags: " }
-              , { 'query':  prefixes+"SELECT * WHERE { ?s dct:creator ?creator; ex:tag ?tag } ORDER BY ?tag"
+              , { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator; ex:tag ?tag } ORDER BY ?tag"
                 , 'output': "%(tag)s"
                 , 'sep':    ", "
                 }
@@ -245,7 +245,7 @@ class TestRdfReport(unittest.TestCase):
         report = (
             { 'report':
               [ { 'output': "Tags: " }
-              , { 'query':  prefixes+"SELECT * WHERE { ?s dct:creator ?creator; ex:tag ?tag } ORDER BY ?tag"
+              , { 'query':  prefixes+"SELECT * WHERE { ?s dcterms:creator ?creator; ex:tag ?tag } ORDER BY ?tag"
                 , 'output': "%(tag)s"
                 , 'sep':    ", "
                 , 'max':    2
@@ -289,12 +289,12 @@ class TestRdfReport(unittest.TestCase):
         report = (
             { 'report':
               [ { 'query':  prefixes+
-                            "SELECT ?s ?title ?label WHERE { ?s dct:title ?title; rdfs:label ?label } "+
+                            "SELECT ?s ?title ?label WHERE { ?s dcterms:title ?title; rdfs:label ?label } "+
                             "ORDER BY DESC(?label)"
                 , 'output': "\nFound %(title)s:"
                 , 'report':
                   [ {'output': "\nTags for %(label)s: " }
-                  , { 'query':  prefixes+"SELECT ?tag WHERE { ?s ex:tag ?tag } ORDER BY ?tag"
+                  , { 'query':  prefixes+"SELECT * WHERE { ?s ex:tag ?tag } ORDER BY ?tag"
                     , 'output': "%(tag)s"
                     , 'sep':    ", "
                     , 'alt':    "none"
@@ -350,17 +350,8 @@ class TestRdfReport(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT ?s ?label ?title WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
+            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
             """
-        # query = """
-        #     PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        #     PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-        #     PREFIX dct:     <http://purl.org/dc/terms/>
-        # 
-        #     SELECT ?s ?label ?title WHERE { ?s rdfs:label ?label . }
-        #     """
-        #     SELECT * WHERE { ?s rdfs:label ?label . }
-        #     SELECT ?s ?title ?label WHERE { ?s rdfs:label ?label . }
         resp = rdfgraph.query(query, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')
         bindings = resp.bindings
@@ -434,7 +425,7 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph = rdflib.Graph()
         rdfgraph.parse("data/trafficlight-test-data.rdf")
         rdfreport.generate_report(self.evalresultreport, rdfgraph, initvars, outstr)
-        expected = "http://purl.org/minim/minim#nominallySatisfies"
+        expected = "http://purl.org/minim/minim#minimallySatisfies"
         result = outstr.getvalue()
         # print "\n-----"
         # print result
@@ -477,7 +468,7 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph = rdflib.Graph()
         rdfgraph.parse("data/trafficlight-test-data.rdf")
         rdfreport.generate_report(self.evalresultreportlabel, rdfgraph, initvars, outstr)
-        expected = "nominally satisfies"
+        expected = "minimally satisfies"
         result = outstr.getvalue()
         # print "\n-----"
         # print result
@@ -504,11 +495,7 @@ class TestRdfReport(unittest.TestCase):
 
     def testReportEvalResultClass(self):
         """
-        Test report that selects one of the following test result status URIs from:
-            http://purl.org/minim/minim#fullySatifies
-            http://purl.org/minim/minim#nominallySatifies
-            http://purl.org/minim/minim#minimallySatifies
-            http://purl.org/minim/minim#potentiallySatisfies
+        Test report of a textual status summary of a checklist match
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
@@ -520,7 +507,7 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph = rdflib.Graph()
         rdfgraph.parse("data/trafficlight-test-data.rdf")
         rdfreport.generate_report(self.evalresultreportclass, rdfgraph, initvars, outstr)
-        expected = '"fail", "may"'
+        expected = '"fail", "should"'
         result = outstr.getvalue()
         # print "\n-----"
         # print result
@@ -529,7 +516,8 @@ class TestRdfReport(unittest.TestCase):
         return
 
 
-    evalitemreport = (
+    # Report for extracting content of checklist item as JSON
+    evalitemreportjson = (
         { 'report':
           [
             { 'output':
@@ -622,7 +610,7 @@ class TestRdfReport(unittest.TestCase):
                           [
                         """
                     }
-                  , { 'report': self.evalitemreport
+                  , { 'report': self.evalitemreportjson
                       # 'output':
                       #   """
                       #   itemuri:   %(itemuri)s
