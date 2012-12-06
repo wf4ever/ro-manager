@@ -32,7 +32,8 @@ for ROURI in $ROURIS; do
 
     #ro evaluate checklist --debug -v -d $ROURI -a $MINIMURI "Runnable" $RESURI
     echo "ro evaluate checklist -d $ROURI -a  $MINIMURI "Runnable" $RESURI"
-    $RO evaluate checklist --debug -a -o RDFXML -d $ROURI $MINIMURI "Runnable" $RESURI >evalchecklistresult.rdf
+    $RO evaluate checklist -a -d $ROURI $MINIMURI "Runnable" $RESURI
+    $RO evaluate checklist -a -o RDFXML -d $ROURI $MINIMURI "Runnable" $RESURI >evalchecklistresult.rdf
 
     echo "--------"
 
