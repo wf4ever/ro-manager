@@ -515,33 +515,87 @@ class TestRdfReport(unittest.TestCase):
         self.assertEqual(expected, result)
         return
 
-
     # Report for extracting content of checklist item as JSON
+    # ?rouri ?itemuri ?itemlevel ?modeluri are pre-bound values
     evalitemreportjson = (
         { 'report':
           [
             { 'output':
+                '''\n    { "itemuri":        "%(itemuri)s"'''+
+                '''\n    , "itemlabel":      "%(itemlabel)s"'''+
+                '''\n    , "itemlevel":      "%(itemlevel)s" '''
+            , 'alt':  '''\n    *** no match fort message/label ***'''
+            , 'query': prefixes+
                 """
-                { 'itemuri':        "%(itemuri)s"
-                , 'itemlabel':      "Workflow is present"
-                , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-                , 'itemsatisfied':  True
-                , 'itemclass':      ["pass","must"]
-                },
-                """
-              , 'query': prefixes+
-                """
-                SELECT ... WHERE
+                SELECT * WHERE
                 {
-                ?itemuri
+                ?s minim:tryRequirement ?itemuri ;
+                   minim:tryMessage ?itemlabel .
+                }"""
+            },
+            { 'output':
+                '''\n    , "itemsatisfied":  true'''
+            , 'alt':
+                '''\n    , "itemsatisfied":  false'''
+            , 'query': prefixes+
+                """
+                SELECT * WHERE
+                {
+                  ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ]
                 }
                 """
-            }
-
-
+            },
+            { 'query':  prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+            , 'output':     '''\n    , "itemclass":      ["pass"]'''
+            , 'altreport':
+              { 'query':  prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+              , 'output':   '''\n    , "itemclass":      ["fail", "may"]'''
+              , 'altreport':
+                { 'query':  prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+                , 'output': '''\n    , "itemclass":      ["fail", "should"]'''
+                , 'alt':    '''\n    , "itemclass":      ["fail", "must"]'''
+                }
+              }
+            },
+            { 'output':
+                '''\n    }'''
+            },
           ]
         })
 
+    def testReportEvalItemJSON(self):
+        """
+        Test report of a textual status summary of a checklist match
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        initvars  = (
+            { 'rouri':      rdflib.URIRef(rouristr)
+            , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
+            , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
+            , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfreport.generate_report(self.evalitemreportjson, rdfgraph, initvars, outstr)
+        expected = (
+            [ ''
+            , '''{ "itemuri":        "%s#workflow_inputs_accessible"'''%(checklist)
+            , ''', "itemlabel":      "Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible"'''%
+              (rouristr, rouristr)
+            , ''', "itemlevel":      "http://purl.org/minim/minim#missingShould"'''
+            , ''', "itemsatisfied":  false'''
+            , ''', "itemclass":      ["fail", "should"]'''
+            ])
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        resultlines = result.split('\n')
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], resultlines[i].strip())
+        return
 
     def testTrafficlightJSON(self):
         """
@@ -554,14 +608,12 @@ class TestRdfReport(unittest.TestCase):
         report = (
             { 'report':
               [ { 'output':
-                    """
-                    { 'rouri':                  "%(rouri)s"
-                    , 'roid':                   "%(roid)s"
-                    , 'checklisturi':           "%(modeluri)s"
-                    , 'checklisttarget':        "%(target)s"
-                    , 'checklisttargetlabel':   "%(targetlabel)s"
-                    , 'checklistpurpose':       "%(purpose)s"
-                    """
+                    '''\n{ "rouri":                  "%(rouri)s"'''+
+                    '''\n, "roid":                   "%(roid)s"'''+
+                    '''\n, "checklisturi":           "%(modeluri)s"'''+
+                    '''\n, "checklisttarget":        "%(target)s"'''+
+                    '''\n, "checklisttargetlabel":   "%(targetlabel)s"'''+
+                    '''\n, "checklistpurpose":       "%(purpose)s"'''
                 , 'query':
                     prefixes+
                     """
@@ -572,14 +624,13 @@ class TestRdfReport(unittest.TestCase):
                         minim:modelUri ?modeluri ;
                         minim:testedTarget ?target ;
                         minim:testedPurpose ?purpose .
-                    ?target rdfs:label ?targetlabel .
+                      ?target rdfs:label ?targetlabel .
                     }
                     LIMIT 1
                     """
                 , 'report':
                   [ { 'output':
-                        '''
-                        , 'evalresult':        "'''
+                        '''\n, "evalresult":             "'''
                     }
                   , { 'report': self.evalresultreport
                     }
@@ -587,8 +638,7 @@ class TestRdfReport(unittest.TestCase):
                         '''"'''
                     }
                   , { 'output':
-                        '''
-                        , 'evalresultlabel':   "'''
+                        '''\n, "evalresultlabel":        "'''
                     }
                   , { 'report': self.evalresultreportlabel
                     }
@@ -596,8 +646,7 @@ class TestRdfReport(unittest.TestCase):
                         '''"'''
                     }
                   , { 'output':
-                        '''
-                        , 'evalresultclass':   ['''
+                        '''\n, "evalresultclass":        ['''
                     }
                   , { 'report': self.evalresultreportclass
                     }
@@ -605,18 +654,10 @@ class TestRdfReport(unittest.TestCase):
                         ''']'''
                     }
                   , { 'output':
-                        """
-                        , 'checklistitems':
-                          [
-                        """
+                        '''\n, "checklistitems":\n  ['''
                     }
                   , { 'report': self.evalitemreportjson
-                      # 'output':
-                      #   """
-                      #   itemuri:   %(itemuri)s
-                      #   itemlevel: %(itemlevel)s
-                      #   modeluri:  %(modeluri)s
-                      #   """
+                    , 'sep':    ","
                     , 'query': prefixes+
                       """
                       SELECT ?itemuri ?itemlevel ?modeluri WHERE
@@ -626,9 +667,7 @@ class TestRdfReport(unittest.TestCase):
                       """
                     }
                   , { 'output':
-                        """
-                          ]
-                        """
+                        '''\n  ]\n}'''
                     }
                   ]
                 }
@@ -638,14 +677,29 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph = rdflib.Graph()
         rdfgraph.parse("data/trafficlight-test-data.rdf")
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
-        expected = ("\n"+
-            "<stuff>\n"+
-            "")
+        # Test the non-item output only.  The previous test checks itemized output.
+        expected = (
+          [ ''''''
+          , '''{ "rouri":                  "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
+          , ''', "roid":                   "simple-requirements"'''
+          , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
+          , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
+          , ''', "checklisttargetlabel":   "simple-requirements"'''
+          , ''', "checklistpurpose":       "Runnable"'''
+          , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
+          , ''', "evalresultlabel":        "minimally satisfies"'''
+          , ''', "evalresultclass":        ["fail", "should"]'''
+          ])
         result = outstr.getvalue()
         print "\n-----"
         print result
         print "-----"
-        self.assertEqual(expected, result)
+        resultlines = result.split('\n')
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], resultlines[i].strip())
+        # Check that output is valid JSON
+        resultdict = json.loads(result)
+        self.assertEqual(resultdict['rouri'], "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/")
         return
 
     # Sentinel/placeholder tests
@@ -694,6 +748,7 @@ def getTestSuite(select="unit"):
             , "testReportEvalResultUri"
             , "testReportEvalResultLabel"
             , "testReportEvalResultClass"
+            , "testReportEvalItemJSON"
             , "testTrafficlightJSON"
             ],
         "component":
