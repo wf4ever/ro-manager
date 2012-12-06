@@ -8,6 +8,8 @@ if __name__ == "__main__":
     sys.path.insert(0, "../..")
     sys.path.insert(0, "../../iaeval/test")
     sys.path.insert(0, "../../sync/test")
+    sys.path.insert(0, "../../roweb")
+    sys.path.insert(0, "../../roweb/test")
 
 import TestConfig
 import TestBasicCommands
@@ -23,6 +25,7 @@ import TestROSRSMetadata
 import TestSyncCommands
 import TestRemoteROMetadata
 import TestRosrsSync
+import TestRdfReport
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
@@ -35,6 +38,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestLinks.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
+    suite.addTest(TestRdfReport.getTestSuite(select=select))
     if select != "unit":
         suite.addTest(TestROSRS_Session.getTestSuite(select=select))
         suite.addTest(TestRemoteROMetadata.getTestSuite(select=select))

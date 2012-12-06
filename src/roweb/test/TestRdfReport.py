@@ -33,6 +33,9 @@ import rdfreport
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.abspath(__file__))
+simple_test_data = testbase+"/data/simple-test-data.rdf"
+trafficlight_test_data = testbase+"/data/trafficlight-test-data.rdf"
+
 
 def LIT(l): return rdflib.Literal(l)
 def REF(u): return rdflib.URIRef(u)
@@ -98,7 +101,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello world", outstr.getvalue())
         return
@@ -114,7 +117,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
@@ -131,7 +134,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {'name': 'anyone'}, outstr)
         self.assertEqual("Hello Graham and anyone", outstr.getvalue())
         return
@@ -148,7 +151,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         outstr   = StringIO.StringIO()
@@ -171,7 +174,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Foreword: Hello Graham; afterword.", outstr.getvalue())
         return
@@ -192,7 +195,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
         self.assertEqual("Foreword: Is anyone there? afterword.", outstr.getvalue())
         return
@@ -212,7 +215,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {'name': "anyone"}, outstr)
         self.assertEqual("Foreword: afterword.", outstr.getvalue())
         return
@@ -233,7 +236,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: tag1, tag2, tag3, tag4.", outstr.getvalue())
         return
@@ -255,7 +258,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: tag1, tag2.", outstr.getvalue())
         return
@@ -277,7 +280,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Tags: none.", outstr.getvalue())
         return
@@ -308,7 +311,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/simple-test-data.rdf")
+        rdfgraph.parse(simple_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         expected = ("\n"+
             "Found Simple test data:\n"+
@@ -423,7 +426,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfgraph.parse(trafficlight_test_data)
         rdfreport.generate_report(self.evalresultreport, rdfgraph, initvars, outstr)
         expected = "http://purl.org/minim/minim#minimallySatisfies"
         result = outstr.getvalue()
@@ -466,7 +469,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfgraph.parse(trafficlight_test_data)
         rdfreport.generate_report(self.evalresultreportlabel, rdfgraph, initvars, outstr)
         expected = "minimally satisfies"
         result = outstr.getvalue()
@@ -505,7 +508,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfgraph.parse(trafficlight_test_data)
         rdfreport.generate_report(self.evalresultreportclass, rdfgraph, initvars, outstr)
         expected = '"fail", "should"'
         result = outstr.getvalue()
@@ -577,7 +580,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfgraph.parse(trafficlight_test_data)
         rdfreport.generate_report(self.evalitemreportjson, rdfgraph, initvars, outstr)
         expected = (
             [ ''
@@ -675,7 +678,7 @@ class TestRdfReport(unittest.TestCase):
             })
         outstr   = StringIO.StringIO()
         rdfgraph = rdflib.Graph()
-        rdfgraph.parse("data/trafficlight-test-data.rdf")
+        rdfgraph.parse(trafficlight_test_data)
         rdfreport.generate_report(report, rdfgraph, {}, outstr)
         # Test the non-item output only.  The previous test checks itemized output.
         expected = (
@@ -691,9 +694,9 @@ class TestRdfReport(unittest.TestCase):
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        print "\n-----"
-        print result
-        print "-----"
+        # print "\n-----"
+        # print result
+        # print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
