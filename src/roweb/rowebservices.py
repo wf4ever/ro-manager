@@ -24,6 +24,9 @@ from rocommand.ro_metadata   import ro_metadata
 from iaeval          import ro_eval_minim
 from iaeval.ro_minim import MINIM, RESULT
 
+import RdfReport
+import TrafficLightReports
+
 log  = logging.getLogger(__file__)
 here = os.path.dirname(os.path.abspath(__file__))
 
@@ -44,6 +47,7 @@ def service_rdf_xml(request):
         """<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:roe="http://purl.org/ro/service/evaluate/">"""+nl+
         """  <rdf:Description rdf:about="">"""+nl+
         """    <roe:checklist>/evaluate/checklist{?RO,minim,target,purpose}</roe:checklist>"""+nl+
+        """    <roe:trafficlight_json>/evaluate/trafficlight_json{?RO,minim,target,purpose}</roe:trafficlight_json>"""+nl+
         """  </rdf:Description>"""+nl+
         """</rdf:RDF>"""+nl
         )
@@ -55,7 +59,9 @@ def service_turtle(request):
     sd = (
         """@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>"""+nl+
         """@prefix roe: <http://purl.org/ro/service/evaluate/>"""+nl+
-        """<> roe:checklist "/evaluate/checklist{?RO,minim,target,purpose}" ."""+nl
+        """<> roe:checklist "/evaluate/checklist{?RO,minim,target,purpose}" ."""+nl+
+        """<> roe:trafficlight_json "/evaluate/trafficlight_json{?RO,minim,target,purpose}" ."""+nl+
+        ""
         )
     return Response(sd, content_type="text/turtle", vary=['accept'])
 
@@ -72,11 +78,18 @@ def service_html(request):
           <p>
           This web site offers services to evaluate Research Objects.  The services offered are:
           <ul>
-            <li>
-              <code>/evaluate/checklist{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
+            <li><code>/evaluate/checklist{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
+              Evaluates an identified research object using a checklist defined by the referenced
+              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
+              description, selected based on the indicated target resource and purpose,
+              and returns the result as an RDF graph in a selected format.
+            </li>
+            <li><code>/evaluate/trafficlight_json{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
               Evaluates an identified research object using a checklist defined by the referenced
               <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
               description, selected based on the indicated target resource and purpose.
+              The result of the evaluation is then processeds into data to drive
+              a "traffic-light" display of the health of the RO with respect to the checklist.
             </li>
             <li>
             ...
@@ -118,7 +131,7 @@ def real_evaluate(request):
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
-    graph =  ro_eval_minim.evalResultGraph(graph, evalResult)
+    graph =  ro_eval_minim.evalResultGraph(graph, evalresult)
     return graph
 
 def fake_evaluate(request):
@@ -155,6 +168,9 @@ evaluate = real_evaluate
 
 @view_config(route_name='evaluate', request_method='GET', accept='text/html')
 def evaluate_html(request):
+    """
+    Return details of request as HTML page
+    """
     r1 = request.params
     # NestedMultiDict([(u'RO', u'http://sandbox.example.org/ROs/myro'), 
     #                  (u'minim', u'http://another.example.com/minim/repeatable.rdf'),
@@ -174,14 +190,33 @@ def evaluate_html(request):
 
 @view_config(route_name='evaluate', request_method='GET', accept='text/turtle')
 def evaluate_turtle(request):
+    """
+    Return checklist evaluation as RDF/Turtle
+    """
     resultgraph = evaluate(request)
     return Response(resultgraph.serialize(format='turtle'), content_type="text/turtle", vary=['accept'])
 
 @view_config(route_name='evaluate', request_method='GET', accept='application/rdf+xml')
 def evaluate_rdf(request):
+    """
+    Return checklist evaluation as RDF/XML
+    """
     resultgraph = evaluate(request)
     return Response(resultgraph.serialize(format='pretty-xml'),
                     content_type="application/rdf+xml", vary=['accept'])
+
+### @view_config(route_name='trafficlight_json', request_method='GET', accept='application/json')
+@view_config(route_name='trafficlight_json', request_method='GET')
+def evaluate_trafficlight_json(request):
+    """
+    Return JSON data for trafficlight display of checklist evaluation
+    
+    Request parameters as as for checklist evaluation.
+    """
+    resultgraph = evaluate(request)
+    outstr      = StringIO.StringIO()
+    RdfReport.generate_report(TrafficLightReports.EvalChecklistJson, resultgraph, {}, outstr)
+    return Response(outstr.getvalue(), content_type="application/json", vary=['accept'])
 
 @view_config(route_name='template', request_method='POST')
 def expand_uri_template(request):
@@ -198,6 +233,8 @@ if __name__ == '__main__':
     config = Configurator(settings=settings)
     config.add_route(name='service', pattern='/')
     config.add_route(name='evaluate', pattern='/evaluate/checklist')
+    config.add_route(name='trafficlight_json', pattern='/evaluate/trafficlight_json')
+    config.add_route(name='trafficlight_html', pattern='/evaluate/trafficlight_html')
     config.add_route(name='template', pattern='/uritemplate')
     config.add_route(name='hello',   pattern='/hello/{name}')
     config.scan()

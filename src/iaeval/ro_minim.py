@@ -57,7 +57,7 @@ def readMinimGraph(minimuri):
     Read Minim file, return RDF Graph.
     """
     minimgraph = rdflib.Graph()
-    minimgraph.parse(minimuri)
+    minimgraph.parse(minimuri, format="xml")
     return minimgraph
 
 def getConstraints(minimgraph):
