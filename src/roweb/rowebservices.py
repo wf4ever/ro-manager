@@ -48,6 +48,7 @@ def service_rdf_xml(request):
         """  <rdf:Description rdf:about="">"""+nl+
         """    <roe:checklist>/evaluate/checklist{?RO,minim,target,purpose}</roe:checklist>"""+nl+
         """    <roe:trafficlight_json>/evaluate/trafficlight_json{?RO,minim,target,purpose}</roe:trafficlight_json>"""+nl+
+        """    <roe:trafficlight_html>/evaluate/trafficlight_html{?RO,minim,target,purpose}</roe:trafficlight_html>"""+nl+
         """  </rdf:Description>"""+nl+
         """</rdf:RDF>"""+nl
         )
@@ -61,6 +62,7 @@ def service_turtle(request):
         """@prefix roe: <http://purl.org/ro/service/evaluate/>"""+nl+
         """<> roe:checklist "/evaluate/checklist{?RO,minim,target,purpose}" ."""+nl+
         """<> roe:trafficlight_json "/evaluate/trafficlight_json{?RO,minim,target,purpose}" ."""+nl+
+        """<> roe:trafficlight_html "/evaluate/trafficlight_html{?RO,minim,target,purpose}" ."""+nl+
         ""
         )
     return Response(sd, content_type="text/turtle", vary=['accept'])
@@ -205,7 +207,7 @@ def evaluate_rdf(request):
     return Response(resultgraph.serialize(format='pretty-xml'),
                     content_type="application/rdf+xml", vary=['accept'])
 
-### @view_config(route_name='trafficlight_json', request_method='GET', accept='application/json')
+### @view_config(route_name='trafficlight', request_method='GET', accept='application/json')
 @view_config(route_name='trafficlight_json', request_method='GET')
 def evaluate_trafficlight_json(request):
     """
@@ -217,6 +219,19 @@ def evaluate_trafficlight_json(request):
     outstr      = StringIO.StringIO()
     RdfReport.generate_report(TrafficLightReports.EvalChecklistJson, resultgraph, {}, outstr)
     return Response(outstr.getvalue(), content_type="application/json", vary=['accept'])
+
+### @view_config(route_name='trafficlight', request_method='GET', accept='text/html')
+@view_config(route_name='trafficlight_html', request_method='GET')
+def evaluate_trafficlight_html(request):
+    """
+    Return HTML page for trafficlight display of checklist evaluation
+    
+    Request parameters as as for checklist evaluation.
+    """
+    resultgraph = evaluate(request)
+    outstr      = StringIO.StringIO()
+    RdfReport.generate_report(TrafficLightReports.EvalChecklistHtml, resultgraph, {}, outstr)
+    return Response(outstr.getvalue(), content_type="text/html", vary=['accept'])
 
 @view_config(route_name='template', request_method='POST')
 def expand_uri_template(request):
@@ -237,6 +252,9 @@ if __name__ == '__main__':
     config.add_route(name='trafficlight_html', pattern='/evaluate/trafficlight_html')
     config.add_route(name='template', pattern='/uritemplate')
     config.add_route(name='hello',   pattern='/hello/{name}')
+    config.add_static_view(name='evaluate/images', path='images')
+    config.add_static_view(name='evaluate/css',    path='css')
+    config.add_static_view(name='evaluate/js',     path='js')
     config.scan()
     # serve app
     app = config.make_wsgi_app()

@@ -214,7 +214,8 @@ class ROSRS_Session(object):
         # Assemble request headers
         if not reqheaders:
             reqheaders = {}
-        reqheaders["authorization"] = "Bearer "+self._key
+        if self._key:
+            reqheaders["authorization"] = "Bearer "+self._key
         if ctype:
             reqheaders["content-type"] = ctype
         if accept:

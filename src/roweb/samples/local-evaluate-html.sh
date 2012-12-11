@@ -4,7 +4,7 @@ HOST=http://localhost:8080    # Service endpoint URI
 # Retrieve service description and extract template
 
 echo "==== Retrieve URI template for evaluate checklist ===="
-TEMPLATE=`curl -H "accept: text/turtle" $HOST/ | sed -n 's/^.*roe:trafficlight_json[ ]*"\([^"]*\)".*$/\1/p'`
+TEMPLATE=`curl -H "accept: text/turtle" $HOST/ | sed -n 's/^.*roe:trafficlight_html[ ]*"\([^"]*\)".*$/\1/p'`
 echo "==== Template: <$TEMPLATE>"
 
 # URI template expansion
@@ -28,7 +28,7 @@ echo "==== GET $EVALURI"
 
 # Evaluation results with URI parameters:
 
-echo "==== Trafficlight result as JSON ===="
+echo "==== Trafficlight result as HTML ===="
 curl $EVALURI
 
 # End.

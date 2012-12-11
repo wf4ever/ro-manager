@@ -507,6 +507,80 @@ class TestRdfReport(unittest.TestCase):
             "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/")
         return
 
+    def testReportEvalItemHTML(self):
+        """
+        Test report of a textual status summary of a checklist match
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        initvars  = (
+            { 'rouri':      rdflib.URIRef(rouristr)
+            , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
+            , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
+            , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
+        RdfReport.generate_report(TrafficLightReports.EvalItemHtml, rdfgraph, initvars, outstr)
+        expected = (
+            [ ''
+            , '''<tr>'''
+            , '''<td></td>'''
+            , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
+              (rouristr, rouristr)
+            , '''<td class="trafficlight small fail should"><div/></td>'''
+            , '''</tr>'''
+            ])
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        resultlines = result.split('\n')
+        for i in range(len(expected)):
+            self.assertEqual(expected[i], resultlines[i].strip())
+        return
+
+    def testTrafficlightHTML(self):
+        """
+        Test report generating traffic-light HTML (per data/mockup.html)
+        """
+        rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
+        RdfReport.generate_report(TrafficLightReports.EvalChecklistHtml, rdfgraph, {}, outstr)
+        # Test the non-item output only.  The previous test checks itemized output.
+        expected = (
+          [ '''<title>Research Object Runnable evaluation - simple-requirements</title>'''
+          , '''</head>'''
+          , '''<body>'''
+          , '''<div class="Container">'''
+          , '''<div class="header">'''
+          , '''Research object <a href="%s">simple-requirements</a>'''%(rouristr)
+          , '''</div>'''
+          , '''<div class="body">'''
+          , '''<table>'''
+          , '''<tr>'''
+          , '''<th colspan="2">Target <span class="target">'''
+          , '''<a href="%s">simple-requirements</a></span>'''%(rouristr)
+          , '''<span class="testresult">minimally satisfies</span> checklist for'''
+          , '''<span class="testpurpose">Runnable</span>.'''
+          , '''<p>This Research Object @@TODO.</p>'''
+          , '''</th>'''
+          , '''<th class="trafficlight large fail should"><div/></th>'''
+          , '''</tr>'''
+          ])
+        result = outstr.getvalue()
+        # print "\n-----"
+        # print result
+        # print "-----"
+        resultlines = result.split('\n')
+        for i in range(len(expected)):
+            # Skip 1st 8 lines of generated HTML:
+            self.assertEqual(expected[i], resultlines[i+8].strip())
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -555,6 +629,8 @@ def getTestSuite(select="unit"):
             , "testReportEvalResultClass"
             , "testReportEvalItemJSON"
             , "testTrafficlightJSON"
+            , "testReportEvalItemHTML"
+            , "testTrafficlightHTML"
             ],
         "component":
             [ "testComponents"

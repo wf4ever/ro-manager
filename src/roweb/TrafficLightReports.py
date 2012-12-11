@@ -167,7 +167,7 @@ EvalTargetResultClass = (
       }
     })
 
-# Report inserts result of checklist evaluation item as JSON
+# Report inserts result of checklist item evaluation item as JSON
 #
 # Example of output:
 #
@@ -192,7 +192,7 @@ EvalItemJson = (
             '''\n    { "itemuri":        "%(itemuri)s"'''+
             '''\n    , "itemlabel":      "%(itemlabel)s"'''+
             '''\n    , "itemlevel":      "%(itemlevel)s" '''
-        , 'alt':  '''\n    *** no match fort message/label ***'''
+        , 'alt':  '''\n    *** no match for message/label ***'''
         , 'query': sparql_prefixes+
             """
             SELECT * WHERE
@@ -325,6 +325,243 @@ EvalChecklistJson = (
             }
           , { 'output':
                 '''\n  ]\n}'''
+            }
+          ]
+        }
+      ]
+    })
+
+# Report inserts result of checklist item evaluation item as HTML
+#
+# Example of output:
+#
+#           <tr>
+#             <td></td>
+#             <td>Workflow is present</td>
+#             <td class="trafficlight small pass must"><div/></td>
+#           </tr>
+#
+# Assumed incoming bindings:
+#   rouri     URI of RO being evaluated
+#   modeluri  URI of Minim model defining the evaluated checklist
+#   itemuri   URI or Minim model checklist item whose result is reported
+#   itemlevel URI of satisfaction level asspociated with this item:
+#             minim:hasMustRequirement, minim:hasShouldRequirement or minim:hasMayRequirement
+#
+EvalItemHtml = (
+    { 'report':
+      [
+        { 'output':
+            '''\n          <tr>'''+
+            '''\n            <td></td>'''+
+            ''''''
+        }
+      , { 'output':
+            '''\n            <td>%(itemlabel)s</td>'''
+        , 'alt':  
+            '''\n            <td>*** no match for message/label ***</td>'''
+        , 'query': sparql_prefixes+
+            """
+            SELECT * WHERE
+            {
+              ?s minim:tryRequirement ?itemuri ;
+                 minim:tryMessage ?itemlabel .
+            }"""
+        }
+      , { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+        , 'output':     '''\n            <td class="trafficlight small pass"><div/></td>'''
+        , 'altreport':
+          { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+          , 'output':   '''\n            <td class="trafficlight small fail may"><div/></td>'''
+          , 'altreport':
+            { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+            , 'output': '''\n            <td class="trafficlight small fail should"><div/></td>'''
+            , 'alt':    '''\n            <td class="trafficlight small fail must"><div/></td>'''
+            }
+          }
+        }
+      , { 'output':
+            '''\n          </tr>'''+
+            ''''''
+        }
+      ]
+    })
+
+# Report generates HTML for traffic-light display
+#
+# Example output:
+#
+# <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+#     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+# <html xmlns="http://www.w3.org/1999/xhtml">
+# 
+# <html>
+# 
+#   <head>
+#     <link rel="stylesheet" type="text/css" href="css/checklist.css" />
+#     <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+#     <title>Research Object runnable evaluation - simple-requirements</title>
+#   </head>
+# 
+#   <body>
+#     <div class="Container">
+# 
+#       <div class="header">
+#         Research object <a href="(Research-object-URI)">simple-requirements</a>
+#       </div>
+# 
+#       <div class="body">
+#         <table>
+#           <tr>
+#             <th colspan="2">Target 
+#               <span class="target">
+#                 <a href="(Research-object-URI)">simple-requirements</a>
+#               </span>
+#               <span class="testresult">minimally satisfies</span> checklist for 
+#               <span class="testpurpose">Runnability</span>.
+#               <p>This Research Object might not be runnable.</p>
+#             </th>
+#             <th class="trafficlight large fail should"><div/></th>
+#           </tr>
+#            :
+#           (checklist items here)
+#            :
+#         </table>
+#       </div>
+# 
+#       <div class="footer">
+#         <hr/>
+#         <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>
+#       </div>
+# 
+#     </div>
+#   </body>
+# 
+# </html>
+#
+# Incoming bindings:
+#   @@TBD css js?
+#
+# Optional incoming bindings:
+#   rouri     URI of RO evaluated
+#   modeluri  URI of Minim model defining the evaluated checklist
+#
+# @@TODO: add sequence to minim model for output ordering of checklist items
+#
+EvalChecklistHtml = (
+    { 'report':
+      [ { 'output':
+            '''\n<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" '''+
+            '''\n    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">'''+
+            '''\n<html xmlns="http://www.w3.org/1999/xhtml">'''+
+            '''\n<html>'''+
+            '''\n  <head>'''+
+            '''\n    <link rel="stylesheet" type="text/css" href="css/checklist.css" />'''+
+            '''\n    <meta http-equiv="content-type" content="text/html; charset=utf-8" />'''+
+            '''\n    <title>Research Object %(purpose)s evaluation - %(roid)s</title>'''+
+            '''\n  </head>'''+
+            ''''''
+        , 'query':
+            sparql_prefixes+
+            """
+            SELECT ?rouri ?roid ?modeluri ?target ?targetlabel ?purpose WHERE
+            {
+              ?rouri
+                dcterms:identifier ?roid ;
+                minim:modelUri ?modeluri ;
+                minim:testedTarget ?target ;
+                minim:testedPurpose ?purpose .
+              ?target rdfs:label ?targetlabel .
+            }
+            LIMIT 1
+            """
+        , 'report':
+          [ { 'output':
+                '''\n  <body>'''+
+                '''\n    <div class="Container">'''+
+                '''\n      <div class="header">'''+
+                '''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
+                '''\n      </div>'''+
+                '''\n      <div class="body">'''+
+                '''\n        <table>'''+
+                '''\n          <tr>'''+
+                '''\n            <th colspan="2">Target <span class="target">'''+
+                '''\n              <a href="%(target)s">%(targetlabel)s</a></span> '''+
+                ''''''
+            }
+          , { 'output':
+                '''\n              <span class="testresult">'''
+            }
+          , { 'report': EvalTargetResultLabel
+            }
+          , { 'output':
+                '''</span> checklist for '''+
+                '''\n              <span class="testpurpose">%(purpose)s</span>.'''+
+                '''\n              <p>This Research Object @@TODO.</p>'''+
+                '''\n            </th>'''+
+                ''''''
+            }
+          , { 'report':
+              { 'output':
+                  '''\n            <th class="trafficlight large pass"><div/></th>'''
+              , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+              , 'altreport':
+                { 'output':
+                    '''\n            <th class="trafficlight large fail may"><div/></th>'''
+              , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+                , 'altreport':
+                  { 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+                  , 'output':
+                      '''\n            <th class="trafficlight large fail should"><div/></th>'''
+                  , 'alt':
+                      '''\n            <th class="trafficlight large fail most"><div/></th>'''
+                  }
+                }
+              }
+            }
+          , { 'output':
+                '''\n          </tr>'''+
+                ''''''
+            }
+          , { 'report': EvalItemHtml
+            , 'query': sparql_prefixes+
+              """
+              SELECT ?itemuri ?itemlevel ?modeluri WHERE
+              { ?modeluri ?itemlevel ?itemuri .
+                ?itemuri a minim:Requirement .
+              }
+              """
+            }
+          , { 'output':
+                '''\n        </table>'''+
+                '''\n      </div>'''+
+                '''\n      <div class="footer">'''+
+                '''\n        <hr/>'''+
+                '''\n        <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>'''+
+                '''\n        <div>'''+
+                '''\n          <div>'''+
+                '''\n            <i>Traffic light images'''+
+                '''\n              <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">'''+
+                '''\n                <img alt="Creative Commons License" src="http://i.creativecommons.org/l/by/3.0/88x31.png">'''+
+                '''\n              </a>, from '''+
+                '''\n              <a href="http://xooplate.com/template/details/10807-colorful-button-traffic-light-icons-set-png">'''+
+                '''\n                http://xooplate.com/template/details/10807-colorful-button-traffic-light-icons-set-png'''+
+                '''\n              </a>'''+
+                '''\n            </i>'''+
+                '''\n          </div>'''+
+                '''\n          <div>'''+
+                '''\n            <i>(licensed under a '''+
+                '''\n              <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">'''+
+                '''\n                Creative Commons Attribution 3.0 Unported License)'''+
+                '''\n              </a>'''+
+                '''\n            </i>'''+
+                '''\n          </div>'''+
+                '''\n        </div>'''+
+                '''\n      </div>'''+
+                '''\n    </div>'''+
+                '''\n  </body>'''+
+                '''\n</html>'''+
+                ''''''
             }
           ]
         }

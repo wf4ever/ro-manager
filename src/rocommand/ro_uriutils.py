@@ -65,7 +65,7 @@ def isLiveUri(uriref):
     if isFileUri(fileuri):
         islive = os.path.exists(getFilenameFromUri(fileuri))
     else:
-        hs = ROSRS_Session(uriref)
+        hs = ROSRS_Session.ROSRS_Session(uriref)
         (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
         islive = (status == 200)
     return islive

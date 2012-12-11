@@ -254,12 +254,12 @@ def evalContentMatch(rometa, rule, constraintbinding):
                     if str(k) in ['if', 'of'] and str(binding[k])[:5] not in ["file:","http:"]:
                         # Houston, we have a problem...
                         agraph = rometa.roannotations
-                        print "--------------------"
-                        print "Graph: "+agraph.serialize(format="xml")
-                        print "Query: "+query
-                        print "Response bindings: "+repr(resp)
-                        print "--------------------"
-                        assert False, "Aborted"
+                        log.warning( "--------------------" )
+                        log.debug( "Graph: "+agraph.serialize(format="xml") )
+                        log.warning( "Query: "+query )
+                        log.warning( "Response bindings: "+repr(resp) )
+                        log.warning( "--------------------" )
+                        ### assert False, "Aborted"
             if exists:
                 # existence query against forall results
                 existsparams = (
