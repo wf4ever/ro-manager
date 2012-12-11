@@ -1,0 +1,1 @@
+This directory is for images referenced dirtectly by the web page
