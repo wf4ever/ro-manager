@@ -526,7 +526,7 @@ class ROSRS_Session(object):
             body=anngr.serialize(format="xml"))
         if status != 201:
             raise self.error("Error creating annotation body resource",
-                "%03d %s (%s)"%(status, reason, str(resuri)))
+                "%03d %s (%s)"%(status, reason, str(rouri)))
         return (status, reason, bodyuri)
 
     def createAnnotationRDF(self, rouri, resuri, bodyuri):
