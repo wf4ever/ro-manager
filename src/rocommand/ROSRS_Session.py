@@ -610,6 +610,7 @@ class ROSRS_Session(object):
 
         returns: (status, reason)
         """
+        assert False, "@@TODO Not fully implemented - need to GET current annotation and extract annotated resource to resuri"
         (status, reason) = self.updateROAnnotation(rouri, annuri, resuri, bodyuri)
         return (status, reason)
 
