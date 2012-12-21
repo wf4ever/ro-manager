@@ -14,6 +14,8 @@ import unittest
 import logging
 import datetime
 import StringIO
+from urlparse import urljoin
+
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -25,6 +27,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
 
+from rocommand.ROSRS_Session import ROSRS_Session
 from MiscLib import TestUtils
 
 from rocommand import ro, ro_utils
@@ -33,7 +36,6 @@ from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
 import TestROSupport
-
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.realpath(__file__))
 
@@ -41,6 +43,9 @@ class TestBasicCommands(TestROSupport.TestROSupport):
     """
     Test basic ro commands
     """
+    TEST_RO_ID = "test-evo-ro"
+    TEST_SNAPHOT_ID = "test-evo-snaphot"
+    
     def setUp(self):
         super(TestBasicCommands, self).setUp()
         return
@@ -220,7 +225,44 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertFalse(os.path.exists(manifestdir), msg="checking created RO manifest dir")
         self.deleteRoFixture(rodir)
         return
-
+    
+    def testStatusRO(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        args = [
+            "ro", "status", urljoin(ro_test_config.ROSRS_URI,self.TEST_RO_ID+"/"),
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            outtxt = self.outstr.getvalue()
+            assert status == 0
+            self.assertEqual(outtxt.count("Research Object Status: LIVE"), 1)
+        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        return
+    
+    def testRemoteStatusWithWrongURI(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        args = [
+            "ro", "status", urljoin(ro_test_config.ROSRS_URI,"some-strange-uri"),
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            outtxt = self.outstr.getvalue()
+            #assert status == -1
+            self.assertEqual(outtxt.count("Wrong URI was given"), 1)
+        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        return
+    
+    def testStatusJob(self):
+        return
+    
     def testStatus(self):
         """
         Display status of created RO
@@ -526,6 +568,8 @@ def getTestSuite(select="unit"):
             , "testCreateBadDir"
             , "testStatus"
             , "testStatusDefault"
+            , "testStatusRO"
+            , "testStatusJob"
             , "testList"
             , "testListDefault"
             , "testAddDirectory"
