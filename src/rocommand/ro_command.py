@@ -383,17 +383,13 @@ def job_status(options, args, rosrs):
         return -1
     print "Job Status: %s" %  status
     print "Job Target: %s" %  target
-    print "Finalzie: %s" %  finalize
+    print "Finalize: %s" %  finalize
     print "Research Object Type: %s" % type
     
     
 def remote_ro_status(options, args, rosrs):
     try:
         (status, reason, data, evo_type) = rosrs.getROEvolution(args[2])
-        print status
-        print reason
-        print data
-        print evo_type
         if evo_type == None:
             status =  job_status(options, args, rosrs)
             if status == -1:

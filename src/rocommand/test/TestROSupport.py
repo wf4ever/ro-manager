@@ -228,26 +228,22 @@ class TestROSupport(unittest.TestCase):
 
     def createSnaphot(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
-        print "1"
         body = {
                 'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
                 'target': sp_name,
                 'type': "SNAPSHOT",
                 'finalize': ( "%s" % freeze).lower()
             }
-        print "2"
+        
         body = simplejson.dumps(body)
         reqheaders = {
             'token': ro_test_config.ROSRS_ACCESS_TOKEN,
             'Slug' : sp_name,
         }       
-        print "3"
         rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
-        print "4"
         job_location = get_location(headers)
         status = "RUNING"
-        print "5"
         while status == "RUNING":
             (status, id) = parse_job(rosrs, job_location)
         
