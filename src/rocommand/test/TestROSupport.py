@@ -226,7 +226,7 @@ class TestROSupport(unittest.TestCase):
             msg = '%s: %r not found in %r' % (msg, expected_regexp.pattern, text)
             raise self.failureException(msg)
 
-    def createSnaphot(self, live_name,sp_name,freeze = True):
+    def createSnapshot(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
         body = {
                 'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),

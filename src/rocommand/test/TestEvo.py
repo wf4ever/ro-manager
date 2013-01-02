@@ -14,18 +14,24 @@ from MiscLib import TestUtils
 
 class TestEvo(TestROSupport.TestROSupport):
     
+    TEST_RO_ID = "test-evo-ro"
+    TEST_SNAPHOT_RO_ID = "test-evo-snaphot-ro"
+    TEST_SNAPHOT_ID = "test-evo-snaphot"
+    
     def setUp(self):
         super(TestEvo, self).setUp()
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        (status, reason) = self.rosrs.deleteRO("testEvoRO/")
-        (status, reason, rouri, manifest) = self.rosrs.createRO("testEvoRO",
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
         return
 
     def tearDown(self):
-        (status, reason) = self.rosrs.deleteRO("testEvoRO/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
         super(TestEvo, self).tearDown()
         return
+
     
     def testSnapshot(self):
         return

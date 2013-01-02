@@ -196,7 +196,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
 
         (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_SNAPHOT_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
-        self.createSnaphot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, True)
+        self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, False)
         
         args = [
             "ro", "freeze",ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_RO_ID + "/", 
@@ -221,7 +221,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
 
         (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_SNAPHOT_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
-        self.createSnaphot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, True)
+        self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, True)
         
         args = [
             "ro", "freeze", self.TEST_SNAPHOT_RO_ID + "non exited", 
