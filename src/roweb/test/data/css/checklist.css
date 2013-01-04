@@ -52,26 +52,26 @@ span.testpurpose {
 }
 
 .trafficlight.large.pass {
-    background-image: url(images/button_green_64.png);
+    background-image: url(images/green_check_64.png);
 }
 
 .trafficlight.small.pass {
-    background-image: url(images/button_green_32.png);
+    background-image: url(images/green_check_32.png);
 }
 
 .trafficlight.large.fail.should {
-    background-image: url(images/button_yellow_64.png);
+    background-image: url(images/amber_circle_64.png);
 }
 
 .trafficlight.small.fail.should {
-    background-image: url(images/button_yellow_32.png);
+    background-image: url(images/amber_cross_32.png);
 }
 
 .trafficlight.large.fail.must {
-    background-image: url(images/button_red_64.png);
+    background-image: url(images/red_cross_64.png);
 }
 
 .trafficlight.small.fail.must {
-    background-image: url(images/button_red_32.png);
+    background-image: url(images/red_cross_32.png);
 }
 
