@@ -60,7 +60,7 @@ span.testpurpose {
 }
 
 .trafficlight.large.fail.should {
-    background-image: url(images/yellow_circle_64.png);
+    background-image: url(images/amber_circle_64.png);
 }
 
 .trafficlight.small.fail.should {
