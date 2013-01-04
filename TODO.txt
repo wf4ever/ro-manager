@@ -40,7 +40,7 @@ Other functions:
 
 Technical debt:
 - Mop up @@TODOs
-- remove RDF format parameter when parsing minik (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
+- remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
 - try new rdflib SPARQL processor as drop-in for rdfextras 
 - new test cases for evaluation
 - Check out rdflib sparql query bnode bug - is it fixed?
