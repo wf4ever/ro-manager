@@ -497,7 +497,7 @@ EvalChecklistHtml = (
           , { 'output':
                 '''</span> checklist for '''+
                 '''\n              <span class="testpurpose">%(purpose)s</span>.'''+
-                '''\n              <p>This Research Object @@TODO.</p>'''+
+                '''\n              <p>This Research Object [@@TODO extraction of description].</p>'''+
                 '''\n            </th>'''+
                 ''''''
             }
@@ -538,25 +538,6 @@ EvalChecklistHtml = (
                 '''\n      <div class="footer">'''+
                 '''\n        <hr/>'''+
                 '''\n        <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>'''+
-                '''\n        <div>'''+
-                '''\n          <div>'''+
-                '''\n            <i>Traffic light images'''+
-                '''\n              <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">'''+
-                '''\n                <img alt="Creative Commons License" src="http://i.creativecommons.org/l/by/3.0/88x31.png">'''+
-                '''\n              </a>, from '''+
-                '''\n              <a href="http://xooplate.com/template/details/10807-colorful-button-traffic-light-icons-set-png">'''+
-                '''\n                http://xooplate.com/template/details/10807-colorful-button-traffic-light-icons-set-png'''+
-                '''\n              </a>'''+
-                '''\n            </i>'''+
-                '''\n          </div>'''+
-                '''\n          <div>'''+
-                '''\n            <i>(licensed under a '''+
-                '''\n              <a rel="license" href="http://creativecommons.org/licenses/by/3.0/">'''+
-                '''\n                Creative Commons Attribution 3.0 Unported License)'''+
-                '''\n              </a>'''+
-                '''\n            </i>'''+
-                '''\n          </div>'''+
-                '''\n        </div>'''+
                 '''\n      </div>'''+
                 '''\n    </div>'''+
                 '''\n  </body>'''+

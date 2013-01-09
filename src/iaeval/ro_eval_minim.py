@@ -68,7 +68,11 @@ def evaluate(rometa, minim, target, purpose):
     """
     # Locate the constraint model requirements
     rouri        = rometa.getRoUri()
-    roid         = rometa.getResourceValue(rouri, DCTERMS.identifier  )
+    roid         = rometa.getResourceValue(rouri, DCTERMS.identifier)
+    if roid == None:
+        roid = str(rouri)
+        if roid.endswith('/'): roid = roid[0:-1]
+        roid = roid.rpartition('/')[2]
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)

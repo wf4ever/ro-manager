@@ -1,0 +1,5 @@
+Trafficlight from local RO:
+http://localhost:8080/evaluate/trafficlight_html?RO=%2Fusr%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fgolden-exemplar-gk&minim=checklist-runnable.rdf&purpose=Runnable
+
+Trafficlight from RODL RO:
+http://localhost:8080/evaluate/trafficlight_html?RO=http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2F&minim=checklist-runnable.rdf&purpose=Runnable
