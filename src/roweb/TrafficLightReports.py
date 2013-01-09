@@ -514,7 +514,7 @@ EvalChecklistHtml = (
                   , 'output':
                       '''\n            <th class="trafficlight large fail should"><div/></th>'''
                   , 'alt':
-                      '''\n            <th class="trafficlight large fail most"><div/></th>'''
+                      '''\n            <th class="trafficlight large fail must"><div/></th>'''
                   }
                 }
               }

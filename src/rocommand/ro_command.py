@@ -132,7 +132,7 @@ ro_command_usage = (
     [ (["help"], argminmax(2, 2),
           ["help"])
     , (["config"], argminmax(2, 2),
-          ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"])
+          ["config -b <robase> -n <username> -e <useremail> -r <rosrs_uri> -t <access_token>"])
     , (["create"], argminmax(3, 3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"])
     , (["status"],argminmax(2, 3),
@@ -176,12 +176,16 @@ ro_command_usage = (
     ])
 
 def check_command_args(progname, options, args):
+    # Eliminate blank arguments
+    args = [ a for a in args if a != "" ]
     # Check argument count for known command
     for (cmds, test, usages) in ro_command_usage:
         if args[1] in cmds:
             if not test(options, args):
                 print ("%s %s: wrong number of arguments provided" % 
                        (progname, args[1]))
+                # for i in range(len(args)):
+                #     print "%d: '%s'"%(i, args[i])
                 print "Usage:"
                 for u in usages:
                     print "  %s %s" % (progname, u)

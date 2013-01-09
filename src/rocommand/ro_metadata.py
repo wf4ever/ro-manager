@@ -471,8 +471,9 @@ class ro_metadata(object):
         ann_graph = self._loadAnnotations()
         for (s, p, v) in ann_graph.triples((subject, property, None)):
             if not isinstance(s, rdflib.BNode):
-                log.debug("Triple: %s %s %s"%(s,p,v))
-                yield (s, p, v)
+                if not self.isRoMetadataRef(s):
+                    log.debug("Triple: %s %s %s"%(s,p,v))
+                    yield (s, p, v)
         return
 
     def getRoAnnotations(self):
