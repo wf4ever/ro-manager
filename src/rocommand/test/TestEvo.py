@@ -1,135 +1,76 @@
-# ro_utils.py
+import sys
+from rocommand.test.TestConfig import ro_test_config
+if __name__ == "__main__":
+    # Add main project directory and ro manager directories at start of python path
+    sys.path.insert(0, "../..")
+    sys.path.insert(0, "..")
 
-"""
-Research Object management supporting utility functions
-"""
+#internal
+import TestROSupport
 
-import os.path
-from xml.dom import minidom
-try:
-    # Running Python 2.5 with simplejson?
-    import simplejson as json
-except ImportError:
-    import json
-import re
-import logging
-log = logging.getLogger(__name__)
+from ROSRS_Session import ROSRS_Session
+#external
+from MiscLib import TestUtils
 
-CONFIGFILE = ".ro_config"
+class TestEvo(TestROSupport.TestROSupport):
+    
+    TEST_RO_ID = "test-evo-ro"
+    TEST_SNAPHOT_RO_ID = "test-evo-snaphot-ro"
+    TEST_SNAPHOT_ID = "test-evo-snaphot"
+    
+    def setUp(self):
+        super(TestEvo, self).setUp()
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        return
 
-class EvoType:
-    LIVE=0
-    SNAPSHOT=1
-    ARCHIVE=2
-    UNDEFINED=3
+    def tearDown(self):
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
+        super(TestEvo, self).tearDown()
+        return
 
-def ronametoident(name):
+    
+    def testSnapshot(self):
+        return
+    
+    def testArchive(self):
+
+        return
+     
+    def testFreeze(self):
+        return
+    
+def getTestSuite(select="unit"):
     """
-    Turn resource object name into an identifier containing only letters, digits and underscore characters
-    """
-    name = re.sub(r"\s", '_', name)         # spaces, etc. -> underscores
-    name = re.sub(r"\W", "", name)          # Non-identifier characters -> remove
-    return name
+    Get test suite
 
-def progname(args):
-    return os.path.basename(args[0])
-
-def ropath(ro_config, dir):
-    rodir  = os.path.abspath(dir)
-    robase = os.path.realpath(ro_config['robase'])
-    log.debug("ropath: rodir  %s"%(rodir))
-    log.debug("ropath: robase %s"%(robase))
-    if os.path.isdir(rodir) and os.path.commonprefix([robase, os.path.realpath(rodir)]) == robase:
-       return rodir
-    return None
-
-def configfilename(configbase):
-    return os.path.abspath(configbase+"/"+CONFIGFILE)
-
-def writeconfig(configbase, config):
+    select  is one of the following:
+            "unit"      return suite of unit tests only
+            "component" return suite of unit and component tests
+            "all"       return suite of unit, component and integration tests
+            "pending"   return suite of pending tests
+            name        a single named test to be run
     """
-    Write supplied configuration dictionary to indicated directory
-    """
-    configfile = open(configfilename(configbase), 'w')
-    json.dump(config, configfile, indent=4)
-    configfile.write("\n")
-    configfile.close()
-    return
-
-def resetconfig(configbase):
-    """
-    Reset configuration in indicated directory
-    """
-    ro_config = {
-        "robase":               None,
-        "rosrs_uri":            None,
-        "rosrs_access_token":   None,
-        "username":             None,
-        "useremail":            None,
-        "annotationTypes":      None,
-        "annotationPrefixes":   None,
+    testdict = {
+        "unit":
+            [ 
+            ],
+        "component":
+            [ "testSnapshot"
+            , "testArchive"
+            , "testFreeze"
+            ],
+        "integration":
+            [ 
+            ],
+        "pending":
+            [ 
+            ]
         }
-    writeconfig(configbase, ro_config)
-    return
+    return TestUtils.getTestSuite(TestEvo, testdict, select=select)
 
-def readconfig(configbase):
-    """
-    Read configuration in indicated directory and return as a dictionary
-    """
-    ro_config = {
-        "robase":               None,
-        "rosrs_uri":            None,
-        "rosrs_access_token":   None,
-        "username":             None,
-        "useremail":            None,
-        "annotationTypes":      None,
-        "annotationPrefixes":   None,
-        }
-    configfile = None
-    try:
-        configfile = open(configfilename(configbase), 'r')
-        ro_config  = json.load(configfile)
-    finally:
-        if configfile: configfile.close()
-    return ro_config
-
-def mapmerge(f1, l1, f2, l2):
-    """
-    Helper function to merge lists of values with different map functions.
-    A sorted list is returned containing f1 mapped over the elements of l1 and 
-    f2 mapped over the elements ofd l2 that are not in l1; i.e. roughly:
-
-    return sorted([ f1(i1) for i1 in l1 ] + [ f2(i2) for i2 in l2 if i2 not in l1 ])
-
-    The actual code is a little more complex because the final sort is based on the
-    original list values rather than the mapped values.
-    """    
-    def mm(f1, l1, f2, l2, acc):
-        if len(l1) == 0: return acc + map(f2, l2)
-        if len(l2) == 0: return acc + map(f1, l1)
-        if l1[0] < l2[0]: return mm(f1, l1[1:], f2, l2, acc+[f1(l1[0])])
-        if l1[0] > l2[0]: return mm(f1, l1, f2, l2[1:], acc+[f2(l2[0])])
-        # List heads equal: choose preferentially from l1
-        return mm(f1, l1[1:], f2, l2[1:], acc+[f1(l1[0])])
-    return mm(f1, sorted(l1), f2, sorted(l2), [])
-
-def prepend_f(pref):
-    """
-    Returns a function that prepends prefix 'pref' to a supplied string
-    """
-    return lambda s:pref+s
-
-def testMap():
-    l1 = ["a", "b", "d", "e"]
-    l2 = ["a", "c"]
-    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "1:b", "2:c", "1:d", "1:e"]
-    l1 = ["d", "a"]
-    l2 = ["f", "e", "c", "a"]
-    assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "2:c", "1:d", "2:e", "2:f"]
-
-def parse_job(rosrs,uri):
-    nodes = minidom.parseString(rosrs.doRequest(uri)[-1])
-    job_status = nodes.getElementsByTagName("status")[0].firstChild.nodeValue
-    target_id = nodes.getElementsByTagName("target")[0].firstChild.nodeValue
-    return (job_status, target_id)
-# End.
+if __name__ == "__main__":
+    TestUtils.runTests("TestEvo.log", getTestSuite, sys.argv)
