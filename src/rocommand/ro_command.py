@@ -126,8 +126,8 @@ def ro_root_reference(cmdname, ro_config, rodir):
 # Argument count checking and usage summary
 
 def argminmax(min, max):
-    return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
-
+    #return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
+    return (lambda options, args: True)
 ro_command_usage = (
     [ (["help"], argminmax(2, 2),
           ["help"])
@@ -168,7 +168,7 @@ ro_command_usage = (
     , (["checkout"], argminmax(2, 3),
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["snapshot"],  argminmax(4, 4),
-          ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
+          ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
     , (["archive"],  argminmax(4, 4),
           ["archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
     , (["freeze"],  argminmax(3, 3),
@@ -670,7 +670,9 @@ def snapshot(progname, configbase, options, args):
     snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
+    print ro_config 
     ro_options = {
+        "rodir":          options.rodir or "",
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
         "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
                                                                                       "Access token for ROSRS service: "),

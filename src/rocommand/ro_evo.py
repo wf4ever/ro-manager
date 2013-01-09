@@ -9,6 +9,12 @@ import time
 log = logging.getLogger(__name__)
 
 def copy_operation(options, args, ro_type):
+    print "#$@#"
+    print "#$@#"
+    print options["rosrs_uri"]
+    options["rosrs_access_token"]
+    print "#$@#"
+    print "#$@#"
     rosrs = ROSRS_Session(options["rosrs_uri"], options["rosrs_access_token"])
     service_uri = urljoin(options["rosrs_uri"], "../evo/copy/")
     body = {
@@ -21,7 +27,6 @@ def copy_operation(options, args, ro_type):
     reqheaders = {
         'Slug' : args[3]
     }
-    
     response = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
     if response[0] != 201:
         return handle_copy_error(options, rosrs, response, ro_type)

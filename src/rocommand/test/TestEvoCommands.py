@@ -45,6 +45,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "ro", "snapshot" , ro_test_config.ROSRS_URI + self.TEST_RO_ID, self.TEST_SNAPHOT_ID, 
             "--asynchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]    
         with SwitchStdout(self.outstr):
@@ -66,6 +67,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "ro", "snapshot", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
             "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -85,6 +87,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "--asynchronous",
             "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -96,10 +99,11 @@ class TestEvoCommands(TestROSupport.TestROSupport):
     
     
     def testSnapshotWithEscOption(self):
+        
         args = [
-            "ro", "snapshot", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/", ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
-            "-r ", ro_test_config.ROSRS_URI,
+            "ro", "snapshot", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -123,6 +127,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "ro", "archive" , ro_test_config.ROSRS_URI + self.TEST_RO_ID, self.TEST_SNAPHOT_ID, 
             "--asynchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]    
         with SwitchStdout(self.outstr):
@@ -144,6 +149,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "ro", "archive", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
             "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -163,6 +169,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
             "--asynchronous",
             "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -176,6 +183,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
         args = [
             "ro", "archive", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -200,14 +208,15 @@ class TestEvoCommands(TestROSupport.TestROSupport):
         self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, False)
         
         args = [
-            "ro", "freeze",ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_RO_ID + "/", 
+            "ro", "freeze",ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/", 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
-            self.assertEqual(self.outstr.getvalue().count("freeze operation finished successfully"), 0)
+            self.assertEqual(self.outstr.getvalue().count("freeze operation finished successfully"), 1)
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
         return
@@ -227,6 +236,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
         args = [
             "ro", "freeze", self.TEST_SNAPHOT_RO_ID + "non exited", 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-r", ro_test_config.ROSRS_URI,
             "-v"
         ]
         with SwitchStdout(self.outstr):
