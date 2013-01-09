@@ -243,10 +243,10 @@ class TestROSupport(unittest.TestCase):
         rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
         (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
         job_location = get_location(headers)
-        status = "RUNING"
-        while status == "RUNING":
+        status = "RUNNING"
+        while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
-        
+        return status
     # Sentinel/placeholder tests
 
     def testUnits(self):

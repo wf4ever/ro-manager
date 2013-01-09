@@ -6,8 +6,8 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 #internal
+import rocommand.ro as ro
 import TestROSupport
-import ro
 from ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -210,7 +210,7 @@ class TestEvoCommands(TestROSupport.TestROSupport):
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
         return
-    
+        
     def FreezeNonExistetSnaphot(self):
         """
         freeze <RO-id> 
