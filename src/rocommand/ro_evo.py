@@ -112,11 +112,6 @@ def freeze(options, args):
         print "freeze operation finished successfully"
         return 0
     else:
-        print "***"
-        print "***"
-        print "***"
-        print "***"
-        print "***"
         print "Given URI isn't correct"
         return -1
     

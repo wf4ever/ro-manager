@@ -97,7 +97,8 @@ class TestEvoCommands(TestROSupport.TestROSupport):
     
     def testSnapshotWithEscOption(self):
         args = [
-            "ro", "snapshot", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
+            "ro", "snapshot", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/", ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
+            "-r ", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
