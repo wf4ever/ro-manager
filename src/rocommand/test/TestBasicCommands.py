@@ -244,7 +244,7 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         return
     
     def testRemoteStatusRO(self):
-        
+        return
     
     def testRemoteStatusWithWrongURI(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
@@ -569,7 +569,6 @@ def getTestSuite(select="unit"):
             , "testStatus"
             , "testStatusDefault"
             , "testStatusRO"
-            , "testStatusJob"
             , "testList"
             , "testListDefault"
             , "testAddDirectory"
