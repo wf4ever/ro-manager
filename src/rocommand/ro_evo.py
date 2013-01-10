@@ -9,12 +9,8 @@ import time
 log = logging.getLogger(__name__)
 
 def copy_operation(options, args, ro_type):
-    print "#$@#"
-    print "#$@#"
     print options["rosrs_uri"]
     options["rosrs_access_token"]
-    print "#$@#"
-    print "#$@#"
     rosrs = ROSRS_Session(options["rosrs_uri"], options["rosrs_access_token"])
     service_uri = urljoin(options["rosrs_uri"], "../evo/copy/")
     body = {
@@ -107,9 +103,7 @@ def freeze(options, args):
         'target': args[2],
     }
     body = simplejson.dumps(body)
-    reqheaders = {
-        'token': options["rosrs_access_token"],
-    }
+    reqheaders = {}
     (status, reason, headers, data) = response = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
     if "location" in headers:
         while print_job_status(parse_job(rosrs, headers['location']), options, True):
