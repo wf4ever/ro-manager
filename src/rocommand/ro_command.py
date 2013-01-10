@@ -670,7 +670,6 @@ def snapshot(progname, configbase, options, args):
     snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
     """
     ro_config = ro_utils.readconfig(configbase)
-    print ro_config 
     ro_options = {
         "rodir":          options.rodir or "",
         "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),

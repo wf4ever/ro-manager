@@ -243,6 +243,9 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
         return
     
+    def testRemoteStatusRO(self):
+        
+    
     def testRemoteStatusWithWrongURI(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
@@ -258,9 +261,6 @@ class TestBasicCommands(TestROSupport.TestROSupport):
             #assert status == -1
             self.assertEqual(outtxt.count("Wrong URI was given"), 1)
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
-        return
-    
-    def testStatusJob(self):
         return
     
     def testStatus(self):

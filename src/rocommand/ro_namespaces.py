@@ -50,7 +50,7 @@ RO = makeNamespace(ro,
             , "annotatesAggregatedResource" # @@TODO: deprecated
             ])
 ROEVO = makeNamespace(roevo, 
-            [ "LiveRO"
+            [ "LiveRO","SnapshotRO","ArchivedRO"
             ])
 ORE = makeNamespace(ore,
             [ "Aggregation", "AggregatedResource", "Proxy"

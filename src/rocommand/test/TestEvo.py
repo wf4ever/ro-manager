@@ -1,14 +1,16 @@
-import sys
-from rocommand.test.TestConfig import ro_test_config
+import sys 
+
 if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
 
 #internal
+import rocommand.ro as ro
 import TestROSupport
-
 from ROSRS_Session import ROSRS_Session
+from TestConfig import ro_test_config
+from StdoutContext import SwitchStdout
 #external
 from MiscLib import TestUtils
 
@@ -34,14 +36,26 @@ class TestEvo(TestROSupport.TestROSupport):
 
     
     def testSnapshot(self):
-        return
-    
+        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        assert self.createSnapshot(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, False) == "DONE"
+        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        assert  evo_type == 3
+        self.freeze(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        assert  evo_type == 1
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
+                
     def testArchive(self):
-
-        return
-     
-    def testFreeze(self):
-        return
+        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
+        assert self.createArchive(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, False) == "DONE"
+        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        assert  evo_type == 3
+        self.freeze(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        assert  evo_type == 2
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
     
 def getTestSuite(select="unit"):
     """
@@ -61,7 +75,6 @@ def getTestSuite(select="unit"):
         "component":
             [ "testSnapshot"
             , "testArchive"
-            , "testFreeze"
             ],
         "integration":
             [ 

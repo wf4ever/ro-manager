@@ -747,9 +747,9 @@ class ROSRS_Session(object):
         try:
             if ROEVO.LiveRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
                 return (evolution_status, evolution_reason, evolution_data, EvoType.LIVE)
-            elif ROEVO.SnaphotRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
+            elif ROEVO.SnapshotRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
                 return (evolution_status, evolution_reason, evolution_data, EvoType.SNAPSHOT)
-            elif ROEVO.ArchiveRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
+            elif ROEVO.ArchivedRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
                 return (evolution_status, evolution_reason, evolution_data, EvoType.ARCHIVE)
         except StopIteration as error:
             return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
