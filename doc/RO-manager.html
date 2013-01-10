@@ -133,7 +133,7 @@ provided</H1>
 			<P><CODE>ro status</CODE></P>
 		</TD>
 		<TD WIDTH=77%>
-			<P>displays status informationand metadata about an RO</P>
+			<P>displays status informationand metadata about an RO(local or remote) or snapshot/archive operation</P>
 		</TD>
 	</TR>
 	<TR VALIGN=TOP>
@@ -150,6 +150,30 @@ provided</H1>
 		</TD>
 		<TD WIDTH=77%>
 			<P>lists files in an RO directory tree</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=23%>
+			<P><CODE>ro snapshot</CODE></P>
+		</TD>
+		<TD WIDTH=77%>
+			<P>prepare a snapshot of existing RO</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=23%>
+			<P><CODE>ro archive</CODE></P>
+		</TD>
+		<TD WIDTH=77%>
+			<P>prepare an archive of existing RO</P>
+		</TD>
+	</TR>
+	<TR VALIGN=TOP>
+		<TD WIDTH=23%>
+			<P><CODE>ro freeze</CODE></P>
+		</TD>
+		<TD WIDTH=77%>
+			<P>freeze earlier prepared snapshot or archive</P>
 		</TD>
 	</TR>
 	<TR VALIGN=TOP>
@@ -385,6 +409,16 @@ created in the most closely containing RO.)</P>
 Displays all annotations for the indicated RO and all its components.</P>
 <P><CODE><I>dir</I></CODE> is a directory of the RO structure to be
 displayed. Default is the current directory.</P>
+<H2 CLASS="western"><A NAME="__RefHeading__929_375509825"></A><A NAME="__RefHeading__350_375509825"></A>
+ro archive</H2>
+Prepare an archive of existing RO.
+<PRE STYLE="margin-bottom: 0.5cm"> ro archive <I>RO-uri</I> <I>archive-id</I> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
+<P><CODE><I>RO-uri</I></CODE> is an uri of achived RO.
+<P><CODE><I>achive-id</I></CODE> is a am identifier od crating archive.
+<P><CODE><I>synchronous</I></CODE> is used for performing operation in the synchronous mode.
+<P><CODE><I>asynchronous</I></CODE>  is used for performing operation in the asynchronous mode.
+<P><CODE><I>freeze</I></CODE> is used for freezing the archive immediately after copying.
+<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to RO DL. It can by generate from the RO Portal. Default is the value specified previously using the ro config command. 
 <H2 CLASS="western"><A NAME="__RefHeading__931_375509825"></A><A NAME="__RefHeading__352_375509825"></A>
 ro checkout</H2>
 <PRE>  ro checkout <I>RO-identifier</I> [ -d <I>dir</I> ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
@@ -455,8 +489,14 @@ to be executable, or for a particular output dataset of the RO to be
 report of any unsatisfied minimum information requirement to be
 generated. Otherwise, just a summary report is generated. @@check.
 @@Need more levels?</P>
+<H2 CLASS="western"><A NAME="__RefHeading__937_375509825"></A><A NAME="__RefHeading__358_375509825"></A>
+ro freeze</H2>
+<PRE STYLE="margin-bottom: 0.5cm"> ro freeze <I>RO-uri</I></PRE><P>
+Freeze earlier prepared snapshot or archive.
+<P><CODE><I>RO-uri</I></CODE> is an uri of freezing archive or snaphot.
 <H2 CLASS="western"><A NAME="__RefHeading__941_375509825"></A><A NAME="__RefHeading__362_375509825"></A>
 ro list</H2>
+Freeze earlier prepared snapshot or archive.
 <PRE STYLE="margin-bottom: 0.5cm">  ro list [ -a ] [ -d <I>dir</I> ]</PRE><P>
 Lists files in an RO directory structure.</P>
 <P><CODE><I>dir</I></CODE> is a directory where the RO structure is
@@ -482,12 +522,24 @@ access to RO DL. It can by generate from the <a href="http://sandbox.wf4ever-pro
 RO Portal</a>. Default is the value
 specified previously using the <CODE>ro config</CODE> command.</P>
 <P>@@Currently all files in the RO folder are sent to RO DL, but in the future only those aggregated in the manifest will be sent.</P>
+<H2 CLASS="western"><A NAME="__RefHeading__929_375509825"></A><A NAME="__RefHeading__350_375509825"></A>
+ro snapshot</H2>
+Prepare a snapshot of existing RO.
+<PRE STYLE="margin-bottom: 0.5cm"> ro snapshot <I>RO-uri</I> <I>shapshot-id</I> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
+<P><CODE><I>RO-uri</I></CODE> is an uri of snapshotted RO.
+<P><CODE><I>achive-id</I></CODE> is a am identifier od crating archive.
+<P><CODE><I>synchronous</I></CODE> is used for performing operation in the synchronous mode.
+<P><CODE><I>asynchronous</I></CODE>  is used for performing operation in the asynchronous mode.
+<P><CODE><I>freeze</I></CODE> is used for freezing the snapshot immediately after copying.
+<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to RO DL. It can by generate from the RO Portal. Default is the value specified previously using the ro config command. 
+
 <H2 CLASS="western"><A NAME="__RefHeading__945_375509825"></A><A NAME="__RefHeading__366_375509825"></A>
 ro status</H2>
-<PRE STYLE="margin-bottom: 0.5cm">  ro status [ -d &lt;dir&gt; ]</PRE><P>
-Displays basic information about the indicated RO.</P>
+<PRE STYLE="margin-bottom: 0.5cm"> ro status [ <I>uri</I> | -d <I>dir</I> ]</PRE><P>
+Displays basic information about the indicated RO(remote or local) or snaphot/archive operation.</P>
 <P><CODE><I>dir</I></CODE> is a directory of the RO structure to be
 displayed. Default is the current directory.</P>
+<P><CODE><I>uri</I></CODE> is an uri of remote RO or snaphot/archive operation.</P>
 <H1><A NAME="__RefHeading__368_375509825"></A>Future directions</H1>
 <P>(Rough notes only)</P>
 <UL>
