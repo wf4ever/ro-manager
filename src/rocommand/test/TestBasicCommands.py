@@ -45,7 +45,8 @@ class TestBasicCommands(TestROSupport.TestROSupport):
     """
     TEST_RO_ID = "test-evo-ro"
     TEST_SNAPHOT_ID = "test-evo-snaphot"
-    
+    TEST_ARCHIVE_ID = "test-archive-id"
+    TEST_UNDEFINED_ID = "test-undefined-id"
     def setUp(self):
         super(TestBasicCommands, self).setUp()
         return
@@ -243,22 +244,104 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
         return
     
-    def testRemoteStatusRO(self):
-        return
+    def testRemoteStatusSnapshotRO(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID + "/")
+        self.createSnapshot(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, True)
+        
+        args = [
+            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/",
+            "-r", ro_test_config.ROSRS_URI, 
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            assert status == 0
+            outtxt = self.outstr.getvalue()
+            self.assertEqual(outtxt.count("SNAPSHOT"), 1)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        
+    def testRemoteStatusArchiveRO(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
+        self.createArchive(self.TEST_RO_ID + "/", self.TEST_ARCHIVE_ID, True)
+        
+        args = [
+            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
+            "-r", ro_test_config.ROSRS_URI, 
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            assert status == 0
+            outtxt = self.outstr.getvalue()
+            self.assertEqual(outtxt.count("ARCHIVE"), 1)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
     
-    def testRemoteStatusWithWrongURI(self):
+    def testRemoteStatusUndefinedRO(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
+        self.createArchive(self.TEST_RO_ID + "/", self.TEST_ARCHIVE_ID, False)
+        
+        args = [
+            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
+            "-r", ro_test_config.ROSRS_URI, 
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            assert status == 0
+            outtxt = self.outstr.getvalue()
+            self.assertEqual(outtxt.count("UNDEFINED"), 1)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+    
+    def testRemoteStatusLiveRO(self):
+        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+            "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        
+        args = [
+            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/",
+            "-r", ro_test_config.ROSRS_URI, 
+            "-v"
+        ]
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+            assert status == 0
+            outtxt = self.outstr.getvalue()
+            self.assertEqual(outtxt.count("LIVE"), 1)
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+    
+    
+    
+    def testRemoteStatusWithWrongUriGiven(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        self.rosrs.deleteRO("some-strange-uri/")
         self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
+    
         args = [
-            "ro", "status", urljoin(ro_test_config.ROSRS_URI,"some-strange-uri"),
+            "ro", "status", ro_test_config.ROSRS_URI + "some-strange-uri/",
             "-v"
         ]
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             outtxt = self.outstr.getvalue()
-            #assert status == -1
+            assert status == -1
             self.assertEqual(outtxt.count("Wrong URI was given"), 1)
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
         return
@@ -569,6 +652,11 @@ def getTestSuite(select="unit"):
             , "testStatus"
             , "testStatusDefault"
             , "testStatusRO"
+            , "testRemoteStatusSnapshotRO"
+            , "testRemoteStatusArchiveRO"
+            , "testRemoteStatusUndefinedRO"
+            , "testRemoteStatusLiveRO"
+            , "testRemoteStatusWithWrongUriGiven"
             , "testList"
             , "testListDefault"
             , "testAddDirectory"
