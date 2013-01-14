@@ -497,7 +497,7 @@ EvalChecklistHtml = (
           , { 'output':
                 '''</span> checklist for '''+
                 '''\n              <span class="testpurpose">%(purpose)s</span>.'''+
-                '''\n              <p>This Research Object [@@TODO extraction of description].</p>'''+
+                # @@TODO '''\n              <p>This Research Object [@@TODO extraction of description].</p>'''+
                 '''\n            </th>'''+
                 ''''''
             }

@@ -1,3 +1,7 @@
+body {
+    font-family: arial;
+}
+
 .header {
     font-weight: bold;
     font-size: x-large;
@@ -60,7 +64,7 @@ span.testpurpose {
 }
 
 .trafficlight.large.fail.should {
-    background-image: url(images/amber_circle_64.png);
+    background-image: url(images/amber_check_64.png);
 }
 
 .trafficlight.small.fail.should {
