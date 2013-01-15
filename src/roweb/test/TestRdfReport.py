@@ -486,6 +486,7 @@ class TestRdfReport(unittest.TestCase):
           [ ''''''
           , '''{ "rouri":                  "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "roid":                   "simple-requirements"'''
+          , ''', "description":            "A simple test RO"'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
@@ -559,6 +560,7 @@ class TestRdfReport(unittest.TestCase):
           , '''<div class="header">'''
           , '''Research object <a href="%s">simple-requirements</a>'''%(rouristr)
           , '''</div>'''
+          , '''<p>A simple test RO</p>'''
           , '''<div class="body">'''
           , '''<table>'''
           , '''<tr>'''
