@@ -566,7 +566,7 @@ class TestRdfReport(unittest.TestCase):
           , '''<a href="%s">simple-requirements</a></span>'''%(rouristr)
           , '''<span class="testresult">minimally satisfies</span> checklist for'''
           , '''<span class="testpurpose">Runnable</span>.'''
-          , '''<p>This Research Object @@TODO.</p>'''
+          # , '''<p>This Research Object @@TODO.</p>'''
           , '''</th>'''
           , '''<th class="trafficlight large fail should"><div/></th>'''
           , '''</tr>'''

@@ -628,7 +628,6 @@ class ro_metadata(object):
         """
         Test if supplied URI is a reference to the current RO metadata area
         """
-        assert self._isLocal()
         urirel = self.getComponentUriRel(uri)
         return str(urirel).startswith(ro_settings.MANIFEST_DIR+"/")
 

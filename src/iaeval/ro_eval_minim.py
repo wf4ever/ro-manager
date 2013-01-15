@@ -54,11 +54,12 @@ def evaluate(rometa, minim, target, purpose):
     minimgraph is a cpy of the minim graph on which the evaluation was based.
     
     The evalresult indicates a summary and details of the analysis; e.g.
-    { 'summary':       [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
-    , 'missingMust':   []
-    , 'missingShould': []
-    , 'missingMay':    []
+    { 'summary':        [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
+    , 'missingMust':    []
+    , 'missingShould':  []
+    , 'missingMay':     []
     , 'rouri':          rouri
+    , 'roid':           roid
     , 'minimuri':       minim
     , 'target':         target
     , 'purpose':        purpose
