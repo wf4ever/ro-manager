@@ -33,6 +33,7 @@ See:
   git branch --track develop origin/develop
 
 Also, to delete remote branch:
+
   $ git push origin --delete <branchName>
 
 
@@ -63,18 +64,6 @@ Finished features may be merged into the develop branch definitely add them to t
   $ git push origin develop
 
 The --no-ff flag causes the merge to always create a new commit object, even if the merge could be performed with a fast-forward.
-
-
-### Creating a release branch ###
-
-Release branches are created from the develop branch. For example, say version 1.1.5 is the current production release and we have a big release coming up. The state of develop is ready for the “next release” and we have decided that this will become version 1.2 (rather than 1.1.6 or 2.0). So we branch off and give the release branch a name reflecting the new version number:
-  $ git checkout -b release-1.2 develop
-  Switched to a new branch "release-1.2"
-  $ ./bump-version.sh 1.2
-  Files modified successfully, version bumped to 1.2.
-  $ git commit -a -m "Bumped version number to 1.2"
-  [release-1.2 74d9424] Bumped version number to 1.2
-  1 files changed, 1 insertions(+), 1 deletions(-)
 
 
 ### Release branches ###
