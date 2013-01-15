@@ -33,6 +33,7 @@ See:
   git branch --track develop origin/develop
 
 Also, to delete remote branch:
+
   $ git push origin --delete <branchName>
 
 
