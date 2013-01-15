@@ -1,0 +1,49 @@
+{ "rouri":                  "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+, "roid":                   "simple-requirements"
+, "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"
+, "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+, "checklisttargetlabel":   "simple-requirements"
+, "checklistpurpose":       "Runnable"
+, "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"
+, "evalresultlabel":        "minimally satisfies"
+, "evalresultclass":        ["fail", "should"]
+, "checklistitems":
+  [
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible"
+    , "itemlabel":      "Workflow file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh input file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/data/UserRequirements-astro.ods is not accessible"
+    , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement" 
+    , "itemsatisfied":  false
+    , "itemclass":      ["fail", "should"]
+    },
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible"
+    , "itemlabel":      "All declared workflow descriptions are accessible"
+    , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement" 
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass"]
+    },
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow"
+    , "itemlabel":      "Workflow description found"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass"]
+    },
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated"
+    , "itemlabel":      "All declared workflow descriptions are aggregated"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass"]
+    },
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated"
+    , "itemlabel":      "All declared workflow inputs are aggregated"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass"]
+    },
+    { "itemuri":        "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"
+    , "itemlabel":      "Workflow input(s) found"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass"]
+    }
+  ]
+}

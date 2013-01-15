@@ -7,7 +7,7 @@ Basic command functions for ro, research object manager
 import sys
 import os
 import os.path
-import readline  # enable input editing for raw_input
+### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
@@ -16,7 +16,11 @@ import shutil
 import urlparse
 import urllib2
 import zipfile
-from _pyio import BytesIO
+
+###@@TODO:
+###Where did this come from???
+###from _pyio import BytesIO
+
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -38,6 +42,26 @@ import ro_rosrs_sync
 
 from iaeval import ro_eval_minim
 from zipfile import ZipFile
+
+RDFTYP = ["RDFXML","N3","TURTLE","NT","JSONLD","RDFA"]
+VARTYP = ["JSON","CSV","XML"]
+
+RDFTYPPARSERMAP = (
+    { "RDFXML": "xml"
+    , "N3":     "n3"
+    , "TURTLE": "n3"
+    , "NT":     "nt"
+    , "JSONLD": "jsonld"
+    , "RDFA":   "rdfa"
+    })
+
+RDFTYPSERIALIZERMAP = (
+    { "RDFXML": "pretty-xml"
+    , "N3":     "n3"
+    , "TURTLE": "turtle"
+    , "NT":     "nt"
+    , "JSONLD": "jsonld"
+    })
 
 def getoptionvalue(val, prompt):
     if not val:
@@ -81,7 +105,21 @@ def ro_root_directory(cmdname, ro_config, rodir):
            (cmdname, ro_dir))
     return None
 
-# Argumemnt count checking and usage summary
+def ro_root_reference(cmdname, ro_config, rodir):
+    """
+    Find research object root directory.  If the supplied rodir is not a local file
+    reference, it is returned as-is, otherwise ro_root_directory is used to locate
+    the RO root directory containing the indicated file.
+
+    Returns directory path string, or None if not found, in which
+    case an error message is displayed.
+    """
+    roref = ro_uriutils.resolveFileAsUri(rodir)
+    if ro_uriutils.isFileUri(roref):
+        roref = ro_root_directory(cmdname, ro_config, rodir)
+    return roref
+
+# Argument count checking and usage summary
 
 def argminmax(min, max):
     return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
@@ -90,7 +128,7 @@ ro_command_usage = (
     [ (["help"], argminmax(2, 2),
           ["help"])
     , (["config"], argminmax(2, 2),
-          ["config -b <robase> -u <username> -e <useremail> -r <rosrs_uri> -t <access_token>"])
+          ["config -b <robase> -n <username> -e <useremail> -r <rosrs_uri> -t <access_token>"])
     , (["create"], argminmax(3, 3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"])
     , (["status"], argminmax(2, 2),
@@ -118,9 +156,9 @@ ro_command_usage = (
           , "link -d <dir> -w <pattern> -g <RDF-graph>"
           ])
     , (["annotations"], argminmax(2, 3),
-          ["annotations [ <file> | -d <dir> ]"])
+          ["annotations [ <file> | -d <dir> ] [ -o <format> ]"])
     , (["evaluate", "eval"], argminmax(5, 6),
-          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]"])
+          ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] [ -o <format> ] <minim> <purpose> [ <target> ]"])
     , (["push"], (lambda options, args: (argminmax(2, 3) if options.rodir else len(args) == 3)),
           ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["checkout"], argminmax(2, 3),
@@ -128,12 +166,16 @@ ro_command_usage = (
     ])
 
 def check_command_args(progname, options, args):
+    # Eliminate blank arguments
+    args = [ a for a in args if a != "" ]
     # Check argument count for known command
     for (cmds, test, usages) in ro_command_usage:
         if args[1] in cmds:
             if not test(options, args):
                 print ("%s %s: wrong number of arguments provided" % 
                        (progname, args[1]))
+                # for i in range(len(args)):
+                #     print "%d: '%s'"%(i, args[i])
                 print "Usage:"
                 for u in usages:
                     print "  %s %s" % (progname, u)
@@ -672,7 +714,7 @@ def push(progname, configbase, options, args):
             log.debug("Annotation deleted in ROSRS: %s" % (resuri))
             deletedAnnCnt += 1
         elif action == ro_rosrs_sync.ACTION_ERROR:
-            print "Error: %s"%resuri
+            print resuri
     print "%d resources pushed, %d annotations pushed, %d resources deleted, %d annotations deleted" \
         % (pushedResCnt, pushedAnnCnt, deletedResCnt, deletedAnnCnt)
     return 0
@@ -732,8 +774,8 @@ def evaluate(progname, configbase, options, args):
         , "function":     args[2]
         })
     log.debug("ro_options: " + repr(ro_options))
-    ro_dir = ro_root_directory(progname + " annotations", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
+    ro_ref = ro_root_reference(progname + " annotations", ro_config, ro_options['rodir'])
+    if not ro_ref: return 1
     # Evaluate...
     if ro_options["function"] == "checklist":
         if len(args) not in [5, 6]:
@@ -745,20 +787,26 @@ def evaluate(progname, configbase, options, args):
             print ("%s evaluate checklist: invalid reporting level %s, must be one of %s" % 
                     (progname, options.level, repr(levels)))
             return 1
-        ro_options["minim"] = ((len(args) > 3) and args[3]) or "minim.rdf"
+        ro_options["minim"]   = ((len(args) > 3) and args[3]) or "minim.rdf"
         ro_options["purpose"] = ((len(args) > 4) and args[4]) or "create"
-        ro_options["target"] = ((len(args) > 5) and args[5]) or "."
+        ro_options["target"]  = ((len(args) > 5) and args[5]) or "."
         if options.verbose:
             print "ro evaluate %(function)s -d \"%(rodir)s\" %(minim)s %(purpose)s %(target)s" % ro_options
-        rometa = ro_metadata(ro_config, ro_dir)
+        rometa = ro_metadata(ro_config, ro_ref)
         (minimgraph, evalresult) = ro_eval_minim.evaluate(rometa,
             ro_options["minim"], ro_options["target"], ro_options["purpose"])
         if options.verbose:
             print "== Evaluation result =="
             print json.dumps(evalresult, indent=2)
-        ro_eval_minim.format(evalresult,
-            { "detail" : "full" if options.all else options.level },
-            sys.stdout)
+        if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+            # RDF output
+            graph = ro_eval_minim.evalResultGraph(minimgraph, evalresult)
+            graph.serialize(destination=sys.stdout,
+                format=RDFTYPSERIALIZERMAP[options.outformat.upper()])
+        else:
+            ro_eval_minim.format(evalresult,
+                { "detail" : "full" if options.all else options.level },
+                sys.stdout)
     # elif ... other functions here
     else:
         print ("%s evaluate: unrecognized function provided (%s)" % (progname, ro_options["function"]))

@@ -41,7 +41,7 @@ def resolveFileAsUri(path):
     (for idempotency and non-file URIs)
     """
     if urlparse.urlsplit(path).scheme == "":
-        path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
+        path = resolveUri("", fileuribase, os.path.abspath(path))
     return path
 
 def getFilenameFromUri(uri):
@@ -65,7 +65,7 @@ def isLiveUri(uriref):
     if isFileUri(fileuri):
         islive = os.path.exists(getFilenameFromUri(fileuri))
     else:
-        hs = ROSRS_Session(uriref)
+        hs = ROSRS_Session.ROSRS_Session(uriref)
         (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
         islive = (status == 200)
     return islive

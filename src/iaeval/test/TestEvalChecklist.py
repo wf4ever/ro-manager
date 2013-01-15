@@ -445,6 +445,66 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
     
+    def testEvaluateWfInputsRDF(self):
+        # repeat previous test case, but with RDF output
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-simple-wf", "RO test minim", "ro-testMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateWfRo(testbase, rodir)
+        rometa   = ro_metadata(ro_config, rodir)
+        minimuri = rometa.getComponentUri("simple-wf-minim.rdf")
+        # Evaluate
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , "-o", "rdfxml"
+               , "simple-wf-minim.rdf"
+               , "Runnable"
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
+        # Check response returned
+        self.outstr.seek(0)
+        outgraph = rdflib.Graph()
+        outgraph.parse(self.outstr)
+        prefixes = """
+            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
+            PREFIX ro:         <http://purl.org/wf4ever/ro#>
+            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
+            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
+            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
+            PREFIX ao:         <http://purl.org/ao/>
+            PREFIX dcterms:    <http://purl.org/dc/terms/>
+            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
+            PREFIX minim:      <http://purl.org/minim/minim#>
+            """
+        # @@TODO: add more probe queries here?
+        probequeries = (
+            [ "ASK { <%s> minim:minimUri <%s> }"%
+              (rometa.getRoUri(), minimuri)
+            , "ASK { <%s> minim:modelUri <%s> }"%
+              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model"))
+            ])
+        for q in probequeries:
+            r = outgraph.query(prefixes+q)
+            self.assertEqual(r.type, 'ASK', "Result type %s for: %s"%(r.type, q))
+            self.assertTrue(r.askAnswer, "Failed query: %s"%(q))
+        self.deleteTestRo(rodir)
+        return
+    
     # @@TODO Add test cases for liveness test
 
     # Test evaluation of remote resource
@@ -498,8 +558,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEqual(evalresult['minimuri'],      rdflib.URIRef(minimuri))
         self.assertEqual(evalresult['target'],        rouri)
         self.assertEqual(evalresult['purpose'],       "Repeatable")
-        self.assertEqual(evalresult['constrainturi'], rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO"))
-        self.assertEqual(evalresult['modeluri'],      rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO_model"))
+        self.assertEqual(evalresult['constrainturi'],
+                         rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO"))
+        self.assertEqual(evalresult['modeluri'],
+                         rometa.getComponentUri("simple-requirements-minim.rdf#repeatable_RO_model"))
         self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
         self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
         self.assertNotIn(MINIM.minimallySatisfies, evalresult['summary'])
@@ -549,6 +611,7 @@ def getTestSuite(select="unit"):
             , "testEvalFormatDetail"
             , "testEvaluateChecklistCommand"
             , "testEvaluateWfInputs"
+            , "testEvaluateWfInputsRDF"
             ],
         "component":
             [ "testComponents"

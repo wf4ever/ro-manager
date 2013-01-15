@@ -16,8 +16,8 @@ cat >sample-params.txt <<END
   "template": "$TEMPLATE",
   "params":
   {
-    "RO": "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/",
-    "minim": "simple-requirements-minim.rdf",
+    "RO": "$1",
+    "minim": "http://raw.github.com/wf4ever/ro-catalogue/master/v0.1/simple-requirements/checklist-runnable.rdf",
     "purpose": "Runnable"
   }
 }
@@ -29,10 +29,10 @@ echo "==== URI: $EVALURI"
 
 # Evaluation results with URI parameters:
 
-echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
-curl -H "accept: text/turtle" $EVALURI
+# echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
+# curl -H "accept: text/turtle" $EVALURI
 
 echo "==== Request evaluation result with parameters, as RDF/XML ===="
-curl -H "accept: application/rdf+xml" $EVALURI
+#curl -H "accept: application/rdf+xml" $EVALURI
 
 # End.

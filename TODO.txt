@@ -20,8 +20,6 @@ TODO:
 * ro show config
 * ro create should fail if RO already created
 
-* Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
-
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** See: https://www.pivotaltracker.com/story/show/26123933
@@ -32,7 +30,8 @@ TODO:
 * ro users
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
-* Options for RO logging of changes, etc
+  (done for eval checklist; annotations, list todo)
+* Options for RO logging of changes, etc.
 * ro list currently shows only files: want to show directories too?
 
 Other functions:
@@ -41,14 +40,20 @@ Other functions:
 
 Technical debt:
 - Mop up @@TODOs
+- remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
+- try new rdflib SPARQL processor as drop-in for rdfextras 
 - new test cases for evaluation
-- Check out rdflib sparql query bnode bug - is it fixed? (I think it is - test cases to revert?)
+- Check out rdflib sparql query bnode bug - is it fixed?
+  (It was fixed, but a similar problem with query parameter ordering has been found.)
+  (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
 
 ----
 
 DONE
+
+* Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
 
 * ro config: configure research object management tool
 * ro create: create new research object
@@ -105,7 +110,7 @@ Option table
 ("-a", "--all",                 help="All, list all files, depends on the context")
 ("-b", "--ro-base",             help="Base of local directory tree used for ROs")
   -c
-("-d", "--ro-directory",        help="Directory of Research Object to process (defaults to current directory)")
+("-d", "--ro-directory", "--ro-uri", help="Directory or URI of Research Object to process (defaults to current directory)")
 ("-e", "--user-email",          help="Email address of research objects owner")
 ("-f", "--force",               help="Force, depends on the context")
 ("-g", "--graph",               help="Name of existing RDF graph used for annotation")
@@ -116,7 +121,7 @@ Option table
   -l,  "--report-level",        help="Reporting level of detail to generate (summary, must, should, may or full)"
   -m
 ("-n", "--user-name",           help="Full name of research objects owner")
-  -o
+("-o", "--output",              help="Output format to generate: text, rdfxml, turtle")
 ("-p", "--rosrs-password",      help="ROSRS password")
   -q
 ("-r", "--rosrs-uri",           help="URI of ROSRS service")

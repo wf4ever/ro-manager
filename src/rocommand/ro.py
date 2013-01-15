@@ -85,9 +85,9 @@ def parseCommandArgs(argv):
     parser.add_option("-b", "--ro-base",
                       dest="robasedir",
                       help="Base of local directory tree used for ROs")
-    parser.add_option("-d", "--ro-directory",
+    parser.add_option("-d", "--ro-directory", "--ro-uri",
                       dest="rodir",
-                      help="Directory of Research Object to process (defaults to current directory)")
+                      help="Directory or URI of Research Object to process (defaults to current directory)")
     parser.add_option("-e", "--user-email",
                       dest="useremail",
                       help="Email address of research objects owner")
@@ -109,6 +109,9 @@ def parseCommandArgs(argv):
     parser.add_option("-n", "--user-name",
                       dest="username",
                       help="Full name of research objects owner")
+    parser.add_option("-o", "--output",
+                      dest="outformat",
+                      help="Output format to generate: TEXT, RDFXML, TURTLE, etc.")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri",
                       help="URI of ROSRS service")

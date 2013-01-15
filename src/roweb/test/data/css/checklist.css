@@ -1,0 +1,77 @@
+.header {
+    font-weight: bold;
+    font-size: x-large;
+}
+
+.trafficlight {
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+th {
+    font-weight: bold;
+    text-align: left;
+}
+
+th p {
+    font-weight: normal;
+    text-align: left;
+}
+
+/*
+.trafficlight.large {
+    width: 64px;
+    height: 64px;
+}
+*/
+
+/*
+.trafficlight.small {
+    width: 32px;
+    height: 32px;
+}
+*/
+
+span.testresult {
+    font-style: italic;
+}
+
+span.testpurpose {
+    font-style: italic;
+}
+
+.trafficlight.large div {
+    width: 64px;
+    height: 64px;
+}
+
+.trafficlight.small div {
+    width: 32px;
+    height: 32px;
+}
+
+.trafficlight.large.pass {
+    background-image: url(images/green_check_64.png);
+}
+
+.trafficlight.small.pass {
+    background-image: url(images/green_check_32.png);
+}
+
+.trafficlight.large.fail.should {
+    background-image: url(images/amber_circle_64.png);
+}
+
+.trafficlight.small.fail.should {
+    background-image: url(images/amber_cross_32.png);
+}
+
+.trafficlight.large.fail.must {
+    background-image: url(images/red_cross_64.png);
+}
+
+.trafficlight.small.fail.must {
+    background-image: url(images/red_cross_32.png);
+}
+

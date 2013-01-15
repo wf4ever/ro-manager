@@ -96,28 +96,37 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
             self.assertEqual(c, len(resources))
             return
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        self.remoteRo.reloadManifest()
         self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.aggregateResourceExt("http://www.google.com")
+        self.remoteRo.reloadManifest()
         self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
                          , URIRef("http://www.google.com")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.deaggregateResource(URIRef("internal/1"))
+        self.remoteRo.reloadManifest()
         self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("http://www.google.com")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.deaggregateResource(URIRef("http://www.google.com"))
+        self.remoteRo.reloadManifest()
         self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
-        verifyResources([])
+        verifyResources([
+                         URIRef(".ro/evo_info.ttl")
+         ])
         return
 
     def testClassifyAggregatedResources(self):
@@ -140,7 +149,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
 
     def testGetAsZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        roid = "romanagertest-" + str(uuid.uuid4())      
+        roid = "testGetAsZip"      
         (_, _, rouri, _) = ro_remote_metadata.createRO(httpsession, roid)
         self.remoteRo = ro_remote_metadata.ro_remote_metadata(ro_config, httpsession, rouri)
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")

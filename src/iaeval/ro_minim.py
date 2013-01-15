@@ -35,8 +35,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "satisfied", "missingMay", "missingShould", "missingMust"
             , "testedConstraint", "testedPurpose", "testedTarget"
             , "minimUri", "modelUri"
-            #, "tryRule"
-            , "tryRequirement"
+            , "tryRequirement", "tryMessage"
             ])
 
 resultnsuri = rdflib.URIRef("http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
@@ -58,7 +57,7 @@ def readMinimGraph(minimuri):
     Read Minim file, return RDF Graph.
     """
     minimgraph = rdflib.Graph()
-    minimgraph.parse(minimuri)
+    minimgraph.parse(minimuri, format="xml")
     return minimgraph
 
 def getConstraints(minimgraph):
@@ -74,23 +73,39 @@ def getConstraints(minimgraph):
     return
 
 def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
+    """
+    Find constraint matching supplied RO, target and purpose regex
+    
+    Constraint is returned with:
+    targetro_actual  -> URI of resource
+    targetres_actual -> URI of target if supplied, else subject of minium:hasConstraint
+    resource_actual  -> explicit onResource URI, or expansion of onResourceTemplate with RO URI
+    """
+    def mkstr(u):
+        return u and str(u)
     log.debug("getConstraint: rouri %s, target_ref %s"%(rouri, target_ref))
-    target = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
-    targetstr = target and str(target)
-    #log.debug("- target %s"%(target))
-    purpose = purpose_regex_string and re.compile(purpose_regex_string)
+    target       = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
+    purpose      = purpose_regex_string and re.compile(purpose_regex_string)
+    templatedict = {'targetro': str(rouri)}
     for c in getConstraints(minimgraph):
         #log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
         if not purpose or purpose.match(c['purpose']):
-            if not target or target == c['target']:
+            c['targetro_actual']   = mkstr(rouri)
+            c['targetres_actual']  = mkstr(target or c['target'])
+            c['onresource_actual'] = ( mkstr(c['resource']) or 
+                                      (c['resource_t'] and uritemplate.expand(c['resource_t'], templatedict))
+                                     )
+            if not target:
+                # No target specified in request, match any (first) constraint
                 return c
-            log.debug("- targetstr %s, c['target_t'] %s"%(targetstr, c['target_t']))
-            if targetstr and c['target_t']:
-                # Expand template from constraint, look for match to supplied target
-                templatedict = {'targetro': str(rouri)}
-                constrainttarget = uritemplate.expand(c['target_t'], templatedict)
-                if targetstr == constrainttarget: 
+            if target == c['target']:
+                # Match explicit target specification (subject of minim:hasConstraint)
+                return c    
+            log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
+            if target and c['target_t']:
+                if str(target) == uritemplate.expand(c['target_t'], templatedict):
+                    # Target matches expanded template from constraint description
                     return c
     return None
 

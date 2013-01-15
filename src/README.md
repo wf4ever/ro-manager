@@ -273,6 +273,15 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for V0.2.8
+
+* Web services to return checklist result as HTML or JSON for rendering by Javascript
+* RDF output option from checklist evaluation function
+* Command line evaluation can run against RO accessed using ROSRS API
+* Various small bug fixes, refactoring and optimizations
+* Updated sample files and scripts
+
+
 ### Changes for V0.2.7
 
 * Add `ro remove` command, fix URI escaping problems that werer occurring when an RO was created from files containing space or '#' characters

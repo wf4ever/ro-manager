@@ -1,5 +1,6 @@
 #!/bin/bash
-HOST=http://localhost:8080    # Service endpoint URI
+#HOST=http://andros.zoo.ox.ac.uk:8080    # Service endpoint URI
+HOST=http://sandbox.wf4ever-project.org/roevaluate   # Service endpoint URI
 
 # Retrieve service description and extract template
 
@@ -16,7 +17,7 @@ cat >sample-params.txt <<END
   "params":
   {
     "RO": "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/",
-    "minim": "simple-requirements-minim.rdf",
+    "minim": "checklist-runnable.rdf",
     "purpose": "Runnable"
   }
 }
@@ -28,8 +29,8 @@ echo "==== URI: $EVALURI"
 
 # Evaluation results with URI parameters:
 
-echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
-curl -H "accept: text/turtle" $EVALURI
+# echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
+# curl -H "accept: text/turtle" $EVALURI
 
 echo "==== Request evaluation result with parameters, as RDF/XML ===="
 curl -H "accept: application/rdf+xml" $EVALURI

@@ -214,7 +214,8 @@ class ROSRS_Session(object):
         # Assemble request headers
         if not reqheaders:
             reqheaders = {}
-        reqheaders["authorization"] = "Bearer "+self._key
+        if self._key:
+            reqheaders["authorization"] = "Bearer "+self._key
         if ctype:
             reqheaders["content-type"] = ctype
         if accept:
@@ -525,7 +526,7 @@ class ROSRS_Session(object):
             body=anngr.serialize(format="xml"))
         if status != 201:
             raise self.error("Error creating annotation body resource",
-                "%03d %s (%s)"%(status, reason, str(resuri)))
+                "%03d %s (%s)"%(status, reason, str(rouri)))
         return (status, reason, bodyuri)
 
     def createAnnotationRDF(self, rouri, resuri, bodyuri):
@@ -609,6 +610,7 @@ class ROSRS_Session(object):
 
         returns: (status, reason)
         """
+        assert False, "@@TODO Not fully implemented - need to GET current annotation and extract annotated resource to resuri"
         (status, reason) = self.updateROAnnotation(rouri, annuri, resuri, bodyuri)
         return (status, reason)
 

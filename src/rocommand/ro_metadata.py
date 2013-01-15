@@ -90,6 +90,7 @@ class ro_metadata(object):
             assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
                                     (str(self.rouri), status, reason))
             self.manifestgraph = manifest 
+        log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
 
     def _updateManifest(self):
@@ -139,7 +140,9 @@ class ro_metadata(object):
             for anode in self._iterAnnotations():
                 auri = manifest.value(subject=anode, predicate=AO.body)
                 if auri not in annotation_uris_loaded:
-                    self._readAnnotationBody(auri, self.roannotations)
+                    aref = self.getComponentUriRel(auri)
+                    log.debug("_loadAnnotations: aref "+str(aref))
+                    self._readAnnotationBody(aref, self.roannotations)
                     annotation_uris_loaded.add(auri)
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
@@ -468,8 +471,9 @@ class ro_metadata(object):
         ann_graph = self._loadAnnotations()
         for (s, p, v) in ann_graph.triples((subject, property, None)):
             if not isinstance(s, rdflib.BNode):
-                log.debug("Triple: %s %s %s"%(s,p,v))
-                yield (s, p, v)
+                if not self.isRoMetadataRef(s):
+                    log.debug("Triple: %s %s %s"%(s,p,v))
+                    yield (s, p, v)
         return
 
     def getRoAnnotations(self):
@@ -624,7 +628,6 @@ class ro_metadata(object):
         """
         Test if supplied URI is a reference to the current RO metadata area
         """
-        assert self._isLocal()
         urirel = self.getComponentUriRel(uri)
         return str(urirel).startswith(ro_settings.MANIFEST_DIR+"/")
 
