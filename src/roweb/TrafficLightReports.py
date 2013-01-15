@@ -267,6 +267,7 @@ EvalChecklistJson = (
       [ { 'output':
             '''\n{ "rouri":                  "%(rouri)s"'''+
             '''\n, "roid":                   "%(roid)s"'''+
+            '''\n, "description":            "%(description)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
             '''\n, "checklisttargetlabel":   "%(targetlabel)s"'''+
@@ -274,10 +275,11 @@ EvalChecklistJson = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
@@ -464,10 +466,11 @@ EvalChecklistHtml = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
@@ -482,6 +485,7 @@ EvalChecklistHtml = (
                 '''\n      <div class="header">'''+
                 '''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
                 '''\n      </div>'''+
+                '''\n      <p>%(description)s</p>'''+
                 '''\n      <div class="body">'''+
                 '''\n        <table>'''+
                 '''\n          <tr>'''+
@@ -497,7 +501,6 @@ EvalChecklistHtml = (
           , { 'output':
                 '''</span> checklist for '''+
                 '''\n              <span class="testpurpose">%(purpose)s</span>.'''+
-                # @@TODO '''\n              <p>This Research Object [@@TODO extraction of description].</p>'''+
                 '''\n            </th>'''+
                 ''''''
             }

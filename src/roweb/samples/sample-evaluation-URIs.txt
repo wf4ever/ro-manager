@@ -6,6 +6,11 @@ http://localhost:8080/evaluate/trafficlight_html?RO=http%3A%2F%2Fsandbox.wf4ever
 
 Trafficlight from RODL RO using RODL service:
 http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2F&minim=checklist-runnable.rdf&purpose=Runnable
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/&minim=checklist-runnable.rdf&purpose=Runnable
+
+
+Trafficlight JSON from RODL RO using RODL service:
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/&minim=checklist-runnable.rdf&purpose=Runnable
 
 Minim absolute URI:
 http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2Fchecklist-runnable.rdf

@@ -54,18 +54,19 @@ def evaluate(rometa, minim, target, purpose):
     minimgraph is a cpy of the minim graph on which the evaluation was based.
     
     The evalresult indicates a summary and details of the analysis; e.g.
-    { 'summary':        [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
-    , 'missingMust':    []
-    , 'missingShould':  []
-    , 'missingMay':     []
-    , 'rouri':          rouri
-    , 'roid':           roid
-    , 'minimuri':       minim
-    , 'target':         target
-    , 'purpose':        purpose
-    , 'constrainturi':  constraint['uri']
-    , 'modeluri':       model['uri']
-    }
+      { 'summary':        [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
+      , 'missingMust':    []
+      , 'missingShould':  []
+      , 'missingMay':     []
+      , 'rouri':          rouri
+      , 'roid':           roid
+      , 'description':    rodesc
+      , 'minimuri':       minim
+      , 'target':         target
+      , 'purpose':        purpose
+      , 'constrainturi':  constraint['uri']
+      , 'modeluri':       model['uri']
+      }
     """
     # Locate the constraint model requirements
     rouri        = rometa.getRoUri()
@@ -74,6 +75,9 @@ def evaluate(rometa, minim, target, purpose):
         roid = str(rouri)
         if roid.endswith('/'): roid = roid[0:-1]
         roid = roid.rpartition('/')[2]
+    rodesc       = ( rometa.getResourceValue(rouri, DCTERMS.description) or
+                     rometa.getResourceValue(rouri, DCTERMS.title) or
+                     roid )
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
@@ -127,6 +131,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'satisfied':      []
         , 'rouri':          rouri
         , 'roid':           roid
+        , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
         , 'purpose':        purpose
@@ -171,6 +176,7 @@ def evalResultGraph(graph, evalresult):
     targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
     graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
     graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
