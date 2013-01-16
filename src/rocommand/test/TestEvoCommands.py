@@ -19,9 +19,9 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
     TEST_RO_ID = "test-evo-ro"
     TEST_SNAPHOT_ID = "test-evo-snaphot"
-    TEST_SNAPHOT_RO_ID = "test-evo-snaphot-ro"
     TEST_ARCHIVE_ID = "test-archive-id"
     TEST_UNDEFINED_ID = "test-undefined-id"
+    
     
     def setUp(self):
         super(TestEvoCommands, self).setUp()
@@ -203,10 +203,10 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         freeze <RO-id> 
         """
         #preapre snaphot
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
 
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_SNAPHOT_RO_ID,
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
         self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, False)
         
@@ -221,7 +221,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == 0
             self.assertEqual(self.outstr.getvalue().count("freeze operation finished successfully"), 1)
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         return
         
     def FreezeNonExistetSnaphot(self):
@@ -229,10 +229,10 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         freeze <RO-id> 
         """
         #preapre snaphot
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
 
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_SNAPHOT_RO_ID,
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
         self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, True)
         
@@ -247,25 +247,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == -1
             self.assertEqual(self.outstr.getvalue().count("Given URI isn't correct"), 0)
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_RO_ID+"/")
-        return
-    
-        #status tests
-    def testStatusRO(self):
-        self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
-        self.rosrs.createRO(self.TEST_RO_ID,
-            "Test RO for ROEVO", "Test Creator", "2012-09-06")
-        args = [
-            "ro", "status", urljoin(ro_test_config.ROSRS_URI,self.TEST_RO_ID+"/"),
-            "-v"
-        ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-            outtxt = self.outstr.getvalue()
-            assert status == 0
-            self.assertEqual(outtxt.count("Research Object Status: LIVE"), 1)
-        self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         return
     
     def testRemoteStatusSnapshotRO(self):
@@ -395,7 +377,6 @@ def getTestSuite(select="unit"):
             , "testArchiveAmbiguous"
             , "testArchiveWithEscOption"
             , "testFreeze"
-            , "testStatusRO"
             , "testRemoteStatusSnapshotRO"
             , "testRemoteStatusArchiveRO"
             , "testRemoteStatusUndefinedRO"

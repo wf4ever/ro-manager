@@ -45,6 +45,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
         status = "RUNNING"
         while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
+        assert  status == "DONE"
         return status
     
     def createArchive(self, live_name,sp_name,freeze = True):
