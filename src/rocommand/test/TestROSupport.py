@@ -225,73 +225,7 @@ class TestROSupport(unittest.TestCase):
             msg = msg or "Regexp didn't match"
             msg = '%s: %r not found in %r' % (msg, expected_regexp.pattern, text)
             raise self.failureException(msg)
-
-    def createSnapshot(self, live_name,sp_name,freeze = True):
-        service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
-        body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
-                'target': sp_name,
-                'type': "SNAPSHOT",
-                'finalize': ( "%s" % freeze).lower()
-            }
         
-        body = simplejson.dumps(body)
-        reqheaders = {
-            'token': ro_test_config.ROSRS_ACCESS_TOKEN,
-            'Slug' : sp_name,
-        }       
-        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
-        job_location = get_location(headers)
-        status = "RUNNING"
-        while status == "RUNNING":
-            (status, id) = parse_job(rosrs, job_location)
-        return status
-    
-    def createArchive(self, live_name,sp_name,freeze = True):
-        service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
-        body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
-                'target': sp_name,
-                'type': "ARCHIVE",
-                'finalize': ( "%s" % freeze).lower()
-            }
-        
-        body = simplejson.dumps(body)
-        reqheaders = {
-            'token': ro_test_config.ROSRS_ACCESS_TOKEN,
-            'Slug' : sp_name,
-        }       
-        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
-        job_location = get_location(headers)
-        status = "RUNNING"
-        while status == "RUNNING":
-            (status, id) = parse_job(rosrs, job_location)
-        return status
-    
-    # Sentinel/placeholder tests
-    def freeze(self, ro_uri):
-        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/finalize/")
-        body = {
-                'target': ro_uri,
-        }
-        body = simplejson.dumps(body)
-        reqheaders = {}
-        (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
-        job_location = get_location(headers)
-        status = "RUNNING"
-        while status == "RUNNING":
-            (status, id) = parse_job(rosrs, job_location)
-        return status
-    
-    def remote_status(self, ro_uri):
-        rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        service_uri = ro_uri
-        (status, reason, headers, data) = rosrs.doRequest(uripath=service_uri, method="POST", body="", ctype="application/json", reqheaders={})
-        return status, reason, headers, data
-    
     def testUnits(self):
         assert (True)
 

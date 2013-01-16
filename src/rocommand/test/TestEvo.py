@@ -7,14 +7,14 @@ if __name__ == "__main__":
 
 #internal
 import rocommand.ro as ro
-import TestROSupport
+import TestROEVOSupport
 from ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 #external
 from MiscLib import TestUtils
 
-class TestEvo(TestROSupport.TestROSupport):
+class TestEvo(TestROEVOSupport.TestROEVOSupport):
     
     TEST_RO_ID = "test-evo-ro"
     TEST_SNAPHOT_RO_ID = "test-evo-snaphot-ro"
