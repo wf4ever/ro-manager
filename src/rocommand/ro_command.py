@@ -126,8 +126,8 @@ def ro_root_reference(cmdname, ro_config, rodir):
 # Argument count checking and usage summary
 
 def argminmax(min, max):
-    #return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
-    return (lambda options, args: True)
+    return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
+    
 ro_command_usage = (
     [ (["help"], argminmax(2, 2),
           ["help"])
@@ -343,7 +343,7 @@ def status(progname, configbase, options, args):
     log.debug("ro_options: " + repr(ro_options))
     # Find RO root directory"
     if len(args) == 3 and ro_options['rodir'] != "":
-        print "ambiguouse status command"
+        print "ambiguous status command"
         return 1 
     if len(args) == 3 and ro_options['rodir'] == "":
         return remote_status(progname, configbase, options, args)
