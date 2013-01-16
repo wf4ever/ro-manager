@@ -198,6 +198,11 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git 
         OK
         $ 
 
+    Note that (on some systems, including MacOS), if RO Manager is installed under
+    the system Python environment (i.e. not using virtualenv) then a small number of
+    test cases that access test data files may fail.  If the majority of tests pass,
+    and the ro command appears to work, the installation is probably fine.
+
 7. To run RO manager to display a summary of commands and options:
 
         ro help
