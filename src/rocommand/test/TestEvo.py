@@ -16,9 +16,9 @@ from MiscLib import TestUtils
 
 class TestEvo(TestROEVOSupport.TestROEVOSupport):
     
-    TEST_RO_ID = "test-evo-ro"
-    TEST_SNAPHOT_RO_ID = "test-evo-snaphot-ro"
-    TEST_SNAPHOT_ID = "test-evo-snaphot"
+    TEST_RO_ID = "ro-manager-evo-test-ro"
+    TEST_SNAPHOT_RO_ID = "ro-manager-test-evo-snaphot-ro"
+    TEST_SNAPHOT_ID = "ro-manager-test-evo-snaphot"
     
     def setUp(self):
         super(TestEvo, self).setUp()

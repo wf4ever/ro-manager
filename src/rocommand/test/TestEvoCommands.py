@@ -17,10 +17,10 @@ from MiscLib import TestUtils
 
 class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
-    TEST_RO_ID = "test-evo-ro"
-    TEST_SNAPHOT_ID = "test-evo-snaphot"
-    TEST_ARCHIVE_ID = "test-archive-id"
-    TEST_UNDEFINED_ID = "test-undefined-id"
+    TEST_RO_ID = "ro-manger-evo-test-ro"
+    TEST_SNAPHOT_ID = "ro-manager-evo-test-snaphot"
+    TEST_ARCHIVE_ID = "ro-manager-evo-test-archive-id"
+    TEST_UNDEFINED_ID = "ro-manager-evo-test-undefined-id"
     
     
     def setUp(self):
