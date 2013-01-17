@@ -261,6 +261,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/",
             "-r", ro_test_config.ROSRS_URI, 
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -281,7 +282,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
-            "-r", ro_test_config.ROSRS_URI, 
+            "-r", ro_test_config.ROSRS_URI,
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -303,6 +305,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
             "-r", ro_test_config.ROSRS_URI, 
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -322,6 +325,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/",
             "-r", ro_test_config.ROSRS_URI, 
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
         with SwitchStdout(self.outstr):
@@ -342,6 +346,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + "some-strange-uri/",
+            "-r", ro_test_config.ROSRS_URI, 
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
         ]
         with SwitchStdout(self.outstr):

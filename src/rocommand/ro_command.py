@@ -385,6 +385,8 @@ def job_status(options, args, rosrs):
         return -1
     except RelativeURIError as error:
         return -1
+    except IndexError as error:
+        return -1
     print "Job Status: %s" %  status
     print "Job Target: %s" %  target
     print "Finalize: %s" %  finalize

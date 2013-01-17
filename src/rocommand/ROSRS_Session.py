@@ -15,6 +15,7 @@ from ro_utils import EvoType
 from httplib2 import Http
 from xml.dom import minidom
 from urlparse import urljoin
+import time
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -737,8 +738,6 @@ class ROSRS_Session(object):
     def getROEvolution(self, rouri):
         #if len(rouri.split(self._srsuri))>1:
             #rouri = rouri.split(self._srsuri)[-1]
-        
-        
         (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml")
         if manifest_status == 404:
             return (manifest_status, manifest_reason, manifest_data, None)
