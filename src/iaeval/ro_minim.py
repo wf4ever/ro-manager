@@ -85,10 +85,11 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
         return u and str(u)
     log.debug("getConstraint: rouri %s, target_ref %s"%(rouri, target_ref))
     target       = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
+    log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
     templatedict = {'targetro': str(rouri)}
     for c in getConstraints(minimgraph):
-        #log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
+        log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
         if not purpose or purpose.match(c['purpose']):
             c['targetro_actual']   = mkstr(rouri)

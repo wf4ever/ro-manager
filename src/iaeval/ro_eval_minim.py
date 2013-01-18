@@ -81,11 +81,11 @@ def evaluate(rometa, minim, target, purpose):
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
+    assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
     cbindings    = { 'targetro':   constraint['targetro_actual']
                    , 'targetres':  constraint['targetres_actual']
                    , 'onresource': constraint['onresource_actual']
                    }
-    assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
     model        = ro_minim.getModel(minimgraph, constraint['model'])
     assert model != None, "Missing minim:Model for target %s, purpose %s"%(target, purpose)
     requirements = ro_minim.getRequirements(minimgraph, model['uri'])
@@ -213,6 +213,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
                 'targetro', 'targetres' and 'onresource'
     """
     log.debug("evalContentMatch: rule: \n  %s, \nconstraintbinding:\n  %s"%(repr(rule), repr(constraintbinding)))
+    # @@TODO: DRY: generate prefix list from values in ~/.ro-config.  Thus only one set of default prefixes.
     querytemplate = """
         PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
@@ -222,6 +223,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         PREFIX ro:         <http://purl.org/wf4ever/ro#>
         PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
         PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+        PREFIX roterms:    <http://purl.org/wf4ever/roterms#>
         PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
         PREFIX ore:        <http://www.openarchives.org/ore/terms/>
         PREFIX ao:         <http://purl.org/ao/>

@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY rdf     "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY rdfs    "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY owl     "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd     "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml     "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfg    "http://www.w3.org/2004/03/trix/rdfg-1/" >
+    <!ENTITY ore     "http://www.openarchives.org/ore/terms/" >
+    <!ENTITY ao      "http://purl.org/ao/" >
+    <!ENTITY dcterms "http://purl.org/dc/terms/" >
+    <!ENTITY foaf    "http://xmlns.com/foaf/0.1/" >
+    <!ENTITY ro      "http://purl.org/wf4ever/ro#" >
+    <!ENTITY wfprov  "http://purl.org/wf4ever/wfprov#" >
+    <!ENTITY wfdesc  "http://purl.org/wf4ever/wfdesc#" >
+    <!ENTITY minim   "http://purl.org/minim/minim#" >
+]>
+
+<rdf:RDF xmlns="."
+     xmlns:rdf="&rdf;"
+     xmlns:rdfs="&rdfs;"
+     xmlns:owl="&owl;"
+     xmlns:xsd="&xsd;"
+     xmlns:xml="&xml;"
+     xmlns:rdfg="&rdfg;"
+     xmlns:ore="&ore;"
+     xmlns:ao="&ao;"
+     xmlns:dcterms="&dcterms;"
+     xmlns:foaf="&foaf;"
+     xmlns:ro="&ro;"
+     xmlns:wfprov="&wfprov;"
+     xmlns:wfdesc="&wfdesc;"
+     xmlns:minim="&minim;"
+>
+
+  <!-- ===========
+       CONSTRAINTS 
+       ===========
+    -->
+
+  <!-- Target for Minimum information requirement 
+
+       Minim invokes minimum information models on for a specified purpose
+       relating to a specified target.  The requirement may apply to some
+       resource other than the specified target.
+    -->
+
+  <rdf:Description rdf:about="http://workflow-experiment#ChecklistConstraints">
+
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#experiment-complete">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>Complete</minim:forPurpose>
+        <minim:toModel rdf:resource="#experiment_complete_model" />
+        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
+        <rdfs:comment>
+          Constraint to be satisfied if the target RO is to be considered a
+          complete and fully-described workflow experiment.
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+
+  </rdf:Description>
+
+  <!-- ======
+       MODELS
+       ======
+    -->
+
+  <!-- Model (checklist) for complete experiment RO
+    -->
+  <minim:Model rdf:about="#experiment_complete_model">
+    <rdfs:label>Complete experiment</rdfs:label>
+    <rdfs:comment>
+      This model defines information that must be satisfied by the target RO
+      for the target RO to be considered a complete and fully-described 
+      workflow experiment.
+    </rdfs:comment>
+    <minim:hasShouldRequirement rdf:resource="#RO_has_hypothesys" />
+    <minim:hasShouldRequirement rdf:resource="#RO_has_sketch" />
+    <!--
+    <minim:hasShouldRequirement rdf:resource="#RO_has_sample_input" />
+    -->
+    <minim:hasMustRequirement   rdf:resource="#RO_has_workflow" />
+    <minim:hasMustRequirement   rdf:resource="#RO_workflows_accessible" />
+    <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
+    <minim:hasMustRequirement   rdf:resource="#WF_inputs_accessible" />
+    <minim:hasShouldRequirement rdf:resource="#WF_has_output" />
+    <minim:hasShouldRequirement rdf:resource="#WF_outputs_accessible" />
+    <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
+    <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
+  </minim:Model>
+
+  <!-- =================
+       REQUIREMENT RULES
+       =================
+    -->
+
+  <!-- Hypothesis is present -->
+  <minim:Requirement rdf:about="#RO_has_hypothesys">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?hypothesis rdf:type roterms:Hypothesis .
+        </minim:exists>
+        <minim:showpass>Experimental hypothesis found</minim:showpass>
+        <minim:showfail>No hypothesis found for experiment</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_hypothesys" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow sketch is present -->
+  <minim:Requirement rdf:about="#RO_has_sketch">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?sketch rdf:type roterms:Sketch .
+        </minim:exists>
+        <minim:showpass>Workflow design sketch found</minim:showpass>
+        <minim:showfail>No workflow design sketch</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_sketch" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Sample input is indicated (useful for repair)
+  <minim:Requirement rdf:about="#RO_has_sample_input">
+    :
+  </minim:Requirement>
+  -->
+
+  <!-- Workflow instance definition is present -->
+  <minim:Requirement rdf:about="#RO_has_workflow">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?workflow rdf:type wfdesc:Workflow .
+        </minim:exists>
+        <minim:showpass>Workflow definition found</minim:showpass>
+        <minim:showfail>No executable workflow definition</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_workflow" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Workflow definition is accessible (live) -->
+  <minim:Requirement rdf:about="#RO_workflows_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?workflow rdf:type wfdesc:Workflow .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+workflow}
+        </minim:isLiveTemplate>
+        <minim:showpass>All workflow definitions are accessible</minim:showpass>
+        <minim:showfail>Definition of workflow %(workflow)s is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#RO_workflows_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- All workflow inputs are aggregated -->
+  <minim:Requirement rdf:about="#WF_has_input">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+if}
+        </minim:aggregatesTemplate>
+        <minim:showpass>All inputs aggregated for workflow</minim:showpass>
+        <minim:showfail>Input %(if)s not aggregated for workflow %(wf)s</minim:showfail>
+        <minim:derives rdf:resource="#WF_has_input" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- All workflow inputs are accessible (for decay monitoring) -->
+  <minim:Requirement rdf:about="#WF_inputs_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+if}
+        </minim:isLiveTemplate>
+        <minim:showpass>All inputs accessible for workflow</minim:showpass>
+        <minim:showfail>Cannot access %(if)s used by workflow %(wf)s</minim:showfail>
+        <minim:derives rdf:resource="#WF_inputs_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- All workflow outputs are defined -->
+  <minim:Requirement rdf:about="#WF_has_output">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasOutput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+if}
+        </minim:aggregatesTemplate>
+        <minim:showpass>All outputs aggregated for workflow</minim:showpass>
+        <minim:showfail>Output %(if)s not aggregated for workflow %(wf)s</minim:showfail>
+        <minim:derives rdf:resource="#WF_has_output" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- All workflow outputs are accessible -->
+  <minim:Requirement rdf:about="#WF_outputs_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasOutput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+if}
+        </minim:isLiveTemplate>
+        <minim:showpass>All outputs accessible for workflow</minim:showpass>
+        <minim:showfail>Cannot access %(if)s generated by workflow %(wf)s</minim:showfail>
+        <minim:derives rdf:resource="#WF_outputs_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- RO has presentation of results (e.g. figure, etc.) -->
+  <minim:Requirement rdf:about="#RO_has_result_presentation">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?sketch rdf:type roterms:ResultsPresentation .
+        </minim:exists>
+        <minim:showpass>Presentation of workflow experiment results found</minim:showpass>
+        <minim:showfail>No presentation of workflow experiment results</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_result_presentation" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- RO has conclusion -->
+  <minim:Requirement rdf:about="#RO_has_conclusion">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?sketch rdf:type roterms:Conclusions .
+        </minim:exists>
+        <minim:showpass>Workflow experiment conclusions found</minim:showpass>
+        <minim:showfail>No workflow experiment conclusions</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_conclusion" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+</rdf:RDF>
