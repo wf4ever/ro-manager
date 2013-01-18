@@ -213,6 +213,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
                 'targetro', 'targetres' and 'onresource'
     """
     log.debug("evalContentMatch: rule: \n  %s, \nconstraintbinding:\n  %s"%(repr(rule), repr(constraintbinding)))
+    # @@TODO: DRY: generate prefix list from values in ~/.ro-config.  Thus only one set of default prefixes.
     querytemplate = """
         PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
