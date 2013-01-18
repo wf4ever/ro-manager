@@ -12,4 +12,6 @@
                              # add ro remove command, fix URI escaping problems
 #__version__ = "0.2.8"       # Optimize annotation access in ROSRS_Session
                              # Add web services for renderinmg traffic light displays
-__version__ = "0.2.9"       # ?? ROEVO commands
+#__version__ = "0.2.9"       # Fix up experiment-workflow checklist
+__version__ = "0.2.10"      # ??
+
