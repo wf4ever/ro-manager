@@ -51,7 +51,7 @@ def evaluate(rometa, minim, target, purpose):
     
     The function returns a pair of values (minimgraph, evalresult)
     
-    minimgraph is a cpy of the minim graph on which the evaluation was based.
+    minimgraph is a copy of the minim graph on which the evaluation was based.
     
     The evalresult indicates a summary and details of the analysis; e.g.
       { 'summary':        [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
@@ -92,7 +92,7 @@ def evaluate(rometa, minim, target, purpose):
     # Evaluate the individual model requirements
     reqeval = []
     for r in requirements:
-        log.info("evaluate: %s %s"%(r['level'],str(r['uri'])))
+        log.info("evaluate: %s %s %s"%(r['level'],str(r['uri']),r['seq']))
         if 'datarule' in r:
             # @@TODO: factor to separate function?
             #         (This is a deprecated form, as it locks the rule to a particular resource)
@@ -198,6 +198,7 @@ def evalResultGraph(graph, evalresult):
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+            graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
     addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
     addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
     addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)

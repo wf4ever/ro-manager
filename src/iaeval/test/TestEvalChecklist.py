@@ -143,12 +143,13 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
-              , 'show':       None
+              , 'show':       "04 - aggregates data/UserRequirements-bio.ods"
               , 'showpass':   None
               , 'showfail':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
+            , 'seq': "04 - aggregates data/UserRequirements-bio.ods"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],       [] )
@@ -178,12 +179,13 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       None
+              , 'show':       "05 - aggregates docs/missing.css"
               , 'showpass':   None
               , 'showfail':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],       [MINIM.minimallySatisfies])
@@ -213,12 +215,13 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       None
+              , 'show':       "05 - aggregates docs/missing.css"
               , 'showpass':   None
               , 'showfail':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],        [MINIM.nominallySatisfies, MINIM.minimallySatisfies])
@@ -363,10 +366,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             [ "Research Object file://%s/:"%(rodir)
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
             , "Unsatisfied SHOULD requirements:"
-            , "  Aggregates resource %s"%(rometa.getComponentUri("docs/missing.css"))
+            , "  05 - aggregates docs/missing.css"
             , "Satisfied requirements:"
-            , "  Aggregates resource %s"%(rometa.getComponentUri("data/UserRequirements-astro.ods")) 
-            , "  Environment 'python -V' matches 'Python 2.7'"
+            , "  01 - python 2.7"
+            , "  02 - aggregates data/UserRequirements-astro.ods"
             , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])

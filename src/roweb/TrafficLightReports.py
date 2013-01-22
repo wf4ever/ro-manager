@@ -529,10 +529,12 @@ EvalChecklistHtml = (
           , { 'report': EvalItemHtml
             , 'query': sparql_prefixes+
               """
-              SELECT ?itemuri ?itemlevel ?modeluri WHERE
+              SELECT ?itemuri ?itemseq ?itemlevel ?modeluri WHERE
               { ?modeluri ?itemlevel ?itemuri .
-                ?itemuri a minim:Requirement .
+                ?itemuri a minim:Requirement ;
+                         minim:seq ?itemseq .
               }
+              ORDER BY ?itemseq
               """
             }
           , { 'output':
