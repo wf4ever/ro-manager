@@ -462,10 +462,10 @@ def formatAnnotationValue(aval, atype):
     if atype == "resource" or isinstance(aval,rdflib.URIRef):
         return '<' + str(aval) + '>'
     if atype == "string":
-        return '"' + str(aval).replace('"', '\\"') + '"'
+        return '"' + unicode(aval).encode('utf-8').replace('"', '\\"') + '"'
     if atype == "text":
         # multiline
-        return '"""' + str(aval) + '"""'
+        return '"""' + unicode(aval).encode('utf-8') + '"""'
     if atype == "datetime":
         return '"' + str(aval) + '"'
     return str(aval)
