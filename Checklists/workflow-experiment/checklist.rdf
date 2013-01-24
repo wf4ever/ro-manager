@@ -95,11 +95,13 @@
     <!--
     -->
     <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
-    <minim:hasMustRequirement   rdf:resource="#WF_inputs_agregated" />
     <minim:hasMustRequirement   rdf:resource="#WF_has_input_label" />
+    <minim:hasMustRequirement   rdf:resource="#WF_inputs_agregated" />
     <minim:hasMustRequirement   rdf:resource="#WF_inputs_accessible" />
     <!--
     <minim:hasShouldRequirement rdf:resource="#WF_has_output" />
+    <minim:hasMustRequirement   rdf:resource="#WF_has_output_label" />
+    <minim:hasMustRequirement   rdf:resource="#WF_outputs_agregated" />
     <minim:hasShouldRequirement rdf:resource="#WF_outputs_accessible" />
     -->
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
@@ -150,6 +152,10 @@
   </minim:Requirement>
   -->
 
+  <!--
+        Workflow
+  -->
+
   <!-- Workflow instance description is present -->
   <minim:Requirement rdf:about="#RO_has_workflow">
     <minim:isDerivedBy>
@@ -196,7 +202,7 @@
           ?wf dcterms:title ?wftitle .
         </minim:exists>
         <minim:showpass>All workflow titles are present</minim:showpass>
-        <minim:showfail>Workflow title for %(wflab)s is not present</minim:showfail>
+        <minim:showfail>Workflow title for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
         <minim:derives rdf:resource="#WF_has_title" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -215,7 +221,7 @@
           ?wf dcterms:description ?wfdescr .
         </minim:exists>
         <minim:showpass>All workflow descriptions are present</minim:showpass>
-        <minim:showfail>Workflow description for %(wflab)s is not present</minim:showfail>
+        <minim:showfail>Workflow description for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
         <minim:derives rdf:resource="#WF_has_description" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -234,7 +240,7 @@
           ?wf wfdesc:hasWorkflowDefinition ?wfdef .
         </minim:exists>
         <minim:showpass>Workflow definition is present</minim:showpass>
-        <minim:showfail>Workflow definition for '%(wflab)s is not present</minim:showfail>
+        <minim:showfail>Workflow definition for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
         <minim:derives rdf:resource="#WF_has_definition" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -254,12 +260,16 @@
           {+wfdef}
         </minim:isLiveTemplate>
         <minim:showpass>All workflow definitions are accessible</minim:showpass>
-        <minim:showfail>Definition for workflow '%(wflab)s' is not accessible</minim:showfail>
+        <minim:showfail>Definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:derives rdf:resource="#WF_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>027</minim:seq>
   </minim:Requirement>
+
+  <!--
+        Workflow inputs
+  -->
 
   <!-- All workflow inputs are defined -->
   <minim:Requirement rdf:about="#WF_has_input">
@@ -273,34 +283,14 @@
           ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
         </minim:exists>
         <minim:showpass>Workflow inputs are described</minim:showpass>
-        <minim:showfail>Workflow %(wflab)s has no inputs specified</minim:showfail>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s&lt;/i&gt; has no inputs specified</minim:showfail>
         <minim:derives rdf:resource="#WF_has_input" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>031</minim:seq>
   </minim:Requirement>
 
-  <!-- All workflow inputs are aggregated -->
-  <minim:Requirement rdf:about="#WF_inputs_agregated">
-    <minim:isDerivedBy>
-      <minim:ContentMatchRequirementRule>
-        <minim:forall>
-          ?wf rdf:type wfdesc:Workflow ;
-              rdfs:label ?wflab ;
-              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
-        </minim:forall>
-        <minim:aggregatesTemplate>
-          {+if}
-        </minim:aggregatesTemplate>
-        <minim:showpass>Workflow inputs are aggregated</minim:showpass>
-        <minim:showfail>Workflow %(wflab)s input %(if)s is not aggregated</minim:showfail>
-        <minim:derives rdf:resource="#WF_inputs_agregated" />
-      </minim:ContentMatchRequirementRule>
-    </minim:isDerivedBy>
-    <minim:seq>032</minim:seq>
-  </minim:Requirement>
-
-  <!-- All workflow inputs are aggregated -->
+  <!-- All workflow inputs are labelled -->
   <minim:Requirement rdf:about="#WF_has_input_label">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule>
@@ -313,8 +303,30 @@
           ?ifdesc rdfs:label ?iflab .
         </minim:exists>
         <minim:showpass>Workflow inputs are labelled</minim:showpass>
-        <minim:showfail>Workflow %(wflab)s input %(if)s is not labelled</minim:showfail>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input %(if)s is not labelled</minim:showfail>
         <minim:derives rdf:resource="#WF_has_input" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>032</minim:seq>
+  </minim:Requirement>
+
+  <!-- All workflow inputs are aggregated -->
+  <minim:Requirement rdf:about="#WF_inputs_agregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasInput ?ifdesc .
+          ?ifdesc rdfs:label ?iflab ;
+              wfdesc:hasArtifact ?if .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+if}
+        </minim:aggregatesTemplate>
+        <minim:showpass>Workflow inputs are aggregated</minim:showpass>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input &lt;i&gt;%(iflab)s &lt;/i&gt; is not aggregated</minim:showfail>
+        <minim:derives rdf:resource="#WF_inputs_agregated" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>033</minim:seq>
@@ -326,18 +338,25 @@
       <minim:ContentMatchRequirementRule>
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+              rdfs:label ?wflab ;
+              wfdesc:hasInput ?ifdesc .
+          ?ifdesc rdfs:label ?iflab ;
+              wfdesc:hasArtifact ?if .
         </minim:forall>
         <minim:isLiveTemplate>
           {+if}
         </minim:isLiveTemplate>
         <minim:showpass>Workflow inputs are all accessible</minim:showpass>
-        <minim:showfail>Workflow %(wf)s input %(if)s is not accessible</minim:showfail>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input &lt;i&gt;%(iflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:derives rdf:resource="#WF_inputs_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>034</minim:seq>
   </minim:Requirement>
+
+  <!--
+        Workflow outputs
+  -->
 
   <!-- All workflow outputs are defined -->
   <minim:Requirement rdf:about="#WF_has_output">
@@ -345,17 +364,59 @@
       <minim:ContentMatchRequirementRule>
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasOutput [ wfdesc:hasArtifact ?if ] .
+              rdfs:label ?wflab .
         </minim:forall>
-        <minim:aggregatesTemplate>
-          {+if}
-        </minim:aggregatesTemplate>
-        <minim:showpass>Workflow outputs are described and aggregated</minim:showpass>
-        <minim:showfail>Workflow %(wf)s output %(if)s is not aggregated</minim:showfail>
+        <minim:exists>
+          ?wf wfdesc:hasoutput [ wfdesc:hasArtifact ?of ] .
+        </minim:exists>
+        <minim:showpass>Workflow outputs are described</minim:showpass>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; has no outputs specified</minim:showfail>
         <minim:derives rdf:resource="#WF_has_output" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>041</minim:seq>
+  </minim:Requirement>
+
+  <!-- All workflow outputs are labelled -->
+  <minim:Requirement rdf:about="#WF_has_output_label">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasoutput ?ofdesc .
+        </minim:forall>
+        <minim:exists>
+          ?ofdesc rdfs:label ?oflab .
+        </minim:exists>
+        <minim:showpass>Workflow outputs are labelled</minim:showpass>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output %(of)s is not labelled</minim:showfail>
+        <minim:derives rdf:resource="#WF_has_output_label" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>042</minim:seq>
+  </minim:Requirement>
+
+  <!-- All workflow outputs are aggregated -->
+  <minim:Requirement rdf:about="#WF_outputs_aggregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasOutput ?ofdesc .
+          ?ofdesc rdfs:label ?oflab ;
+              wfdesc:hasArtifact ?of .
+        </minim:forall>
+        <minim:aggregatesTemplate>
+          {+of}
+        </minim:aggregatesTemplate>
+        <minim:showpass>Workflow outputs are described and aggregated</minim:showpass>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output &lt;i&gt;%(oflab)s &lt;/i&gt; is not aggregated</minim:showfail>
+        <minim:derives rdf:resource="#WF_outputs_aggregated" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>043</minim:seq>
   </minim:Requirement>
 
   <!-- All workflow outputs are accessible -->
@@ -364,18 +425,25 @@
       <minim:ContentMatchRequirementRule>
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasOutput [ wfdesc:hasArtifact ?if ] .
+              rdfs:label ?wflab ;
+              wfdesc:hasOutput ?ofdesc .
+          ?ofdesc rdfs:label ?oflab ;
+              wfdesc:hasArtifact ?of .
         </minim:forall>
         <minim:isLiveTemplate>
           {+if}
         </minim:isLiveTemplate>
         <minim:showpass>Workflow outputs are all accessible</minim:showpass>
-        <minim:showfail>Workflow %(wf)s output %(if)s is not accessible</minim:showfail>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output &lt;i&gt;%(oflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:derives rdf:resource="#WF_outputs_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
-    <minim:seq>042</minim:seq>
+    <minim:seq>044</minim:seq>
   </minim:Requirement>
+
+  <!--
+        Experiment results, conclusions, etc
+  -->
 
   <!-- RO has presentation of results (e.g. figure, etc.) -->
   <minim:Requirement rdf:about="#RO_has_result_presentation">
@@ -407,7 +475,11 @@
     <minim:seq>052</minim:seq>
   </minim:Requirement>
 
-  <!-- RO annotations present (diagnostic) -->
+  <!--
+        Other diagnostics
+  -->
+
+  <!-- RO annotations present -->
   <minim:Requirement rdf:about="#RO_has_annotations">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule>
@@ -422,7 +494,7 @@
     <minim:seq>101</minim:seq>
   </minim:Requirement>
 
-  <!-- RO annotations present (diagnostic) -->
+  <!-- RO annotations present -->
   <minim:Requirement rdf:about="#RO_live_annotations">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule>
