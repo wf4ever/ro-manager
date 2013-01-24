@@ -29,7 +29,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "show", "showpass", "showfail", "seq"
             , "aggregates"
             , "command", "response"
-            , "forall", "exists", "aggregatesTemplate", "isLiveTemplate"
+            , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             # Result properties
             , "satisfied", "missingMay", "missingShould", "missingMust"
@@ -156,6 +156,7 @@ def getRequirements(minimgraph, modeluri):
                 req['softwarerule'] = rule
             elif ruletype == MINIM.ContentMatchRequirementRule:
                 rule['forall']   = minimgraph.value(subject=ruleuri, predicate=MINIM.forall)
+                rule['orderby']  = minimgraph.value(subject=ruleuri, predicate=MINIM.orderby)
                 rule['exists']   = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
                 rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)

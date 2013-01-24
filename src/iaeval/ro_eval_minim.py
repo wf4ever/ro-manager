@@ -236,7 +236,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         %(queryverb)s
         {
           %(querypattern)s
-        }
+        } %(queryorder)s
         """
     satisfied     = True
     simplebinding = constraintbinding.copy()
@@ -250,8 +250,9 @@ def evalContentMatch(rometa, rule, constraintbinding):
         if template:  template = str(template).strip()
         if islive:    islive   = str(islive).strip()
         queryparams = (
-            { 'queryverb': "SELECT * WHERE"
+            { 'queryverb':    "SELECT * WHERE"
             , 'querypattern': rule['forall']
+            , 'queryorder':   rule['orderby'] or ""
             })
         query = querytemplate%queryparams
         log.debug(" - forall query: "+query)
@@ -281,6 +282,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
                 existsparams = (
                     { 'queryverb': "ASK"
                     , 'querypattern': exists
+                    , 'queryorder':   ""
                     })
                 query = querytemplate%existsparams
                 log.debug("evalContentMatch RO test exists: \nquery: %s \nbinding: %s"%
@@ -308,6 +310,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         queryparams = (
             { 'queryverb': "ASK"
             , 'querypattern': rule['exists']
+            , 'queryorder':   ""
             })
         query = querytemplate%queryparams
         log.debug("- query %s"%(query))
