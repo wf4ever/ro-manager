@@ -307,10 +307,10 @@
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
               rdfs:label ?wflab ;
-              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+              wfdesc:hasInput ?ifdesc .
         </minim:forall>
         <minim:exists>
-          ?if rdfs:label ?iflab .
+          ?ifdesc rdfs:label ?iflab .
         </minim:exists>
         <minim:showpass>Workflow inputs are labelled</minim:showpass>
         <minim:showfail>Workflow %(wflab)s input %(if)s is not labelled</minim:showfail>
@@ -440,7 +440,5 @@
     </minim:isDerivedBy>
     <minim:seq>102</minim:seq>
   </minim:Requirement>
-
-
 
 </rdf:RDF>
