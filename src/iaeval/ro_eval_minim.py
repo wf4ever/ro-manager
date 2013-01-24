@@ -198,7 +198,8 @@ def evalResultGraph(graph, evalresult):
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-            graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
+            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
+                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
     addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
     addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
     addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
