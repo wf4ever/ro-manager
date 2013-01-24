@@ -487,6 +487,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             PREFIX ro:         <http://purl.org/wf4ever/ro#>
             PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
             PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
             PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
             PREFIX ore:        <http://www.openarchives.org/ore/terms/>
             PREFIX ao:         <http://purl.org/ao/>

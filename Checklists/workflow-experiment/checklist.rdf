@@ -14,6 +14,7 @@
     <!ENTITY ro      "http://purl.org/wf4ever/ro#" >
     <!ENTITY wfprov  "http://purl.org/wf4ever/wfprov#" >
     <!ENTITY wfdesc  "http://purl.org/wf4ever/wfdesc#" >
+    <!ENTITY wf4ever "http://purl.org/wf4ever/wf4ever#" >
     <!ENTITY minim   "http://purl.org/minim/minim#" >
 ]>
 
@@ -31,6 +32,7 @@
      xmlns:ro="&ro;"
      xmlns:wfprov="&wfprov;"
      xmlns:wfdesc="&wfdesc;"
+     xmlns:wf4ever="&wf4ever;"
      xmlns:minim="&minim;"
 >
 
@@ -104,6 +106,7 @@
     <minim:hasMustRequirement   rdf:resource="#WF_outputs_agregated" />
     <minim:hasShouldRequirement rdf:resource="#WF_outputs_accessible" />
     -->
+    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
     <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
 
@@ -442,6 +445,36 @@
   </minim:Requirement>
 
   <!--
+        Workflow services used
+  -->
+
+  <!-- All workflow services are accessible -->
+  <minim:Requirement rdf:about="#WF_services_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?pr rdf:type wfdesc:Process ;
+              rdfs:label ?prlab .
+            {
+            ?pr wf4ever:serviceURI ?pruri .
+            }
+          UNION
+            {
+            ?pr wf4ever:wsdlURI ?pruri .
+            }
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+pruri}
+        </minim:isLiveTemplate>
+        <minim:showpass>Web services used are all accessible</minim:showpass>
+        <minim:showfail>Web service &lt;i&gt;%(prlab)s&lt;/i&gt; is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#WF_services_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>051</minim:seq>
+  </minim:Requirement>
+
+  <!--
         Experiment results, conclusions, etc
   -->
 
@@ -457,7 +490,7 @@
         <minim:derives rdf:resource="#RO_has_result_presentation" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
-    <minim:seq>051</minim:seq>
+    <minim:seq>061</minim:seq>
   </minim:Requirement>
 
   <!-- RO has conclusion -->
@@ -472,7 +505,7 @@
         <minim:derives rdf:resource="#RO_has_conclusion" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
-    <minim:seq>052</minim:seq>
+    <minim:seq>062</minim:seq>
   </minim:Requirement>
 
   <!--

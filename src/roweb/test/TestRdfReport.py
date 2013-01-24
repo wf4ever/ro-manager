@@ -54,6 +54,7 @@ prefixes = """
     PREFIX ro:      <http://purl.org/wf4ever/ro#>
     PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
     PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
+    PREFIX wf4ever: <http://purl.org/wf4ever/wf4ever#>
     PREFIX minim:   <http://purl.org/minim/minim#>
     PREFIX result:  <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
     PREFIX ex:      <http://example.org/terms/>

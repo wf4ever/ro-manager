@@ -92,6 +92,7 @@ annotationPrefixes = (
     , "roevo":     "http://purl.org/wf4ever/roevo#"
     , "wfdesc":    "http://purl.org/wf4ever/wfdesc#"
     , "wfprov":    "http://purl.org/wf4ever/wfprov#"
+    , "wf4ever":   "http://purl.org/wf4ever/wf4ever#"
     , "ex":        "http://example.org/ro/annotation#"
     })
 
