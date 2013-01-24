@@ -104,6 +104,9 @@
     -->
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
     <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
+
+    <minim:hasMayRequirement rdf:resource="#RO_has_annotations" />
+    <minim:hasMayRequirement rdf:resource="#RO_live_annotations" />
   </minim:Model>
 
   <!-- =================
@@ -403,5 +406,41 @@
     </minim:isDerivedBy>
     <minim:seq>052</minim:seq>
   </minim:Requirement>
+
+  <!-- RO annotations present (diagnostic) -->
+  <minim:Requirement rdf:about="#RO_has_annotations">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?astub rdf:type ro:AggregatedAnnotation .
+        </minim:exists>
+        <minim:showpass>Annotations are present</minim:showpass>
+        <minim:showfail>Annotations are not present</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_annotations" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>101</minim:seq>
+  </minim:Requirement>
+
+  <!-- RO annotations present (diagnostic) -->
+  <minim:Requirement rdf:about="#RO_live_annotations">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?astub rdf:type ro:AggregatedAnnotation ;
+            ao:body ?abody .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+abody}
+        </minim:isLiveTemplate>
+        <minim:showpass>Annotations bodies are all accessible</minim:showpass>
+        <minim:showfail>Annotation body %(abody)s for %(astub)s is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#RO_live_annotations" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>102</minim:seq>
+  </minim:Requirement>
+
+
 
 </rdf:RDF>
