@@ -87,9 +87,9 @@
     <!--
     <minim:hasMustRequirement   rdf:resource="#RO_has_workflow" />
     <minim:hasMustRequirement   rdf:resource="#WF_has_label" />
+    <minim:hasMayRequirement   rdf:resource="#WF_has_title" />
+    <minim:hasMayRequirement   rdf:resource="#WF_has_description" />
     -->
-    <minim:hasMustRequirement   rdf:resource="#WF_has_title" />
-    <minim:hasMustRequirement   rdf:resource="#WF_has_description" />
     <!--
     <minim:hasMustRequirement   rdf:resource="#WF_has_definition" />
     -->
@@ -97,8 +97,10 @@
     <!--
     -->
     <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
-    <minim:hasMustRequirement   rdf:resource="#WF_has_input_label" />
+    <!--
+    <minim:hasMayRequirement   rdf:resource="#WF_has_input_label" />
     <minim:hasMustRequirement   rdf:resource="#WF_inputs_agregated" />
+    -->
     <minim:hasMustRequirement   rdf:resource="#WF_inputs_accessible" />
     <!--
     <minim:hasShouldRequirement rdf:resource="#WF_has_output" />
@@ -110,8 +112,10 @@
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
     <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
 
+    <!--
     <minim:hasMayRequirement rdf:resource="#RO_has_annotations" />
     <minim:hasMayRequirement rdf:resource="#RO_live_annotations" />
+    -->
   </minim:Model>
 
   <!-- =================
@@ -283,10 +287,11 @@
               rdfs:label ?wflab .
         </minim:forall>
         <minim:exists>
-          ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+          <!-- ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] . -->
+          ?wf wfdesc:hasInput ?wfinp .
         </minim:exists>
         <minim:showpass>Workflow inputs are described</minim:showpass>
-        <minim:showfail>Workflow &lt;i&gt;%(wflab)s&lt;/i&gt; has no inputs specified</minim:showfail>
+        <minim:showfail>Workflow &lt;i&gt;%(wflab)s&lt;/i&gt; has no inputs described</minim:showfail>
         <minim:derives rdf:resource="#WF_has_input" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -468,7 +473,7 @@
           {+pruri}
         </minim:isLiveTemplate>
         <minim:showpass>Web services used are all accessible</minim:showpass>
-        <minim:showfail>Web service &lt;i&gt;%(prlab)s&lt;/i&gt; is not accessible</minim:showfail>
+        <minim:showfail>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail>
         <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
