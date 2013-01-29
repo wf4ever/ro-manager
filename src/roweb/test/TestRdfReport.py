@@ -487,7 +487,8 @@ class TestRdfReport(unittest.TestCase):
           [ ''''''
           , '''{ "rouri":                  "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "roid":                   "simple-requirements"'''
-          , ''', "description":            "A simple test RO"'''
+          , ''', "title":                  "A simple test RO"'''
+          , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
@@ -497,9 +498,9 @@ class TestRdfReport(unittest.TestCase):
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -535,9 +536,9 @@ class TestRdfReport(unittest.TestCase):
             , '''</tr>'''
             ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -559,9 +560,9 @@ class TestRdfReport(unittest.TestCase):
           , '''<body>'''
           , '''<div class="Container">'''
           , '''<div class="header">'''
-          , '''Research object <a href="%s">simple-requirements</a>'''%(rouristr)
+          , '''A simple test RO'''
           , '''</div>'''
-          , '''<p>A simple test RO</p>'''
+          , '''<p>A simple RO used for testing traffic light display.</p>'''
           , '''<div class="body">'''
           , '''<table>'''
           , '''<tr>'''
@@ -575,9 +576,9 @@ class TestRdfReport(unittest.TestCase):
           , '''</tr>'''
           ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             # Skip 1st 8 lines of generated HTML:

@@ -23,7 +23,8 @@
   <rdf:Description rdf:about="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/">
     <rdfs:label>simple-requirements</rdfs:label>
     <dcterms:identifier>simple-requirements</dcterms:identifier>
-    <dcterms:description>A simple test RO</dcterms:description>
+    <dcterms:title>A simple test RO</dcterms:title>
+    <dcterms:description>A simple RO used for testing traffic light display.</dcterms:description>
     <minim:testedPurpose>Runnable</minim:testedPurpose>
     <minim:testedTarget rdf:resource="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"/>
     <minim:testedConstraint rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable"/>
