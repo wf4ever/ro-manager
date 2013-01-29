@@ -8,6 +8,7 @@ body {
 }
 
 .header {
+    color: white;
     background-color: #456AAA;
 
     /* background-image: linear-gradient(to bottom, #317EFF 0%, #456AAA 100%); */
