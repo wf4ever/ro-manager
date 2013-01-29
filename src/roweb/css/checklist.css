@@ -7,6 +7,47 @@ body {
     font-size: x-large;
 }
 
+.header {
+    background-color: #456AAA;
+    background-image: linear-gradient(to bottom, #317EFF 0%, #456AAA 100%);
+    border-radius: 22px 22px 0 0;
+    height: 20px;
+    padding: 10px 0;
+    text-align: center;
+}
+
+.sub_header {
+    background-color: #EEEEEE;
+    border-color:     #999999;
+    border-style:     none;
+    border-width:     1px 0;
+    color:            #333333;
+    padding-top:      1em;
+    padding-bottom:   0.5em;
+    padding-left:     0.5em;
+    padding-right:    0.5em;
+}
+
+.main_result th {
+    padding: 0.5em 0.5em;
+}
+
+.sub_result td {
+    /* background-color: #FFFFCC; */
+    border: 1px none #999999;
+    padding: 0.0em 0.5em;
+}
+
+.footer {
+    background-color: #EEEEEE;
+    border-color: #999999;
+    border-style: dotted;
+    border-width: 1px 0;
+    color: #333333;
+    margin-top:   1em;
+    padding:      0.5em;
+}
+
 .trafficlight {
     text-align: center;
     background-repeat: no-repeat;

@@ -357,7 +357,7 @@ EvalItemHtml = (
     { 'report':
       [
         { 'output':
-            '''\n          <tr>'''+
+            '''\n          <tr class="sub_result">'''+
             '''\n            <td></td>'''+
             ''''''
         }
@@ -490,10 +490,10 @@ EvalChecklistHtml = (
                 '''\n        %(title)s'''+
                 #'''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
                 '''\n      </div>'''+
-                '''\n      <p>%(description)s</p>'''+
+                '''\n      <div class="sub_header">%(description)s</div>'''+
                 '''\n      <div class="body">'''+
                 '''\n        <table>'''+
-                '''\n          <tr>'''+
+                '''\n          <tr class="main_result">'''+
                 '''\n            <th colspan="2">Target <span class="target">'''+
                 '''\n              <a href="%(target)s">%(roid)s</a></span> '''+
                 ''''''
@@ -546,7 +546,6 @@ EvalChecklistHtml = (
                 '''\n        </table>'''+
                 '''\n      </div>'''+
                 '''\n      <div class="footer">'''+
-                '''\n        <hr/>'''+
                 '''\n        <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>'''+
                 '''\n      </div>'''+
                 '''\n    </div>'''+
