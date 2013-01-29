@@ -9,6 +9,7 @@ body {
 
 .header {
     color: white;
+    text-shadow: 0.1em 0.1em rgba(0,0,100,0.4);
     background-color: #456AAA;
 
     /* background-image: linear-gradient(to bottom, #317EFF 0%, #456AAA 100%); */
