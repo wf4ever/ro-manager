@@ -75,9 +75,11 @@ def evaluate(rometa, minim, target, purpose):
         roid = str(rouri)
         if roid.endswith('/'): roid = roid[0:-1]
         roid = roid.rpartition('/')[2]
-    rodesc       = ( rometa.getResourceValue(rouri, DCTERMS.description) or
-                     rometa.getResourceValue(rouri, DCTERMS.title) or
-                     roid )
+    rotitle      = ( rometa.getAnnotationValue(rouri, DCTERMS.title) or 
+                     rometa.getAnnotationValue(rouri, RDFS.label) or
+                     roid
+                   )
+    rodesc       = rometa.getAnnotationValue(rouri, DCTERMS.description) or rotitle
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
@@ -131,6 +133,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'satisfied':      []
         , 'rouri':          rouri
         , 'roid':           roid
+        , 'title':          rotitle
         , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
@@ -175,7 +178,8 @@ def evalResultGraph(graph, evalresult):
     rouri     = rdflib.URIRef(evalresult['rouri'])
     targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
     graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
-    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )

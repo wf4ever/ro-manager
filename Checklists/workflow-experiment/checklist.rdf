@@ -84,8 +84,8 @@
     <!--
     <minim:hasShouldRequirement rdf:resource="#RO_has_sample_input" />
     -->
-    <!--
     <minim:hasMustRequirement   rdf:resource="#RO_has_workflow" />
+    <!--
     <minim:hasMustRequirement   rdf:resource="#WF_has_label" />
     <minim:hasMayRequirement   rdf:resource="#WF_has_title" />
     <minim:hasMayRequirement   rdf:resource="#WF_has_description" />
@@ -109,7 +109,9 @@
     <minim:hasShouldRequirement rdf:resource="#WF_outputs_accessible" />
     -->
     <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
+    <!--
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
+    -->
     <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
 
     <!--

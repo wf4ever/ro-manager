@@ -541,6 +541,13 @@ class ro_metadata(object):
         """
         return self._loadAnnotations()
 
+    def getAnnotationValue(self, resource, predicate):
+        """
+        Returns a single annotation value for a resource and the indicated predicate,
+        or None
+        """
+        return self._loadAnnotations().value(subject=resource, predicate=predicate, object=None)
+
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
         return

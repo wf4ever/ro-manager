@@ -268,6 +268,7 @@ EvalChecklistJson = (
       [ { 'output':
             '''\n{ "rouri":                  "%(rouri)s"'''+
             '''\n, "roid":                   "%(roid)s"'''+
+            '''\n, "title":                  "%(title)s"'''+
             '''\n, "description":            "%(description)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
@@ -276,10 +277,11 @@ EvalChecklistJson = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:title ?title ;
                 dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
@@ -467,10 +469,11 @@ EvalChecklistHtml = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:title ?title ;
                 dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
@@ -484,14 +487,15 @@ EvalChecklistHtml = (
                 '''\n  <body>'''+
                 '''\n    <div class="Container">'''+
                 '''\n      <div class="header">'''+
-                '''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
+                '''\n        %(title)s'''+
+                #'''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
                 '''\n      </div>'''+
                 '''\n      <p>%(description)s</p>'''+
                 '''\n      <div class="body">'''+
                 '''\n        <table>'''+
                 '''\n          <tr>'''+
                 '''\n            <th colspan="2">Target <span class="target">'''+
-                '''\n              <a href="%(target)s">%(targetlabel)s</a></span> '''+
+                '''\n              <a href="%(target)s">%(roid)s</a></span> '''+
                 ''''''
             }
           , { 'output':
