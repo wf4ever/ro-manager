@@ -163,6 +163,8 @@ ro_command_usage = (
           ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["checkout"], argminmax(2, 3),
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
+    , (["dump"], argminmax(2, 2),
+          ["dump [ -d <dir> ] [ -o <format> ]"])
     ])
 
 def check_command_args(progname, options, args):
@@ -813,6 +815,32 @@ def evaluate(progname, configbase, options, args):
         print ("Usage:")
         print ("  %s evaluate checklist [ -d <dir> ] [ -a | -l <level> ] <minim> <purpose> [ <target> ]" % (progname))
         return 1
+    return 0
+
+
+def dump(progname, configbase, options, args):
+    """
+    Sump RDF of manifest+annotations
+
+    ro dump [ -d dir ] [ -o format ]
+    """
+    log.debug("dump: progname %s, configbase %s, args %s" % 
+              (progname, configbase, repr(args)))
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":        options.rodir or ""
+        }
+    log.debug("ro_options: " + repr(ro_options))
+    if options.verbose:
+        print "ro dump -d \"%(rodir)s\" " % ro_options
+    ro_dir = os.path.abspath(ro_options['rodir'])
+    # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, ro_dir)
+    format = "RDFXML"
+    if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+        format = options.outformat.upper()
+    graph = rometa.getAnnotationGraph()
+    graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
     return 0
 
 # End.

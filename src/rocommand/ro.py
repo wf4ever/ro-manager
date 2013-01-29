@@ -57,6 +57,8 @@ def run(configbase, options, args):
         status = ro_command.checkout(progname, configbase, options, args)
     elif args[1] == "push":
         status = ro_command.push(progname, configbase, options, args)
+    elif args[1] == "dump":
+        status = ro_command.dump(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2

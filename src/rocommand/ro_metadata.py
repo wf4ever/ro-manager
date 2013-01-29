@@ -535,6 +535,12 @@ class ro_metadata(object):
             assert False, "Unexpected query response type %s"%resp.type
         return None
 
+    def getAnnotationGraph(self):
+        """
+        Returns the combined annotation graphs (including the manifest)
+        """
+        return self._loadAnnotations()
+
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
         return
