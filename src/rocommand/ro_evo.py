@@ -57,7 +57,7 @@ def handle_asynchronous_copy_operation(options, rosrs, response, type):
     print "Job Status: %s" % job_status
     print "Job URI: %s" % job_location
     print "Target Name: %s" % target_id
-    print "Target URI: %s" % urljoin(options["rosrs_uri"],target_id)
+    print "Target URI: %s" % urljoin(options["rosrs_uri"],target_id+"/")
     return 0
 
 def handle_synchronous_copy_operation(options, rosrs, response, typ):
@@ -76,7 +76,7 @@ def print_job_status(args, options, verbose, force = False):
     if args[0] != "RUNNING" or force:
         if not options["verbose"]:
             print "Job Status: %s" % args[0]    
-        print "Target URI: %s" % urljoin(options["rosrs_uri"],args[1])
+        print "Target URI: %s" % urljoin(options["rosrs_uri"],args[1] + "/",)
     return args[0] == "RUNNING"
 
 def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, type):
@@ -85,7 +85,7 @@ def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, 
     if type == "SNAPSHOT" :
         print "Snapshot is processed"
     else:
-        print "Archive if processed"
+        print "Archive is processed"
     print "If you don't want to wait until the operation is finished press [ENTER]"
     print "Job URI: %s" % job_location
     i, o, e = select.select( [sys.stdin], [], [], 10 )
