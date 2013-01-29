@@ -163,8 +163,8 @@ ro_command_usage = (
           ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["checkout"], argminmax(2, 3),
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
-    , (["dump"], argminmax(2, 2),
-          ["dump [ -d <dir> ] [ -o <format> ]"])
+    , (["dump"], argminmax(2, 3),
+          ["dump [ -d <dir> | <rouri> ] [ -o <format> ]"])
     ])
 
 def check_command_args(progname, options, args):
@@ -828,14 +828,24 @@ def dump(progname, configbase, options, args):
               (progname, configbase, repr(args)))
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
+        "rouri":        (args[2] if len(args) >= 3 else ""),
         "rodir":        options.rodir or ""
         }
-    log.debug("ro_options: " + repr(ro_options))
-    if options.verbose:
-        print "ro dump -d \"%(rodir)s\" " % ro_options
-    ro_dir = os.path.abspath(ro_options['rodir'])
+    cmdname = progname + " dump"
+    if not ro_options['rouri']:
+        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
+        if not rouri: return 1
+        if options.verbose:
+            print "ro dump -d \"%(rodir)s\" " % ro_options
+    else:
+        if ro_options['rodir']:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        rouri = ro_options['rouri']
+        if options.verbose:
+            print "ro dump \"%(rouri)s\" " % ro_options
     # Enumerate and display annotations
-    rometa = ro_metadata(ro_config, ro_dir)
+    rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"
     if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
         format = options.outformat.upper()
