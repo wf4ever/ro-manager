@@ -324,8 +324,10 @@ EvalChecklistJson = (
               """
               SELECT ?itemuri ?itemlevel ?modeluri WHERE
               { ?modeluri ?itemlevel ?itemuri .
-                ?itemuri a minim:Requirement .
+                ?itemuri a minim:Requirement ;
+                         minim:seq ?itemseq .
               }
+              ORDER BY ?itemseq
               """
             }
           , { 'output':
