@@ -528,7 +528,7 @@ class TestRdfReport(unittest.TestCase):
         RdfReport.generate_report(TrafficLightReports.EvalItemHtml, rdfgraph, initvars, outstr)
         expected = (
             [ ''
-            , '''<tr>'''
+            , '''<tr class="sub_result">'''
             , '''<td></td>'''
             , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
               (rouristr, rouristr)
@@ -562,10 +562,10 @@ class TestRdfReport(unittest.TestCase):
           , '''<div class="header">'''
           , '''A simple test RO'''
           , '''</div>'''
-          , '''<p>A simple RO used for testing traffic light display.</p>'''
+          , '''<div class="sub_header">A simple RO used for testing traffic light display.</div>'''
           , '''<div class="body">'''
           , '''<table>'''
-          , '''<tr>'''
+          , '''<tr class="main_result">'''
           , '''<th colspan="2">Target <span class="target">'''
           , '''<a href="%s">simple-requirements</a></span>'''%(rouristr)
           , '''<span class="testresult">minimally satisfies</span> checklist for'''
