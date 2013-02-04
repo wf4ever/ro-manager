@@ -96,24 +96,24 @@
     <minim:hasMustRequirement   rdf:resource="#WF_accessible" />
     <!--
     -->
-    <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
+    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
+    <minim:hasMustRequirement   rdf:resource="#RO_has_inputdata" />
     <!--
+    <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
     <minim:hasMayRequirement   rdf:resource="#WF_has_input_label" />
     <minim:hasMustRequirement   rdf:resource="#WF_inputs_agregated" />
-    -->
     <minim:hasMustRequirement   rdf:resource="#WF_inputs_accessible" />
+    -->
     <!--
     <minim:hasShouldRequirement rdf:resource="#WF_has_output" />
     <minim:hasMustRequirement   rdf:resource="#WF_has_output_label" />
     <minim:hasMustRequirement   rdf:resource="#WF_outputs_agregated" />
     <minim:hasShouldRequirement rdf:resource="#WF_outputs_accessible" />
     -->
-    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
     <!--
     <minim:hasShouldRequirement rdf:resource="#RO_has_result_presentation" />
     -->
     <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
-
     <!--
     <minim:hasMayRequirement rdf:resource="#RO_has_annotations" />
     <minim:hasMayRequirement rdf:resource="#RO_live_annotations" />
@@ -172,8 +172,8 @@
         <minim:exists>
           ?workflow rdf:type wfdesc:Workflow .
         </minim:exists>
-        <minim:showpass>Workflow description is present</minim:showpass>
-        <minim:showfail>Workflow description is not present</minim:showfail>
+        <minim:showpass>Workflow is present</minim:showpass>
+        <minim:showfail>Workflow is not present.</minim:showfail>
         <minim:derives rdf:resource="#RO_has_workflow" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -229,8 +229,8 @@
         <minim:exists>
           ?wf dcterms:description ?wfdescr .
         </minim:exists>
-        <minim:showpass>All workflow descriptions are present</minim:showpass>
-        <minim:showfail>Workflow description for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
+        <minim:showpass>Descriptive metadata are present for all workflows</minim:showpass>
+        <minim:showfail>Description metadata for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
         <minim:derives rdf:resource="#WF_has_description" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -248,8 +248,8 @@
         <minim:exists>
           ?wf wfdesc:hasWorkflowDefinition ?wfdef .
         </minim:exists>
-        <minim:showpass>Workflow definition is present</minim:showpass>
-        <minim:showfail>Workflow definition for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
+        <minim:showpass>Workflow definition are specified for all workflows</minim:showpass>
+        <minim:showfail>No workflow definition is specified for &lt;i&gt;%(wflab)s &lt;/i&gt;</minim:showfail>
         <minim:derives rdf:resource="#WF_has_definition" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -269,7 +269,7 @@
           {+wfdef}
         </minim:isLiveTemplate>
         <minim:showpass>All workflow definitions are accessible</minim:showpass>
-        <minim:showfail>Definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
+        <minim:showfail>The definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:derives rdf:resource="#WF_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -277,8 +277,54 @@
   </minim:Requirement>
 
   <!--
+        Workflow services used
+  -->
+
+  <!-- All workflow services are accessible -->
+  <minim:Requirement rdf:about="#WF_services_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?pr rdf:type wfdesc:Process ;
+              rdfs:label ?prlab .
+            {
+            ?pr wf4ever:serviceURI ?pruri .
+            }
+          UNION
+            {
+            ?pr wf4ever:wsdlURI ?pruri .
+            }
+        </minim:forall>
+        <minim:orderby>ORDER BY ?prlab</minim:orderby>
+        <minim:isLiveTemplate>
+          {+pruri}
+        </minim:isLiveTemplate>
+        <minim:showpass>All web services used by workflows are accessible</minim:showpass>
+        <minim:showfail>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail>
+        <minim:derives rdf:resource="#WF_services_accessible" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>028</minim:seq>
+  </minim:Requirement>
+
+  <!--
         Workflow inputs
   -->
+
+  <!-- Workflow input data is present -->
+  <minim:Requirement rdf:about="#RO_has_inputdata">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?inputdata rdf:type roterms:InputData .
+        </minim:exists>
+        <minim:showpass>Input data is present</minim:showpass>
+        <minim:showfail>Input data is not present</minim:showfail>
+        <minim:derives rdf:resource="#RO_has_inputdata" />
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>030</minim:seq>
+  </minim:Requirement>
 
   <!-- All workflow inputs are defined -->
   <minim:Requirement rdf:about="#WF_has_input">
@@ -449,37 +495,6 @@
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>044</minim:seq>
-  </minim:Requirement>
-
-  <!--
-        Workflow services used
-  -->
-
-  <!-- All workflow services are accessible -->
-  <minim:Requirement rdf:about="#WF_services_accessible">
-    <minim:isDerivedBy>
-      <minim:ContentMatchRequirementRule>
-        <minim:forall>
-          ?pr rdf:type wfdesc:Process ;
-              rdfs:label ?prlab .
-            {
-            ?pr wf4ever:serviceURI ?pruri .
-            }
-          UNION
-            {
-            ?pr wf4ever:wsdlURI ?pruri .
-            }
-        </minim:forall>
-        <minim:orderby>ORDER BY ?prlab</minim:orderby>
-        <minim:isLiveTemplate>
-          {+pruri}
-        </minim:isLiveTemplate>
-        <minim:showpass>Web services used are all accessible</minim:showpass>
-        <minim:showfail>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail>
-        <minim:derives rdf:resource="#WF_services_accessible" />
-      </minim:ContentMatchRequirementRule>
-    </minim:isDerivedBy>
-    <minim:seq>051</minim:seq>
   </minim:Requirement>
 
   <!--

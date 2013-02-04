@@ -26,12 +26,16 @@ body {
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#317eff', endColorstr='#456aaa',GradientType=0 ); /* IE6-9 */
 }
 
+.content {
+    /* Includes sub-header and footer */
+    background-image: url(images/noisy_grid.png);
+}
+
 .sub_header {
     font-size: large;
-    background-color: #EEEEEE;
+    /* background-color: #EEEEEE; */
     border-color:     #999999;
     border-style:     none;
-    border-width:     1px 0;
     color:            #333333;
     padding-top:      1em;
     padding-bottom:   0.5em;
@@ -39,8 +43,17 @@ body {
     padding-right:    0.5em;
 }
 
+.body {
+    /* background-image: url(images/noisy_grid.png); */
+}
+
 .main_result th {
     padding: 0.5em 0.5em;
+}
+
+tbody.result_detail tr td+td {
+    background: rgba(130, 130, 130, 0.0976563);
+    /* border-radius: 1em; */
 }
 
 .sub_result td {
@@ -50,16 +63,22 @@ body {
 }
 
 .footer {
-    background-color: #EEEEEE;
+    /* background-color: #EEEEEE;  */
     border-color: #999999;
     border-style: dotted;
-    border-width: 1px 0;
+    border-width: 0 0 1px;  /* Top, R, Bottom, L */
     color: #333333;
-    margin-top:   1em;
+    padding-top:  1em;
     padding:      0.5em;
 }
 
 .trafficlight {
+    text-align: center;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+tbody.result_detail tr .trafficlight {
     text-align: center;
     background-repeat: no-repeat;
     background-position: center;
@@ -98,36 +117,36 @@ span.testpurpose {
 }
 
 .trafficlight.large div {
-    width: 64px;
-    height: 64px;
-}
-
-.trafficlight.small div {
     width: 32px;
     height: 32px;
 }
 
-.trafficlight.large.pass {
-    background-image: url(images/green_check_64.png);
+.trafficlight.small div {
+    width: 16px;
+    height: 16px;
 }
 
-.trafficlight.small.pass {
+.trafficlight.large.pass {
     background-image: url(images/green_check_32.png);
 }
 
+.trafficlight.small.pass {
+    background-image: url(images/green_check_16.png);
+}
+
 .trafficlight.large.fail.should {
-    background-image: url(images/amber_check_64.png);
+    background-image: url(images/amber_check_32.png);
 }
 
 .trafficlight.small.fail.should {
-    background-image: url(images/amber_cross_32.png);
+    background-image: url(images/amber_cross_16.png);
 }
 
 .trafficlight.large.fail.must {
-    background-image: url(images/red_cross_64.png);
+    background-image: url(images/red_cross_32.png);
 }
 
 .trafficlight.small.fail.must {
-    background-image: url(images/red_cross_32.png);
+    background-image: url(images/red_cross_16.png);
 }
 
