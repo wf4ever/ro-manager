@@ -15,7 +15,6 @@ def copy_operation(options, args, ro_type):
     service_uri = urljoin(options["rosrs_uri"], "../evo/copy/")
     body = {
         'copyfrom': args[2],
-        'target': args[3],
         'type': ro_type,
         'finalize': ( "%s" % options['freeze']).lower()
     }
