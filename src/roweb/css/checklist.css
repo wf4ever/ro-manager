@@ -28,12 +28,12 @@ body {
 
 .content {
     /* Includes sub-header and footer */
-    background-image: url(images/noisy_grid.png);
+    /* background-image: url(images/noisy_grid.png); */
 }
 
 .sub_header {
     font-size: large;
-    /* background-color: #EEEEEE; */
+    background-color: #EEEEEE;
     border-color:     #999999;
     border-style:     none;
     color:            #333333;
@@ -45,10 +45,17 @@ body {
 
 .body {
     /* background-image: url(images/noisy_grid.png); */
+    background-color: #ECECEC;
+    /*margin-right: 3em;*/
+    padding-right: 3em;
 }
 
 .main_result th {
     padding: 0.5em 0.5em;
+}
+
+table {
+    border-collapse: collapse;
 }
 
 tbody.result_detail tr td+td {
@@ -63,12 +70,13 @@ tbody.result_detail tr td+td {
 }
 
 .footer {
-    /* background-color: #EEEEEE;  */
+    background-color: #EEEEEE;
     border-color: #999999;
     border-style: dotted;
     border-width: 0 0 1px;  /* Top, R, Bottom, L */
     color: #333333;
-    padding-top:  1em;
+    margin-top:   0.0em;
+    padding-top:  1.0em;
     padding:      0.5em;
 }
 
