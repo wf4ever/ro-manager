@@ -5,7 +5,8 @@ body {
 .header {
     font-weight: bold;
     font-size: xx-large;
-    color: white;
+    /* color: white; */
+    color: #ECECEC;
     text-shadow: 0.1em 0.1em rgba(0,0,100,0.4);
     padding: 10px 0 15px 0;
     text-align: center;
