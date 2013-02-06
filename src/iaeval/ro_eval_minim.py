@@ -264,6 +264,9 @@ def evalContentMatch(rometa, rule, constraintbinding):
         # resp  = rometa.queryAnnotations(query, initBindings=constraintbinding)
         resp  = rometa.queryAnnotations(query)
         log.debug(" - forall resp: "+repr(resp))
+        simplebinding['_count'] = len(resp)
+        if len(resp) == 0 and rule['showmiss']:
+            satisfied = False
         for binding in resp:
             satisfied = False
             # Extract keys and values from query result to return with result
@@ -271,6 +274,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
             for k in binding:
                 if not isinstance(k,rdflib.BNode):
                     simplebinding[str(k)] = str(binding[k])
+                    simplebinding['_count'] = len(resp)
                     # @@TODO remove this when rdflib bug resolved 
                     if str(k) in ['if', 'of'] and str(binding[k])[:5] not in ["file:","http:"]:
                         # Houston, we have a problem...
@@ -375,7 +379,10 @@ def formatRule(satisfied, rule, bindings):
     """
     Format a rule for a missing/satisfied report
     """
-    templateindex = "showpass" if satisfied else "showfail"
+    log.info("formatRule: Rule %s"%repr(rule))
+    log.info("formatRule: Bindings %s"%repr(bindings))
+    templateoverride = None
+    # Pick up details from rule used
     if 'datarule' in rule:
         ruledict = rule['datarule']
         templatedefault = "Aggregates resource %(aggregates)s"
@@ -384,14 +391,30 @@ def formatRule(satisfied, rule, bindings):
         templatedefault = "Environment '%(command)s' matches '%(response)s'"
     elif 'contentmatchrule' in rule:
         ruledict = rule['contentmatchrule']
-        if ruledict['exists']:
+        if ruledict['forall']:
+            if bindings['_count'] == 0 and ruledict["showmiss"]:
+                templateoverride = ruledict["showmiss"]
+            if ruledict['exists']:
+                templatedefault = "Match %(exists)s for each matching %(forall)s"
+            elif ruledict['template']:
+                templatedefault = "Aggregate %(template)s for each matching %(forall)s"
+            elif ruledict['islive']:
+                templatedefault = "Liveness of %(template)s for each matching %(forall)s"
+            else:
+                templatedefault = "Unknown test for each matching %(forall)s"
+        elif ruledict['exists']:
             templatedefault = "Match for %(exists)s"
         else:
-            templatedefault = "Aggregate %(template)s for matching %(forall)s"
+            templatedefault = "Unknown content match rule (no forall or exists)"
     else:
         ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
         templatedefault = "Unrecognized rule: %(rule)s"
-    template = ruledict[templateindex] or ruledict["show"] or templatedefault
+    # Select and apply formatting template
+    if satisfied:
+        template = ruledict["showpass"]
+    else:
+        template = ruledict["showfail"]
+    template = templateoverride or template or ruledict["show"] or templatedefault
     bindings.update(ruledict)
     return template%bindings
 
