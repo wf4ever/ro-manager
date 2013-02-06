@@ -530,9 +530,9 @@ class TestRdfReport(unittest.TestCase):
             [ ''
             , '''<tr class="sub_result">'''
             , '''<td></td>'''
+            , '''<td class="trafficlight small fail should"><div/></td>'''
             , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
               (rouristr, rouristr)
-            , '''<td class="trafficlight small fail should"><div/></td>'''
             , '''</tr>'''
             ])
         result = outstr.getvalue()
@@ -562,17 +562,19 @@ class TestRdfReport(unittest.TestCase):
           , '''<div class="header">'''
           , '''A simple test RO'''
           , '''</div>'''
+          , '''<div class="content">'''
           , '''<div class="sub_header">A simple RO used for testing traffic light display.</div>'''
           , '''<div class="body">'''
           , '''<table>'''
+          , '''<thead>'''
           , '''<tr class="main_result">'''
+          , '''<th class="trafficlight large fail should"><div/></th>'''
           , '''<th colspan="2">Target <span class="target">'''
           , '''<a href="%s">simple-requirements</a></span>'''%(rouristr)
           , '''<span class="testresult">minimally satisfies</span> checklist for'''
           , '''<span class="testpurpose">Runnable</span>.'''
           # , '''<p>This Research Object @@TODO.</p>'''
           , '''</th>'''
-          , '''<th class="trafficlight large fail should"><div/></th>'''
           , '''</tr>'''
           ])
         result = outstr.getvalue()
