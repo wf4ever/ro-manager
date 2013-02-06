@@ -63,6 +63,17 @@
       </minim:Constraint>
     </minim:hasConstraint>
 
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#wf-accessible">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>wf-accessible</minim:forPurpose>
+        <minim:toModel rdf:resource="#wf_accessible_model" />
+        <rdfs:comment>
+          Constraint to test workflow accessible item in isolation
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+
   </rdf:Description>
 
   <!-- ======
@@ -84,8 +95,8 @@
     <!--
     <minim:hasShouldRequirement rdf:resource="#RO_has_sample_input" />
     -->
-    <minim:hasMustRequirement   rdf:resource="#RO_has_workflow" />
     <!--
+    <minim:hasMustRequirement   rdf:resource="#RO_has_workflow" />
     <minim:hasMustRequirement   rdf:resource="#WF_has_label" />
     <minim:hasMayRequirement   rdf:resource="#WF_has_title" />
     <minim:hasMayRequirement   rdf:resource="#WF_has_description" />
@@ -94,9 +105,9 @@
     <minim:hasMustRequirement   rdf:resource="#WF_has_definition" />
     -->
     <minim:hasMustRequirement   rdf:resource="#WF_accessible" />
+    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
     <!--
     -->
-    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
     <minim:hasMustRequirement   rdf:resource="#RO_has_inputdata" />
     <!--
     <minim:hasMustRequirement   rdf:resource="#WF_has_input" />
@@ -118,6 +129,16 @@
     <minim:hasMayRequirement rdf:resource="#RO_has_annotations" />
     <minim:hasMayRequirement rdf:resource="#RO_live_annotations" />
     -->
+  </minim:Model>
+
+  <!-- Model (checklist) for WF accessible
+    -->
+  <minim:Model rdf:about="#wf_accessible_model">
+    <rdfs:label>Workflow accessible</rdfs:label>
+    <rdfs:comment>
+      Model to test workflow accessible item in isolation
+    </rdfs:comment>
+    <minim:hasMustRequirement rdf:resource="#WF_accessible" />
   </minim:Model>
 
   <!-- =================
@@ -250,6 +271,7 @@
         </minim:exists>
         <minim:showpass>Workflow definition are specified for all workflows</minim:showpass>
         <minim:showfail>No workflow definition is specified for &lt;i&gt;%(wflab)s &lt;/i&gt;</minim:showfail>
+        <minim:showmiss>No workflows are described</minim:showmiss>
         <minim:derives rdf:resource="#WF_has_definition" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -270,6 +292,7 @@
         </minim:isLiveTemplate>
         <minim:showpass>All workflow definitions are accessible</minim:showpass>
         <minim:showfail>The definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
+        <minim:showmiss>No workflow definitions are present</minim:showmiss>
         <minim:derives rdf:resource="#WF_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -301,6 +324,7 @@
         </minim:isLiveTemplate>
         <minim:showpass>All web services used by workflows are accessible</minim:showpass>
         <minim:showfail>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail>
+        <minim:showmiss>No workflow services are referenced</minim:showmiss>
         <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>

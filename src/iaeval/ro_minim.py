@@ -26,7 +26,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             , "derives", "reports", "isDerivedBy"
-            , "show", "showpass", "showfail", "seq"
+            , "show", "showpass", "showfail", "showmiss", "seq"
             , "aggregates"
             , "command", "response"
             , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
@@ -140,12 +140,12 @@ def getRequirements(minimgraph, modeluri):
                 , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
+                , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
                 })
             # Create field used for sorting checklist items
             req['seq'] = str( minimgraph.value(subject=s, predicate=MINIM.seq) or
                               rule['show'] or
-                              rule['showpass'] or
-                              rule['showfail'] )
+                              rule['showpass'] )
             ruletype = minimgraph.value(subject=ruleuri, predicate=RDF.type)
             if ruletype == MINIM.DataRequirementRule:
                 rule['aggregates']  = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregates)
