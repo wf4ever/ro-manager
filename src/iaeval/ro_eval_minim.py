@@ -379,8 +379,6 @@ def formatRule(satisfied, rule, bindings):
     """
     Format a rule for a missing/satisfied report
     """
-    log.info("formatRule: Rule %s"%repr(rule))
-    log.info("formatRule: Bindings %s"%repr(bindings))
     templateoverride = None
     # Pick up details from rule used
     if 'datarule' in rule:
