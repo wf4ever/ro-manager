@@ -40,6 +40,8 @@ Other functions:
 
 Technical debt:
 - Mop up @@TODOs
+- web service return sensible error when RO or minim resource cannot be retrieved
+- checklist display should escape tag-brackets in RO title and description
 - remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
 - try new rdflib SPARQL processor as drop-in for rdfextras 
 - new test cases for evaluation
