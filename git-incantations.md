@@ -79,3 +79,15 @@ Finishing a release branch
   $ git branch -d release-1.2
   Deleted branch release-1.2 (was ff452fe).
 
+## Reconnecting upstream branch ##
+
+"So having done "git remote rm origin", how do I configure the git pull branches again?"
+
+Looks like this does it:
+
+    git remote add origin darcs.haskell.org:/srv/darcs/ghc.git
+    git fetch origin
+    git branch --set-upstream master origin/master
+
+-- http://www.haskell.org/pipermail/ghc-devs/2013-February/000261.html
+
