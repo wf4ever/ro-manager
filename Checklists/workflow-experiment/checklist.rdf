@@ -323,8 +323,9 @@
           {+pruri}
         </minim:isLiveTemplate>
         <minim:showpass>All web services used by workflows are accessible</minim:showpass>
-        <minim:showfail>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail>
-        <minim:showmiss>No workflow services are referenced</minim:showmiss>
+        <minim:showfail___>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail___>
+        <minim:showfail>One or more web services used by one of the workflows are inaccessible, including &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt;</minim:showfail>
+        <minim:showmiss___>No workflow services are referenced</minim:showmiss___>
         <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
@@ -340,7 +341,7 @@
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule>
         <minim:exists>
-          ?inputdata rdf:type roterms:InputData .
+          ?wfbunbdle roterms:inputSelected ?inputdata .
         </minim:exists>
         <minim:showpass>Input data is present</minim:showpass>
         <minim:showfail>Input data is not present</minim:showfail>
