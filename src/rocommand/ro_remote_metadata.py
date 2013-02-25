@@ -521,9 +521,15 @@ class ro_remote_metadata(object):
 
     def getResourceType(self, resource):
         """
-        Returns type of resource whose URI is supplied
+        Returns type of resource whose URI is supplied. If resource has more then one type, return any.
         """
         return self.getResourceValue(resource, RDF.type)
+
+    def hasResourceType(self, resource, rdfType):
+        """
+        Check if the resource whose URI is supplied has a provided RDF type.
+        """
+        return self.roManifestContains((resource, RDF.type, rdfType))
 
     def getRoMetadataDict(self):
         """

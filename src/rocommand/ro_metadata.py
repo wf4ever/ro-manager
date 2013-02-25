@@ -582,6 +582,12 @@ class ro_metadata(object):
         """
         return self.getResourceValue(resource, RDF.type)
 
+    def hasResourceType(self, resource, rdfType):
+        """
+        Check if the resource whose URI is supplied has a provided RDF type.
+        """
+        return self.roManifestContains((resource, RDF.type, rdfType))
+
     def getRoMetadataDict(self):
         """
         Returns dictionary of metadata about the RO from the manifest graph

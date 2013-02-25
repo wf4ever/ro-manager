@@ -90,7 +90,7 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         def verifyResources(resources):
             c = 0
             for r in self.remoteRo.getAggregatedResources():
-                if self.remoteRo.getResourceType(r) != RO.AggregatedAnnotation:
+                if not self.remoteRo.hasResourceType(r, RO.AggregatedAnnotation):
                     c += 1
                     self.assertIn(r, resources)
             self.assertEqual(c, len(resources))
