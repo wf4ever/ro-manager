@@ -326,6 +326,9 @@
         <minim:showfail___>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail___>
         <minim:showfail>One or more web services used by one of the workflows are inaccessible, including &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt;</minim:showfail>
         <minim:showmiss___>No workflow services are referenced</minim:showmiss___>
+        <!-- Enable this entry to fake inaccessible REST service;
+             to be removed when REST service references can be included in  the probe queru -->
+        <minim:showmiss___>One or more web services used by one of the workflows are inaccessible, including http://rest.kegg.jp/get/{query}</minim:showmiss___>
         <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
