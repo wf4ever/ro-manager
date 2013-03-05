@@ -522,9 +522,10 @@ class ro_metadata(object):
     def queryAnnotations(self, query, initBindings={}):
         """
         Runs a query over the combined annotation graphs (including the manifest)
-        and returns True or False (for ASK queries) or a list of doctionaries of
+        and returns True or False (for ASK queries) or a list of dictionaries of
         query results (for SELECT queries).
         """
+        log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
         resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
