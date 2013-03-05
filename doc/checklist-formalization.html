@@ -1,0 +1,80 @@
+<h1 id="formalization-of-checklist-evaluation">Formalization of checklist evaluation</h1>
+<p>I'm planning to start the formalization process by expressing the checklist evaluation as a pure, strongly-typed function. I'll use Haskell for this. The document will be prepared as Literate Haskell with Markdown markup, and processed using <code>pandoc</code> - see <a href="">http://stackoverflow.com/questions/3473389/lhs-and-markdown-codeblocks</a> and <a href="">http://johnmacfarlane.net/pandoc/</a>. This file is (or will be) an executable Haskell program, which can also be converted into an HTML document thus:</p>
+<pre><code>pandoc --from=markdown+lhs --to=html -o checklist-formalization.html checklist-formalization.lhs</code></pre>
+<p>In modelling the checklist, I shall focus on the checklist itself, and not consider here the additional logioc that uses <em>target</em> and purpose</p>
+<h2 id="preliminaries">Preliminaries</h2>
+<p>The following code makes use of certain extensions to the Haskell type system, which are enabled by this directive:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">{-# LANGUAGE RankNTypes, ImpredicativeTypes #-}</span></code></pre>
+<p>The checklist function operates against an instance of <code>Web</code>. Treated for the purposes of checklist evaluation as a read-only medium, a <code>Web</code> value is a mapping from <code>URI</code>s to <code>Resources</code>s (ignoring here the effect of additional HTTP protocol parameters).</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">URI</span> a <span class="fu">=</span> <span class="dt">URI</span> <span class="dt">String</span> (a <span class="ot">-&gt;</span> ())</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">URIany</span> <span class="fu">=</span> forall a<span class="fu">.</span> <span class="dt">URI</span> a</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Resource</span> a <span class="fu">=</span> <span class="dt">Resource</span> a</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Web</span>    <span class="fu">=</span> forall a<span class="fu">.</span> (<span class="dt">URI</span> a <span class="ot">-&gt;</span> (<span class="dt">Resource</span> a, <span class="dt">Status</span>))
+<span class="kw">data</span> <span class="dt">Status</span> <span class="fu">=</span> <span class="dt">Status</span> <span class="dt">Int</span>   <span class="co">-- value indicates status of resource as HTTP status code</span></code></pre>
+<p>A research object is a web resource with some additional contextual information:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">ROURI</span> <span class="fu">=</span> <span class="dt">URI</span> <span class="dt">RO</span></code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">RO</span> <span class="fu">=</span> ( [<span class="dt">URIany</span>], [<span class="dt">URI</span> <span class="dt">Assertion</span>] )</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Assertion</span> <span class="fu">=</span> <span class="dt">Web</span> <span class="ot">-&gt;</span> <span class="dt">Bool</span></code></pre>
+<h2 id="checklist-function">Checklist function</h2>
+<p>A checklist is modelled as a function whose application to some resource corresponds to evaluating the checklist against the RO denoted by that resource at a particular state of the web:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Checklist</span> <span class="fu">=</span> <span class="dt">Web</span> <span class="ot">-&gt;</span> <span class="dt">ROURI</span> <span class="ot">-&gt;</span> ( <span class="dt">Checklist_result</span>, [<span class="dt">Item_result</span>] )</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Checklist_result</span> <span class="fu">=</span> <span class="dt">Satisfaction_level</span>   <span class="co">-- Maybe more values to come here</span>
+<span class="kw">data</span> <span class="dt">Satisfaction_level</span> <span class="fu">=</span> <span class="dt">Fully_satisfied</span> <span class="fu">|</span> <span class="dt">Nominally_satisfied</span> <span class="fu">|</span> <span class="dt">Minimally_satisfied</span> <span class="fu">|</span> <span class="dt">Not_satisfied</span></code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Item_result</span> <span class="fu">=</span> ( <span class="dt">Level</span>, <span class="dt">Bool</span>, <span class="dt">String</span> )</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">data</span> <span class="dt">Level</span> <span class="fu">=</span> <span class="dt">MUST</span> <span class="fu">|</span> <span class="dt">SHOULD</span> <span class="fu">|</span> <span class="dt">MAY</span></code></pre>
+<p>Here, we see the result of evaluating a checklist is a <code>Checklist_result</code> value, and a list of <code>Item_result</code> values, which are defined as shown.</p>
+<h2 id="checklist-items">Checklist items</h2>
+<p>A checklist item corresponds to a single reported requirement in our checklist. It is a function that takes a <code>Web</code> and an <code>ROURI</code>, and returns a Boolean (pass/fail) and a descriptive message.</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Checkitem</span> <span class="fu">=</span> <span class="dt">Web</span> <span class="ot">-&gt;</span> <span class="dt">ROURI</span> <span class="ot">-&gt;</span> (<span class="dt">Bool</span>, <span class="dt">String</span>)</code></pre>
+<p>Instances of this function embody the &quot;checklist primitives&quot; from which checklist functionality is built up. Given a list of <code>Checkitem</code> values and corresponding <code>Level</code> values, a <code>Checklist</code> can be constructed in entirely generic fashion. Thereafter, our focus on checklist capabilities can be focused on the primitives that are used to construct <code>Checkitem</code> values:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">makeChecklist ::</span> [ (<span class="dt">Level</span>, <span class="dt">Checkitem</span>) ] <span class="ot">-&gt;</span> <span class="dt">Web</span> <span class="ot">-&gt;</span> <span class="dt">ROURI</span> <span class="ot">-&gt;</span> ( <span class="dt">Checklist_result</span>, [<span class="dt">Item_result</span>] )
+makeChecklist items web rouri <span class="fu">=</span> (check_result item_results, item_results)
+  <span class="kw">where</span>
+    check_result item_results <span class="fu">=</span> <span class="fu">foldl</span> check_result_next <span class="dt">Fully_satisfied</span> item_results
+      <span class="kw">where</span>
+        check_result_next z (<span class="dt">MAY</span>,    <span class="kw">False</span>, _) <span class="fu">=</span> level_min z <span class="dt">Nominally_satisfied</span>
+        check_result_next z (<span class="dt">SHOULD</span>, <span class="kw">False</span>, _) <span class="fu">=</span> level_min z <span class="dt">Minimally_satisfied</span>
+        check_result_next z (<span class="dt">MUST</span>,   <span class="kw">False</span>, _) <span class="fu">=</span> level_min z <span class="dt">Not_satisfied</span>
+        check_result_next z _                  <span class="fu">=</span> z
+        level_min <span class="dt">Not_satisfied</span>       _                    <span class="fu">=</span> <span class="dt">Not_satisfied</span>
+        level_min _                   <span class="dt">Not_satisfied</span>        <span class="fu">=</span> <span class="dt">Not_satisfied</span>
+        level_min <span class="dt">Minimally_satisfied</span> _                    <span class="fu">=</span> <span class="dt">Minimally_satisfied</span>
+        level_min _                   <span class="dt">Minimally_satisfied</span>  <span class="fu">=</span> <span class="dt">Minimally_satisfied</span>
+        level_min <span class="dt">Nominally_satisfied</span> _                    <span class="fu">=</span> <span class="dt">Nominally_satisfied</span>
+        level_min _                   <span class="dt">Nominally_satisfied</span>  <span class="fu">=</span> <span class="dt">Nominally_satisfied</span>
+        level_min _                   _                    <span class="fu">=</span> <span class="dt">Fully_satisfied</span>
+<span class="ot">    item_results ::</span> [ <span class="dt">Item_result</span> ]
+    item_results     <span class="fu">=</span> <span class="fu">map</span> item_result items
+<span class="ot">    item_result ::</span> (<span class="dt">Level</span>, <span class="dt">Checkitem</span>) <span class="ot">-&gt;</span> <span class="dt">Item_result</span>
+    item_result (level, item) <span class="fu">=</span> (level, b, s) 
+      <span class="kw">where</span> (b, s) <span class="fu">=</span> item web rouri</code></pre>
+<h2 id="checklist-item-primitives">Checklist item primitives</h2>
+<p>Our checklist primitives depend on an RO defining a context, which consists of a distinguished set of URIs (denoting the resources aggregated by the RO) and a set of assertions about the state of resources in the web (annotations, which are RDF expressions). The annotations being RDF expressions means that, by way of <a href="http://www.w3.org/TR/rdf-mt/">RDF semantics</a>, they are truth-valued functions over the denotations of the URIs they use. These denotations in turn are assumed to be reflected by the state of the Web for which they are evaluated, and thus serve as semantic constraints on the assumed state of the Web that is evaluated by a checklist.</p>
+<p>The checklist primitive functions are evaluated in the presence of these constraints.</p>
+<h3>
+Queries
+</h3>
+
+<p>The checklist primitives make extensive use of <em>queries</em>. A query is a pattern that is matched against all of the assertions in the tested RO, and which may result in zero or more <em>matches</em>.</p>
+<p>@@the formalism in this area needs to be developed into something that links the query with the RO annotations and corresponding Web models.</p>
+<p>@@Model-theoretic approach: a query is a set of assertions, possibly containing existentials variables, that result in zero or more assertions with actual values substituted for the existentials, which are true in every model in which the RO assertions are all true.</p>
+<p>@@Proof theoretic approach: assertions and query to graph edges and graph edge patterns respectively. Query may be unified, datalog-style, against the assertions (and inferred statements) to yield any matches.</p>
+<p>Assume the presence of a query-matching function</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="kw">type</span> <span class="dt">Substitution</span> <span class="fu">=</span> [ (<span class="dt">Var</span>, <span class="dt">Value</span>) ]</code></pre>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">match ::</span> <span class="dt">Query</span> <span class="ot">-&gt;</span> [<span class="dt">Assertion</span>] <span class="ot">-&gt;</span> [ <span class="dt">Substitution</span> ]</code></pre>
+<p>That is, yielding a list of variable binding sets, where each variable binding set associates a number of variables with corresponding values. Using a resulting variable binding to define a substitution of values for variables in the query results in an assertion that is entailed by the RO assertions. Can be evaluated by <em>unification</em> of the query and assertions.</p>
+<p>Also assume the presence of a substitution function:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">substitute ::</span> <span class="dt">Query</span> <span class="ot">-&gt;</span> <span class="dt">Substitution</span> <span class="ot">-&gt;</span> <span class="dt">Assertion</span></code></pre>
+<p>and a subsumption function:</p>
+<pre class="sourceCode literate haskell"><code class="sourceCode haskell"><span class="ot">subsumes ::</span> [<span class="dt">Assertion</span>] <span class="ot">-&gt;</span> [<span class="dt">Assertion</span>] <span class="ot">-&gt;</span> <span class="dt">Bool</span></code></pre>
+<p>then we have:</p>
+<pre><code>assertions `subsumes` (map (substitute query) (match query assertions))</code></pre>
+<p>is <code>True</code> for all values for assertion and query</p>
+<h3>
+Simple existence check
+</h3>
+
+<pre><code>exists Query :: Web -&gt; ROURI -&gt; Bool</code></pre>
+<p>Returns True if the query has at least one binding set that unifies with the RO assertions.</p>
+<h2 id="checklist-item-composition">Checklist item composition</h2>
+<p>@@TO FOLLOW</p>

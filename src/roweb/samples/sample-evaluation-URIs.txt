@@ -40,3 +40,12 @@ http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_json?RO=http
 # Minim absolute URI:
 http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2Fchecklist-runnable.rdf
 http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/checklist-runnable.rdf
+
+# Liveness testing with non-responsive web service
+
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
+http://localhost:8080/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
+http://calatola.man.poznan.pl/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
