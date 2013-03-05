@@ -133,6 +133,8 @@ then we have:
 
 is `True` for all values for assertion and query
 
+**Note**: as assertions are generally defined by enumeration, the notion of subsumption used here is somewhat simpler than that which is the target of description logic reasoning.  Roughly, whet we use here is a closed-world notion of subsumption, which is much easier to evaluate than an open-world subsumption.  However, if subsumption is taken to include inferable assertions as well as those explicitly stated, then some aspects of reasoning, Description Logic based or otherwise, might be needed to ensure completeness of the subsumption evaluation.
+
 
 <h3>Simple existence check</h3>
 
