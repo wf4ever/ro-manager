@@ -191,7 +191,7 @@ EvalItemJson = (
       [
         { 'output':
             '''\n    { "itemuri":        "%(itemuri)s"'''+
-            '''\n    , "itemlabel":      "%(itemlabel)s"'''+
+            '''\n    , "itemlabel":      "%(itemlabel_esc)s"'''+
             '''\n    , "itemlevel":      "%(itemlevel)s" '''
         , 'alt':  '''\n    *** no match for message/label ***'''
         , 'query': sparql_prefixes+
