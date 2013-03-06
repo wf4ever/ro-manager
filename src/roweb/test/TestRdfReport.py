@@ -123,6 +123,38 @@ class TestRdfReport(unittest.TestCase):
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
+    def testSimpleQuotedJson(self):
+        """
+        Test JSON quoting in simple report
+        """
+        report = (
+            { 'report':
+              { 'query':  prefixes+"SELECT * WHERE { ?s ex:quoteme ?quoteme }"
+              , 'output': "Hello %(quoteme_esc)s" }
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(simple_test_data)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr, RdfReport.escape_json)
+        self.assertEqual("""Hello <\\\"Graham\\">""", outstr.getvalue())
+        return
+
+    def testSimpleQuotedHtml(self):
+        """
+        Test HTML quoting in simple report
+        """
+        report = (
+            { 'report':
+              { 'query':  prefixes+"SELECT * WHERE { ?s ex:quoteme ?quoteme }"
+              , 'output': "Hello %(quoteme_esc)s" }
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(simple_test_data)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr, RdfReport.escape_html)
+        self.assertEqual("""Hello &lt;"Graham"&gt;""", outstr.getvalue())
+        return
+
     def testQueryResultMerge(self):
         """
         Test a simple query merged with existing results
@@ -620,6 +652,8 @@ def getTestSuite(select="unit"):
             , "testNull"
             , "testHelloWorld"
             , "testSimpleQuery"
+            , "testSimpleQuotedJson"
+            , "testSimpleQuotedHtml"
             , "testQueryResultMerge"
             , "testQueryResultPreBinding"
             , "testSequence"

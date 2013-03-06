@@ -268,11 +268,11 @@ EvalChecklistJson = (
       [ { 'output':
             '''\n{ "rouri":                  "%(rouri)s"'''+
             '''\n, "roid":                   "%(roid)s"'''+
-            '''\n, "title":                  "%(title)s"'''+
-            '''\n, "description":            "%(description)s"'''+
+            '''\n, "title":                  "%(title_esc)s"'''+
+            '''\n, "description":            "%(description_esc)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
-            '''\n, "checklisttargetlabel":   "%(targetlabel)s"'''+
+            '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
             '''\n, "checklistpurpose":       "%(purpose)s"'''
         , 'query':
             sparql_prefixes+
@@ -489,11 +489,11 @@ EvalChecklistHtml = (
                 '''\n  <body>'''+
                 '''\n    <div class="Container">'''+
                 '''\n      <div class="header">'''+
-                '''\n        %(title)s'''+
+                '''\n        %(title_esc)s'''+
                 #'''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
                 '''\n      </div>'''+
                 '''\n      <div class="content">'''+
-                '''\n        <div class="sub_header">%(description)s</div>'''+
+                '''\n        <div class="sub_header">%(description_esc)s</div>'''+
                 '''\n        <div class="body">'''+
                 '''\n          <table>'''+
                 '''\n            <thead>'''+

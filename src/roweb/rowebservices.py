@@ -218,7 +218,8 @@ def evaluate_trafficlight_json(request):
     """
     resultgraph = evaluate(request)
     outstr      = StringIO.StringIO()
-    RdfReport.generate_report(TrafficLightReports.EvalChecklistJson, resultgraph, {}, outstr)
+    RdfReport.generate_report(
+        TrafficLightReports.EvalChecklistJson, resultgraph, {}, outstr, RdfReport.escape_json)
     return Response(outstr.getvalue(), content_type="application/json", vary=['accept'])
 
 ### @view_config(route_name='trafficlight', request_method='GET', accept='text/html')
@@ -231,7 +232,8 @@ def evaluate_trafficlight_html(request):
     """
     resultgraph = evaluate(request)
     outstr      = StringIO.StringIO()
-    RdfReport.generate_report(TrafficLightReports.EvalChecklistHtml, resultgraph, {}, outstr)
+    RdfReport.generate_report(
+        TrafficLightReports.EvalChecklistHtml, resultgraph, {}, outstr, RdfReport.escape_html)
     return Response(outstr.getvalue(), content_type="text/html", vary=['accept'])
 
 @view_config(route_name='template', request_method='POST')
