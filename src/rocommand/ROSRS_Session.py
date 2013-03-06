@@ -295,11 +295,13 @@ class ROSRS_Session(object):
         (status, reason, headers, data) = self.doRequestRDF(uripath,
             method=method,
             body=body, ctype=ctype, reqheaders=reqheaders)
+        log.debug("%03d %s from request to %s"%(status, reason, uripath))
         if status in [302,303,307]:
             uripath = headers["location"]
             (status, reason, headers, data) = self.doRequestRDF(uripath,
                 method=method,
                 body=body, ctype=ctype, reqheaders=reqheaders)
+            log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
         return (status, reason, headers, rdflib.URIRef(uripath), data)
 
     def listROs(self):
@@ -409,6 +411,8 @@ class ROSRS_Session(object):
             method="GET")
         if status in [200, 404]:
             return (status, reason, headers, uri, data)
+        log.debug("Error %03d %s retrieving %s"%(status, reason, uri))
+        log.debug("Headers %s"%(repr(headers)))
         raise self.error("Error retrieving RO manifest",
             "%03d %s"%(status, reason))
 
