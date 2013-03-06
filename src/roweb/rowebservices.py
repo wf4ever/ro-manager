@@ -125,7 +125,8 @@ def real_evaluate(request):
         "annotationPrefixes":   annotationPrefixes,
         #"rosrs_uri":            target,
         "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
-        "rosrs_access_token":   "32801fc0-1df1-4e34-b",
+        #"rosrs_access_token":   "ac14dd1a-ab59-40ec-b510-ffdb01a85473",
+        "rosrs_access_token":   None,
         }
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
