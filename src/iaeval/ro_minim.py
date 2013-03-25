@@ -5,6 +5,7 @@ Research Object minimum information model access functions
 """
 
 import re
+import urllib
 import urlparse
 import logging
 
@@ -87,7 +88,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     target       = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
     log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
-    templatedict = {'targetro': str(rouri)}
+    templatedict = {'targetro': urllib.unquote(str(rouri))}
     for c in getConstraints(minimgraph):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
@@ -104,6 +105,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
                 # Match explicit target specification (subject of minim:hasConstraint)
                 return c    
             log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
+            log.debug("- expand %s"%(uritemplate.expand(c['target_t'], templatedict)))
             if target and c['target_t']:
                 if str(target) == uritemplate.expand(c['target_t'], templatedict):
                     # Target matches expanded template from constraint description

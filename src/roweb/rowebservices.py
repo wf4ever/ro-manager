@@ -3,6 +3,7 @@ import os
 import logging
 import StringIO
 import json
+import urllib
 
 import rdflib
 
@@ -113,11 +114,17 @@ def service_html(request):
     return Response(sd, content_type="text/html", vary=['accept'])
 
 def real_evaluate(request):
-    # isolate parameters
-    RO      = request.params["RO"]
-    minim   = request.params["minim"]
-    target  = request.params.get("target",".")
+    # From: http://tools.ietf.org/html/rfc3986#section-2.1
+    # gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
+    # sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
+    #              / "*" / "+" / "," / ";" / "="
+    quotesafe = ":/?#[]@!$&'()*+.;="
+    # isolate parameters (keep invaliud URI characters %-encoded)
+    RO      = urllib.quote(request.params["RO"], quotesafe)
+    minim   = urllib.quote(request.params["minim"], quotesafe)
+    target  = urllib.quote(request.params.get("target","."), quotesafe)
     purpose = request.params["purpose"]
+    log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     # create rometa object
     # @@TODO: use proper configuration and credentials
     ro_config = {
@@ -130,7 +137,6 @@ def real_evaluate(request):
         }
     rometa = ro_metadata(ro_config, RO)
     # invoke evaluation service
-    log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
     # Assemble graph of results
