@@ -16,6 +16,9 @@ import shutil
 import urlparse
 import urllib2
 import zipfile
+from ro_utils import EvoType
+from xml.parsers import expat
+from httplib2 import RelativeURIError
 
 ###@@TODO:
 ###Where did this come from???
@@ -37,9 +40,10 @@ import ro_uriutils
 from ro_annotation import annotationTypes, annotationPrefixes
 from ro_metadata   import ro_metadata
 import ro_remote_metadata
-from ROSRS_Session import ROSRS_Session 
+from ROSRS_Session import ROSRS_Session
+from ROSRS_Session import ROSRS_Error
 import ro_rosrs_sync
-
+import ro_evo
 from iaeval import ro_eval_minim
 from zipfile import ZipFile
 
@@ -123,7 +127,7 @@ def ro_root_reference(cmdname, ro_config, rodir):
 
 def argminmax(min, max):
     return (lambda options, args: (len(args) >= min and (max == 0 or len(args) <= max)))
-
+    
 ro_command_usage = (
     [ (["help"], argminmax(2, 2),
           ["help"])
@@ -131,8 +135,8 @@ ro_command_usage = (
           ["config -b <robase> -n <username> -e <useremail> -r <rosrs_uri> -t <access_token>"])
     , (["create"], argminmax(3, 3),
           ["create <RO-name> [ -d <dir> ] [ -i <RO-ident> ]"])
-    , (["status"], argminmax(2, 2),
-          ["status [ -d <dir> ]"])
+    , (["status"],argminmax(2, 3),
+          ["status [ -d <dir> | <uri> ]"])
     , (["add"], argminmax(2, 3),
           ["add [ -d <dir> ] [ -a ] [ file | directory ]"])
     , (["remove"], argminmax(3, 3),
@@ -165,6 +169,12 @@ ro_command_usage = (
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["dump"], argminmax(2, 3),
           ["dump [ -d <dir> | <rouri> ] [ -o <format> ]"])
+    , (["snapshot"],  argminmax(4, 4),
+          ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
+    , (["archive"],  argminmax(4, 4),
+          ["archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
+    , (["freeze"],  argminmax(3, 3),
+          ["freeze <RO-id>"])
     ])
 
 def check_command_args(progname, options, args):
@@ -325,7 +335,7 @@ def status(progname, configbase, options, args):
     """
     Display status of a designated research object
 
-    ro status [ -d dir ]
+    ro status <uri> [ -d dir ]
     """
     # Check command arguments
     ro_config = ro_utils.readconfig(configbase)
@@ -333,7 +343,12 @@ def status(progname, configbase, options, args):
         "rodir":   options.rodir or "",
         }
     log.debug("ro_options: " + repr(ro_options))
-    # Find RO root directory
+    # Find RO root directory"
+    if len(args) == 3 and ro_options['rodir'] != "":
+        print "ambiguous status command"
+        return 1 
+    if len(args) == 3 and ro_options['rodir'] == "":
+        return remote_status(progname, configbase, options, args)
     ro_dir = ro_root_directory(progname + " status", ro_config, ro_options['rodir'])
     if not ro_dir: return 1
     # Read manifest and display status
@@ -351,6 +366,55 @@ def status(progname, configbase, options, args):
     # @@TODO: add ROEVO information
     return 0
 
+def remote_status(progname, configbase, options, args):
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "uri": args[2],
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
+                                                                                      "Access token for ROSRS service: "),
+    }
+    if options.verbose:
+        print "ro status %(uri)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % ro_options
+    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
+    return remote_ro_status(options, args, rosrs)
+    #try to get remote status
+    
+def job_status(options, args, rosrs):
+    try:
+        (status,target,finalize,type) = rosrs.getJob(args[2])
+    except expat.ExpatError as error:
+        return -1
+    except RelativeURIError as error:
+        return -1
+    except IndexError as error:
+        return -1
+    print "Job Status: %s" %  status
+    print "Job Target: %s" %  target
+    print "Finalize: %s" %  finalize
+    print "Research Object Type: %s" % type
+    
+    
+def remote_ro_status(options, args, rosrs):
+    try:
+        (status, reason, data, evo_type) = rosrs.getROEvolution(args[2])
+        if evo_type == None:
+            status =  job_status(options, args, rosrs)
+            if status == -1:
+                print "Wrong URI was given"
+            return status
+        elif evo_type == EvoType.LIVE:
+            print "Research Object Status: LIVE" 
+        elif evo_type == EvoType.SNAPSHOT:
+            print "Research Object Status: SNAPSHOT"
+        elif evo_type == EvoType.ARCHIVE:
+            print "Research Object Status: ARCHIVE"
+        elif evo_type == EvoType.UNDEFINED:
+            print "Research Object Status: UNDEFINED"
+    except ROSRS_Error as error:
+        return job_status(options, args, rosrs)
+    return 0
+    
 def add(progname, configbase, options, args):
     """
     Add files to a research object manifest
@@ -604,14 +668,76 @@ def annotations(progname, configbase, options, args):
     rometa.showAnnotations(annotations, sys.stdout)
     return 0
 
+def snapshot(progname, configbase, options, args):
+    """
+    Prepare a snapshot of live research object
+    snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    """
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rodir":          options.rodir or "",
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
+                                                                                      "Access token for ROSRS service: "),
+    }
+    if options.synchronous and options.asynchronous:
+        print "ambiguous call --synchronous and --asynchronous, choose one"
+        return 1;
+    if options.verbose:
+        to_print = "ro snapshot %(copy-from)s %(target)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
+        if options.synchronous:
+            to_print+=" --synchronous"
+        if options.asynchronous:
+            to_print+=" --asynchronous"
+        if options.freeze:
+            to_print+=" --freeze"
+        print to_print
+    return ro_evo.copy_operation(dict(vars(options).items() + ro_options.items()), args,"SNAPSHOT")
+
+def archive(progname, configbase, options, args):
+    """
+    Prepare an archive of live research object
+    archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    """
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
+                                                                                      "Access token for ROSRS service: "),
+    }
+    if options.synchronous and options.asynchronous:
+        print "ambiguous call --synchronous and --asynchronous, choose one"
+        return 1;
+    if options.verbose:
+        to_print = "ro archive %(copy-from)s %(target)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
+        if options.synchronous:
+            to_print+=" --synchronous"
+        if options.asynchronous:
+            to_print+=" --asynchronous"
+        if options.freeze:
+            to_print+=" --freeze"
+        print to_print
+    return ro_evo.copy_operation(dict(vars(options).items() + ro_options.items()), args, "ARCHIVE")
+
+def freeze(progname, configbase, options, args):
+    """
+    Freeze snapshot or archive
+    freeze <RO-id>
+    """
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
+        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
+                                                                                      "Access token for ROSRS service: "),
+    }
+    return ro_evo.freeze(dict(vars(options).items() + ro_options.items()), args)
+    
 def push_zip(progname, configbase, options, args):
     """
     push RO in zip format
     
     ro push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]    
     """
-    if options.verbose:
-        print "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(vars(options).items() + {'zip':args[2]}.items())
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
         "zip": args[2],
@@ -621,6 +747,8 @@ def push_zip(progname, configbase, options, args):
         "force":          options.force,
         "roId": args[2].replace(".zip", "").split("/")[-1]
         }
+    if options.verbose:
+        print "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'zip':args[2]}.items())
     
     rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
 

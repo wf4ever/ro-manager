@@ -12,6 +12,11 @@ import unittest
 import logging
 import datetime
 import StringIO
+from rocommand.test.TestConfig import ro_test_config
+from urlparse import urljoin
+from ROSRS_Session import ROSRS_Session
+from ro_evo import get_location
+from ro_utils import parse_job
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -219,9 +224,7 @@ class TestROSupport(unittest.TestCase):
             msg = msg or "Regexp didn't match"
             msg = '%s: %r not found in %r' % (msg, expected_regexp.pattern, text)
             raise self.failureException(msg)
-
-    # Sentinel/placeholder tests
-
+        
     def testUnits(self):
         assert (True)
 

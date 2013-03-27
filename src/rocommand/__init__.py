@@ -21,4 +21,4 @@
                              # Add ro dump command
                              # Ordering of checklist display
                              # Various display formatting enhancements
-__version__ = "0.2.11"      # ...
+__version__ = "0.2.11"      # Add RO evolution commands; ro snapshow, ro archive, ro freeze
