@@ -522,9 +522,10 @@ class ro_metadata(object):
     def queryAnnotations(self, query, initBindings={}):
         """
         Runs a query over the combined annotation graphs (including the manifest)
-        and returns True or False (for ASK queries) or a list of doctionaries of
+        and returns True or False (for ASK queries) or a list of dictionaries of
         query results (for SELECT queries).
         """
+        log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
         resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
@@ -534,6 +535,19 @@ class ro_metadata(object):
         else:
             assert False, "Unexpected query response type %s"%resp.type
         return None
+
+    def getAnnotationGraph(self):
+        """
+        Returns the combined annotation graphs (including the manifest)
+        """
+        return self._loadAnnotations()
+
+    def getAnnotationValue(self, resource, predicate):
+        """
+        Returns a single annotation value for a resource and the indicated predicate,
+        or None
+        """
+        return self._loadAnnotations().value(subject=resource, predicate=predicate, object=None)
 
     def showAnnotations(self, annotations, outstr):
         ro_annotation.showAnnotations(self.roconfig, self.getRoFilename(), annotations, outstr)
@@ -568,6 +582,12 @@ class ro_metadata(object):
         Returns type of resource whose URI is supplied
         """
         return self.getResourceValue(resource, RDF.type)
+
+    def hasResourceType(self, resource, rdfType):
+        """
+        Check if the resource whose URI is supplied has a provided RDF type.
+        """
+        return self.roManifestContains((resource, RDF.type, rdfType))
 
     def getRoMetadataDict(self):
         """

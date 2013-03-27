@@ -143,12 +143,14 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
-              , 'show':       None
+              , 'show':       "04 - aggregates data/UserRequirements-bio.ods"
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
+            , 'seq': "04 - aggregates data/UserRequirements-bio.ods"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],       [] )
@@ -178,12 +180,14 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       None
+              , 'show':       "05 - aggregates docs/missing.css"
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],       [MINIM.minimallySatisfies])
@@ -213,12 +217,14 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       None
+              , 'show':       "05 - aggregates docs/missing.css"
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
-            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
+            , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
         self.assertEquals(evalresult['summary'],        [MINIM.nominallySatisfies, MINIM.minimallySatisfies])
@@ -252,6 +258,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'show':       None
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
@@ -265,6 +272,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'show':       None
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -278,6 +286,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'show':       None
               , 'showpass':   None
               , 'showfail':   None
+              , 'showmiss':   None
               , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
@@ -363,10 +372,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             [ "Research Object file://%s/:"%(rodir)
             , "Minimally complete for create of resource docs/UserRequirements-bio.html"
             , "Unsatisfied SHOULD requirements:"
-            , "  Aggregates resource %s"%(rometa.getComponentUri("docs/missing.css"))
+            , "  05 - aggregates docs/missing.css"
             , "Satisfied requirements:"
-            , "  Aggregates resource %s"%(rometa.getComponentUri("data/UserRequirements-astro.ods")) 
-            , "  Environment 'python -V' matches 'Python 2.7'"
+            , "  01 - python 2.7"
+            , "  02 - aggregates data/UserRequirements-astro.ods"
             , "Research object URI:     %s"%(rometa.getRoUri())
             , "Minimum information URI: %s"%(minimuri)
             ])
@@ -384,11 +393,11 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         """
         # $RO annotate -v $TESTRO/simple-wf-wfdesc.rdf rdf:type wfdesc:Workflow
         args1 = [
-            "ro", "annotate", rodir+"/simple-wf-wfdesc.rdf", "rdf:type", "wfdesc:Workflow"
+            "ro", "annotate", rodir+"/make.sh", "rdf:type", "wfdesc:Workflow"
             ]
-        # $RO annotate -v $TESTRO/docs/mkjson.sh -g $TESTRO/simple-requirements-wfdesc.rdf
+        # $RO annotate -v $TESTRO/docs/mkjson.sh -g $TESTRO/simple-ef-wfdesc.rdf
         args2 = [
-            "ro", "annotate", rodir+"/docs/mkjson.sh", "-g", rodir+"/simple-requirements-wfdesc.rdf"
+            "ro", "annotate", rodir+"/docs/mkjson.sh", "-g", rodir+"/simple-wf-wfdesc.rdf"
             ]
         with StdoutContext.SwitchStdout(self.outstr):
             configdir = self.getConfigDir(testbase)
@@ -403,7 +412,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         return rodir
 
     def testEvaluateWfInputs(self):
-        # Test cases usiung content match rule
+        # Test cases using content match rule
         # Also tests constraint that is not directly linked to RO,
         # and use of designated target resource in probe query
         self.setupConfig()
@@ -484,6 +493,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             PREFIX ro:         <http://purl.org/wf4ever/ro#>
             PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
             PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
             PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
             PREFIX ore:        <http://www.openarchives.org/ore/terms/>
             PREFIX ao:         <http://purl.org/ao/>
@@ -506,6 +516,116 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         return
     
     # @@TODO Add test cases for liveness test
+
+    def testEvaluateMissing(self):
+        # Test cases using content 'forall' match rule with showmiss template
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-simple-wf", "RO test minim", "ro-testMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateWfRo(testbase, rodir)
+        rometa   = ro_metadata(ro_config, rodir)
+        minimuri = rometa.getComponentUri("simple-wf-minim.rdf")
+        # Evaluate
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , "simple-wf-minim.rdf"
+               , "Missing"
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: %s"%(status, outtxt))
+        # Check response returned
+        expect = (
+            [ "Research Object file://%s/:"%(rodir)
+            , "Incomplete for Missing of resource ."
+            , "Unsatisfied MUST requirements:"
+            , "  No workflow present with hens tooth"
+            , "Research object URI:     %s"%(rometa.getRoUri())
+            , "Minimum information URI: %s"%(minimuri)
+            ])
+        self.outstr.seek(0)
+        for line in self.outstr:
+            self.assertIn(str(line)[:-1], expect)
+        self.deleteTestRo(rodir)
+        return
+
+    def testEvaluateMissingRDF(self):
+        # repeat previous test case, but with RDF output
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-simple-wf", "RO test minim", "ro-testMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateWfRo(testbase, rodir)
+        rometa   = ro_metadata(ro_config, rodir)
+        minimuri = rometa.getComponentUri("simple-wf-minim.rdf")
+        # Evaluate
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , "-o", "rdfxml"
+               , "simple-wf-minim.rdf"
+               , "Missing"
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
+        # Check response returned
+        self.outstr.seek(0)
+        outgraph = rdflib.Graph()
+        outgraph.parse(self.outstr)
+        prefixes = """
+            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
+            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
+            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
+            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
+            PREFIX ro:         <http://purl.org/wf4ever/ro#>
+            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
+            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
+            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
+            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
+            PREFIX ao:         <http://purl.org/ao/>
+            PREFIX dcterms:    <http://purl.org/dc/terms/>
+            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
+            PREFIX minim:      <http://purl.org/minim/minim#>
+            PREFIX result:     <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
+            """
+        # @@TODO: add more probe queries here?
+        probequeries = (
+            [ "ASK { <%s> minim:minimUri <%s> }"%
+              (rometa.getRoUri(), minimuri)
+            , "ASK { <%s> minim:modelUri <%s> }"%
+              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model"))
+            , """ASK 
+              { <%(rouri)s> 
+                  minim:testedPurpose "Missing" ;
+                  minim:missingMust 
+                    [ minim:tryMessage "No workflow present with hens tooth" ;
+                      result:binding [ result:variable "_count" ; result:value 0 ]
+                    ]
+              }"""% { 'rouri': rometa.getRoUri() }
+          ])
+        for q in probequeries:
+            r = outgraph.query(prefixes+q)
+            self.assertEqual(r.type, 'ASK', "Result type %s for: %s"%(r.type, q))
+            self.assertTrue(r.askAnswer, "Failed query: %s"%(q))
+        self.deleteTestRo(rodir)
+        return
 
     # Test evaluation of remote resource
 
@@ -612,6 +732,8 @@ def getTestSuite(select="unit"):
             , "testEvaluateChecklistCommand"
             , "testEvaluateWfInputs"
             , "testEvaluateWfInputsRDF"
+            , "testEvaluateMissing"
+            , "testEvaluateMissingRDF"
             ],
         "component":
             [ "testComponents"

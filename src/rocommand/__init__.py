@@ -7,6 +7,17 @@
 #__version__ = "0.2.6"       # Enhacements to handling of directories and external references
 #__version__ = "0.2.7"       # Decouple MINIM constraints from target RO
                              # ROSRS (v6) support, support evaluation of RODL/ROSRS objects
-                             # new annotation and linking options, annotations with CURIE (QName) properties
+                             # new annotation and linking options, 
+                             # annotations with CURIE (QName) properties
                              # add ro remove command, fix URI escaping problems
-__version__ = "0.2.8"       # Optimize annotation access in ROSRS_Session
+#__version__ = "0.2.8"       # Optimize annotation access in ROSRS_Session
+                             # Add web services for rendering traffic light displays
+#__version__ = "0.2.9"       # Fix up experiment-workflow checklist
+__version__ = "0.2.10"      # Fix problem evaluating RO with space in URI
+                            # RDFReport add escaping support; escape quotes in JSON strings
+                            # Fix problem with URI liveness test
+                            # New RO must have ore:Aggregation class
+                            # Allow reporting of missing <forall> entries
+                            # Add ro dump command
+                            # Ordering of checklist display
+                            # Various display formatting enhancements

@@ -11,6 +11,7 @@ import os.path
 import re
 import urllib
 import urlparse
+import httplib
 import logging
 
 import ROSRS_Session
@@ -65,9 +66,32 @@ def isLiveUri(uriref):
     if isFileUri(fileuri):
         islive = os.path.exists(getFilenameFromUri(fileuri))
     else:
-        hs = ROSRS_Session.ROSRS_Session(uriref)
-        (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
-        islive = (status == 200)
+        parseduri = urlparse.urlsplit(uriref)
+        scheme    = parseduri.scheme
+        host      = parseduri.netloc
+        path      = parseduri.path
+        if parseduri.query: path += "?"+parseduri.query
+        httpcon   = httplib.HTTPConnection(host, timeout=5)
+        # Extra request headers
+        # ... none for now
+        # Execute request
+        try:
+            httpcon.request("HEAD", path)
+            response = httpcon.getresponse()
+            status   = response.status
+        except:
+            status   = 900
+        # Pick out elements of response
+        islive = (status >= 200) and (status <= 299)
+    # Original logic @@TODO remove this
+    if 0:
+        hc = ROSRS_Session.ROSRS_Session(uriref)
+        status = -1
+        try:
+            (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
+        except:
+            pass
+        islive = (status >= 200) and (status <= 299)
     return islive
 
 def retrieveUri(uriref):

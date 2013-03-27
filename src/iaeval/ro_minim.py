@@ -5,6 +5,7 @@ Research Object minimum information model access functions
 """
 
 import re
+import urllib
 import urlparse
 import logging
 
@@ -26,10 +27,10 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             , "derives", "reports", "isDerivedBy"
-            , "show", "showpass", "showfail"
+            , "show", "showpass", "showfail", "showmiss", "seq"
             , "aggregates"
             , "command", "response"
-            , "forall", "exists", "aggregatesTemplate", "isLiveTemplate"
+            , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             # Result properties
             , "satisfied", "missingMay", "missingShould", "missingMust"
@@ -87,7 +88,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     target       = target_ref and ro_manifest.getComponentUri(rouri, target_ref)
     log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
-    templatedict = {'targetro': str(rouri)}
+    templatedict = {'targetro': urllib.unquote(str(rouri))}
     for c in getConstraints(minimgraph):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
@@ -105,6 +106,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
                 return c    
             log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
             if target and c['target_t']:
+                log.debug("- expand %s"%(uritemplate.expand(c['target_t'], templatedict)))
                 if str(target) == uritemplate.expand(c['target_t'], templatedict):
                     # Target matches expanded template from constraint description
                     return c
@@ -140,7 +142,12 @@ def getRequirements(minimgraph, modeluri):
                 , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
+                , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
                 })
+            # Create field used for sorting checklist items
+            req['seq'] = str( minimgraph.value(subject=s, predicate=MINIM.seq) or
+                              rule['show'] or
+                              rule['showpass'] )
             ruletype = minimgraph.value(subject=ruleuri, predicate=RDF.type)
             if ruletype == MINIM.DataRequirementRule:
                 rule['aggregates']  = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregates)
@@ -151,6 +158,7 @@ def getRequirements(minimgraph, modeluri):
                 req['softwarerule'] = rule
             elif ruletype == MINIM.ContentMatchRequirementRule:
                 rule['forall']   = minimgraph.value(subject=ruleuri, predicate=MINIM.forall)
+                rule['orderby']  = minimgraph.value(subject=ruleuri, predicate=MINIM.orderby)
                 rule['exists']   = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
                 rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)

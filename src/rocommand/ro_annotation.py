@@ -92,6 +92,7 @@ annotationPrefixes = (
     , "roevo":     "http://purl.org/wf4ever/roevo#"
     , "wfdesc":    "http://purl.org/wf4ever/wfdesc#"
     , "wfprov":    "http://purl.org/wf4ever/wfprov#"
+    , "wf4ever":   "http://purl.org/wf4ever/wf4ever#"
     , "ex":        "http://example.org/ro/annotation#"
     })
 
@@ -462,10 +463,10 @@ def formatAnnotationValue(aval, atype):
     if atype == "resource" or isinstance(aval,rdflib.URIRef):
         return '<' + str(aval) + '>'
     if atype == "string":
-        return '"' + str(aval).replace('"', '\\"') + '"'
+        return '"' + unicode(aval).encode('utf-8').replace('"', '\\"') + '"'
     if atype == "text":
         # multiline
-        return '"""' + str(aval) + '"""'
+        return '"""' + unicode(aval).encode('utf-8') + '"""'
     if atype == "datetime":
         return '"' + str(aval) + '"'
     return str(aval)
@@ -473,8 +474,8 @@ def formatAnnotationValue(aval, atype):
 def showAnnotations(ro_config, ro_dir, annotations, outstr):
     sname_prev = None
     for (asubj,apred,aval) in annotations:
-        #log.debug("Annotations: asubj %s, apred %s, aval %s"%
-        #          (repr(asubj), repr(apred), repr(aval)))
+        # log.debug("Annotations: asubj %s, apred %s, aval %s"%
+        #           (repr(asubj), repr(apred), repr(aval)))
         if apred != ORE.aggregates:
             (aname, atype) = getAnnotationByUri(ro_config, apred)
             sname = ro_manifest.getComponentUriRel(ro_dir, str(asubj))

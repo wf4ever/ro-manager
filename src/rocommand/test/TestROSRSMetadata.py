@@ -187,6 +187,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, RDF.type,             RO.ResearchObject)
+            , (rouri, RDF.type,             ORE.Aggregation)
             , (rouri, RDF.type,             ROEVO.LiveRO)
             , (rouri, ORE.isDescribedBy,    romd.getComponentUriAbs(ro_test_config.ROMANIFESTPATH))
             #, (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
@@ -205,7 +206,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
                     count += 1
                 else:
                     self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
-        self.assertEqual(count,3)
+        self.assertEqual(count,len(expected_annotations))
         return
 
     def testQueryAnnotations(self):

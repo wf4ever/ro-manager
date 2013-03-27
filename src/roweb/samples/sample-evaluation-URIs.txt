@@ -1,22 +1,51 @@
-Trafficlight from local RO:
-http://localhost:8080/evaluate/trafficlight_html?RO=%2Fusr%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fgolden-exemplar-gk&minim=checklist-runnable.rdf&purpose=Runnable
-http://localhost:8080/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo/&minim=file:///usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf&purpose=Complete
+# Trafficlight from local RO:
 
-Trafficlight from RODL RO:
+## golden-exemplar-gk:
+http://localhost:8080/evaluate/trafficlight_html?RO=%2Fusr%2Fworkspace%2Fwf4ever-ro-catalogue%2Fv0.1%2Fgolden-exemplar-gk&minim=checklist-runnable.rdf&purpose=Runnable
+
+## Y2Demo:
+http://localhost:8080/evaluate/trafficlight_html?RO=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/Y2Demo/&minim=file:///usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf&purpose=ready-to-release
+
+## gwas_to_kegg_v1_MariaHettne:
+http://localhost:8080/evaluate/trafficlight_html?RO=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/gwas_to_kegg_v1_MariaHettne/&minim=file:///usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf&purpose=ready-to-release
+
+
+# Trafficlight from RODL RO:
+
 http://localhost:8080/evaluate/trafficlight_html?RO=http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2F&minim=checklist-runnable.rdf&purpose=Runnable
 
-Trafficlight from RODL RO using RODL service:
+## Y2Demo-test:
+http://localhost:8080/evaluate/trafficlight_html?RO=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/Y2Demo-test/&minim=file:///usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf&purpose=ready-to-release
+
+http://localhost:8080/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo/&minim=
+
+http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=Complete
+
+
+# Trafficlight from RODL RO using RODL service:
 http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2F&minim=checklist-runnable.rdf&purpose=Runnable
+
 http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/&minim=checklist-runnable.rdf&purpose=Runnable
-http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo/&minim=@@@@@@/Checklists/workflow-experiment/checklist.rdf&purpose=Complete
+
+## Y2Demo
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
+## gwas_to_kegg_v1_MariaHettne:
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/gwas_to_kegg_v1_MariaHettne/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
 
 
-
-
-
-Trafficlight JSON from RODL RO using RODL service:
+# Trafficlight JSON from RODL RO using RODL service:
 http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/&minim=checklist-runnable.rdf&purpose=Runnable
 
-Minim absolute URI:
+# Minim absolute URI:
 http%3A%2F%2Fsandbox.wf4ever-project.org%2Frodl%2FROs%2Fgolden-exemplar-gk%2Fchecklist-runnable.rdf
 http://sandbox.wf4ever-project.org/rodl/ROs/golden-exemplar-gk/checklist-runnable.rdf
+
+# Liveness testing with non-responsive web service
+
+http://sandbox.wf4ever-project.org/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
+http://localhost:8080/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+
+http://calatola.man.poznan.pl/roevaluate/evaluate/trafficlight_json?RO=http://sandbox.wf4ever-project.org/rodl/ROs/myExpRO_2495/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release
+

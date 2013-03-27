@@ -54,6 +54,7 @@ prefixes = """
     PREFIX ro:      <http://purl.org/wf4ever/ro#>
     PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
     PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
+    PREFIX wf4ever: <http://purl.org/wf4ever/wf4ever#>
     PREFIX minim:   <http://purl.org/minim/minim#>
     PREFIX result:  <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
     PREFIX ex:      <http://example.org/terms/>
@@ -120,6 +121,38 @@ class TestRdfReport(unittest.TestCase):
         rdfgraph.parse(simple_test_data)
         RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
+        return
+
+    def testSimpleQuotedJson(self):
+        """
+        Test JSON quoting in simple report
+        """
+        report = (
+            { 'report':
+              { 'query':  prefixes+"SELECT * WHERE { ?s ex:quoteme ?quoteme }"
+              , 'output': "Hello %(quoteme_esc)s" }
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(simple_test_data)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr, RdfReport.escape_json)
+        self.assertEqual("""Hello <\\\"Graham\\">""", outstr.getvalue())
+        return
+
+    def testSimpleQuotedHtml(self):
+        """
+        Test HTML quoting in simple report
+        """
+        report = (
+            { 'report':
+              { 'query':  prefixes+"SELECT * WHERE { ?s ex:quoteme ?quoteme }"
+              , 'output': "Hello %(quoteme_esc)s" }
+            })
+        outstr   = StringIO.StringIO()
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(simple_test_data)
+        RdfReport.generate_report(report, rdfgraph, {}, outstr, RdfReport.escape_html)
+        self.assertEqual("""Hello &lt;"Graham"&gt;""", outstr.getvalue())
         return
 
     def testQueryResultMerge(self):
@@ -486,7 +519,8 @@ class TestRdfReport(unittest.TestCase):
           [ ''''''
           , '''{ "rouri":                  "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "roid":                   "simple-requirements"'''
-          , ''', "description":            "A simple test RO"'''
+          , ''', "title":                  "A simple test RO"'''
+          , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
@@ -496,9 +530,9 @@ class TestRdfReport(unittest.TestCase):
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -526,17 +560,17 @@ class TestRdfReport(unittest.TestCase):
         RdfReport.generate_report(TrafficLightReports.EvalItemHtml, rdfgraph, initvars, outstr)
         expected = (
             [ ''
-            , '''<tr>'''
+            , '''<tr class="sub_result">'''
             , '''<td></td>'''
+            , '''<td class="trafficlight small fail should"><div/></td>'''
             , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
               (rouristr, rouristr)
-            , '''<td class="trafficlight small fail should"><div/></td>'''
             , '''</tr>'''
             ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -558,25 +592,27 @@ class TestRdfReport(unittest.TestCase):
           , '''<body>'''
           , '''<div class="Container">'''
           , '''<div class="header">'''
-          , '''Research object <a href="%s">simple-requirements</a>'''%(rouristr)
+          , '''A simple test RO'''
           , '''</div>'''
-          , '''<p>A simple test RO</p>'''
+          , '''<div class="content">'''
+          , '''<div class="sub_header">A simple RO used for testing traffic light display.</div>'''
           , '''<div class="body">'''
           , '''<table>'''
-          , '''<tr>'''
+          , '''<thead>'''
+          , '''<tr class="main_result">'''
+          , '''<th class="trafficlight large fail should"><div/></th>'''
           , '''<th colspan="2">Target <span class="target">'''
           , '''<a href="%s">simple-requirements</a></span>'''%(rouristr)
           , '''<span class="testresult">minimally satisfies</span> checklist for'''
           , '''<span class="testpurpose">Runnable</span>.'''
           # , '''<p>This Research Object @@TODO.</p>'''
           , '''</th>'''
-          , '''<th class="trafficlight large fail should"><div/></th>'''
           , '''</tr>'''
           ])
         result = outstr.getvalue()
-        # print "\n-----"
-        # print result
-        # print "-----"
+        #print "\n-----"
+        #print result
+        #print "-----"
         resultlines = result.split('\n')
         for i in range(len(expected)):
             # Skip 1st 8 lines of generated HTML:
@@ -616,6 +652,8 @@ def getTestSuite(select="unit"):
             , "testNull"
             , "testHelloWorld"
             , "testSimpleQuery"
+            , "testSimpleQuotedJson"
+            , "testSimpleQuotedHtml"
             , "testQueryResultMerge"
             , "testQueryResultPreBinding"
             , "testSequence"

@@ -51,7 +51,7 @@ def evaluate(rometa, minim, target, purpose):
     
     The function returns a pair of values (minimgraph, evalresult)
     
-    minimgraph is a cpy of the minim graph on which the evaluation was based.
+    minimgraph is a copy of the minim graph on which the evaluation was based.
     
     The evalresult indicates a summary and details of the analysis; e.g.
       { 'summary':        [MINIM.fullySatisfies, MINIM.nominallySatisfies, MINIM.minimallySatisfies]
@@ -75,9 +75,11 @@ def evaluate(rometa, minim, target, purpose):
         roid = str(rouri)
         if roid.endswith('/'): roid = roid[0:-1]
         roid = roid.rpartition('/')[2]
-    rodesc       = ( rometa.getResourceValue(rouri, DCTERMS.description) or
-                     rometa.getResourceValue(rouri, DCTERMS.title) or
-                     roid )
+    rotitle      = ( rometa.getAnnotationValue(rouri, DCTERMS.title) or 
+                     rometa.getAnnotationValue(rouri, RDFS.label) or
+                     roid
+                   )
+    rodesc       = rometa.getAnnotationValue(rouri, DCTERMS.description) or rotitle
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
@@ -92,7 +94,7 @@ def evaluate(rometa, minim, target, purpose):
     # Evaluate the individual model requirements
     reqeval = []
     for r in requirements:
-        log.info("evaluate: %s %s"%(r['level'],str(r['uri'])))
+        log.info("evaluate: %s %s %s"%(r['level'],str(r['uri']),r['seq']))
         if 'datarule' in r:
             # @@TODO: factor to separate function?
             #         (This is a deprecated form, as it locks the rule to a particular resource)
@@ -131,6 +133,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'satisfied':      []
         , 'rouri':          rouri
         , 'roid':           roid
+        , 'title':          rotitle
         , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
@@ -175,7 +178,8 @@ def evalResultGraph(graph, evalresult):
     rouri     = rdflib.URIRef(evalresult['rouri'])
     targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
     graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
-    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
     graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
@@ -198,6 +202,8 @@ def evalResultGraph(graph, evalresult):
                 graph.add( (b,  RESULT.binding,  b2) )
                 graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
                 graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
+                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
     addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
     addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
     addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
@@ -223,6 +229,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         PREFIX ro:         <http://purl.org/wf4ever/ro#>
         PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
         PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
+        PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
         PREFIX roterms:    <http://purl.org/wf4ever/roterms#>
         PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
         PREFIX ore:        <http://www.openarchives.org/ore/terms/>
@@ -233,7 +240,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         %(queryverb)s
         {
           %(querypattern)s
-        }
+        } %(queryorder)s
         """
     satisfied     = True
     simplebinding = constraintbinding.copy()
@@ -247,8 +254,9 @@ def evalContentMatch(rometa, rule, constraintbinding):
         if template:  template = str(template).strip()
         if islive:    islive   = str(islive).strip()
         queryparams = (
-            { 'queryverb': "SELECT * WHERE"
+            { 'queryverb':    "SELECT * WHERE"
             , 'querypattern': rule['forall']
+            , 'queryorder':   rule['orderby'] or ""
             })
         query = querytemplate%queryparams
         log.debug(" - forall query: "+query)
@@ -256,6 +264,9 @@ def evalContentMatch(rometa, rule, constraintbinding):
         # resp  = rometa.queryAnnotations(query, initBindings=constraintbinding)
         resp  = rometa.queryAnnotations(query)
         log.debug(" - forall resp: "+repr(resp))
+        simplebinding['_count'] = len(resp)
+        if len(resp) == 0 and rule['showmiss']:
+            satisfied = False
         for binding in resp:
             satisfied = False
             # Extract keys and values from query result to return with result
@@ -263,6 +274,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
             for k in binding:
                 if not isinstance(k,rdflib.BNode):
                     simplebinding[str(k)] = str(binding[k])
+                    simplebinding['_count'] = len(resp)
                     # @@TODO remove this when rdflib bug resolved 
                     if str(k) in ['if', 'of'] and str(binding[k])[:5] not in ["file:","http:"]:
                         # Houston, we have a problem...
@@ -278,6 +290,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
                 existsparams = (
                     { 'queryverb': "ASK"
                     , 'querypattern': exists
+                    , 'queryorder':   ""
                     })
                 query = querytemplate%existsparams
                 log.debug("evalContentMatch RO test exists: \nquery: %s \nbinding: %s"%
@@ -305,6 +318,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
         queryparams = (
             { 'queryverb': "ASK"
             , 'querypattern': rule['exists']
+            , 'queryorder':   ""
             })
         query = querytemplate%queryparams
         log.debug("- query %s"%(query))
@@ -365,7 +379,8 @@ def formatRule(satisfied, rule, bindings):
     """
     Format a rule for a missing/satisfied report
     """
-    templateindex = "showpass" if satisfied else "showfail"
+    templateoverride = None
+    # Pick up details from rule used
     if 'datarule' in rule:
         ruledict = rule['datarule']
         templatedefault = "Aggregates resource %(aggregates)s"
@@ -374,14 +389,30 @@ def formatRule(satisfied, rule, bindings):
         templatedefault = "Environment '%(command)s' matches '%(response)s'"
     elif 'contentmatchrule' in rule:
         ruledict = rule['contentmatchrule']
-        if ruledict['exists']:
+        if ruledict['forall']:
+            if bindings['_count'] == 0 and ruledict["showmiss"]:
+                templateoverride = ruledict["showmiss"]
+            if ruledict['exists']:
+                templatedefault = "Match %(exists)s for each matching %(forall)s"
+            elif ruledict['template']:
+                templatedefault = "Aggregate %(template)s for each matching %(forall)s"
+            elif ruledict['islive']:
+                templatedefault = "Liveness of %(template)s for each matching %(forall)s"
+            else:
+                templatedefault = "Unknown test for each matching %(forall)s"
+        elif ruledict['exists']:
             templatedefault = "Match for %(exists)s"
         else:
-            templatedefault = "Aggregate %(template)s for matching %(forall)s"
+            templatedefault = "Unknown content match rule (no forall or exists)"
     else:
         ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
         templatedefault = "Unrecognized rule: %(rule)s"
-    template = ruledict[templateindex] or ruledict["show"] or templatedefault
+    # Select and apply formatting template
+    if satisfied:
+        template = ruledict["showpass"]
+    else:
+        template = ruledict["showfail"]
+    template = templateoverride or template or ruledict["show"] or templatedefault
     bindings.update(ruledict)
     return template%bindings
 

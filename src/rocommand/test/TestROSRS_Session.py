@@ -214,7 +214,8 @@ class TestROSRS_Session(unittest.TestCase):
         (status, reason, proxyuri, resuri) = self.rosrs.aggregateResourceExt(
             rouri, externaluri)
         self.assertEqual(status, 201)
-        # GET proxy (note: using rdfliob.URIRef for path)
+        self.assertEqual(resuri, externaluri)
+        # GET proxy (note: using rdflib.URIRef for path)
         (getproxyuri, manifest) = self.rosrs.getROResourceProxy(
             externaluri, rouri)
         self.assertEqual(getproxyuri, proxyuri)

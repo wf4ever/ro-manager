@@ -512,7 +512,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
           ])
         c = 0
         for r in romd.getAggregatedResources():
-            if romd.getResourceType(r) != RO.AggregatedAnnotation:
+            if not romd.hasResourceType(r, RO.AggregatedAnnotation):
                 c += 1
                 self.assertIn(r, resources)
         self.assertEqual(c, len(resources))

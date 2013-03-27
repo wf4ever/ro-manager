@@ -33,7 +33,27 @@ import rdflib
 
 log = logging.getLogger(__file__)
 
-def generate_report(repdefn, rdfgraph, initvars, outstr):
+def escape_json(val):
+    """
+    Applies appropriate escaping to the supplied value to allow it to be included in a JSON string result.
+    """
+    return val.replace('"', '\\"')
+
+def escape_html(val):
+    """
+    Applies appropriate escaping to the supplied value to allow it to be included in HTML element text.
+    """
+    # Also consider: 
+    #   http://stackoverflow.com/questions/1061697/whats-the-easiest-way-to-escape-html-in-python
+    return val.replace('<','&lt;').replace('>','&gt;')
+
+def escape_none(val):
+    """
+    Applies no escaping to the supplied value.
+    """
+    return val
+
+def generate_report(repdefn, rdfgraph, initvars, outstr, escape=escape_none):
     """
     Generates a report defined to the supplied output stream.
     
@@ -44,12 +64,14 @@ def generate_report(repdefn, rdfgraph, initvars, outstr):
     initvars    an initial set of variable bindings that are fed into the
                 report generation query process
     outstr      a stream to which the report is written
+    escape      a function that escapes characters in strings used to fill
+                the template
     """
     item = repdefn['report']
-    process_item(repdefn['report'], rdfgraph, initvars, outstr)
+    process_item(repdefn['report'], rdfgraph, initvars, outstr, escape)
     return
 
-def process_item(repitem, rdfgraph, initvars, outstr):
+def process_item(repitem, rdfgraph, initvars, outstr, escape):
     """
     Processes a report template item to the supplied output stream.
     
@@ -59,16 +81,18 @@ def process_item(repitem, rdfgraph, initvars, outstr):
     initvars    an initial set of variable bindings that are fed into the
                 report generation query process
     outstr      a stream to which the report is written
+    escape      a function that escapes characters in strings used to fill
+                the template
     """
     log.debug("process_item: repitem:  "+repr(repitem))
     log.debug("              initvars: "+repr(initvars))
     if isinstance(repitem, dict):
         # Single query template
-        process_query(repitem, rdfgraph, initvars, outstr)
+        process_query(repitem, rdfgraph, initvars, outstr, escape)
     elif isinstance(repitem, collections.Iterable):
         # Iterable list of items - apply each
         for q in repitem:
-            process_query(q, rdfgraph, initvars, outstr)
+            process_query(q, rdfgraph, initvars, outstr, escape)
     else:
         raise "Unexpected value for report template item %s"%(repr(repitem))
     return
@@ -81,7 +105,7 @@ def takefirst(n, iter):
         yield i
     return
 
-def process_query(qitem, rdfgraph, initvars, outstr):
+def process_query(qitem, rdfgraph, initvars, outstr, escape):
     """
     Process a single query+template structure
     """
@@ -117,18 +141,19 @@ def process_query(qitem, rdfgraph, initvars, outstr):
         newbinding = initvars.copy()
         for k in b:
             if not isinstance(k,rdflib.BNode):
-                newbinding[str(k)] = b[k]
+                newbinding[str(k)]        = b[k]
+                newbinding[str(k)+"_esc"] = escape(b[k])
         if nextsep:
             outstr.write(nextsep%newbinding)
         if output:
             outstr.write(output%newbinding)
         if report:
-            process_item(report, rdfgraph, newbinding, outstr)
+            process_item(report, rdfgraph, newbinding, outstr, escape)
         usealt  = False
         nextsep = sep
     if usealt:
         if altrep:
-            process_item(altrep, rdfgraph, initvars, outstr)
+            process_item(altrep, rdfgraph, initvars, outstr, escape)
         if alt:
             outstr.write(alt%initvars)
     return

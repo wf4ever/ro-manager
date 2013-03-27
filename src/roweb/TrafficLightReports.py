@@ -49,6 +49,7 @@ sparql_prefixes = """
     PREFIX ro:      <http://purl.org/wf4ever/ro#>
     PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
     PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
+    PREFIX wf4ever: <http://purl.org/wf4ever/wf4ever#>
     PREFIX minim:   <http://purl.org/minim/minim#>
     PREFIX result:  <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
     """
@@ -190,7 +191,7 @@ EvalItemJson = (
       [
         { 'output':
             '''\n    { "itemuri":        "%(itemuri)s"'''+
-            '''\n    , "itemlabel":      "%(itemlabel)s"'''+
+            '''\n    , "itemlabel":      "%(itemlabel_esc)s"'''+
             '''\n    , "itemlevel":      "%(itemlevel)s" '''
         , 'alt':  '''\n    *** no match for message/label ***'''
         , 'query': sparql_prefixes+
@@ -267,18 +268,20 @@ EvalChecklistJson = (
       [ { 'output':
             '''\n{ "rouri":                  "%(rouri)s"'''+
             '''\n, "roid":                   "%(roid)s"'''+
-            '''\n, "description":            "%(description)s"'''+
+            '''\n, "title":                  "%(title_esc)s"'''+
+            '''\n, "description":            "%(description_esc)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
-            '''\n, "checklisttargetlabel":   "%(targetlabel)s"'''+
+            '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
             '''\n, "checklistpurpose":       "%(purpose)s"'''
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:title ?title ;
                 dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
@@ -321,8 +324,10 @@ EvalChecklistJson = (
               """
               SELECT ?itemuri ?itemlevel ?modeluri WHERE
               { ?modeluri ?itemlevel ?itemuri .
-                ?itemuri a minim:Requirement .
+                ?itemuri a minim:Requirement ;
+                         minim:seq ?itemseq .
               }
+              ORDER BY ?itemseq
               """
             }
           , { 'output':
@@ -339,8 +344,8 @@ EvalChecklistJson = (
 #
 #           <tr>
 #             <td></td>
-#             <td>Workflow is present</td>
 #             <td class="trafficlight small pass must"><div/></td>
+#             <td>Workflow is present</td>
 #           </tr>
 #
 # Assumed incoming bindings:
@@ -354,21 +359,9 @@ EvalItemHtml = (
     { 'report':
       [
         { 'output':
-            '''\n          <tr>'''+
+            '''\n          <tr class="sub_result">'''+
             '''\n            <td></td>'''+
             ''''''
-        }
-      , { 'output':
-            '''\n            <td>%(itemlabel)s</td>'''
-        , 'alt':  
-            '''\n            <td>*** no match for message/label ***</td>'''
-        , 'query': sparql_prefixes+
-            """
-            SELECT * WHERE
-            {
-              ?s minim:tryRequirement ?itemuri ;
-                 minim:tryMessage ?itemlabel .
-            }"""
         }
       , { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
         , 'output':     '''\n            <td class="trafficlight small pass"><div/></td>'''
@@ -381,6 +374,18 @@ EvalItemHtml = (
             , 'alt':    '''\n            <td class="trafficlight small fail must"><div/></td>'''
             }
           }
+        }
+      , { 'output':
+            '''\n            <td>%(itemlabel)s</td>'''
+        , 'alt':  
+            '''\n            <td>*** no match for message/label ***</td>'''
+        , 'query': sparql_prefixes+
+            """
+            SELECT * WHERE
+            {
+              ?s minim:tryRequirement ?itemuri ;
+                 minim:tryMessage ?itemlabel .
+            }"""
         }
       , { 'output':
             '''\n          </tr>'''+
@@ -415,6 +420,7 @@ EvalItemHtml = (
 #       <div class="body">
 #         <table>
 #           <tr>
+#             <th class="trafficlight large fail should"><div/></th>
 #             <th colspan="2">Target 
 #               <span class="target">
 #                 <a href="(Research-object-URI)">simple-requirements</a>
@@ -423,7 +429,6 @@ EvalItemHtml = (
 #               <span class="testpurpose">Runnability</span>.
 #               <p>This Research Object might not be runnable.</p>
 #             </th>
-#             <th class="trafficlight large fail should"><div/></th>
 #           </tr>
 #            :
 #           (checklist items here)
@@ -466,10 +471,11 @@ EvalChecklistHtml = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
             {
               ?rouri
                 dcterms:identifier ?roid ;
+                dcterms:title ?title ;
                 dcterms:description ?description ;
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
@@ -483,64 +489,80 @@ EvalChecklistHtml = (
                 '''\n  <body>'''+
                 '''\n    <div class="Container">'''+
                 '''\n      <div class="header">'''+
-                '''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
+                '''\n        %(title_esc)s'''+
+                #'''\n        Research object <a href="%(rouri)s">%(roid)s</a>'''+
                 '''\n      </div>'''+
-                '''\n      <p>%(description)s</p>'''+
-                '''\n      <div class="body">'''+
-                '''\n        <table>'''+
-                '''\n          <tr>'''+
-                '''\n            <th colspan="2">Target <span class="target">'''+
-                '''\n              <a href="%(target)s">%(targetlabel)s</a></span> '''+
-                ''''''
-            }
-          , { 'output':
-                '''\n              <span class="testresult">'''
-            }
-          , { 'report': EvalTargetResultLabel
-            }
-          , { 'output':
-                '''</span> checklist for '''+
-                '''\n              <span class="testpurpose">%(purpose)s</span>.'''+
-                '''\n            </th>'''+
-                ''''''
+                '''\n      <div class="content">'''+
+                '''\n        <div class="sub_header">%(description_esc)s</div>'''+
+                '''\n        <div class="body">'''+
+                '''\n          <table>'''+
+                '''\n            <thead>'''+
+                '''\n              <tr class="main_result">'''
             }
           , { 'report':
               { 'output':
-                  '''\n            <th class="trafficlight large pass"><div/></th>'''
+                  '''\n                <th class="trafficlight large pass"><div/></th>'''
               , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
               , 'altreport':
                 { 'output':
-                    '''\n            <th class="trafficlight large fail may"><div/></th>'''
+                    '''\n                <th class="trafficlight large fail may"><div/></th>'''
               , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
                 , 'altreport':
                   { 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
                   , 'output':
-                      '''\n            <th class="trafficlight large fail should"><div/></th>'''
+                      '''\n                <th class="trafficlight large fail should"><div/></th>'''
                   , 'alt':
-                      '''\n            <th class="trafficlight large fail must"><div/></th>'''
+                      '''\n                <th class="trafficlight large fail must"><div/></th>'''
                   }
                 }
               }
             }
           , { 'output':
-                '''\n          </tr>'''+
+                '''\n                <th colspan="2">Target <span class="target">'''+
+                '''\n                  <a href="%(target)s">%(roid)s</a></span> '''+
+                ''''''
+            }
+          , { 'output':
+                '''\n                  <span class="testresult">'''
+            }
+          , { 'report': EvalTargetResultLabel
+            }
+          , { 'output':
+                '''</span> checklist for '''+
+                '''\n                  <span class="testpurpose">%(purpose)s</span>.'''+
+                '''\n                </th>'''+
+                ''''''
+            }
+          , { 'output':
+                '''\n              </tr>'''+
+                '''\n            </thead>'''+
+                ''''''
+            }
+          , { 'output':
+                '''\n            <tbody class="result_detail">'''+
                 ''''''
             }
           , { 'report': EvalItemHtml
             , 'query': sparql_prefixes+
               """
-              SELECT ?itemuri ?itemlevel ?modeluri WHERE
+              SELECT ?itemuri ?itemseq ?itemlevel ?modeluri WHERE
               { ?modeluri ?itemlevel ?itemuri .
-                ?itemuri a minim:Requirement .
+                ?itemuri a minim:Requirement ;
+                         minim:seq ?itemseq .
               }
+              ORDER BY ?itemseq
               """
             }
           , { 'output':
-                '''\n        </table>'''+
-                '''\n      </div>'''+
-                '''\n      <div class="footer">'''+
-                '''\n        <hr/>'''+
-                '''\n        <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>'''+
+                '''\n            </tbody>'''+
+                ''''''
+            }
+          , { 'output':
+                '''\n          </table>'''+
+                '''\n        </div>'''+
+                '''\n        <div class="footer">'''+
+                '''\n          <div><b><a href="http://www.wf4ever-project.org">Wf4Ever project</a></b></div>'''+
+                '''\n        </div>'''+
                 '''\n      </div>'''+
                 '''\n    </div>'''+
                 '''\n  </body>'''+
