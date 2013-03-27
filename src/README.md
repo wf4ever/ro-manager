@@ -278,6 +278,22 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for V0.2.10
+
+* Fix problem evaluating RO with space in URI
+* RDFReport add escaping support; escape quotes in JSON strings
+* Fix problem with URI liveness test
+* New RO must have ore:Aggregation class
+* Allow reporting of missing <forall> entries
+* Add ro dump command
+* Ordering of checklist display
+* Various display formatting enhancements
+
+### Changes for V0.2.9
+
+* Fix up experiment-workflow checklist
+
+
 ### Changes for V0.2.8
 
 * Web services to return checklist result as HTML or JSON for rendering by Javascript
@@ -289,7 +305,7 @@ The output should look something like this:
 
 ### Changes for V0.2.7
 
-* Add `ro remove` command, fix URI escaping problems that werer occurring when an RO was created from files containing space or '#' characters
+* Add `ro remove` command, fix URI escaping problems that were occurring when an RO was created from files containing space or '#' characters
 * Add `ro link` command; this works just like `ro annotate`, except that the default treatment of the target value (i.e. for unrecognized annotation types) is as a URI, this providing a mechanism to create arbitrary links between RO resources, or between an RO resource and an external resource.
 * Allow annotation and links  with CURIE (QName) properties.  A predefined set of recognized URI prefixes are defined (see `~/.ro-config`) which can be used to create annotations with CURIES; e.g. `ro link foo rdfs:seeAlso bar`.
 * Create multiple annotations and links with wildcard resource matching; e.g. `ro link -w "/workflow/.*t2flow$" rdf:type wfdesc:Workflow" will create an rdf:type wfdesc:Workflow link for all aggregated resources in a directory named "/Workflow" and with file extension ".t2flow".
