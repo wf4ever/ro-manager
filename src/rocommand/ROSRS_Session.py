@@ -354,7 +354,7 @@ class ROSRS_Session(object):
             accept="application/rdf+xml")
         if status in [204, 404]:
             return (status, reason)
-        raise self.error("Error deleting RO", "%03d %s"%(status, reason))
+        raise self.error("Error deleting RO", "%03d %s (%s)"%(status, reason, str(rouri)))
 
     def getROResource(self, resuriref, rouri=None, accept=None, reqheaders=None):
         """
