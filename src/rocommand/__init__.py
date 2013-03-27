@@ -13,11 +13,12 @@
 #__version__ = "0.2.8"       # Optimize annotation access in ROSRS_Session
                              # Add web services for rendering traffic light displays
 #__version__ = "0.2.9"       # Fix up experiment-workflow checklist
-__version__ = "0.2.10"      # Fix problem evaluating RO with space in URI
-                            # RDFReport add escaping support; escape quotes in JSON strings
-                            # Fix problem with URI liveness test
-                            # New RO must have ore:Aggregation class
-                            # Allow reporting of missing <forall> entries
-                            # Add ro dump command
-                            # Ordering of checklist display
-                            # Various display formatting enhancements
+#__version__ = "0.2.10"      # Fix problem evaluating RO with space in URI
+                             # RDFReport add escaping support; escape quotes in JSON strings
+                             # Fix problem with URI liveness test
+                             # New RO must have ore:Aggregation class
+                             # Allow reporting of missing <forall> entries
+                             # Add ro dump command
+                             # Ordering of checklist display
+                             # Various display formatting enhancements
+__version__ = "0.2.11"      # ...
