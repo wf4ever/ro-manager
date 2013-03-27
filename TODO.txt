@@ -37,19 +37,21 @@ Other functions:
 - display serialization of manifest graph (? - as well as annotations)
 
 Technical debt:
+- try new rdflib SPARQL processor as drop-in for rdfextras 
 - Mop up @@TODOs
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
-- refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to shoe this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
+- refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to show this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
 - refactor minim so that checklist ordering is defined by model, not rules
 - remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
-- try new rdflib SPARQL processor as drop-in for rdfextras 
 - new test cases for evaluation
 - Check out rdflib sparql query bnode bug - is it fixed?
   (It was fixed, but a similar problem with query parameter ordering has been found.)
   (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
+- role of onresource / onresourcetemplate in constraint is unclear (to me!)
+
 
 ----
 
