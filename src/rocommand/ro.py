@@ -59,6 +59,12 @@ def run(configbase, options, args):
         status = ro_command.push(progname, configbase, options, args)
     elif args[1] == "dump":
         status = ro_command.dump(progname, configbase, options, args)
+    elif args[1] == "snapshot":
+        status = ro_command.snapshot(progname, configbase, options, args)
+    elif args[1] == "archive":
+        status = ro_command.archive(progname, configbase, options, args)        
+    elif args[1] == "freeze":
+        status = ro_command.freeze(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2
@@ -139,6 +145,21 @@ def parseCommandArgs(argv):
                       dest="debug",
                       default=False,
                       help="display debug output")
+    parser.add_option("--synchronous",
+                      action="store_true",
+                      dest="synchronous",
+                      default=False,
+                      help="perform operation in synchronous mode")
+    parser.add_option("--asynchronous",
+                      action="store_true",
+                      dest="asynchronous",
+                      default=False,
+                      help="perform operation in asynchronous mode")
+    parser.add_option("--freeze",
+                      action="store_true",
+                      dest="freeze",
+                      default=False,
+                      help="snaphot/archive and freeze in one step")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")

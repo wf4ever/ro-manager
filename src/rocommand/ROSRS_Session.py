@@ -6,10 +6,16 @@ import json # Used for service/resource info parsing
 import re   # Used for link header parsing
 import httplib
 import urlparse
-import rdflib, rdflib.graph
+import rdflib.graph
 import logging
 
-from ro_namespaces import RDF, ORE, RO, AO, DCTERMS
+from ro_namespaces import RDF, ORE, RO, AO, ROEVO
+from rdflib.term import URIRef
+from ro_utils import EvoType
+from httplib2 import Http
+from xml.dom import minidom
+from urlparse import urljoin
+import time
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -210,6 +216,11 @@ class ROSRS_Session(object):
                     value=uriparts.netloc,
                     srsuri=self._srsuri)
         path = uriparts.path
+        """
+        print "path:"
+        print path
+        print "*******"
+        """
         if uriparts.query: path += "?"+uriparts.query
         # Assemble request headers
         if not reqheaders:
@@ -734,7 +745,50 @@ class ROSRS_Session(object):
         return (status, reason, updateuri)
 
     def getROEvolution(self, rouri):
-        assert False, "@@TODO"
-        return (status, reason, evogr)
-
+        #if len(rouri.split(self._srsuri))>1:
+            #rouri = rouri.split(self._srsuri)[-1]
+        (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml")
+        if manifest_status == 404:
+            return (manifest_status, manifest_reason, manifest_data, None)
+        (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=rouri, accept="application/rdf+xml")
+        if manifest_status == 404 or not "link" in manifest_headers:
+            if manifest_status == 401:
+                print "Unauthorised operation"
+                return None
+            return (manifest_status, manifest_reason, manifest_data, None)
+        parssed_header_uri =  manifest_headers["link"].split(">; rel=")[0][1:]
+        (evolution_status, evolution_reason, evolution_headers, evolution_data) = self.doRequest(uripath=parssed_header_uri,accept="text/turtle")
+        if evolution_status == 404:
+            return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
+        graph = rdflib.Graph()
+        graph.parse(data=evolution_data, format="n3")
+        try:
+            (graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)),ROEVO.isFinalized)).next()
+            return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
+        except StopIteration  as error:            
+            try:
+                return (evolution_status, evolution_reason, evolution_data, self.checkType(graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type)))
+            except StopIteration  as error:
+                return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
+            
+    def checkType(self,graph_objects): 
+        for rdf_class in graph_objects:
+           if rdf_class == ROEVO.LiveRO:
+               return EvoType.LIVE
+           if rdf_class == ROEVO.SnapshotRO:
+               return EvoType.SNAPSHOT
+           if rdf_class == ROEVO.ArchivedRO: 
+               return EvoType.ARCHIVE
+        return EvoType.UNDEFINED
+            
+    def getJob(self, rouri):
+        h = Http()
+        DOMTree = minidom.parseString(h.request(rouri)[-1])
+        cNodes = DOMTree.childNodes
+        status =  cNodes[0].getElementsByTagName("status")[0].childNodes[0].toxml()
+        target =  cNodes[0].getElementsByTagName("target")[0].childNodes[0].toxml()
+        finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
+        type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
+        return (status,target,finalize,type)
+            
 # End.

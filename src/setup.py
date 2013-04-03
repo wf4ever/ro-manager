@@ -69,7 +69,7 @@ setup(
         "Programming Language :: Python",
         ],
     zip_safe=False,
-    install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2"],
+    install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2", "httplib2"],
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
