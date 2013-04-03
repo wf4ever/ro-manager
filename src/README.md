@@ -278,6 +278,11 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for V0.2.11
+
+* Add RO evolution commands; ro snapshow, ro archive, ro freeze
+
+
 ### Changes for V0.2.10
 
 * Fix problem evaluating RO with space in URI
@@ -288,6 +293,7 @@ The output should look something like this:
 * Add ro dump command
 * Ordering of checklist display
 * Various display formatting enhancements
+
 
 ### Changes for V0.2.9
 
