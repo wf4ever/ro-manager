@@ -216,11 +216,6 @@ class ROSRS_Session(object):
                     value=uriparts.netloc,
                     srsuri=self._srsuri)
         path = uriparts.path
-        """
-        print "path:"
-        print path
-        print "*******"
-        """
         if uriparts.query: path += "?"+uriparts.query
         # Assemble request headers
         if not reqheaders:
