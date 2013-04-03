@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-import sys, unittest
+import sys, unittest, os
 
 if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
@@ -18,14 +18,15 @@ import TestManifest
 import TestROMetadata
 import TestAnnotations
 import TestLinks
-import TestMinimAccess
-import TestEvalChecklist
 import TestROSRS_Session
 import TestROSRSMetadata
 import TestSyncCommands
 import TestRemoteROMetadata
 import TestRosrsSync
+import TestEvoCommands
+import TestMinimAccess
 import TestRdfReport
+import TestEvalChecklist
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
@@ -45,6 +46,7 @@ def getTestSuite(select="unit"):
         suite.addTest(TestROSRSMetadata.getTestSuite(select=select))
         suite.addTest(TestRosrsSync.getTestSuite(select=select))
         suite.addTest(TestSyncCommands.getTestSuite(select=select))
+        suite.addTest(TestEvoCommands.getTestSuite(select));
     return suite
 
 from MiscLib import TestUtils
