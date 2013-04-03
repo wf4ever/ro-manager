@@ -397,7 +397,10 @@ def job_status(options, args, rosrs):
     
 def remote_ro_status(options, args, rosrs):
     try:
-        (status, reason, data, evo_type) = rosrs.getROEvolution(args[2])
+        result = rosrs.getROEvolution(args[2])
+        if result == None:
+            return -1
+        (status, reason, data, evo_type) = result
         if evo_type == None:
             status =  job_status(options, args, rosrs)
             if status == -1:

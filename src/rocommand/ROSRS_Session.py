@@ -216,6 +216,11 @@ class ROSRS_Session(object):
                     value=uriparts.netloc,
                     srsuri=self._srsuri)
         path = uriparts.path
+        """
+        print "path:"
+        print path
+        print "*******"
+        """
         if uriparts.query: path += "?"+uriparts.query
         # Assemble request headers
         if not reqheaders:
@@ -747,22 +752,34 @@ class ROSRS_Session(object):
             return (manifest_status, manifest_reason, manifest_data, None)
         (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=rouri, accept="application/rdf+xml")
         if manifest_status == 404 or not "link" in manifest_headers:
+            if manifest_status == 401:
+                print "Unauthorised operation"
+                return None
             return (manifest_status, manifest_reason, manifest_data, None)
-        (evolution_status, evolution_reason, evolution_headers, evolution_data) = self.doRequest(uripath=manifest_headers['link'],accept="text/turtle")
+        parssed_header_uri =  manifest_headers["link"].split(">; rel=")[0][1:]
+        (evolution_status, evolution_reason, evolution_headers, evolution_data) = self.doRequest(uripath=parssed_header_uri,accept="text/turtle")
         if evolution_status == 404:
             return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
         graph = rdflib.Graph()
         graph.parse(data=evolution_data, format="n3")
         try:
-            if ROEVO.LiveRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
-                return (evolution_status, evolution_reason, evolution_data, EvoType.LIVE)
-            elif ROEVO.SnapshotRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
-                return (evolution_status, evolution_reason, evolution_data, EvoType.SNAPSHOT)
-            elif ROEVO.ArchivedRO == graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type).next():
-                return (evolution_status, evolution_reason, evolution_data, EvoType.ARCHIVE)
-        except StopIteration as error:
+            (graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)),ROEVO.isFinalized)).next()
             return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
-
+        except StopIteration  as error:            
+            try:
+                return (evolution_status, evolution_reason, evolution_data, self.checkType(graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type)))
+            except StopIteration  as error:
+                return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
+            
+    def checkType(self,graph_objects): 
+        for rdf_class in graph_objects:
+           if rdf_class == ROEVO.LiveRO:
+               return EvoType.LIVE
+           if rdf_class == ROEVO.SnapshotRO:
+               return EvoType.SNAPSHOT
+           if rdf_class == ROEVO.ArchivedRO: 
+               return EvoType.ARCHIVE
+        return EvoType.UNDEFINED
             
     def getJob(self, rouri):
         h = Http()
