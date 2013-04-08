@@ -12,126 +12,159 @@ Ontology:  <http://purl.org/minim/minim>
   # ----------
     
   ObjectProperty: hasRequirement
-    # Place holder for minim:hasMustRequirement or minim:hasShouldRequirement or minim:hasMayRequirement
+    Annotations:
+      rdfs:label "has requirement",
+      rdfs:comment "Place holder for minim:hasMustRequirement, minim:hasShouldRequirement or minim:hasMayRequirement"
     Domain: minim:Model
     Range: minim:Requirement
   
   ObjectProperty: minim:hasMustRequirement
+    Annotations:
+      rdfs:label "has MUST requirement",
+      rdfs:comment "indicates a requirement that MUST be satisfied for a checklist to be satisfied"
     SubPropertyOf: hasRequirement
   
   ObjectProperty: minim:hasShouldRequirement
+    Annotations:
+      rdfs:label "has SHOULD requirement",
+      rdfs:comment 
+        "indicates a requirement is not mandatory for a checklist to be satisfied, 
+         but which is strongly recommended.  Failure to satisfy a SHOULD requirement could be
+         indicative of a problem."
     SubPropertyOf: hasRequirement
   
   ObjectProperty: minim:hasMayRequirement
+    Annotations:
+      rdfs:label "has MAY requirement",
+      rdfs:comment 
+        "indicates a requirement is optional for a checklist to be satisfied.  Failure to satisfy a
+         MAY requirement is not considered to be indicative of any problem."
     SubPropertyOf: hasRequirement
     
   ObjectProperty: minim:derives
+    Annotations:
+      rdfs:label "derives",
+      rdfs:comment 
+        "Indicates a requirement that is derived by a rule."
     Domain: minim:Rule
     Range: minim:Requirement
     InverseOf: minim:isDerivedBy
     
   ObjectProperty: minim:isDerivedBy
+    Annotations:
+      rdfs:label "is derived by",
+      rdfs:comment 
+        "Indicates a rule that, when its test evaluates to True, indicates that a requirement is satisfied."
     Domain: minim:Requirement
     Range: minim:Rule
     InverseOf: minim:derives
     
   DataProperty: minim:seq
+    Annotations:
+      rdfs:label "sequence",
+      rdfs:comment
+        "A value that is used to order the requirements in a checklist for reporting purpose.
+         It has no effect on the overall outcome of a checklist evaluation."
     Domain: minim:Requirement
     Range: string
 
-  ObjectProperty: minim:probe
-    Annotations: rdfs:comment
-      "This property indicates a probe used to extract information from an RDF graph.
-       In the current design, the only form of probe defined is a SPARQL query, but 
-       other forms may be introduced later."
-    Domain: minim:ProbeTestRule
+  ObjectProperty: minim:query
+    Annotations:
+      rdfs:label "query",
+      rdfs:comment
+        "This property indicates a query used to extract information from an RDF graph
+         for requirement testing.  In the current design, the only form of query defined is
+         a SPARQL query, but other forms may be introduced later."
+    Domain: minim:QueryTestRule
     Range: minim:SparqlQuery
 
   DataProperty: minim:graph
-    Annotations: rdfs:comment
-      "This property indicates a graph to be probed, by way of a URI template that is 
-       expanded using any currently result variable bindings.  This is the mechanism
-       whereby metadata from an RO may be compared with metadata from external resources."
-    Domain: minim:ProbeTestRule
+    Annotations:
+      rdfs:label "target graph",
+      rdfs:comment
+        "This property indicates a graph to be queried, by way of a URI template that is 
+         expanded using any currently result variable bindings.  This is the mechanism
+         whereby metadata from an RO may be compared with metadata from external resources."
+    Domain: minim:QueryTestRule
     Range: string
 
-  ObjectProperty: minim:testResultSet
-    Annotations: rdfs:comment
-      "This property indicates a test that is applied to a result set considered as
-       a whole, e.g. for testing the cardinality of matching results.
-       
-       Compare with, e.g., minim:testResultAll"
-    Domain: minim:ProbeTestRule
-    Range: minim:ResultSetTest
-
-  ObjectProperty: minim:testResultAll
-    Annotations: rdfs:comment
-      "This property indicates a test that is applied separately to each result in a result set
-       and returns success if all of the individual applications return success."
-    Domain: minim:ProbeTestRule
-    Range: minim:ResultTest
-
-  DataProperty: minim:query
-    Annotations: rdfs:comment
-      "This property indicates a SPARQL query that is used to probe the content of an RDF graph
-       (in most cases, the RO annotation graph)."
+  DataProperty: minim:sparql_query
+    Annotations:
+      rdfs:label "SPARQL query pattern",
+      rdfs:comment
+        "This property indicates a SPARQL query pattern (such as would appear in a 
+         SPARQL WHERE clause) that is used to query the content of an RDF graph."
     Domain: minim:SparqlQuery
     Range: string
   
-  DataProperty: minim:orderBy
-    Annotations: rdfs:comment
-      "This property is used with minim:SparqlQuery to indicate an ordering of results to be returned, 
-       which may in turn make it easier to produce consistent diagnostic information."
+  DataProperty: minim:order_by
+    Annotations:
+      rdfs:label "SPARQL order by",
+      rdfs:comment
+        "This property is used with minim:SparqlQuery to indicate an ordering of results to be 
+         returned, which may in turn make it easier to produce consistent diagnostic information."
     Domain: minim:SparqlQuery
     Range: string
   
   DataProperty: minim:min
-    Annotations: rdfs:comment
-      "This property is used with minim:CardinalityTest to indicate minimum number of distinct results
-       that are required for a cardinality constraint test to succeed.
+    Annotations:
+      rdfs:label "minimum occurrences",
+      rdfs:comment
+        "This property is used with minim:CardinalityTest to indicate minimum number of distinct results
+         that are required for a cardinality constraint test to succeed.
        
-       Note that minim:min and minim:max can be used together to define an exact cardinality or 
-       cardinality range test."
+         Note that minim:min and minim:max can be used together to define an exact cardinality or 
+         cardinality range test."
     Domain: minim:CardinalityTest
     Range: integer
   
   DataProperty: minim:max
-    Annotations: rdfs:comment
-      "This property is used with minim:CardinalityTest to indicate maximum number of distinct results
-       that are required for a cardinality constraint test to succeed.
+    Annotations:
+      rdfs:label "maximum occurrences",
+      rdfs:comment
+        "This property is used with minim:CardinalityTest to indicate maximum number of distinct results
+         that are required for a cardinality constraint test to succeed.
        
-       Note that minim:min and minim:max can be used together to define an exact cardinality or 
-       cardinality range test."
+         Note that minim:min and minim:max can be used together to define an exact cardinality or 
+         cardinality range test."
     Domain: minim:CardinalityTest
     Range: integer
   
   DataProperty: minim:aggregatesTemplate
-    Annotations: rdfs:comment
-      "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570) that 
-       is in turn used to construct the URI of resource that is tested for inclusion in the 
-       current RO aggregation."
+    Annotations:
+      rdfs:label "aggregation test URI template",
+      rdfs:comment
+        "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570) that 
+         is in turn used to construct the URI of resource that is tested for inclusion in the 
+         current RO aggregation."
     Domain: minim:AggregationTest
     Range: string
   
   DataProperty: minim:isLiveTemplate
-    Annotations: rdfs:comment
-      "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570)
-       that is in turn used to construct the URI of resource to be tested for accessibility (liveness)."
+    Annotations:
+      rdfs:label "accessibility test URI template",
+      rdfs:comment
+        "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570)
+         that is in turn used to construct the URI of resource to be tested for accessibility (liveness)."
     Domain: minim:AccessibilityTest
     Range: string
 
   ObjectProperty: minim:affirmRule
-    Annotations: rdfs:comment 
-      "Indicates a rule that is invoked with the current result as predefined variable bindings.
-       The result returned is the result of the rule invocation."
+    Annotations:
+      rdfs:label "test affirmed rule",
+      rdfs:comment 
+        "Indicates a rule that is invoked with the current result as predefined variable bindings.
+         The result returned is the result of the rule invocation."
     Domain: minim:RuleTest
     Range: minim:Rule
 
   ObjectProperty: minim:negateRule
-    Annotations: rdfs:comment 
-      "Indicates a rule that is invoked with the current result as predefined variable bindings.
-       The result returned is success if the rule invocation fails, otherwise failure if the rule
-       succeeds."
+    Annotations:
+      rdfs:label "test negated rule",
+      rdfs:comment 
+        "Indicates a rule that is invoked with the current result as predefined variable bindings.
+         The result returned is success if the rule invocation fails, otherwise failure if the rule
+         succeeds."
     Domain: minim:RuleNegationTest
     Range: minim:Rule
 
@@ -139,113 +172,121 @@ Ontology:  <http://purl.org/minim/minim>
   # -------
   
   Class: minim:Model
-    Annotations: rdfs:comment
-      "A minim model: collects a number of requirements, and associates each with a MUST, SHOULD or MAY
-       requirement level."
+    Annotations:
+      rdfs:label "Minim model",
+      rdfs:comment
+        "A Minim model collects a number of requirements, and associates each with a 
+         MUST, SHOULD or MAY requirement level."
     EquivalentTo: hasRequirement only minim:Requirement
 
   Class: minim:Requirement
-    Annotations: rdfs:comment
-      "A minim requirement whose satisfaction is determined by evaluation of the indicated rule.
+    Annotations:
+      rdfs:label "Minim requirement",
+      rdfs:comment
+        "A Minim requirement, whose satisfaction is determined by evaluation of the indicated rule.
        
-       The minim:seq value is used to order the requirement results returned, 
-       to allow more consistent reporting of results."
+         The minim:seq value is used to order the requirement results returned, 
+         to allow more consistent reporting of results."
     EquivalentTo: (minim:isDerivedBy exactly 1 minim:Rule) and (minim:seq only string)
 
   Class: minim:Rule
-    Annotations: rdfs:comment
-      "This is a generic placeholder for any rule which is evaluated to detemrine whether or not 
-       a Minim requirement is satisfied. Only one form of rule is defined here, viz. minim:ProbeTestRule.
-       Other rules types may be added in future."
+    Annotations:
+      rdfs:label "Minim rule",
+      rdfs:comment
+        "This is a generic placeholder for any rule which is evaluated to determine whether or not 
+         a Minim requirement is satisfied. Only one form of rule is defined here, viz. minim:QueryTestRule.
+         Other rules types may be added in future."
     SubClassOf: minim:derives only minim:Requirement
-    EquivalentTo: minim:ProbeTestRule
+    EquivalentTo: minim:QueryTestRule
 
-  Class: minim:ProbeTestRule
-    Annotations: rdfs:comment 
-      "Generalized rule consisting of a probe to extract information from an RDF graph,
-       and a test that is applied to the results from applying that probe.
+  Class: minim:QueryTestRule
+    Annotations:
+      rdfs:label "Query test rule",
+      rdfs:comment 
+        "Generalized rule consisting of a query to extract information from an RDF graph,
+         and a test that is applied to the results from applying that query.
        
-       The probe is assumed to return a set of results, each of which contains one or 
-       more variable bindings.  This currently avaiklable implementation uses a SPARQL 
-       query as the probe mechanism, but in principle other forms of probe are possible, 
-       such as an OWL class expression.
+         The query is assumed to return a set of results, each of which contains one or 
+         more variable bindings.  This currently available implementation uses a SPARQL query, 
+         but in principle other forms of query are possible, such as an OWL class expression.
        
-       If a minim:graph value is supplied, it supplies a URI template used to identify the graph 
-       to be queried, otherwise the supplied RO annotation graph is the target to be probed."
+         If a minim:graph value is supplied, it supplies a URI template used to identify the graph 
+         to be queried, otherwise the supplied RO annotation graph is queried."
     EquivalentTo: 
-      ( (minim:probe exactly 1 minim:SparqlQuery) and 
+      ( (minim:query exactly 1 minim:SparqlQuery) and 
         (minim:graph max 1 string) and
-        ( (minim:testResultSet exactly 1 minim:ResultSetTest) or
-          (minim:testResultAll exactly 1 minim:ResultTest) ) )
+        ( minim:CardinalityTest or 
+          minim:AggregationTest or 
+          minim:AccessibilityTest or 
+          minim:RuleTest or 
+          minim:OtherTest ) )
 
   Class: minim:SparqlQuery
-    Annotations: rdfs:comment 
-      "Query an RDF graph and returns results that match the supplied SPARQL query body.
-       The results returned are a set of results, where each result is a set of query 
-       variable bindings corresponding to a single match of the query, and the entire 
-       result set contains all distinct matches achieved.
+    Annotations:
+      rdfs:label "SPARQL query",
+      rdfs:comment 
+        "Query an RDF graph and returns results that match the supplied SPARQL query body.
+         The results returned are a set of results, where each result is a set of query 
+         variable bindings corresponding to a single match of the query, and the entire 
+         result set contains all distinct matches achieved.
        
-       The minim:orderBy value, if present, is added as a query result modifier, and may be
-       used to obtain results returned in a consistent oder for better diagnostics."
+         The minim:orderBy value, if present, is added as a query result modifier, and may be
+         used to obtain results returned in a consistent oder for better diagnostics."
     EquivalentTo:
-      (minim:query exactly 1 string) and (minim:orderBy max 1 string)
-
-  Class: minim:ResultSetTest
-    Annotations: rdfs:comment 
-      "Tests that are applied to a result set as a whole."
-    EquivalentTo:
-      minim:CardinalityTest or minim:OtherResultSetTest
+      (minim:sparql_query exactly 1 string) and (minim:order_by max 1 string)
 
   Class: minim:CardinalityTest
-    Annotations: rdfs:comment 
-      "Tests the number of results returned by a probe"
+    Annotations:
+      rdfs:label "Cardinality test",
+      rdfs:comment 
+        "Tests the number of results returned by a query"
     EquivalentTo:
-      (minim:min exactly 1 integer) or (minim:max exactly 1 integer)
-
-  Class: minim:OtherResultSetTest
-    Annotations: rdfs:comment 
-      "Placeholder for other result set tests (e.g. comparing result sets from multiple queries).
-       No such tests are currently defined."
-
-  Class: minim:ResultTest
-    Annotations: rdfs:comment 
-      "Tests that are applied to a single result in a result set."
-    EquivalentTo:
-      minim:AggregationTest or minim:AccessibilityTest or minim:RuleTest or minim:OtherResultTest
+      ( (minim:min exactly 1 integer) and (minim:max max 1 integer) ) or 
+      ( (minim:max exactly 1 integer) and (minim:min max 1 integer) )
 
   Class: minim:AggregationTest
-    Annotations: rdfs:comment 
-      "Test if a specified resource is part of RO aggregation.  The resource URI is constructed by
-       using the corresponding probe result to provide values for variables in an expansion of
-       the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)"
+    Annotations:
+      rdfs:label "Aggregation test",
+      rdfs:comment 
+        "Test if a specified resource is part of an RO aggregation.  The resource URI is constructed
+         by using the corresponding query result to provide values for variables in an expansion of
+         the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)"
     EquivalentTo:
       minim:aggregatesTemplate exactly 1 string
 
   Class: minim:AccessibilityTest
-    Annotations: rdfs:comment 
-      "Test if a specified resource is accessible (live).  The resource URI is constructed by
-       using the corresponding probe result to provide values for variables in an expansion of
-       the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)"
+    Annotations:
+      rdfs:label "Accessibility test",
+      rdfs:comment 
+        "Test if a specified resource is accessible (live).  The resource URI is constructed by
+         using the corresponding query result to provide values for variables in an expansion of
+         the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)"
     EquivalentTo:
-      minim:aggregatesTemplate exactly 1 string
+      minim:isLiveTemplate exactly 1 string
 
   Class: minim:RuleTest
-    Annotations: rdfs:comment 
-      "Invokes a specified rule with the current result as predefined variable bindings.
-       The result returned is the result of the rule invocation.  This recursive invocation of
-       rule allows chains of tests to be assembled when a single test alone does not suffice."
+    Annotations:
+      rdfs:label "Rule test",
+      rdfs:comment 
+        "Invokes a specified rule with the current result as predefined variable bindings.
+         The result returned is the result of the rule invocation.  This recursive invocation of
+         rule allows chains of tests to be assembled when a single test alone does not suffice."
     EquivalentTo:
       minim:affirmRule exactly 1 minim:Rule
 
   Class: minim:RuleNegationTest
-    Annotations: rdfs:comment 
-      "Invokes a specified rule with the current result as predefined variable bindings.
-       The result returned is success if the rule invocation fails, ortherwise failure if the rule
-       succeeds."
+    Annotations:
+      rdfs:label "Rule negation test",
+      rdfs:comment 
+        "Invokes a specified rule with the current result as predefined variable bindings.
+         The result returned is success if the rule invocation fails, otherwise failure if the rule
+         succeeds."
     EquivalentTo:
       minim:negateRule exactly 1 minim:Rule
 
-  Class: minim:OtherResultTest
-    Annotations: rdfs:comment 
-      "Placeholder for other single result tests. No such tests are currently defined."
+  Class: minim:OtherTest
+    Annotations:
+      rdfs:label "Other test",
+      rdfs:comment 
+        "Placeholder for other tests. No other tests are currently defined."
 
