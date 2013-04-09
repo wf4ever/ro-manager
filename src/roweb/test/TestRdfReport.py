@@ -386,7 +386,7 @@ class TestRdfReport(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
+            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER BY DESC(?label)
             """
         resp = rdfgraph.query(query, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')

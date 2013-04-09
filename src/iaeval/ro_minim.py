@@ -103,7 +103,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
                 return c
             if target == c['target']:
                 # Match explicit target specification (subject of minim:hasConstraint)
-                return c    
+                return c
             log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
             if target and c['target_t']:
                 log.debug("- expand %s"%(uritemplate.expand(c['target_t'], templatedict)))
