@@ -51,7 +51,9 @@ Technical debt:
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
 - role of onresource / onresourcetemplate in constraint is unclear (to me!)
-
+-- eliminate these from model as they seem to serve no purpose.
+-- Start by removing code in minim.py, then chase through test case failures.
+-- Finally, remove from all minim model files.
 
 ----
 

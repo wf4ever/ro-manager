@@ -193,7 +193,7 @@ Thus, if S derivesRequirement R, and all conditions on S are satisfied, then S r
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#onResource">
         <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment>A resource to which a constraint is applied.  This mat be different from the target resource with whichthe constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.</rdfs:comment>
+        <rdfs:comment>A resource to which a constraint is applied.  This mat be different from the target resource with which the constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.</rdfs:comment>
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Constraint"/>
         <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
     </owl:ObjectProperty>
