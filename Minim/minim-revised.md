@@ -1,6 +1,45 @@
 # Minim checklist description
 
-The MINIM description contains 3 levels of description:
+## Checklist evaluation context
+
+The Minim checklist model describes a set of requirements to be satisfied by some set of linked data for a designated resource to to suitable for some purpose.
+
+Thus, the context required for evaluating a Minim checklist is a target resource, a set of linked data, presented as an RDF graph, containing metadata about the target resource and related resources, and a purpose for which the resource is being evaluated.  The environment or service that invokes a checklist evaluation must supply:
+
+* _metadata_: a set of linked data in the form of an RDF graph,
+* _target_: the URI of a resource to be targeted by the evaluation, and
+* _purpose_: a string that designates the purpose of the evaluation
+
+For example, when the evaluation is applied to a Research Object (@@ref), the target resource may be the Research Object itself, the set of linked data is the set of annotations aggregated by the Research Object.  But the evaluation may also target an individual resource other than the Research Object while still depending on context that it provides, in which case the Research Object and the target resource must be specified as separate resources.
+
+This information is used in conjunction with a set of `minim:Checklist` descriptions (see below) to select a `minim:Model` as the basis for the evaluation, and to construct an initial Minim _evaluation context_.  The Minim evaluation context consists of a set of variable/value bindings; the initial context contains the following bindings, and maybe others:
+
+<table>
+  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetres</code></em></td><td>:</td><td>the URI of the resource that is the target of the current evaluation</td></tr>
+</table>
+
+Variables defined in the minim evaluation context, referred to later as _Minim environment variables_, are used in a number of ways:
+
+* In query patterns, query variables that are the same as Minim environment variables are treated as being pre-bound: only those query results for which the returned variable binding would be the same as the existing Minim environment variable binding are returned.
+* The results of a query are used as additional variables in constructs that depend on the result of that query.
+* URI templates are expanded using Minim environment variables to supply values for template variables.
+* Diagnostic messages containing Python-style `%(name)s` constructs have those constructs replaced by the value of the named Minim environment variable. 
+
+The exact ways in which the Minim evaluation context is used depends upon the particular requirement being evaluated.  Most commonly, it is used in conjunction with a `minim:QueryTestRule` (described later).  For example, the following checklist requirement tests for an `rdfs:label` value for the target resource of an evaluation:
+
+    :target_labeled a minim:QueryTestRule ;
+      minim:query 
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query "?targetres rdfs:label ?targetlabel ." ] ;
+      minim:min 1 ;
+      minim:showpass "Target resource label is %(targetlabel)s" ;
+      minim:showfail "No label for target resource %(targetres)s" .
+
+This queries the metadata for an `rdfs:label` applied to the evaluation target resource (whose URI is defined in the initial evaluation context as _`targetres`_, as described above).  If present, the requirement is satisfied and a message containing the label is returned.  Otherwise, the requirement is not satisfied and a message containing the target resource URI is returned.
+
+## Checklist description structure
+
+A Minim checklist contains 3 levels of description:
 
 * `minim:Checklist` associates a target (e.g. an RO or a resource within an RO) and purpose (e.g. runnable workflow) with a minim:Model to be evaluated.
 * `minim:Model` enumerates the requirements (checklist items) to be evaluated, with provision for MUST / SHOULD / MAY requirement levels cater for limited variation in levels of checklist conformance.
