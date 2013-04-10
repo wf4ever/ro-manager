@@ -202,11 +202,13 @@ The result of running the command (i.e. data written to its standard output stre
       minim:response "Python 2.7" ;
       minim:show "Installed python version %(response)s" .
 
+
 # Notes
 
 * Currently, the OWL ontology does not define the diagnostic message prioperties
-* Need to decide how diagnostics shouyld be incorporatedL: as part of requirement or part of rule?
+* Need to decide how diagnostics should be incorporatedL: as part of requirement or part of rule?
 * Negated rule test; need to think if all or some results should result in failure
 * Maybe need to think about generalizing `minim:Ruletest` to handle rule composition
 * Drop `minim:existstest`, or keep it?
+* See: http://www.essepuntato.it/lode/owlapi/https://raw.github.com/wf4ever/ro-manager/develop/Minim/minim-revised.omn
 
