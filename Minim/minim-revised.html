@@ -1,0 +1,172 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta http-equiv="Content-Style-Type" content="text/css" />
+  <meta name="generator" content="pandoc" />
+  <title></title>
+  <style type="text/css">code{white-space: pre;}</style>
+  <link rel="stylesheet" href="pandoc-html.css" type="text/css" />
+</head>
+<body>
+<div id="TOC">
+<ul>
+<li><a href="#minim-checklist-description">Minim checklist description</a><ul>
+<li><a href="#minimchecklist">minim:Checklist</a></li>
+<li><a href="#minimmodel">minim:Model</a></li>
+<li><a href="#minimrequirement">minim:Requirement</a><ul>
+<li><a href="#minimquerytestrule">minim:QueryTestRule</a></li>
+<li><a href="#software-environment-testing">Software environment testing</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#notes">Notes</a></li>
+</ul>
+</div>
+<h1 id="minim-checklist-description"><a href="#minim-checklist-description">Minim checklist description</a></h1>
+<p>The MINIM description contains 3 levels of description:</p>
+<ul>
+<li><code>minim:Checklist</code> associates a target (e.g. an RO or a resource within an RO) and purpose (e.g. runnable workflow) with a minim:Model to be evaluated.</li>
+<li><code>minim:Model</code> enumerates the requirements (checklist items) to be evaluated, with provision for MUST / SHOULD / MAY requirement levels cater for limited variation in levels of checklist conformance.</li>
+<li><code>minim:Requirement</code> is a single requirement (checklist item), which is associated with a rule for evaluating whether or not it is satisfied or not satisfied. There are several types of rules for performing different types of evaluation of the supplied data. Additional evaluation capabilities can be added by adding new rule types to the set of those supported.</li>
+</ul>
+<p>These three levels are called out in the sections below. A definition of the Minim ontology can be found at <a href="">https://github.com/wf4ever/ro-manager/tree/develop</a></p>
+<p>A minim checklist implementation evaluates a checklist in some context. A minimum realization for such a context is the presence of some RDF metadata describing the resources associated with it. In our implementation, the context is a Research Object (@@ref), and the descriptive metadata is a merge of all its aggregated annotations.</p>
+<h2 id="minimchecklist"><a href="#minimchecklist">minim:Checklist</a></h2>
+<p>The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for different purposes.</p>
+<p>A minim:Checklist provides information that can be used to select a minim:Model and a Research Object, or a resource within a resource object, to be evaluated to determine its suitability for some purpose. This example indicates a minim:Model that might be used for evaluating whether or not a workflow contains a runnable workflow:</p>
+<pre><code>:runnable_workflow a minim:Checklist ;
+  minim:forTargetTemplate &quot;{+targetro}&quot; ;
+  minim:forPurpose &quot;runnable&quot; ;
+  minim:toModel :runnable_workflow_model ;
+  rdfs:comment &quot;&quot;&quot;Select model to evaluate if RO contains a runnable workflow&quot;&quot;&quot; .</code></pre>
+<p>The <code>minim:Checklist</code> structure provides a link between a generic <code>minim:Model</code> structure and the application environment in which it is implemented. In our implementation, the evaluation context is provided by a Research Object and a supplied Minim description resource which may contain several checklist definitions as above. Also provided by the evaluation context are some Minim environment variables:</p>
+<ul>
+<li><code>targetro</code>: the URI of the research object being evaluated</li>
+<li><code>targetres</code>: the URI of a particular resource that is targeted by the evaluation, which may be specified in the checklist evaluation API. If no explicit target is specified, this defaults to the RO URI.</li>
+</ul>
+<p>These Minim environment variables may be used in subsequent requirement rule descriptions, and in particular may be used as pre-bound query variables in the query part of some requirement rules.</p>
+<h2 id="minimmodel"><a href="#minimmodel">minim:Model</a></h2>
+<p>A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows a structure for minimum information models proposed by Matthew Gamble. Here is an example of a model that has been used for testing whether a runnable workflow is present:</p>
+<p>:runnable_workflow_model a minim:Model ; rdfs:label &quot;Minimum information for RO containing a runnable workflow&quot; rdfs:comment &quot;&quot;&quot; This model defines information that must be available in a Research Object containing a runnable workfow which in turn may need a Python software interpeter to be available. &quot;&quot;&quot; ; minim:hasMustRequirement :has_workflow_instance ; minim:hasMustRequirement :live_workflow ; minim:hasMustRequirement :has_workflow_inputfiles&quot; ; minim:hasMustRequirement :environment_python .</p>
+<h2 id="minimrequirement"><a href="#minimrequirement">minim:Requirement</a></h2>
+<p>Minim requirements are evaluated using rules. The current implementation defined two types of rule: a <code>minim:QueryTestRule</code> and a <code>minim:SoftwareEnvRule</code>, which are described later. If and when new requirements are encountered that cannot be covered by available rules, new rule types may be introduced to the model and added to its implementation.</p>
+<p>The basic structure of a requirement is an association between the identified requirement and its associated evaluation rule; e.g.</p>
+<pre><code>:has_workflow-instance a minim:Requirement
+  rdfs:label &quot;Workflow instance requirement&quot;
+  rdfs:comment
+    &quot;&quot;&quot;
+    For a Research Object to contain a runnable workflow, a workflow instance must be specified.
+    &quot;&quot;&quot; ;
+  minim:isDerivedBy :has_workflow_instance_rule .</code></pre>
+<h3 id="minimquerytestrule"><a href="#minimquerytestrule">minim:QueryTestRule</a></h3>
+<p>This is a &quot;swiss army knife&quot; of a rule which in its various forms is capable of handling most of the checklist requirements we encounter. It consists of three parts:</p>
+<ul>
+<li>a SPARQL query, which is evaluated against the RDF metadata that described the evaluation context (i.e., in our implementation, the merged annotations from a Research Object). The result of evaluating this query is a list of variable bindings, each of which defines values for one or more variable names that appear in the SPARQL query. Any Minim environment variables are treated as pre-bound variables, which means that the query can generate results that are dependent on the evaluation context.</li>
+<li>(optionally) a resource to be queried. If not specified, the supplied evaluation context metadata is used. The resource is specified as a URI template that is expanded using currently defined Minim environment variables, and dereferenced to retrieve an RDF graph value that is queried.</li>
+<li>a query result test, which takes the query result and returns a True (pass) or False (fail) result. The test may simply examine the supplied query result, or may use that result to perform further interrogation of resources outside the immediate context; e.g. testing if a web resource mentioned in the supplied metadata is actually accessible.</li>
+</ul>
+<p>Several different types of query result test are provided, and additional test types may be added to the model (and implementation) if existing tests do not provide the required assurances. The various test typess currently defined are described in the following sections.</p>
+<h4 id="minimcardinalitytest-existence-test"><a href="#minimcardinalitytest-existence-test"><code>minim:CardinalityTest</code> (existence test)</a></h4>
+<p>This test looks for a minimum and/or maximum number of distinct matches of the query pattern. To test for the existence of some information matching a query, at least 1 result is expected, as in the following example that tests for the presence of a workflow resource in the queried metadata (assuming use of <code>wfdesc</code> terms (@@ref) in the metadata):</p>
+<pre><code>:has_workflow_instance_rule a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query &quot;?wf rdf:type wfdesc:Workflow .&quot; ] ;
+  minim:min 1 ;
+  minim:showpass &quot;Workflow instance or template found&quot; ;
+  minim:showfail &quot;No workflow instance or template found&quot; .</code></pre>
+<p>@@need to decide if show/showpass/showfail are part of the requirement or part of the rule. I think they should be part of the requirement, but this means we need to define that Minim environment variables can be returned by rules.</p>
+<h4 id="minimaccessibilitytest-liveness-test"><a href="#minimaccessibilitytest-liveness-test"><code>minim:AccessibilityTest</code> (liveness test)</a></h4>
+<p>For each result returned by the query, tests that a resource is accessible (live). If there is any result for which the accessibility test fails, then the rule as a whole fails.</p>
+<p>Each set of variable bindings returned by the query is used to construct the URI of a resource to be tested through expansion of a URI template, where the query variables are mapped to variables of the same name used in the template.</p>
+<p>The following example tests that each workflow definition mentioned in the queried metadata is accessible. If it is a local file, a file existence check is performed. If it is a web resource, then a success response to an HTTP HEAD request is expected.</p>
+<pre><code>:live_workflow_rule a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query 
+        &quot;&quot;&quot;
+        ?wf rdf:type wfdesc:Workflow ;
+          rdfs:label ?wflab ;
+          wfdesc:hasWorkflowDefinition ?wfdef .
+        &quot;&quot;&quot; ] ;
+  minim:isLiveTemplate {+wfdef} ;
+  minim:showpass &quot;All workflow instance definitions are live (accessible)&quot; ;
+  minim:showfail &quot;Workflow instance defininition %(wfdef)s for workflow %(wflab)s is not accessible&quot; .</code></pre>
+<h4 id="minimaggregationtest"><a href="#minimaggregationtest"><code>minim:AggregationTest</code></a></h4>
+<p>This test is specific to a Research Object context. It tests to see if a resource defined by each query result is aggregated by the Research Object.</p>
+<p>The following example tests that each workflow definition mentioned in the queried metadata is aggregated in the Research Object. The RO URI is accessible through Minim environment variable <code>targetro</code>, as described above.</p>
+<pre><code>:aggregated_workflow_rule a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query 
+        &quot;&quot;&quot;
+        ?wf rdf:type wfdesc:Workflow ;
+          rdfs:label ?wflab ;
+          wfdesc:hasWorkflowDefinition ?wfdef .
+        &quot;&quot;&quot; ] ;
+  minim:aggregatesTemplate {+wfdef} ;
+  minim:showpass &quot;All workflow instance definitions are aggregated by RO %(targetro)s&quot; ;
+  minim:showfail &quot;Workflow instance defininition %(wfdef)s for workflow %(wflab)s is not aggregated by RO %(targetro)s&quot; .</code></pre>
+<h4 id="minimruletest"><a href="#minimruletest"><code>minim:RuleTest</code></a></h4>
+<p>The variable bindings from each query result are used as additional Minim environment variables in a new rule invocation. If the new invocation succeeds for every such result, then the current rule succeeds.</p>
+<p>The following example uses a cardinality test for each workflow described in the metadata to ensure that each such workflow has at least one defined input resource:</p>
+<pre><code>:has_workflow_inputfiles a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query 
+        &quot;&quot;&quot;
+        ?wf rdf:type wfdesc:Workflow ;
+          rdfs:label ?wflab .
+        &quot;&quot;&quot; ] ;
+  minim:affirmRule
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            &quot;&quot;&quot;
+            ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+            &quot;&quot;&quot; ] ;
+      mnim:min 1 ;
+      minim:showpass &quot;Workflow %(wflab)s has defined input(s)&quot; ;
+      minim:showfail &quot;Workflow %(wflab)s has no defined input&quot; ] ;
+  minim:showpass &quot;All workflow instance definitions have defined inputs&quot; ;
+  minim:showfail &quot;Workflow %(wflab)s has no defined input&quot; .</code></pre>
+<h4 id="minimrulenegationtest"><a href="#minimrulenegationtest"><code>minim:RuleNegationTest</code></a></h4>
+<p>@@is this needed?</p>
+<p>As previous, but the current rule succeeds if the referenced rule fails (forall/forsome?) query result.</p>
+<h4 id="minimexiststest"><a href="#minimexiststest"><code>minim:ExistsTest</code></a></h4>
+<p>@@this test is strictly redundant</p>
+<p>If defined, this would be a short cut form for <code>minim:RuleTest</code> with <code>minim:CardinalityTest</code>; e.g. the previous <code>minim:RuleTest</code> example might be presented as:</p>
+<pre><code>:has_workflow_inputfiles a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query 
+        &quot;&quot;&quot;
+        ?wf rdf:type wfdesc:Workflow ;
+          rdfs:label ?wflab .
+        &quot;&quot;&quot; ] ;
+  minim:exists
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query 
+        &quot;&quot;&quot;
+        ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        &quot;&quot;&quot; ] ;
+  minim:showpass &quot;All workflow instance definitions have defined inputs&quot; ;
+  minim:showfail &quot;Workflow %(wflab)s has no defined input&quot; .</code></pre>
+<h3 id="software-environment-testing"><a href="#software-environment-testing">Software environment testing</a></h3>
+<p>A <code>minim:SoftwareEnvRule</code> tests to see if a particular piece of software is available in the current execution environment by issuing a command and checking the response against a supplied regular expression. (This test is primarily intended for local use within RO-manager, and may be of limited use on the evaluation service as the command is issued on the host running the evaluation service, not on the host requesting the service.)</p>
+<p>The result of running the command (i.e. data written to its standard output stream) is used to define a new Minim environment variable, which can be used for diagnostic purposes.</p>
+<pre><code>:environment_python a minim:SoftwareEnvRule ;
+  minim:command &quot;python --version&quot; ;
+  minim:response &quot;Python 2.7&quot; ;
+  minim:show &quot;Installed python version %(response)s&quot; .</code></pre>
+<h1 id="notes"><a href="#notes">Notes</a></h1>
+<ul>
+<li>Currently, the OWL ontology does not define the diagnostic message prioperties</li>
+<li>Need to decide how diagnostics shouyld be incorporatedL: as part of requirement or part of rule?</li>
+<li>Negated rule test; need to think if all or some results should result in failure</li>
+<li>Maybe need to think about generalizing <code>minim:Ruletest</code> to handle rule composition</li>
+<li>Drop <code>minim:existstest</code>, or keep it?</li>
+</ul>
+</body>
+</html>

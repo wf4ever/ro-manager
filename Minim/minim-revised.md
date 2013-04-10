@@ -43,7 +43,8 @@ A minim:Model enumerates of a number of requirements which may be declared at le
       This model defines information that must be available in a Research Object containing a runnable workfow
       which in turn may need a Python software interpeter to be available.
       """ ;
-    minim:hasMustRequirement :has_workflow_instance" ;
+    minim:hasMustRequirement :has_workflow_instance ;
+    minim:hasMustRequirement :live_workflow ;
     minim:hasMustRequirement :has_workflow_inputfiles" ;
     minim:hasMustRequirement :environment_python .
 
@@ -74,14 +75,14 @@ This is a "swiss army knife" of a rule which in its various forms is capable of 
 Several different types of query result test are provided, and additional test types may be added to the model (and implementation) if existing tests do not provide the required assurances.  The various test typess currently defined are described in the following sections.
 
 
-#### `minim:CardinalityTest`
+#### `minim:CardinalityTest` (existence test)
 
 This test looks for a minimum and/or maximum number of distinct matches of the query pattern.  To test for the existence of some information matching a query, at least 1 result is expected, as in the following example that tests for the presence of a workflow resource in the queried metadata (assuming use of `wfdesc` terms (@@ref) in the metadata):
 
     :has_workflow_instance_rule a minim:QueryTestRule ;
       minim:query 
         [ a minim:SparqlQuery ; 
-          minim:sparql_query "?wf rdf:type wfdesc:Workflow" ] ;
+          minim:sparql_query "?wf rdf:type wfdesc:Workflow ." ] ;
       minim:min 1 ;
       minim:showpass "Workflow instance or template found" ;
       minim:showfail "No workflow instance or template found" .
@@ -89,79 +90,123 @@ This test looks for a minimum and/or maximum number of distinct matches of the q
 @@need to decide if show/showpass/showfail are part of the requirement or part of the rule.  I think they should be part of the requirement, but this means we need to define that Minim environment variables can be returned by rules.
 
 
-#### `minim:AccessibilityTest`
+#### `minim:AccessibilityTest` (liveness test)
+
+For each result returned by the query, tests that a resource is accessible (live).  If there is any result for which the accessibility test fails, then the rule as a whole fails.
+
+Each set of variable bindings returned by the query is used to construct the URI of a resource to be tested through expansion of a URI template, where the query variables are mapped to variables of the same name used in the template.
+
+The following example tests that each workflow definition mentioned in the queried metadata is accessible.  If it is a local file, a file existence check is performed.  If it is a web resource, then a success response to an HTTP HEAD request is expected.
+
+    :live_workflow_rule a minim:QueryTestRule ;
+      minim:query 
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            """
+            ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasWorkflowDefinition ?wfdef .
+            """ ] ;
+      minim:isLiveTemplate {+wfdef} ;
+      minim:showpass "All workflow instance definitions are live (accessible)" ;
+      minim:showfail "Workflow instance defininition %(wfdef)s for workflow %(wflab)s is not accessible" .
+
 
 #### `minim:AggregationTest`
 
-@@specific to RO context
+This test is specific to a Research Object context.  It tests to see if a resource defined by each query result is aggregated by the Research Object.
+
+The following example tests that each workflow definition mentioned in the queried metadata is aggregated in the Research Object. The RO URI is accessible through Minim environment variable `targetro`, as described above.
+
+    :aggregated_workflow_rule a minim:QueryTestRule ;
+      minim:query 
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            """
+            ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasWorkflowDefinition ?wfdef .
+            """ ] ;
+      minim:aggregatesTemplate {+wfdef} ;
+      minim:showpass "All workflow instance definitions are aggregated by RO %(targetro)s" ;
+      minim:showfail "Workflow instance defininition %(wfdef)s for workflow %(wflab)s is not aggregated by RO %(targetro)s" .
 
 #### `minim:RuleTest`
+
+The variable bindings from each query result are used as additional Minim environment variables in a new rule invocation.  If the new invocation succeeds for every such result, then the current rule succeeds.
+
+The following example uses a cardinality test for each workflow described in the metadata to ensure that each such workflow has at least one defined input resource:
+
+    :has_workflow_inputfiles a minim:QueryTestRule ;
+      minim:query 
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            """
+            ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab .
+            """ ] ;
+      minim:affirmRule
+        [ a minim:QueryTestRule ;
+          minim:query
+            [ a minim:SparqlQuery ; 
+              minim:sparql_query 
+                """
+                ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+                """ ] ;
+          mnim:min 1 ;
+          minim:showpass "Workflow %(wflab)s has defined input(s)" ;
+          minim:showfail "Workflow %(wflab)s has no defined input" ] ;
+      minim:showpass "All workflow instance definitions have defined inputs" ;
+      minim:showfail "Workflow %(wflab)s has no defined input" .
+
 
 #### `minim:RuleNegationTest`
 
 @@is this needed?
 
-#### `minim:Existstest`
-
-@@strictly redundant
+As previous, but the current rule succeeds if the referenced rule fails (forall/forsome?) query result.
 
 
+#### `minim:ExistsTest`
+
+@@this test is strictly redundant
+
+If defined, this would be a short cut form for `minim:RuleTest` with `minim:CardinalityTest`; e.g. the previous `minim:RuleTest` example might be presented as:
+
+    :has_workflow_inputfiles a minim:QueryTestRule ;
+      minim:query 
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            """
+            ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab .
+            """ ] ;
+      minim:exists
+        [ a minim:SparqlQuery ; 
+          minim:sparql_query 
+            """
+            ?wf wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+            """ ] ;
+      minim:showpass "All workflow instance definitions have defined inputs" ;
+      minim:showfail "Workflow %(wflab)s has no defined input" .
 
 
-Liveness testing
-To test for liveness of a resource, the evaluator will need to attempt to access the resource. If it is a local file, a file existence check should suffice. If it is a web resource, then a success response to an HTTP HEAD request is expected.
+### Software environment testing
 
-  <!-- Workflow descriptions must be accessible (live) -->
-  <minim:Requirement rdf:about="#workflows_accessible">
-    <minim:isDerivedBy>
-      <minim:ContentMatchRequirementRule>
-        <minim:forall>
-          ?wf rdf:type wfdesc:Workflow .
-        </minim:forall>
-        <minim:isLiveTemplate>
-          {+wf}
-        </minim:isLiveTemplate>
-        <minim:showpass>All declared workflow descriptions are accessible</minim:showpass>
-        <minim:showfail>Workflow description %(wf)s is not accessible</minim:showfail>
-        <minim:derives rdf:resource="#workflows_accessible" />
-      </minim:ContentMatchRequirementRule>
-    </minim:isDerivedBy>
-  </minim:Requirement>
-This varies from the simple aggregation test in that the minim::aggregatesTemplate property is replaced by a minim:isLiveTemplate property.
+A `minim:SoftwareEnvRule` tests to see if a particular piece of software is available in the current execution environment by issuing a command and checking the response against a supplied regular expression. (This test is primarily intended for local use within RO-manager, and may be of limited use on the evaluation service as the command is issued on the host running the evaluation service, not on the host requesting the service.)
 
+The result of running the command (i.e. data written to its standard output stream) is used to define a new Minim environment variable, which can be used for diagnostic purposes.
 
+    :environment_python a minim:SoftwareEnvRule ;
+      minim:command "python --version" ;
+      minim:response "Python 2.7" ;
+      minim:show "Installed python version %(response)s" .
 
-#### Requirement for workflow input files to be defined
+# Notes
 
-This use of a minim:ContentMatchRequirementRule uses the SPARQL query as a probe to find all workflow output files mentioned according to the wfdesc description vocabulary, and for each of these tests that the indicated resource is indeed aggregated by the RO (a weak notion of being "present" in the RO). The URI of the required aggregated resource is constructed using a URI template (http://tools.ietf.org/html/rfc6570) with query result values. The diagnostic messages can interpolate query result values, as in the case of minim:showfail in this example.
+* Currently, the OWL ontology does not define the diagnostic message prioperties
+* Need to decide how diagnostics shouyld be incorporatedL: as part of requirement or part of rule?
+* Negated rule test; need to think if all or some results should result in failure
+* Maybe need to think about generalizing `minim:Ruletest` to handle rule composition
+* Drop `minim:existstest`, or keep it?
 
-  <!-- Workflow output files must be present -->
-  <minim:Requirement rdf:about="#isPresent/workflow-outputfiles">
-    <minim:isDerivedBy>
-      <minim:ContentMatchRequirementRule>
-        <minim:forall>
-          ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasOutput [ wfdesc:hasArtifact ?of ] .
-        </minim:forall>
-        <minim:aggregatesTemplate>{+of}</minim:aggregatesTemplate>
-        <minim:showpass>All workflow outputs referenced or present</minim:showpass>
-        <minim:showfail>Workflow %(wf)s output %(of)s not found</minim:showfail>
-        <minim:derives rdf:resource="#isPresent/workflow-outputfiles" />
-      </minim:ContentMatchRequirementRule>
-    </minim:isDerivedBy>
-  </minim:Requirement>
-
-Software environment testing
-A minim:SoftwareEnvironmentRule tests to see if a particular piece of software is available by issuing a command and checking the response against a supplied regular expression. (This test is primarily intended for local use within RO-manager, and may be of limited use on the evaluation service as the command is issued on the host running the evaluation service, not on the host requesting the service.)
-
-  <!-- Environment needs python -->
-  <minim:Requirement rdf:about="#environment-software/python">
-    <minim:isDerivedBy>
-      <minim:SoftwareEnvironmentRule>
-        <minim:command>python --version</minim:command>
-        <minim:response>Python 2.7</minim:response>
-        <minim:show>Installed python version %(response)s</minim:show>
-        <minim:derives rdf:resource="#environment-software/python" />
-      </minim:SoftwareEnvironmentRule>
-    </minim:isDerivedBy>
-  </minim:Requirement>
