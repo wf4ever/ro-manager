@@ -14,7 +14,8 @@ A minim checklist implementation evaluates a checklist in some context.  A minim
 
 ## minim:Checklist
 
-The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for different purposes.
+The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for different purposes.  A Checklist may be associated directly with a target resource as the subject of a `minim:hasChecklist` statement, or may be associated indirectly via a URI template that is the object of an associated `minim:forTargetTemplate` statement. The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources.
+
 
 A minim:Checklist provides information that can be used to select a minim:Model and a Research Object, or a resource within a resource object, to be evaluated to determine its suitability for some purpose.  This example indicates a minim:Model that might be used for evaluating whether or not a workflow contains a runnable workflow:
 
@@ -36,17 +37,17 @@ These Minim environment variables may be used in subsequent requirement rule des
 
 A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows a structure for minimum information models proposed by Matthew Gamble.  Here is an example of a model that has been used for testing whether a runnable workflow is present:
 
-  :runnable_workflow_model a minim:Model ;
-    rdfs:label "Minimum information for RO containing a runnable workflow"
-    rdfs:comment
-      """
-      This model defines information that must be available in a Research Object containing a runnable workfow
-      which in turn may need a Python software interpeter to be available.
-      """ ;
-    minim:hasMustRequirement :has_workflow_instance ;
-    minim:hasMustRequirement :live_workflow ;
-    minim:hasMustRequirement :has_workflow_inputfiles" ;
-    minim:hasMustRequirement :environment_python .
+    :runnable_workflow_model a minim:Model ;
+      rdfs:label "Minimum information for RO containing a runnable workflow"
+      rdfs:comment
+        """
+        This model defines information that must be available in a Research Object containing a runnable workfow
+        which in turn may need a Python software interpeter to be available.
+        """ ;
+      minim:hasMustRequirement :has_workflow_instance ;
+      minim:hasMustRequirement :live_workflow ;
+      minim:hasMustRequirement :has_workflow_inputfiles" ;
+      minim:hasMustRequirement :environment_python .
 
 
 ## minim:Requirement
@@ -55,8 +56,8 @@ Minim requirements are evaluated using rules.  The current implementation define
 
 The basic structure of a requirement is an association between the identified requirement and its associated evaluation rule; e.g.
 
-    :has_workflow-instance a minim:Requirement
-      rdfs:label "Workflow instance requirement"
+    :has_workflow-instance a minim:Requirement ;
+      rdfs:label "Workflow instance requirement" ;
       rdfs:comment
         """
         For a Research Object to contain a runnable workflow, a workflow instance must be specified.

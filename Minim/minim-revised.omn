@@ -269,16 +269,19 @@ The query is assumed to return a set of results, each of which contains one ormo
 
 If a minim:graph value is supplied, it supplies a URI template used to identify the graph to be queried, otherwise the supplied RO annotation graph is queried."
     EquivalentTo: 
-      ( ( minim:query exactly 1 minim:SparqlQuery ) and 
+      ( ( minim:query exactly 1 minim:Query ) and 
         ( minim:graph max 1 string ) and
-        ( minim:CardinalityTest or 
-          minim:ExistsTest or 
-          minim:AggregationTest or 
-          minim:AccessibilityTest or 
-          minim:RuleTest or
-          minim:RuleNegationTest ) )
+        ( minim:QueryResultTest ) )
     SubClassOf:
       minim:Rule
+
+  Class: minim:Query
+    Annotations:
+      rdfs:label "Generic query",
+      rdfs:comment 
+        "Query an RDF graph and return values that match the supplied pattern.  The results returned are a set of results, where each is a set of query variable bindings corresponding to a single match of the pattern, and the entire result set contains all distinct matches achieved.
+
+Specific query forms are subclasses of this class.  Possible subclass types might include patterns based on SPARQL, SPIN, OWL and maybe other data-matching patterns."
 
   Class: minim:SparqlQuery
     Annotations:
@@ -289,6 +292,8 @@ If a minim:graph value is supplied, it supplies a URI template used to identify 
 The minim:result_mod value, if present, is added as a query result modifier, and may be used, among other things, to obtain results returned in a consistent oder for better diagnostics."
     EquivalentTo:
       ( (minim:sparql_query exactly 1 string) and (minim:result_mod max 1 string) )
+    SubClassOf:
+      minim:Query
 
   Class: minim:QueryResultTest
     Annotations:
@@ -318,7 +323,7 @@ The minim:result_mod value, if present, is added as a query result modifier, and
          
          @@TBD: keep this or drop it as redundant?"
     EquivalentTo:
-      minim:exists exactly 1 minim:SparqlQuery
+      minim:exists exactly 1 minim:Query
     SubClassOf:
       minim:QueryResultTest
 
