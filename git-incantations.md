@@ -79,6 +79,7 @@ Finishing a release branch
   $ git branch -d release-1.2
   Deleted branch release-1.2 (was ff452fe).
 
+
 ## Reconnecting upstream branch ##
 
 "So having done "git remote rm origin", how do I configure the git pull branches again?"
@@ -90,4 +91,12 @@ Looks like this does it:
     git branch --set-upstream master origin/master
 
 -- http://www.haskell.org/pipermail/ghc-devs/2013-February/000261.html
+
+
+## Force current branch to be a copy of another ##
+
+    git reset --hard <branch>
+    git push --force
+
+Note: this may lose history on the current branch.
 

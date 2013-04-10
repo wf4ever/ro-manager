@@ -11,18 +11,18 @@ Ontology:  <http://purl.org/minim/minim>
   # Properties
   # ----------
 
-  ObjectProperty: minim:hasConstraint
+  ObjectProperty: minim:hasChecklist
     Annotations:
-      rdfs:label "has constraint",
-      rdfs:comment "Supplies a minim:Constraint to be associated with some target resource.  The subject of this property may be a target resource to which the constraint is applied, or some arbitrary resource used as a collection of constraints, in which case the constraint itself must include a minim:forTargetTemplate property that is used in the selection of a constraint for some purpose."
+      rdfs:label "has checklist",
+      rdfs:comment "Supplies a minim:Checklist to be associated with some target resource.  The subject of this property may be a target resource to which the checklist may be applied, or some arbitrary resource used as a collection of checklists, in which case the checklist itself should include a minim:forTargetTemplate property that is used in the selection of a checklist for some evaluation."
     Domain: owl:Thing
-    Range: minim:Constraint
+    Range: minim:Checklist
 
   DataProperty: minim:forTargetTemplate
     Annotations:
       rdfs:label "target resource URI template",
       rdfs:comment "Supplies a URI template that is expanded using predefined variable {targetro} to refer to the Research Object resource targeted by a checklist evaluation (typically, the URI template used is '{+targetro}').  Future implementations may provide alternative variables that may be used in a URI template to construct the URI of a resource to be targeted."
-    Domain: minim:Constraint
+    Domain: minim:Checklist
     Range: string
 
   DataProperty: minim:forPurpose
@@ -30,8 +30,8 @@ Ontology:  <http://purl.org/minim/minim>
       rdfs:label "for purpose",
       rdfs:comment "Supplies a string which describes a purpose for which checklist evaluation of the target resource is to be performed.
 
-Note that a purpose is implicit in a constraint object itself, so the purpose is not treated as a separate resource, or given a separate URI.  Rather, this string serves as a label or keyword that can be used in a user interface."
-    Domain: minim:Constraint
+Note that a purpose is implicit in a checklist object itself, so the purpose is not treated as a separate resource, or given a separate URI.  Rather, this string serves as a label or keyword that can be used in a user interface."
+    Domain: minim:Checklist
     Range: string
     # SubPropertyOf: rdfs:label
 
@@ -39,7 +39,7 @@ Note that a purpose is implicit in a constraint object itself, so the purpose is
     Annotations:
       rdfs:label "to model",
       rdfs:comment "Indicates a minim:Model to be used to perform checklist evaluation for the indicated target resource to be suitable for the indicated purpose."
-    Domain: minim:Constraint
+    Domain: minim:Checklist
     Range: minim:Model
 
   ObjectProperty: hasRequirement
@@ -149,7 +149,7 @@ Note that a purpose is implicit in a constraint object itself, so the purpose is
     Annotations:
       rdfs:label "minimum occurrences",
       rdfs:comment
-        "This property is used with minim:CardinalityTest to indicate minimum number of distinct results that are required for a cardinality constraint test to succeed.
+        "This property is used with minim:CardinalityTest to indicate minimum number of distinct results that are required for a cardinality test to be satisfied.
        
 Note that minim:min and minim:max can be used together to define an exact cardinality or cardinality range test."
     Domain: minim:CardinalityTest
@@ -159,7 +159,7 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "maximum occurrences",
       rdfs:comment
-        "This property is used with minim:CardinalityTest to indicate maximum number of distinct results that are required for a cardinality constraint test to succeed.
+        "This property is used with minim:CardinalityTest to indicate maximum number of distinct results that are required for a cardinality test to be satisfied.
 
 Note that minim:min and minim:max can be used together to define an exact cardinality or cardinality range test."
     Domain: minim:CardinalityTest
@@ -169,7 +169,7 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "exists query",
       rdfs:comment
-        "This property is used with minim:ExistsTest to indicate a further query that is used to probe the existence of required metadata related to the results so far retrieved."
+        "This property is used with minim:ExistsTest to indicate a further query that is used to test for the existence of required metadata related to the results so far retrieved."
     Domain: minim:ExistsTest
     Range: minim:SparqlQuery
   
@@ -177,7 +177,7 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "aggregation test URI template",
       rdfs:comment
-        "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570) that is in turn used to construct the URI of resource that is tested for inclusion in the current RO aggregation."
+        "This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570) that is in turn used to construct the URI of resource that is tested for inclusion in the current RO aggregation.  The test makes sense only for evaluations performed in the context provided by a Research Object."
     Domain: minim:AggregationTest
     Range: string
   
@@ -194,7 +194,7 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "test affirmed rule",
       rdfs:comment 
-        "Indicates a rule that is invoked with the current result as predefined variable bindings.  The result returned is the result of the rule invocation."
+        "Indicates a rule that is invoked with the current query result as predefined variable bindings.  The result returned is the result of the rule invocation."
     Domain: minim:RuleTest
     Range: minim:Rule
 
@@ -202,20 +202,20 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "test negated rule",
       rdfs:comment 
-        "Indicates a rule that is invoked with the current result as predefined variable bindings.  The result returned is success if the rule invocation fails, otherwise failure if the rule succeeds."
+        "Indicates a rule that is invoked with the current query result as predefined variable bindings.  The result returned is success if the rule invocation fails, otherwise failure if the rule succeeds."
     Domain: minim:RuleNegationTest
     Range: minim:Rule
 
   # Classes
   # -------
 
-  Class: minim:Constraint
+  Class: minim:Checklist
     Annotations:
-      rdfs:label "Minim constraint",
+      rdfs:label "Minim checklist",
       rdfs:comment
-        "Indicates a Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  A constraint expresses the idea that if some target resource is to be suitable for some purpose, then it must satisfy a designated minim:Model.
+        "A checklist object indicates a minim:Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  As such, it links a target resource and a purpose for which it might be used with a minim:Model that must be satisfied for the resource to be considered fit for that purpose..
 
-A constraint may be associated directly with a target resource as the subject of a minim:hasConstraint statement, or may be associated indirectly via a URI template that is the object of an associated minim:forTargetTemplate statement.  The latter form is preferred as it allows a given constraint to be more easily used with multiple resources."
+A Checklist may be associated directly with a target resource as the subject of a minim:hasChecklist statement, or may be associated indirectly via a URI template that is the object of an associated minim:forTargetTemplate statement.  The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources."
     EquivalentTo: 
       ( (minim:forTargetTemplate max 1 string) and
         (minim:forPurpose exactly 1 string) and
