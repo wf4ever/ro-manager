@@ -51,7 +51,103 @@
 }
 \section{Minim checklist description}
 
-The MINIM description contains 3 levels of description:
+This document describes elements of the Minim checklist model. Examples
+are presented using Turtle syntax (@@ref).
+
+\subsection{Checklist evaluation context}
+
+The Minim checklist model describes a set of requirements to be
+satisfied by some set of linked data for a designated resource to be
+suitable for some purpose.
+
+Thus, the context required for evaluating a Minim checklist is a target
+resource, a set of linked data (an RDF graph) containing metadata about
+the target resource and related resources, and a purpose for which the
+resource is being evaluated. The environment or service that invokes a
+checklist evaluation must supply:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  \emph{metadata}: a set of linked data in the form of an RDF graph,
+\item
+  \emph{target}: the URI of a resource to be targeted by the evaluation,
+  and
+\item
+  \emph{purpose}: a string that designates the purpose of the evaluation
+\end{itemize}
+
+For example, when the evaluation is applied to a Research Object
+(@@ref), the target resource may be the Research Object itself, the set
+of linked data is the set of annotations aggregated by the Research
+Object. But the evaluation may also target an individual resource other
+than the Research Object while still depending on context that it
+provides, in which case the Research Object and the target resource must
+be specified as separate resources.
+
+This information is used in conjunction with a set of
+\texttt{minim:Checklist} descriptions (see below) to select a
+\texttt{minim:Model} as the basis for the evaluation, and to construct
+an initial Minim \emph{evaluation context}. The Minim evaluation context
+consists of a set of variable/value bindings; the initial context
+contains the following bindings, and maybe others:
+
+~~
+
+targetres
+
+:
+
+the URI of the resource that is the target of the current evaluation
+
+Variables defined in the minim evaluation context, referred to later as
+\emph{Minim environment variables}, are used in a number of ways:
+
+\begin{itemize}
+\itemsep1pt\parskip0pt\parsep0pt
+\item
+  In query patterns, query variables that are the same as Minim
+  environment variables are treated as being pre-bound: only those query
+  results for which the returned variable binding would be the same as
+  the existing Minim environment variable binding are returned.
+\item
+  The results of a query are used as additional variables in constructs
+  that depend on the result of that query.
+\item
+  URI templates are expanded using Minim environment variables to supply
+  values for template variables.
+\item
+  Diagnostic messages containing Python-style \texttt{\%(name)s}
+  constructs have those constructs replaced by the value of the named
+  Minim environment variable.
+\end{itemize}
+
+The exact ways in which the Minim evaluation context is used depends
+upon the particular requirement being evaluated. Most commonly, it is
+used in conjunction with a \texttt{minim:QueryTestRule} (described
+later). For example, the following checklist requirement tests for an
+\texttt{rdfs:label} value for the target resource of an evaluation:
+
+\begin{verbatim}
+:target_labeled a minim:QueryTestRule ;
+  minim:query 
+    [ a minim:SparqlQuery ; 
+      minim:sparql_query "?targetres rdfs:label ?targetlabel ." ] ;
+  minim:min 1 ;
+  minim:showpass "Target resource label is %(targetlabel)s" ;
+  minim:showfail "No label for target resource %(targetres)s" .
+\end{verbatim}
+
+This queries the metadata for an \texttt{rdfs:label} applied to the
+evaluation target resource (whose URI is defined in the initial
+evaluation context as \emph{\texttt{targetres}}, as described above). If
+present, the requirement is satisfied and a message containing the label
+is returned. Otherwise, the requirement is not satisfied and a message
+containing the target resource URI is returned.
+
+\subsection{Checklist description structure}
+
+A Minim checklist contains 3 levels of description:
 
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
@@ -86,14 +182,20 @@ descriptive metadata is a merge of all its aggregated annotations.
 
 The goal of our approach is to determine suitability for some user
 selected purpose, so there may be several checklists defined, each
-associated with evaluating suitability of some data for different
-purposes.
+associated with evaluating suitability of some data for a different
+purpose.
 
-A minim:Checklist provides information that can be used to select a
-minim:Model and a Research Object, or a resource within a resource
-object, to be evaluated to determine its suitability for some purpose.
-This example indicates a minim:Model that might be used for evaluating
-whether or not a workflow contains a runnable workflow:
+The role of a \texttt{minim:Checklist} resource is associate a target
+resource with a \texttt{minim:Model} that describes requirements for the
+resource to be suitable for an indicated purpose. A \texttt{minim:Model}
+may be associated directly with a target resource that is the subject of
+a \texttt{minim:hasChecklist} statement, or may be associated indirectly
+via a URI template that is the object of an associated
+\texttt{minim:forTargetTemplate} statement. The latter form is is more
+flexible as it allows a given \texttt{minim:Modfel} to be more easily
+used with multiple resources. This example indicates a
+\texttt{minim:Model} that might be used for evaluating whether or not a
+workflow contains a runnable workflow:
 
 \begin{verbatim}
 :runnable_workflow a minim:Checklist ;
@@ -103,44 +205,56 @@ whether or not a workflow contains a runnable workflow:
   rdfs:comment """Select model to evaluate if RO contains a runnable workflow""" .
 \end{verbatim}
 
-The \texttt{minim:Checklist} structure provides a link between a generic
-\texttt{minim:Model} structure and the application environment in which
-it is implemented. In our implementation, the evaluation context is
-provided by a Research Object and a supplied Minim description resource
-which may contain several checklist definitions as above. Also provided
-by the evaluation context are some Minim environment variables:
+The \texttt{minim:Checklist} structure provides a link between a
+\texttt{minim:Model} structure and the context in which it is evaluated.
+In our implementation, the evaluation context is provided by a Research
+Object and a supplied Minim description resource, which may contain
+several checklist definitions as above. Also provided by the Minim
+checklist evaluation context are some Minim environment variables:
 
-\begin{itemize}
-\itemsep1pt\parskip0pt\parsep0pt
-\item
-  \texttt{targetro}: the URI of the research object being evaluated
-\item
-  \texttt{targetres}: the URI of a particular resource that is targeted
-  by the evaluation, which may be specified in the checklist evaluation
-  API. If no explicit target is specified, this defaults to the RO URI.
-\end{itemize}
+~~
 
-These Minim environment variables may be used in subsequent requirement
-rule descriptions, and in particular may be used as pre-bound query
-variables in the query part of some requirement rules.
+targetres
+
+:
+
+the URI of the resource that is the target resource to be evaluated. By
+default, this is the URI of provided Research Object.
+
+~~
+
+targetro
+
+:
+
+the URI of the research object that provides contextual information
+(metadata) about the target resource.
+
+See above for more information about the Minim checklist evaluation
+context.
 
 \subsection{minim:Model}
 
 A minim:Model enumerates of a number of requirements which may be
 declared at levels of MUST, SHOULD or MAY be satisfied for the model as
-a whole to be considered satisfied. This follows a structure for minimum
-information models proposed by Matthew Gamble. Here is an example of a
-model that has been used for testing whether a runnable workflow is
-present:
+a whole to be considered satisfied. This follows an outline structure
+for minimum information models proposed by Matthew Gamble (@@ref). Here
+is an example of a model that has been used for testing whether a
+runnable workflow is present:
 
-:runnable\_workflow\_model a minim:Model ; rdfs:label ``Minimum
-information for RO containing a runnable workflow'' rdfs:comment ``"''
-This model defines information that must be available in a Research
-Object containing a runnable workfow which in turn may need a Python
-software interpeter to be available. ``"'' ; minim:hasMustRequirement
-:has\_workflow\_instance ; minim:hasMustRequirement :live\_workflow ;
-minim:hasMustRequirement :has\_workflow\_inputfiles" ;
-minim:hasMustRequirement :environment\_python .
+\begin{verbatim}
+:runnable_workflow_model a minim:Model ;
+  rdfs:label "Minimum information for RO containing a runnable workflow"
+  rdfs:comment
+    """
+    This model defines information that must be available in a Research Object containing a runnable workfow
+    which in turn may need a Python software interpeter to be available.
+    """ ;
+  minim:hasMustRequirement :has_workflow_instance ;
+  minim:hasMustRequirement :live_workflow ;
+  minim:hasMustRequirement :has_workflow_inputfiles" ;
+  minim:hasMustRequirement :environment_python .
+\end{verbatim}
 
 \subsection{minim:Requirement}
 
@@ -155,14 +269,21 @@ The basic structure of a requirement is an association between the
 identified requirement and its associated evaluation rule; e.g.
 
 \begin{verbatim}
-:has_workflow-instance a minim:Requirement
-  rdfs:label "Workflow instance requirement"
+:has_workflow-instance a minim:Requirement ;
+  rdfs:label "Workflow instance requirement" ;
   rdfs:comment
     """
     For a Research Object to contain a runnable workflow, a workflow instance must be specified.
     """ ;
   minim:isDerivedBy :has_workflow_instance_rule .
 \end{verbatim}
+
+Each requirement takes the form of a function that returns \texttt{true}
+(indicating that the requirement is satisfied), or \texttt{false}
+(indicating that the requirement is not satisfied). It may also return a
+diagnostic string that may be used when reporting the outcome of the
+checklist evaluation. This \texttt{true} or \texttt{false} values are
+sometimes referred to as \emph{pass} or \emph{fail}.
 
 \subsubsection{minim:QueryTestRule}
 
@@ -173,22 +294,24 @@ consists of three parts:
 \begin{itemize}
 \itemsep1pt\parskip0pt\parsep0pt
 \item
-  a SPARQL query, which is evaluated against the RDF metadata that
+  a query pattern, which is evaluated against the RDF metadata that
   described the evaluation context (i.e., in our implementation, the
   merged annotations from a Research Object). The result of evaluating
   this query is a list of variable bindings, each of which defines
-  values for one or more variable names that appear in the SPARQL query.
-  Any Minim environment variables are treated as pre-bound variables,
-  which means that the query can generate results that are dependent on
-  the evaluation context.
+  values for one or more variable names that appear in the query
+  pattern. Any supplied Minim environment variables are treated as
+  pre-bound variables, which allows a query to generate results that are
+  dependent on the evaluation context.
 \item
-  (optionally) a resource to be queried. If not specified, the supplied
-  evaluation context metadata is used. The resource is specified as a
-  URI template that is expanded using currently defined Minim
-  environment variables, and dereferenced to retrieve an RDF graph value
-  that is queried.
+  (optionally) an external resource to be queried. This value is used to
+  probe data that is external to the evaluation context, rather that
+  supplied metadata about the target resource. If not specified, the
+  supplied evaluation context metadata is used. The external resource is
+  specified as a URI template that is expanded using currently defined
+  Minim environment variables, and dereferenced to retrieve an RDF graph
+  value.
 \item
-  a query result test, which takes the query result and returns a True
+  a test, which analyzes values from the query result and returns a True
   (pass) or False (fail) result. The test may simply examine the
   supplied query result, or may use that result to perform further
   interrogation of resources outside the immediate context; e.g.~testing
@@ -196,10 +319,27 @@ consists of three parts:
   accessible.
 \end{itemize}
 
+The interaction of a \texttt{minim:QueryTestRule} with the evaluation
+context environment variables is particularly important to the way that
+it can be used. If the query pattern mentions any variables that are
+already defined in the evaluation context, those variables are
+considered to be pre-bound in the query. That is, only those query
+results in which the query variable matches a value equal to the
+environment variable value are returned. Further, other query variables
+whose values are returned are used as additional environment variables
+in the tests that use the query result, and may be used in URI
+templates, diagnostic strings or as pre-bound variables in any further
+queries that are used.
+
+Examples of query results used in URI tenmplates and diagnostic strings
+can be seen in the \texttt{minim:AccessibilityTest} section below. An
+example of query results used in a further query can be seen in the
+section on \texttt{minim:RuleTest}.
+
 Several different types of query result test are provided, and
 additional test types may be added to the model (and implementation) if
 existing tests do not provide the required assurances. The various test
-typess currently defined are described in the following sections.
+types currently defined are described in the following sections.
 
 \paragraph{\texttt{minim:CardinalityTest} (existence test)}
 
