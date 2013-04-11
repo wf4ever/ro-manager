@@ -25,7 +25,7 @@ For example, when the evaluation is applied to a Research Object (@@ref), the ta
 This information is used in conjunction with a set of `minim:Checklist` descriptions (see below) to select a `minim:Model` as the basis for the evaluation, and to construct an initial Minim _evaluation context_.  The Minim evaluation context consists of a set of variable/value bindings; the initial context contains the following bindings, and maybe others:
 
 <table>
-  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetres</code></em></td><td>:</td><td>the URI of the resource that is the target of the current evaluation</td></tr>
+  <tr><td>&nbsp;&nbsp;<em><code>targetres</code></em>&nbsp;&nbsp;</td><td>the URI of the resource that is the target of the current evaluation</td></tr>
 </table>
 
 Variables defined in the minim evaluation context, referred to later as _Minim environment variables_, are used in a number of ways:
@@ -77,8 +77,8 @@ The role of a `minim:Checklist` resource is associate a target resource with a `
 The `minim:Checklist` structure provides a link between a `minim:Model` structure and the context in which it is evaluated.  In our implementation, the evaluation context is provided by a Research Object and a supplied Minim description resource, which may contain several checklist definitions as above.  Also provided by the Minim checklist evaluation context are some Minim environment variables:
 
 <table>
-  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetres</code></em></td><td>:</td><td>the URI of the resource that is the target resource to be evaluated.  By default, this is the URI of provided Research Object.</td></tr>
-  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetro</code></em></td><td>:</td><td>the URI of the research object that provides contextual information (metadata) about the target resource.</td></tr>
+  <tr><td>&nbsp;&nbsp;<em><code>targetres</code></em>&nbsp;&nbsp;</td><td>the URI of the resource that is the target resource to be evaluated.  By default, this is the URI of provided Research Object.</td></tr>
+  <tr><td>&nbsp;&nbsp;<em><code>targetro</code></em>&nbsp;&nbsp;</td><td>the URI of the research object that provides contextual information (metadata) about the target resource.</td></tr>
 </table>
 
 See above for more information about the Minim checklist evaluation context.
