@@ -41,7 +41,8 @@ setup(
                ,'iaeval','iaeval.test'
                ,'MiscLib'
                ,'samples'
-               ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
+               # ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
+               ],
     package_data = {
         'rocommand':    [ 'test/config/*','test/robase/README','test/nobase/README'
                         , 'test/data/ro-test-1/subdir1/*','test/data/ro-test-1/subdir2/*'
@@ -69,7 +70,8 @@ setup(
         "Programming Language :: Python",
         ],
     zip_safe=False,
-    install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2", "httplib2"],
+    # install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2", "httplib2"],
+    install_requires=["rdflib >= 3.2.1", "rdflib-sparql", "httplib2", "uritemplate"],
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
