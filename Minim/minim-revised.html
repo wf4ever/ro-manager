@@ -14,10 +14,10 @@
 <li><a href="#minim-checklist-description">Minim checklist description</a><ul>
 <li><a href="#checklist-evaluation-context">Checklist evaluation context</a></li>
 <li><a href="#checklist-description-structure">Checklist description structure</a></li>
-<li><a href="#minimchecklist">minim:Checklist</a></li>
-<li><a href="#minimmodel">minim:Model</a></li>
-<li><a href="#minimrequirement">minim:Requirement</a><ul>
-<li><a href="#minimquerytestrule">minim:QueryTestRule</a><ul>
+<li><a href="#minimchecklist"><code>minim:Checklist</code></a></li>
+<li><a href="#minimmodel"><code>minim:Model</code></a></li>
+<li><a href="#minimrequirement"><code>minim:Requirement</code></a><ul>
+<li><a href="#minimquerytestrule"><code>minim:QueryTestRule</code></a><ul>
 <li><a href="#minimcardinalitytest-existence-test"><code>minim:CardinalityTest</code> (existence test)</a></li>
 <li><a href="#minimaccessibilitytest-liveness-test"><code>minim:AccessibilityTest</code> (liveness test)</a></li>
 <li><a href="#minimaggregationtest"><code>minim:AggregationTest</code></a></li>
@@ -86,7 +86,7 @@ the URI of the resource that is the target of the current evaluation
 </ul>
 <p>These three levels are called out in the sections below. A definition of the Minim ontology can be found at <a href="">https://github.com/wf4ever/ro-manager/tree/develop</a></p>
 <p>A minim checklist implementation evaluates a checklist in some context. A minimum realization for such a context is the presence of some RDF metadata describing the resources associated with it. In our implementation, the context is a Research Object (@@ref), and the descriptive metadata is a merge of all its aggregated annotations.</p>
-<h2 id="minimchecklist"><a href="#minimchecklist">minim:Checklist</a></h2>
+<h2 id="minimchecklist"><a href="#minimchecklist"><code>minim:Checklist</code></a></h2>
 <p>The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for a different purpose.</p>
 <p>The role of a <code>minim:Checklist</code> resource is associate a target resource with a <code>minim:Model</code> that describes requirements for the resource to be suitable for an indicated purpose. A <code>minim:Model</code> may be associated directly with a target resource that is the subject of a <code>minim:hasChecklist</code> statement, or may be associated indirectly via a URI template that is the object of an associated <code>minim:forTargetTemplate</code> statement. The latter form is is more flexible as it allows a given <code>minim:Modfel</code> to be more easily used with multiple resources. This example indicates a <code>minim:Model</code> that might be used for evaluating whether or not a workflow contains a runnable workflow:</p>
 <pre><code>:runnable_workflow a minim:Checklist ;
@@ -117,7 +117,7 @@ the URI of the research object that provides contextual information (metadata) a
 </table>
 
 <p>See above for more information about the Minim checklist evaluation context.</p>
-<h2 id="minimmodel"><a href="#minimmodel">minim:Model</a></h2>
+<h2 id="minimmodel"><a href="#minimmodel"><code>minim:Model</code></a></h2>
 <p>A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows an outline structure for minimum information models proposed by Matthew Gamble (@@ref). Here is an example of a model that has been used for testing whether a runnable workflow is present:</p>
 <pre><code>:runnable_workflow_model a minim:Model ;
   rdfs:label &quot;Minimum information for RO containing a runnable workflow&quot;
@@ -130,7 +130,7 @@ the URI of the research object that provides contextual information (metadata) a
   minim:hasMustRequirement :live_workflow ;
   minim:hasMustRequirement :has_workflow_inputfiles&quot; ;
   minim:hasMustRequirement :environment_python .</code></pre>
-<h2 id="minimrequirement"><a href="#minimrequirement">minim:Requirement</a></h2>
+<h2 id="minimrequirement"><a href="#minimrequirement"><code>minim:Requirement</code></a></h2>
 <p>Minim requirements are evaluated using rules. The current implementation defined two types of rule: a <code>minim:QueryTestRule</code> and a <code>minim:SoftwareEnvRule</code>, which are described later. If and when new requirements are encountered that cannot be covered by available rules, new rule types may be introduced to the model and added to its implementation.</p>
 <p>The basic structure of a requirement is an association between the identified requirement and its associated evaluation rule; e.g.</p>
 <pre><code>:has_workflow-instance a minim:Requirement ;
@@ -141,7 +141,7 @@ the URI of the research object that provides contextual information (metadata) a
     &quot;&quot;&quot; ;
   minim:isDerivedBy :has_workflow_instance_rule .</code></pre>
 <p>Each requirement takes the form of a function that returns <code>true</code> (indicating that the requirement is satisfied), or <code>false</code> (indicating that the requirement is not satisfied). It may also return a diagnostic string that may be used when reporting the outcome of the checklist evaluation. This <code>true</code> or <code>false</code> values are sometimes referred to as <em>pass</em> or <em>fail</em>.</p>
-<h3 id="minimquerytestrule"><a href="#minimquerytestrule">minim:QueryTestRule</a></h3>
+<h3 id="minimquerytestrule"><a href="#minimquerytestrule"><code>minim:QueryTestRule</code></a></h3>
 <p>This is a &quot;swiss army knife&quot; of a rule which in its various forms is capable of handling most of the checklist requirements we encounter. It consists of three parts:</p>
 <ul>
 <li>a query pattern, which is evaluated against the RDF metadata that described the evaluation context (i.e., in our implementation, the merged annotations from a Research Object). The result of evaluating this query is a list of variable bindings, each of which defines values for one or more variable names that appear in the query pattern. Any supplied Minim environment variables are treated as pre-bound variables, which allows a query to generate results that are dependent on the evaluation context.</li>

@@ -62,7 +62,7 @@ A definition of the Minim ontology can be found at [https://github.com/wf4ever/r
 A minim checklist implementation evaluates a checklist in some context.  A minimum realization for such a context is the presence of some RDF metadata describing the resources associated with it.  In our implementation, the context is a Research Object (@@ref), and the descriptive metadata is a merge of all its aggregated annotations.
 
 
-## minim:Checklist
+## `minim:Checklist`
 
 The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for a different purpose.  
 
@@ -84,7 +84,7 @@ The `minim:Checklist` structure provides a link between a `minim:Model` structur
 See above for more information about the Minim checklist evaluation context.
 
 
-## minim:Model
+## `minim:Model`
 
 A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows an outline structure for minimum information models proposed by Matthew Gamble (@@ref).  Here is an example of a model that has been used for testing whether a runnable workflow is present:
 
@@ -101,7 +101,7 @@ A minim:Model enumerates of a number of requirements which may be declared at le
       minim:hasMustRequirement :environment_python .
 
 
-## minim:Requirement
+## `minim:Requirement`
 
 Minim requirements are evaluated using rules.  The current implementation defined two types of rule: a `minim:QueryTestRule` and a `minim:SoftwareEnvRule`, which are described later.  If and when new requirements are encountered that cannot be covered by available rules, new rule types may be introduced to the model and added to its implementation.
 
@@ -118,7 +118,7 @@ The basic structure of a requirement is an association between the identified re
 Each requirement takes the form of a function that returns `true` (indicating that the requirement is satisfied), or `false` (indicating that the requirement is not satisfied).  It may also return a diagnostic string that may be used when reporting the outcome of the checklist evaluation.  This `true` or `false` values are sometimes referred to as _pass_ or _fail_.
 
 
-### minim:QueryTestRule
+### `minim:QueryTestRule`
 
 This is a "swiss army knife" of a rule which in its various forms is capable of handling most of the checklist requirements we encounter.  It consists of three parts:
 

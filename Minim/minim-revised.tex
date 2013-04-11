@@ -189,7 +189,7 @@ metadata describing the resources associated with it. In our
 implementation, the context is a Research Object (@@ref), and the
 descriptive metadata is a merge of all its aggregated annotations.
 
-\subsection{minim:Checklist}
+\subsection{\texttt{minim:Checklist}}
 
 The goal of our approach is to determine suitability for some user
 selected purpose, so there may be several checklists defined, each
@@ -244,7 +244,7 @@ the URI of the research object that provides contextual information
 See above for more information about the Minim checklist evaluation
 context.
 
-\subsection{minim:Model}
+\subsection{\texttt{minim:Model}}
 
 A minim:Model enumerates of a number of requirements which may be
 declared at levels of MUST, SHOULD or MAY be satisfied for the model as
@@ -267,7 +267,7 @@ runnable workflow is present:
   minim:hasMustRequirement :environment_python .
 \end{verbatim}
 
-\subsection{minim:Requirement}
+\subsection{\texttt{minim:Requirement}}
 
 Minim requirements are evaluated using rules. The current implementation
 defined two types of rule: a \texttt{minim:QueryTestRule} and a
@@ -296,7 +296,7 @@ diagnostic string that may be used when reporting the outcome of the
 checklist evaluation. This \texttt{true} or \texttt{false} values are
 sometimes referred to as \emph{pass} or \emph{fail}.
 
-\subsubsection{minim:QueryTestRule}
+\subsubsection{\texttt{minim:QueryTestRule}}
 
 This is a ``swiss army knife'' of a rule which in its various forms is
 capable of handling most of the checklist requirements we encounter. It
