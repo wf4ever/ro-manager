@@ -2,6 +2,13 @@
 
 This document describes elements of the Minim checklist model.  Examples are presented using Turtle syntax (@@ref).
 
+HTML and LaTeX versions of this document can be generated using Pandoc; e.g.:
+
+    pandoc --table-of-contents --toc-depth=3 -c pandoc-html.css \
+           --from=markdown --to=latex -o minim-revised.tex minim-revised.md
+
+    pandoc --table-of-contents --toc-depth=3 -c pandoc-html.css \
+           --from=markdown --to=html -o minim-revised.html minim-revised.md
 
 ## Checklist evaluation context
 
