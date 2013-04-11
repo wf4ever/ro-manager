@@ -21,18 +21,35 @@ from rocommand.ro_namespaces import RDF, RDFS
 
 minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
 MINIM      = ro_namespaces.makeNamespace(minimnsuri,
-            [ "Constraint", "Model", "Requirement", "RequirementRule"
-            , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
-            , "hasConstraint" 
-            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
+            [ "Constraint", "Checklist"             # synonyms
+            , "hasConstraint", "hasChecklist"       # synonyms
+            # Model and properties
+            , "Model"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
+            # Requirement and properties
+            , "Requirement"
             , "derives", "reports", "isDerivedBy"
             , "show", "showpass", "showfail", "showmiss", "seq"
+            # Rules and properties
+            , "RequirementRule"
+            , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
+            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
             , "aggregates"
             , "command", "response"
             , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
-            , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
+            # Refactored rule and properties
+            , "QueryTestRule", "graph", "query"
+            , "Query"
+            , "SparqlQuery", "sparql_querty", "result_mod"
+            , "QueryResultTest"
+            , "CardinalityTest", "min", "max"   ### @@use min, max, all as qualifiers for other tests?
+            , "RuleTest", "affirmRule"
+            , "RuleNegationTest", "negateRule"  ### @@use max cardinality constraint instead?
+            , "AggregationTest", "aggregatesTemplate"
+            , "AccessibilityTest", "isLiveTemplate"
+            , "ExistsTest", "exists"            ### @@this is structly redundant - drop it?
             # Result properties
+            , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             , "satisfied", "missingMay", "missingShould", "missingMust"
             , "testedConstraint", "testedPurpose", "testedTarget"
             , "minimUri", "modelUri"

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Module to test RO manager manifest and aggregation commands
+Module to test RO manager minim access functions
 
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
