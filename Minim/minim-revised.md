@@ -4,10 +4,10 @@ This document describes elements of the Minim checklist model.  Examples are pre
 
 HTML and LaTeX versions of this document can be generated using Pandoc; e.g.:
 
-    pandoc --table-of-contents --toc-depth=3 -c pandoc-html.css \
+    pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
            --from=markdown --to=latex -o minim-revised.tex minim-revised.md
 
-    pandoc --table-of-contents --toc-depth=3 -c pandoc-html.css \
+    pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
            --from=markdown --to=html -o minim-revised.html minim-revised.md
 
 ## Checklist evaluation context
@@ -249,7 +249,7 @@ If defined, this would be a short cut form for `minim:RuleTest` with `minim:Card
       minim:showfail "Workflow %(wflab)s has no defined input" .
 
 
-### Software environment testing
+### `minim:SoftwareEnvRule` (software environment test)
 
 A `minim:SoftwareEnvRule` tests to see if a particular piece of software is available in the current execution environment by issuing a command and checking the response against a supplied regular expression. (This test is primarily intended for local use within RO-manager, and may be of limited use on the evaluation service as the command is issued on the host running the evaluation service, not on the host requesting the service.)
 

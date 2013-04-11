@@ -17,8 +17,15 @@
 <li><a href="#minimchecklist">minim:Checklist</a></li>
 <li><a href="#minimmodel">minim:Model</a></li>
 <li><a href="#minimrequirement">minim:Requirement</a><ul>
-<li><a href="#minimquerytestrule">minim:QueryTestRule</a></li>
-<li><a href="#software-environment-testing">Software environment testing</a></li>
+<li><a href="#minimquerytestrule">minim:QueryTestRule</a><ul>
+<li><a href="#minimcardinalitytest-existence-test"><code>minim:CardinalityTest</code> (existence test)</a></li>
+<li><a href="#minimaccessibilitytest-liveness-test"><code>minim:AccessibilityTest</code> (liveness test)</a></li>
+<li><a href="#minimaggregationtest"><code>minim:AggregationTest</code></a></li>
+<li><a href="#minimruletest"><code>minim:RuleTest</code></a></li>
+<li><a href="#minimrulenegationtest"><code>minim:RuleNegationTest</code></a></li>
+<li><a href="#minimexiststest"><code>minim:ExistsTest</code></a></li>
+</ul></li>
+<li><a href="#minimsoftwareenvrule-software-environment-test"><code>minim:SoftwareEnvRule</code> (software environment test)</a></li>
 </ul></li>
 </ul></li>
 <li><a href="#notes">Notes</a></li>
@@ -26,6 +33,12 @@
 </div>
 <h1 id="minim-checklist-description"><a href="#minim-checklist-description">Minim checklist description</a></h1>
 <p>This document describes elements of the Minim checklist model. Examples are presented using Turtle syntax (@@ref).</p>
+<p>HTML and LaTeX versions of this document can be generated using Pandoc; e.g.:</p>
+<pre><code>pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
+       --from=markdown --to=latex -o minim-revised.tex minim-revised.md
+
+pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
+       --from=markdown --to=html -o minim-revised.html minim-revised.md</code></pre>
 <h2 id="checklist-evaluation-context"><a href="#checklist-evaluation-context">Checklist evaluation context</a></h2>
 <p>The Minim checklist model describes a set of requirements to be satisfied by some set of linked data for a designated resource to be suitable for some purpose.</p>
 <p>Thus, the context required for evaluating a Minim checklist is a target resource, a set of linked data (an RDF graph) containing metadata about the target resource and related resources, and a purpose for which the resource is being evaluated. The environment or service that invokes a checklist evaluation must supply:</p>
@@ -225,7 +238,7 @@ the URI of the research object that provides contextual information (metadata) a
         &quot;&quot;&quot; ] ;
   minim:showpass &quot;All workflow instance definitions have defined inputs&quot; ;
   minim:showfail &quot;Workflow %(wflab)s has no defined input&quot; .</code></pre>
-<h3 id="software-environment-testing"><a href="#software-environment-testing">Software environment testing</a></h3>
+<h3 id="minimsoftwareenvrule-software-environment-test"><a href="#minimsoftwareenvrule-software-environment-test"><code>minim:SoftwareEnvRule</code> (software environment test)</a></h3>
 <p>A <code>minim:SoftwareEnvRule</code> tests to see if a particular piece of software is available in the current execution environment by issuing a command and checking the response against a supplied regular expression. (This test is primarily intended for local use within RO-manager, and may be of limited use on the evaluation service as the command is issued on the host running the evaluation service, not on the host requesting the service.)</p>
 <p>The result of running the command (i.e. data written to its standard output stream) is used to define a new Minim environment variable, which can be used for diagnostic purposes.</p>
 <pre><code>:environment_python a minim:SoftwareEnvRule ;

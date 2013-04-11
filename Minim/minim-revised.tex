@@ -46,13 +46,24 @@
 
 {
 \hypersetup{linkcolor=black}
-\setcounter{tocdepth}{3}
+\setcounter{tocdepth}{4}
 \tableofcontents
 }
 \section{Minim checklist description}
 
 This document describes elements of the Minim checklist model. Examples
 are presented using Turtle syntax (@@ref).
+
+HTML and LaTeX versions of this document can be generated using Pandoc;
+e.g.:
+
+\begin{verbatim}
+pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
+       --from=markdown --to=latex -o minim-revised.tex minim-revised.md
+
+pandoc --table-of-contents --toc-depth=4 -c pandoc-html.css \
+       --from=markdown --to=html -o minim-revised.html minim-revised.md
+\end{verbatim}
 
 \subsection{Checklist evaluation context}
 
@@ -491,7 +502,8 @@ with \texttt{minim:CardinalityTest}; e.g.~the previous
   minim:showfail "Workflow %(wflab)s has no defined input" .
 \end{verbatim}
 
-\subsubsection{Software environment testing}
+\subsubsection{\texttt{minim:SoftwareEnvRule} (software environment
+test)}
 
 A \texttt{minim:SoftwareEnvRule} tests to see if a particular piece of
 software is available in the current execution environment by issuing a
