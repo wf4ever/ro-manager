@@ -1,10 +1,13 @@
 # Minim checklist description
 
+This document describes elements of the Minim checklist model.  Examples are presented using Turtle syntax (@@ref).
+
+
 ## Checklist evaluation context
 
-The Minim checklist model describes a set of requirements to be satisfied by some set of linked data for a designated resource to to suitable for some purpose.
+The Minim checklist model describes a set of requirements to be satisfied by some set of linked data for a designated resource to be suitable for some purpose.
 
-Thus, the context required for evaluating a Minim checklist is a target resource, a set of linked data, presented as an RDF graph, containing metadata about the target resource and related resources, and a purpose for which the resource is being evaluated.  The environment or service that invokes a checklist evaluation must supply:
+Thus, the context required for evaluating a Minim checklist is a target resource, a set of linked data (an RDF graph) containing metadata about the target resource and related resources, and a purpose for which the resource is being evaluated.  The environment or service that invokes a checklist evaluation must supply:
 
 * _metadata_: a set of linked data in the form of an RDF graph,
 * _target_: the URI of a resource to be targeted by the evaluation, and
@@ -37,6 +40,7 @@ The exact ways in which the Minim evaluation context is used depends upon the pa
 
 This queries the metadata for an `rdfs:label` applied to the evaluation target resource (whose URI is defined in the initial evaluation context as _`targetres`_, as described above).  If present, the requirement is satisfied and a message containing the label is returned.  Otherwise, the requirement is not satisfied and a message containing the target resource URI is returned.
 
+
 ## Checklist description structure
 
 A Minim checklist contains 3 levels of description:
@@ -53,10 +57,9 @@ A minim checklist implementation evaluates a checklist in some context.  A minim
 
 ## minim:Checklist
 
-The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for different purposes.  A Checklist may be associated directly with a target resource as the subject of a `minim:hasChecklist` statement, or may be associated indirectly via a URI template that is the object of an associated `minim:forTargetTemplate` statement. The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources.
+The goal of our approach is to determine suitability for some user selected purpose, so there may be several checklists defined, each associated with evaluating suitability of some data for a different purpose.  
 
-
-A minim:Checklist provides information that can be used to select a minim:Model and a Research Object, or a resource within a resource object, to be evaluated to determine its suitability for some purpose.  This example indicates a minim:Model that might be used for evaluating whether or not a workflow contains a runnable workflow:
+The role of a `minim:Checklist` resource is associate a target resource with a `minim:Model` that describes requirements for the resource to be suitable for an indicated purpose.  A `minim:Model` may be associated directly with a target resource that is the subject of a `minim:hasChecklist` statement, or may be associated indirectly via a URI template that is the object of an associated `minim:forTargetTemplate` statement. The latter form is is more flexible as it allows a given `minim:Modfel` to be more easily used with multiple resources.  This example indicates a `minim:Model` that might be used for evaluating whether or not a workflow contains a runnable workflow:
 
     :runnable_workflow a minim:Checklist ;
       minim:forTargetTemplate "{+targetro}" ;
@@ -64,17 +67,19 @@ A minim:Checklist provides information that can be used to select a minim:Model 
       minim:toModel :runnable_workflow_model ;
       rdfs:comment """Select model to evaluate if RO contains a runnable workflow""" .
 
-The `minim:Checklist` structure provides a link between a generic `minim:Model` structure and the application environment in which it is implemented.  In our implementation, the evaluation context is provided by a Research Object and a supplied Minim description resource which may contain several checklist definitions as above.  Also provided by the evaluation context are some Minim environment variables:
+The `minim:Checklist` structure provides a link between a `minim:Model` structure and the context in which it is evaluated.  In our implementation, the evaluation context is provided by a Research Object and a supplied Minim description resource, which may contain several checklist definitions as above.  Also provided by the Minim checklist evaluation context are some Minim environment variables:
 
-* `targetro`: the URI of the research object being evaluated
-* `targetres`: the URI of a particular resource that is targeted by the evaluation, which may be specified in the checklist evaluation API.  If no explicit target is specified, this defaults to the RO URI.
+<table>
+  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetres</code></em></td><td>:</td><td>the URI of the resource that is the target resource to be evaluated.  By default, this is the URI of provided Research Object.</td></tr>
+  <tr><td>&nbsp;&nbsp;</td><td><em><code>targetro</code></em></td><td>:</td><td>the URI of the research object that provides contextual information (metadata) about the target resource.</td></tr>
+</table>
 
-These Minim environment variables may be used in subsequent requirement rule descriptions, and in particular may be used as pre-bound query variables in the query part of some requirement rules.
+See above for more information about the Minim checklist evaluation context.
 
 
 ## minim:Model
 
-A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows a structure for minimum information models proposed by Matthew Gamble.  Here is an example of a model that has been used for testing whether a runnable workflow is present:
+A minim:Model enumerates of a number of requirements which may be declared at levels of MUST, SHOULD or MAY be satisfied for the model as a whole to be considered satisfied. This follows an outline structure for minimum information models proposed by Matthew Gamble (@@ref).  Here is an example of a model that has been used for testing whether a runnable workflow is present:
 
     :runnable_workflow_model a minim:Model ;
       rdfs:label "Minimum information for RO containing a runnable workflow"
@@ -103,16 +108,22 @@ The basic structure of a requirement is an association between the identified re
         """ ;
       minim:isDerivedBy :has_workflow_instance_rule .
 
+Each requirement takes the form of a function that returns `true` (indicating that the requirement is satisfied), or `false` (indicating that the requirement is not satisfied).  It may also return a diagnostic string that may be used when reporting the outcome of the checklist evaluation.  This `true` or `false` values are sometimes referred to as _pass_ or _fail_.
+
 
 ### minim:QueryTestRule
 
 This is a "swiss army knife" of a rule which in its various forms is capable of handling most of the checklist requirements we encounter.  It consists of three parts:
 
-* a SPARQL query, which is evaluated against the RDF metadata that described the evaluation context (i.e., in our implementation, the merged annotations from a Research Object).  The result of evaluating this query is a list of variable bindings, each of which defines values for one or more variable names that appear in the SPARQL query.  Any Minim environment variables are treated as pre-bound variables, which means that the query can generate results that are dependent on the evaluation context.
-* (optionally) a resource to be queried.  If not specified, the supplied evaluation context metadata is used.  The resource is specified as a URI template that is expanded using currently defined Minim environment variables, and dereferenced to retrieve an RDF graph value that is queried.
-* a query result test, which takes the query result and returns a True (pass) or False (fail) result.  The test may simply examine the supplied query result, or may use that result to perform further interrogation of resources outside the immediate context; e.g. testing if a web resource mentioned in the supplied metadata is actually accessible.
+* a query pattern, which is evaluated against the RDF metadata that described the evaluation context (i.e., in our implementation, the merged annotations from a Research Object).  The result of evaluating this query is a list of variable bindings, each of which defines values for one or more variable names that appear in the query pattern.  Any supplied Minim environment variables are treated as pre-bound variables, which allows a query to generate results that are dependent on the evaluation context.
+* (optionally) an external resource to be queried.  This value is used to probe data that is external to the evaluation context, rather that supplied metadata about the target resource.  If not specified, the supplied evaluation context metadata is used.  The external resource is specified as a URI template that is expanded using currently defined Minim environment variables, and dereferenced to retrieve an RDF graph value.
+* a test, which analyzes values from the query result and returns a True (pass) or False (fail) result.  The test may simply examine the supplied query result, or may use that result to perform further interrogation of resources outside the immediate context; e.g. testing if a web resource mentioned in the supplied metadata is actually accessible.
 
-Several different types of query result test are provided, and additional test types may be added to the model (and implementation) if existing tests do not provide the required assurances.  The various test typess currently defined are described in the following sections.
+The interaction of a `minim:QueryTestRule` with the evaluation context environment variables is particularly important to the way that it can be used.  If the query pattern mentions any variables that are already defined in the evaluation context, those variables are considered to be pre-bound in the query.  That is, only those query results in which the query variable matches a value equal to the environment variable value are returned.  Further, other query variables whose values are returned are used as additional environment variables in the tests that use the query result, and may be used in URI templates, diagnostic strings or as pre-bound variables in any further queries that are used.
+
+Examples of query results used in URI tenmplates and diagnostic strings can be seen in the `minim:AccessibilityTest` section below.  An example of query results used in a further query can be seen in the section on `minim:RuleTest`.
+
+Several different types of query result test are provided, and additional test types may be added to the model (and implementation) if existing tests do not provide the required assurances.  The various test types currently defined are described in the following sections.
 
 
 #### `minim:CardinalityTest` (existence test)
