@@ -12,6 +12,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "../../roweb/test")
 
 import TestConfig
+import TestSparqlQueries
 import TestBasicCommands
 import TestAnnotationUtils
 import TestManifest
@@ -31,6 +32,7 @@ import TestEvalChecklist
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
     suite = unittest.TestSuite()
+    suite.addTest(TestSparqlQueries.getTestSuite(select=select))
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
     suite.addTest(TestManifest.getTestSuite(select=select))
