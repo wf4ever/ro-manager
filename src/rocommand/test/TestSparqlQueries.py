@@ -122,8 +122,8 @@ class TestSparqlQueries(unittest.TestCase):
         q4 = """
             SELECT * WHERE { :s1 :p1 :o2 }
             """
-        r = self.doSelectQuery(g, q1, expect=0)
-        # self.assertEqual(len(r[0]), 0)
+        r = self.doSelectQuery(g, q1, expect=1)
+        self.assertEqual(len(r[0]), 0)
         r = self.doSelectQuery(g, q2, expect=1)
         # print "----"
         # print repr(r)
@@ -138,6 +138,37 @@ class TestSparqlQueries(unittest.TestCase):
         self.assertEqual(r[1]['s'], rdflib.URIRef("http://example.org/s2"))
         self.assertEqual(r[1]['o'], rdflib.URIRef("http://example.org/o2"))
         r = self.doSelectQuery(g, q4, expect=0)
+        return
+
+    def testDatatypeFilter(self):
+        g = """
+            :s1 :p1 "text" .
+            :s2 :p2 2 .
+            """
+        q1 = """
+            ASK { :s1 :p1 ?o }
+            """
+        q2 = """
+            ASK { :s1 :p1 ?o FILTER (datatype(?o) = xsd:string) }
+            """
+        q3 = """
+            ASK { :s1 :p1 ?o FILTER (datatype(?o) = xsd:integer) }
+            """
+        q4 = """
+            ASK { :s2 :p2 ?o }
+            """
+        q5 = """
+            ASK { :s2 :p2 ?o FILTER (datatype(?o) = xsd:string) }
+            """
+        q6 = """
+            ASK { :s2 :p2 ?o FILTER (datatype(?o) = xsd:integer) }
+            """
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, True)
+        self.doAskQuery(g, q3, False)
+        self.doAskQuery(g, q4, True)
+        self.doAskQuery(g, q5, False)
+        self.doAskQuery(g, q6, True)
         return
 
     # Placeholder tests
@@ -172,6 +203,7 @@ def getTestSuite(select="unit"):
             [ "testUnits"
             , "testSimpleAskQuery"
             , "testSimpleSelectQuery"
+            , "testDatatypeFilter"
             ],
         "component":
             [ "testComponents"

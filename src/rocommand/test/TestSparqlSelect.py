@@ -50,6 +50,12 @@ class TestSparqlQueries(unittest.TestCase):
         # print "----"
         return g.query(sparql_prefixstr+query, initBindings=initBindings)
 
+    def doAskQuery(self, graph, query, expect=True, format="n3", initBindings=None):
+        r = self.doQuery(graph, query, format, initBindings)
+        self.assertEqual(r.type, "ASK", "Unexpected query response type: %s"%(r.type))
+        self.assertEqual(r.askAnswer, expect, "Unexpected query response %s"%(r.askAnswer))
+        return r.askAnswer
+
     # Query tests
 
     def testSimpleSelectQuery(self):
@@ -71,10 +77,43 @@ class TestSparqlQueries(unittest.TestCase):
         self.assertEqual(b['o'], rdflib.URIRef("http://example.org/o2"))
         return
 
+    def testDatatypeFilter(self):
+        g = """
+            :s1 :p1 "text" .
+            :s2 :p2 2 .
+            """
+        q1 = """
+            ASK { :s1 :p1 ?o }
+            """
+        q2 = """
+            ASK { :s1 :p1 ?o FILTER (datatype(?o) = xsd:string) }
+            """
+        q3 = """
+            ASK { :s1 :p1 ?o FILTER (datatype(?o) = xsd:integer) }
+            """
+        q4 = """
+            ASK { :s2 :p2 ?o }
+            """
+        q5 = """
+            ASK { :s2 :p2 ?o FILTER (datatype(?o) = xsd:string) }
+            """
+        q6 = """
+            ASK { :s2 :p2 ?o FILTER (datatype(?o) = xsd:integer) }
+            """
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, True)
+        self.doAskQuery(g, q3, False)
+        self.doAskQuery(g, q4, True)
+        self.doAskQuery(g, q5, False)
+        self.doAskQuery(g, q6, True)
+        return
+
+
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=1)
     tests = unittest.TestSuite()
     tests.addTest(TestSparqlQueries("testSimpleSelectQuery"))
+    tests.addTest(TestSparqlQueries("testDatatypeFilter"))
     runner.run(tests)
 
 # End.
