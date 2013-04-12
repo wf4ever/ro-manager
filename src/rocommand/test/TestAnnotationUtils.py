@@ -261,13 +261,13 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "."
         attrdict = {
-            "type":         "Research Object",
+            "type":         rdflib.Literal("Research Object"),
             # @@TODO: handle lists "keywords":     ["test", "research", "object"],
-            "description":  "Test research object",
-            "format":       "application/vnd.wf4ever.ro",
-            "note":         "Research object created for annotation testing",
-            "title":        "Test research object",
-            "created":      "2011-12-07"
+            "description":  rdflib.Literal("Test research object"),
+            "format":       rdflib.Literal("application/vnd.wf4ever.ro"),
+            "note":         rdflib.Literal("Research object created for annotation testing"),
+            "title":        rdflib.Literal("Test research object"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfilebase = ro_annotation.createAnnotationBody(
             ro_config, rodir, roresource, attrdict)
@@ -292,7 +292,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             p = attrpropdict[k]
             log.debug("annotation predicate %s"%repr(p))
             v = attrdict[k]
-            a = annotationgraph.value(s, p, None).value
+            a = annotationgraph.value(s, p, None)
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)
@@ -306,11 +306,11 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         attrdict = {
-            "type":         "Test file",
-            "description":  "File in test research object",
-            "note":         "File in research object created for annotation testing",
-            "title":        "Test file in RO",
-            "created":      "2011-12-07"
+            "type":         rdflib.Literal("Test file"),
+            "description":  rdflib.Literal("File in test research object"),
+            "note":         rdflib.Literal("File in research object created for annotation testing"),
+            "title":        rdflib.Literal("Test file in RO"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfilebase = ro_annotation.createAnnotationBody(
             ro_config, rodir, roresource, attrdict)
@@ -333,7 +333,7 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
             p = attrpropdict[k]
             log.debug("annotation predicate %s"%repr(p))
             v = attrdict[k]
-            a = annotationgraph.value(s, p, None).value
+            a = annotationgraph.value(s, p, None)
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)

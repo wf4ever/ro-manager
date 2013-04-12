@@ -187,9 +187,9 @@ class TestSparqlQueries(unittest.TestCase):
         return
 
     def testLiteralCompare(self):
-        self.assertEqual(rdflib.Literal("abc").value, unicode("abc"))
-        self.assertEqual(rdflib.Literal("abc").value, "abc")
-        self.assertEqual("def", rdflib.Literal("def").value)
+        self.assertEqual(rdflib.Literal("def").value, "def")
+        lit111 = rdflib.Literal("111", datatype=rdflib.URIRef("http://www.w3.org/2001/XMLSchema#integer"))
+        self.assertEqual(lit111.value, 111)
         return
 
     # Placeholder tests

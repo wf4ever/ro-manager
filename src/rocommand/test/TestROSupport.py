@@ -117,9 +117,9 @@ class TestROSupport(unittest.TestCase):
     def checkManifestContent(self, rodir, roname, roident):
         manifest = ro_manifest.readManifest(rodir)
         log.debug("checkManifestContent: roident %s, manifest['roident'] %s"%(repr(roident),repr(manifest['roident'])) )
-        self.assertEqual(manifest['roident'].value,       roident, "RO identifier")
-        self.assertEqual(manifest['rotitle'].value,       roname,  "RO title")
-        self.assertEqual(manifest['rocreator'].value,     ro_test_config.ROBOXUSERNAME, "RO creator")
+        self.assertEqual(manifest['roident'],       rdflib.Literal(roident), "RO identifier")
+        self.assertEqual(manifest['rotitle'],       rdflib.Literal(roname),  "RO title")
+        self.assertEqual(manifest['rocreator'],     rdflib.Literal(ro_test_config.ROBOXUSERNAME), "RO creator")
         # See: http://stackoverflow.com/questions/969285/
         #      how-do-i-translate-a-iso-8601-datetime-string-into-a-python-datetime-object
         rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
@@ -128,7 +128,7 @@ class TestROSupport(unittest.TestCase):
         self.assertTrue(rodelta.seconds<=1, 
             "Unexpected created datetime: %s, expected about %s"%
                 (manifest['rocreated'],timenow.isoformat()))
-        self.assertEqual(manifest['rodescription'].value, roname,  "RO name")
+        self.assertEqual(manifest['rodescription'], rdflib.Literal(roname),  "RO name")
         return
 
     def checkManifestGraph(self, rodir, rograph):
