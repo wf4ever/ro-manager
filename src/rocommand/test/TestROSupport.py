@@ -12,16 +12,19 @@ import unittest
 import logging
 import datetime
 import StringIO
-from rocommand.test.TestConfig import ro_test_config
 from urlparse import urljoin
-from ROSRS_Session import ROSRS_Session
-from ro_evo import get_location
-from ro_utils import parse_job
+
+from rocommand.test.TestConfig import ro_test_config
+from rocommand.ROSRS_Session import ROSRS_Session
+from rocommand.ro_evo import get_location
+from rocommand.ro_utils import parse_job
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
 except ImportError:
     import json
+
+log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     # Add main project directory and ro manager directories to python path
@@ -113,9 +116,10 @@ class TestROSupport(unittest.TestCase):
 
     def checkManifestContent(self, rodir, roname, roident):
         manifest = ro_manifest.readManifest(rodir)
-        self.assertEqual(manifest['roident'],       roident, "RO identifier")
-        self.assertEqual(manifest['rotitle'],       roname,  "RO title")
-        self.assertEqual(manifest['rocreator'],     ro_test_config.ROBOXUSERNAME, "RO creator")
+        log.debug("checkManifestContent: roident %s, manifest['roident'] %s"%(repr(roident),repr(manifest['roident'])) )
+        self.assertEqual(manifest['roident'].value,       roident, "RO identifier")
+        self.assertEqual(manifest['rotitle'].value,       roname,  "RO title")
+        self.assertEqual(manifest['rocreator'].value,     ro_test_config.ROBOXUSERNAME, "RO creator")
         # See: http://stackoverflow.com/questions/969285/
         #      how-do-i-translate-a-iso-8601-datetime-string-into-a-python-datetime-object
         rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
@@ -124,7 +128,7 @@ class TestROSupport(unittest.TestCase):
         self.assertTrue(rodelta.seconds<=1, 
             "Unexpected created datetime: %s, expected about %s"%
                 (manifest['rocreated'],timenow.isoformat()))
-        self.assertEqual(manifest['rodescription'], roname,  "RO name")
+        self.assertEqual(manifest['rodescription'].value, roname,  "RO name")
         return
 
     def checkManifestGraph(self, rodir, rograph):

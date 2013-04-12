@@ -143,7 +143,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
-              , 'show':       "04 - aggregates data/UserRequirements-bio.ods"
+              , 'show':       rdflib.Literal("04 - aggregates data/UserRequirements-bio.ods")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
@@ -180,7 +180,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       "05 - aggregates docs/missing.css"
+              , 'show':       rdflib.Literal("05 - aggregates docs/missing.css")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
@@ -217,7 +217,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       "05 - aggregates docs/missing.css"
+              , 'show':       rdflib.Literal("05 - aggregates docs/missing.css")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None

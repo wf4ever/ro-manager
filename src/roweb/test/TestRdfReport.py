@@ -188,7 +188,7 @@ class TestRdfReport(unittest.TestCase):
         RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         outstr   = StringIO.StringIO()
-        RdfReport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'label': rdflib.Literal('simple-test-data')}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 

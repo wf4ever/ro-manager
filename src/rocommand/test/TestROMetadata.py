@@ -119,7 +119,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             p = attrpropdict[k]
             log.debug("annotation predicate %s"%repr(p))
             v = attrdict[k]
-            a = annotationgraph.value(s, p, None)
+            a = annotationgraph.value(s, p, None).value
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)
@@ -159,7 +159,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             p = attrpropdict[k]
             log.debug("annotation predicate %s"%repr(p))
             v = attrdict[k]
-            a = annotationgraph.value(s, p, None)
+            a = annotationgraph.value(s, p, None).value
             log.debug("annotation value %s"%repr(a))
             #self.assertEqual(len(a), 1, "Singleton result expected")
             self.assertEqual(a, v)

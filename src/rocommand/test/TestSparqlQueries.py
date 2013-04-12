@@ -171,6 +171,27 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q6, True)
         return
 
+    def testGraphReadTerms(self):
+        gturtle = """
+            :s1 :p :o1 .
+            :s2 :p "text" .
+            """
+        g = rdflib.Graph()
+        s = StringIO.StringIO(turtle_prefixstr+gturtle)
+        g.parse(s, format='n3')
+        o = g.value(rdflib.URIRef("http://example.org/s1"), rdflib.URIRef("http://example.org/p"),  None)
+        self.assertEqual(o, rdflib.URIRef("http://example.org/o1"))
+        o = g.value(rdflib.URIRef("http://example.org/s2"), rdflib.URIRef("http://example.org/p"),  None)
+        self.assertEqual(o, rdflib.Literal("text"))
+        self.assertEqual(o.value, "text")
+        return
+
+    def testLiteralCompare(self):
+        self.assertEqual(rdflib.Literal("abc").value, unicode("abc"))
+        self.assertEqual(rdflib.Literal("abc").value, "abc")
+        self.assertEqual("def", rdflib.Literal("def").value)
+        return
+
     # Placeholder tests
         
     def testUnits(self):
@@ -204,6 +225,8 @@ def getTestSuite(select="unit"):
             , "testSimpleAskQuery"
             , "testSimpleSelectQuery"
             , "testDatatypeFilter"
+            , "testGraphReadTerms"
+            , "testLiteralCompare"
             ],
         "component":
             [ "testComponents"
