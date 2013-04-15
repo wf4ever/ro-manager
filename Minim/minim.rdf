@@ -170,18 +170,6 @@ The latter condition cannot be evaluated logically from the metadata alone, but 
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Object"/>
         <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#minimallySatisfies"/>
     </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#onResource -->
-
-    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#onResource">
-        <rdf:type rdf:resource="&owl;FunctionalProperty"/>
-        <rdfs:comment>A resource to which a constraint is applied.  This mat be different from the target resource with which the constraint is associated.  For example, to create a particular file may require that the containing Research Object resource satisfies a given minimum information model.</rdfs:comment>
-        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Constraint"/>
-        <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
-    </owl:ObjectProperty>
-    
 
 
     <!-- http://purl.org/minim/minim#potentiallySatisfies -->
@@ -191,7 +179,6 @@ The latter condition cannot be evaluated logically from the metadata alone, but 
         <rdfs:domain rdf:resource="http://purl.org/minim/minim#Object"/>
         <rdfs:subPropertyOf rdf:resource="&owl;topObjectProperty"/>
     </owl:ObjectProperty>
-    
 
 
     <!-- http://purl.org/minim/minim#reports -->

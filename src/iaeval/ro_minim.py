@@ -33,7 +33,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             # Rules and properties
             , "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
-            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
+            , "forTarget", "forTargetTemplate", "forPurpose", "toModel"
             , "aggregates"
             , "command", "response"
             , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
@@ -91,8 +91,6 @@ def getConstraints(minimgraph):
         c = {'target': target, 'uri': constraint}
         c['target_t']   = minimgraph.value(subject=constraint, predicate=MINIM.forTargetTemplate)
         c['purpose']    = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
-        c['resource']   = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
-        c['resource_t'] = minimgraph.value(subject=constraint, predicate=MINIM.onResourceTemplate)
         c['model']      = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
         yield c
     return
@@ -104,7 +102,6 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     Constraint is returned with:
     targetro_actual  -> URI of resource
     targetres_actual -> URI of target if supplied, else subject of minium:hasConstraint
-    resource_actual  -> explicit onResource URI, or expansion of onResourceTemplate with RO URI
     """
     def mkstr(u):
         return u and str(u)
@@ -119,9 +116,6 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
         if not purpose or purpose.match(c['purpose']):
             c['targetro_actual']   = mkstr(rouri)
             c['targetres_actual']  = mkstr(target or c['target'])
-            c['onresource_actual'] = ( mkstr(c['resource']) or 
-                                      (c['resource_t'] and uritemplate.expand(c['resource_t'], templatedict))
-                                     )
             if not target:
                 # No target specified in request, match any (first) constraint
                 return c
