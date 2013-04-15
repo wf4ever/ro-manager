@@ -30,10 +30,9 @@ import rdflib
 
 from MiscLib import TestUtils
 
-# from rocommand import ro
-from rocommand import ro_utils
 from rocommand import ro_manifest
-from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
+from rocommand.ro_metadata import ro_metadata
+from rocommand.ro_annotation import annotationTypes, annotationPrefixes
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
@@ -41,8 +40,16 @@ from rocommand.test import TestConfig
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
 
+from iaeval import ro_eval_minim
+
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.realpath(__file__))
+
+# Local ro_config for testing
+ro_config = {
+    "annotationTypes":      annotationTypes,
+    "annotationPrefixes":   annotationPrefixes
+    }
 
 # Test suite
 class TestEvalQueryMatch(TestROSupport.TestROSupport):
@@ -67,106 +74,100 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testQueryTestAggregation(self)::
-        self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-
-
-
-
-
-
-
-
-
-    def testMinimRead(self):
+    def testEvalQueryTestModelMin(self):
         """
-        Basic test that Minim test file can be read
+        Evaluate RO against minimal Minim description using just QueryTestRules
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        target     = ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
-        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        g = ro_minim.readMinimGraph(minimbase)
-        expected_minim = (
-            [ (target,     MINIM.hasChecklist,  constraint                                          )
-            , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.csv') )
-            , (constraint, MINIM.toModel,       model                                               )
-            , (model,      RDF.type,            MINIM.Model                                         )
-            ])
-        self.checkTargetGraph(g, expected_minim, msg="Not found in Minim")
+        rodir = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-UserRequirements2-min.rdf",    # Minim file
+            "docs/UserRequirements-astro.csv",    # Target resource
+            "create")                             # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(evalresult['missingShould'],  [])
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2-min.rdf"))
+        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['purpose'],        "create")
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2-min.rdf#create/docs/UserRequirements-astro.csv"))
+        self.assertEquals(evalresult['modeluri'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2-min.rdf#runnableRO"))
         self.deleteTestRo(rodir)
         return
 
-    def testGetConstraints(self):
+    def testEvalQueryTestModelExists(self):
+        """
+        Evaluate RO against minimal Minim description using just QueryTestRules
+        """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
-        # Read Minim as graph, scan constraints and look for expected value
-        minimgraph = ro_minim.readMinimGraph(minimbase)
-        constraints = ro_minim.getConstraints(minimgraph)
-        expected_found = False
-        for c in constraints:
-            if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv") and
-                 c['purpose']  == rdflib.Literal("create UserRequirements-astro.csv")                   and
-                 c['model']    == model                                                                 and
-                 c['uri']      == constraint ) :
-                expected_found = True
-                break
-        self.assertTrue(expected_found, "Expected constraint not found in minim")
+        rodir = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("docs/UserRequirements-astro.csv")
+        rometa.addSimpleAnnotation(resuri, "rdfs:label", "Test label")
+        # Now run evaluation against test RO
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-UserRequirements2-exists.rdf", # Minim file
+            "docs/UserRequirements-astro.csv",    # Target resource
+            "create")                             # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(evalresult['missingShould'],  [])
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2-exists.rdf"))
+        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['purpose'],        "create")
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2-exists.rdf#create/docs/UserRequirements-astro.csv"))
+        self.assertEquals(evalresult['modeluri'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2-exists.rdf#runnableRO"))
+        self.deleteTestRo(rodir)
         return
 
-    def testGetConstraint(self):
+    def testEvalQueryTestModel(self):
+        """
+        Evaluate RO against Minim description using just QueryTestRules
+        """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
-        minimgraph = ro_minim.readMinimGraph(minimbase)
-        c = ro_minim.getConstraint(minimgraph, rodir,
-            "docs/UserRequirements-astro.csv",
-            r"create.*UserRequirements-astro\.csv")
-        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv"))
-        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.csv"))
-        self.assertEquals(c['model'],    model)
-        self.assertEquals(c['uri'],      constraint)
-        return
-
-    def testGetModels(self):
-        self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        minimgraph = ro_minim.readMinimGraph(minimbase)
-        models     = ro_minim.getModels(minimgraph)
-        expected_found = False
-        for m in models:
-            if ( m['label']  == rdflib.Literal("Runnable Requirements RO") and
-                 m['uri']    == model ) :
-                expected_found = True
-                break
-        self.assertTrue(expected_found, "Expected model not found in minim")
-        return
-    
-    def testGetModel(self):
-        self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
-        rouri      = ro_manifest.getRoUri(rodir)
-        minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        model      = ro_minim.getElementUri(minimbase, "#runnableRequirementRO")
-        minimgraph = ro_minim.readMinimGraph(minimbase)
-        m = ro_minim.getModel(minimgraph, model)
-        self.assertEquals(m['label'], rdflib.Literal("Runnable Requirements RO"))
-        self.assertEquals(m['uri'],   model)
+        rodir = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-UserRequirements2.rdf",        # Minim file
+            "docs/UserRequirements-astro.csv",    # Target resource
+            "create")                             # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(evalresult['missingShould'],  [])
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2.rdf"))
+        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['purpose'],        "create")
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#create/docs/UserRequirements-astro.csv"))
+        self.assertEquals(evalresult['modeluri'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#runnableRO"))
+        self.deleteTestRo(rodir)
         return
 
     # Sentinel/placeholder tests
@@ -200,11 +201,9 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testMinimRead"
-            , "testGetConstraints"
-            , "testGetConstraint"
-            , "testGetModels"
-            , "testGetModel"
+            , "testEvalQueryTestModelMin"
+            , "testEvalQueryTestModelExists"
+            , "testEvalQueryTestModel"
             ],
         "component":
             [ "testComponents"

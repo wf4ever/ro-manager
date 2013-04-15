@@ -189,7 +189,7 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
             { 'level': "MUST"
             , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
             , 'querytestrule':
-              { 'query':        rdflib.Literal("{ ?ro a ro:ResearchObject }")
+              { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
               , 'resultmod':    None
               , 'aggregates_t': rdflib.Literal("{ro}/data/UserRequirements-astro.ods")
               }
@@ -199,9 +199,9 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
             { 'level': "MUST"
             , 'label': rdflib.Literal("accessible data/UserRequirements-astro.ods")
             , 'querytestrule':
-              { 'query':        rdflib.Literal("{ ?ro a ro:ResearchObject }")
+              { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
               , 'resultmod':    None
-              , 'isLive_t':     rdflib.Literal("{ro}/data/UserRequirements-astro.ods")
+              , 'islive_t':     rdflib.Literal("{ro}/data/UserRequirements-astro.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isAccessible/data/UserRequirements-astro.ods") 
             })
@@ -209,9 +209,9 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
             { 'level': "MUST"
             , 'label': rdflib.Literal("labeled data/UserRequirements-astro.ods")
             , 'querytestrule':
-              { 'query':        rdflib.Literal("{ ?ro a ro:ResearchObject }")
+              { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
               , 'resultmod':    rdflib.Literal("ORDER BY ?ro")
-              , 'exists':       rdflib.Literal("{ <data/UserRequirements-astro.ods> rdfs:label ?label }")
+              , 'exists':       rdflib.Literal("<data/UserRequirements-astro.ods> rdfs:label ?label")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isLabeled/data/UserRequirements-astro.ods") 
             })

@@ -187,10 +187,12 @@ def getRequirements(minimgraph, modeluri):
                 rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
                 rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
                 rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
-                rule['isLive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
+                rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
                 if exists:
-                  rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                    rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists'] = None
                 req['querytestrule'] = rule
             else:
                 assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))

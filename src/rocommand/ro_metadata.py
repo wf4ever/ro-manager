@@ -527,6 +527,7 @@ class ro_metadata(object):
         """
         log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
+        log.debug("queryAnnotations graph: \n----\n%s\n--------\n"%(ann_gr.serialize(format='xml')))
         resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
             return resp.askAnswer

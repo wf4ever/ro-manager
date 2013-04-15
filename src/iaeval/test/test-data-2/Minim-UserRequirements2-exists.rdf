@@ -50,8 +50,6 @@
       This model defines information that must be available for a Research Object to be runnable.
     </rdfs:comment>
     <minim:hasMustRequirement rdf:resource="#isAggregated/data/UserRequirements-astro.ods" />
-    <minim:hasMustRequirement rdf:resource="#isAccessible/data/UserRequirements-astro.ods" />
-    <minim:hasMustRequirement rdf:resource="#isLabeled/data/UserRequirements-astro.ods" />
   </minim:Model>
 
   <minim:Requirement rdf:about="#isAggregated/data/UserRequirements-astro.ods">
@@ -63,40 +61,12 @@
             <minim:sparql_query>?ro a ro:ResearchObject</minim:sparql_query>
           </rdf:Description>
         </minim:query>
-        <minim:aggregatesTemplate>data/UserRequirements-astro.ods</minim:aggregatesTemplate>
-        <minim:show>01 - aggregates data/UserRequirements-astro.ods</minim:show>
-      </minim:QueryTestRule>
-    </minim:isDerivedBy>
-  </minim:Requirement>
-
-  <minim:Requirement rdf:about="#isAccessible/data/UserRequirements-astro.ods">
-    <rdfs:label>accessible data/UserRequirements-astro.ods</rdfs:label>
-    <minim:isDerivedBy>
-      <minim:QueryTestRule>
-        <minim:query>
-          <rdf:Description>
-            <minim:sparql_query>?ro a ro:ResearchObject</minim:sparql_query>
-          </rdf:Description>
-        </minim:query>
-        <minim:isLiveTemplate>data/UserRequirements-astro.ods</minim:isLiveTemplate>
-        <minim:show>02 - accessible data/UserRequirements-astro.ods</minim:show>
-      </minim:QueryTestRule>
-    </minim:isDerivedBy>
-  </minim:Requirement>
-
-  <minim:Requirement rdf:about="#isLabeled/data/UserRequirements-astro.ods">
-    <rdfs:label>labeled data/UserRequirements-astro.ods</rdfs:label>
-    <minim:isDerivedBy>
-      <minim:QueryTestRule>
-        <minim:query>
-          <rdf:Description>
-            <minim:sparql_query>?ro a ro:ResearchObject</minim:sparql_query>
-            <minim:result_mod>ORDER BY ?ro</minim:result_mod>
-          </rdf:Description>
-        </minim:query>
         <minim:exists>
           <rdf:Description>
-            <minim:sparql_query>&lt;data/UserRequirements-astro.ods&gt; rdfs:label ?label</minim:sparql_query>
+            <minim:sparql_query>&lt;data/UserRequirements-astro.ods&gt; rdfs:label ?label</minim:sparql_query> 
+            <!-- 
+            <minim:sparql_query>?res rdfs:label ?label</minim:sparql_query>
+            -->
           </rdf:Description>
         </minim:exists>
         <minim:show>03 - labeled data/UserRequirements-astro.ods</minim:show>
