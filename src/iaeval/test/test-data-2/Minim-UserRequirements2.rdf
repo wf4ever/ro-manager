@@ -48,6 +48,39 @@
     <rdfs:comment>
       This model defines information that must be available for the requirements Research Object to be runnable.
     </rdfs:comment>
+    <minim:hasMustRequirement rdf:resource="#isAggregated/data/UserRequirements-astro.ods" />
+    <minim:hasMustRequirement rdf:resource="#isAccessible/data/UserRequirements-astro.ods" />
+    <minim:hasMustRequirement rdf:resource="#isLabeled/data/UserRequirements-astro.ods" />
   </minim:Model>
+
+  <minim:Requirement rdf:about="#isAggregated/data/UserRequirements-astro.ods">
+    <rdfs:label>aggregates data/UserRequirements-astro.ods</rdfs:label>
+    <minim:isDerivedBy>
+      <minim:QueryMatchRule>
+        <!-- ... -->
+        <minim:show>01 - aggregates data/UserRequirements-astro.ods</minim:show>
+      </minim:QueryMatchRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <minim:Requirement rdf:about="#isAccessible/data/UserRequirements-astro.ods">
+    <rdfs:label>accessible data/UserRequirements-astro.ods</rdfs:label>
+    <minim:isDerivedBy>
+      <minim:QueryMatchRule>
+        <!-- ... -->
+        <minim:show>02 - accessible data/UserRequirements-astro.ods</minim:show>
+      </minim:QueryMatchRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <minim:Requirement rdf:about="#isAccessible/data/UserRequirements-astro.ods">
+    <rdfs:label>accessible data/UserRequirements-astro.ods</rdfs:label>
+    <minim:isDerivedBy>
+      <minim:QueryMatchRule>
+        <!-- ... -->
+        <minim:show>03 - labelled data/UserRequirements-astro.ods</minim:show>
+      </minim:QueryMatchRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
 
 </rdf:RDF>
