@@ -52,16 +52,16 @@ remoteroname = "simple-requirements/"
 remoteminim  = "simple-requirements-minim.rdf"
 
 # Test suite
-class TestMinimAccess(TestROSupport.TestROSupport):
+class TestMinimAccess2(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
     """
     def setUp(self):
-        super(TestMinimAccess, self).setUp()
+        super(TestMinimAccess2, self).setUp()
         return
 
     def tearDown(self):
-        super(TestMinimAccess, self).tearDown()
+        super(TestMinimAccess2, self).tearDown()
         return
 
     # Setup local config for Minim tests
@@ -221,9 +221,9 @@ def getTestSuite(select="unit"):
             [ "testPending"
             ]
         }
-    return TestUtils.getTestSuite(TestMinimAccess, testdict, select=select)
+    return TestUtils.getTestSuite(TestMinimAccess2, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestMinimAccess.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestMinimAccess2.log", getTestSuite, sys.argv)
 
 # End.
