@@ -40,7 +40,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             # Refactored rule and properties
             , "QueryTestRule", "graph", "query"
             , "Query"
-            , "SparqlQuery", "sparql_querty", "result_mod"
+            , "SparqlQuery", "sparql_query", "result_mod"
             , "QueryResultTest"
             , "CardinalityTest", "min", "max"   ### @@use min, max, all as qualifiers for other tests?
             , "RuleTest", "affirmRule"
@@ -181,6 +181,17 @@ def getRequirements(minimgraph, modeluri):
                 rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
+            elif ruletype == MINIM.QueryTestRule:
+                query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                assert query, "QueryTestRule for requirement %s has no query"%(o)
+                rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
+                rule['isLive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                if exists:
+                  rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                req['querytestrule'] = rule
             else:
                 assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
         return req

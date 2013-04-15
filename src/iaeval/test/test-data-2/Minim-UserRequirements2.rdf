@@ -38,15 +38,15 @@
     <minim:hasChecklist>
       <minim:Checklist rdf:about="#create/docs/UserRequirements-astro.csv">
         <minim:forPurpose>create UserRequirements-astro.csv</minim:forPurpose>
-        <minim:toModel rdf:resource="#runnableRequirementRO" />
+        <minim:toModel rdf:resource="#runnableRO" />
       </minim:Checklist>
     </minim:hasChecklist>
   </rdf:Description>
 
-  <minim:Model rdf:about="#runnableRequirementRO">
-    <rdfs:label>Runnable Requirements RO</rdfs:label>
+  <minim:Model rdf:about="#runnableRO">
+    <rdfs:label>Runnable RO</rdfs:label>
     <rdfs:comment>
-      This model defines information that must be available for the requirements Research Object to be runnable.
+      This model defines information that must be available for a Research Object to be runnable.
     </rdfs:comment>
     <minim:hasMustRequirement rdf:resource="#isAggregated/data/UserRequirements-astro.ods" />
     <minim:hasMustRequirement rdf:resource="#isAccessible/data/UserRequirements-astro.ods" />
@@ -56,30 +56,50 @@
   <minim:Requirement rdf:about="#isAggregated/data/UserRequirements-astro.ods">
     <rdfs:label>aggregates data/UserRequirements-astro.ods</rdfs:label>
     <minim:isDerivedBy>
-      <minim:QueryMatchRule>
-        <!-- ... -->
+      <minim:QueryTestRule>
+        <minim:query>
+          <rdf:Description>
+            <minim:sparql_query>{ ?ro a ro:ResearchObject }</minim:sparql_query>
+          </rdf:Description>
+        </minim:query>
+        <minim:aggregatesTemplate>{ro}/data/UserRequirements-astro.ods</minim:aggregatesTemplate>
         <minim:show>01 - aggregates data/UserRequirements-astro.ods</minim:show>
-      </minim:QueryMatchRule>
+      </minim:QueryTestRule>
     </minim:isDerivedBy>
   </minim:Requirement>
 
   <minim:Requirement rdf:about="#isAccessible/data/UserRequirements-astro.ods">
     <rdfs:label>accessible data/UserRequirements-astro.ods</rdfs:label>
     <minim:isDerivedBy>
-      <minim:QueryMatchRule>
-        <!-- ... -->
+      <minim:QueryTestRule>
+        <minim:query>
+          <rdf:Description>
+            <minim:sparql_query>{ ?ro a ro:ResearchObject }</minim:sparql_query>
+          </rdf:Description>
+        </minim:query>
+        <minim:isLiveTemplate>{ro}/data/UserRequirements-astro.ods</minim:isLiveTemplate>
         <minim:show>02 - accessible data/UserRequirements-astro.ods</minim:show>
-      </minim:QueryMatchRule>
+      </minim:QueryTestRule>
     </minim:isDerivedBy>
   </minim:Requirement>
 
-  <minim:Requirement rdf:about="#isAccessible/data/UserRequirements-astro.ods">
-    <rdfs:label>accessible data/UserRequirements-astro.ods</rdfs:label>
+  <minim:Requirement rdf:about="#isLabeled/data/UserRequirements-astro.ods">
+    <rdfs:label>labeled data/UserRequirements-astro.ods</rdfs:label>
     <minim:isDerivedBy>
-      <minim:QueryMatchRule>
-        <!-- ... -->
-        <minim:show>03 - labelled data/UserRequirements-astro.ods</minim:show>
-      </minim:QueryMatchRule>
+      <minim:QueryTestRule>
+        <minim:query>
+          <rdf:Description>
+            <minim:sparql_query>{ ?ro a ro:ResearchObject }</minim:sparql_query>
+            <minim:result_mod>ORDER BY ?ro</minim:result_mod>
+          </rdf:Description>
+        </minim:query>
+        <minim:exists>
+          <rdf:Description>
+            <minim:sparql_query>{ &lt;data/UserRequirements-astro.ods&gt; rdfs:label ?label }</minim:sparql_query>
+          </rdf:Description>
+        </minim:exists>
+        <minim:show>03 - labeled data/UserRequirements-astro.ods</minim:show>
+      </minim:QueryTestRule>
     </minim:isDerivedBy>
   </minim:Requirement>
 

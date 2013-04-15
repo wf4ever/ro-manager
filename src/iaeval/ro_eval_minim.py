@@ -117,6 +117,11 @@ def evaluate(rometa, minim, target, purpose):
             reqeval.append((r,satisfied,bindings))
             log.debug("- ContentMatch: rule %s, bindings %s, satisfied %s"%
                       (repr(r['contentmatchrule']), repr(bindings), "OK" if satisfied else "Fail"))
+        elif 'querytestrule' in r:
+            (satisfied, bindings) = evalQueryTest(rometa, r['querytestrule'], cbindings)
+            reqeval.append((r,satisfied,bindings))
+            log.debug("- QueryTest: rule %s, bindings %s, satisfied %s"%
+                      (repr(r['querytestrule']), repr(bindings), "OK" if satisfied else "Fail"))
         else:
             raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
     # Evaluate overall satisfaction of model
@@ -159,56 +164,6 @@ def evaluate(rometa, minim, target, purpose):
                 sat_levels['MAY'] = None
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
     return (minimgraph, eval_result)
-
-def evalResultGraph(graph, evalresult):
-    """
-    This function combines the results from the evaluate function (above) to return
-    a single RDF result graph that is the result of the checklist evaluation service, 
-    and also is returned when RDF output is requested by 'ro evaluate checklist'.
-    
-    graph       is the minim graph used for the evaluation.
-                The supplied graph is updated and returned by this function.
-    evalresult  is the evaluation result returned by the evaluation
-    """
-    graph.bind("rdf",     RDF.baseUri)
-    graph.bind("rdfs",    RDFS.baseUri)
-    graph.bind("dcterms", DCTERMS.baseUri)
-    graph.bind("result",  RESULT.baseUri)
-    graph.bind("minim",   MINIM.baseUri)
-    rouri     = rdflib.URIRef(evalresult['rouri'])
-    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
-    graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
-    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
-    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
-    graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
-    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
-    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
-    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
-    for level in evalresult['summary']:
-        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
-        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
-    # Add details for all items tested...
-    def addRequirementsDetail(satisfied, results, satlevel):
-        for (req, binding) in results:
-            b = rdflib.BNode()
-            msg = formatRule(satisfied, req, binding)
-            graph.add( (rouri, satlevel, b) )
-            graph.add( (b, MINIM.tryRequirement, req['uri']) )
-            graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
-            for k in binding:
-                b2 = rdflib.BNode()
-                graph.add( (b,  RESULT.binding,  b2) )
-                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
-                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
-                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
-    addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
-    addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
-    addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
-    addRequirementsDetail(False, evalresult['missingMust'], MINIM.missingMust)
-    return graph
 
 def evalContentMatch(rometa, rule, constraintbinding):
     """
@@ -321,6 +276,98 @@ def evalQueryTest(rometa, rule, constraintbinding):
                 'targetro' and 'targetres'
     """
     log.debug("evalQueryTest: rule: \n  %s, \nconstraintbinding:\n  %s"%(repr(rule), repr(constraintbinding)))
+    querytemplate = (make_sparql_prefixes()+
+        """
+        %(queryverb)s
+        {
+          %(querypattern)s
+        } %(queryorder)s
+        """)
+    satisfied     = True
+    simplebinding = constraintbinding.copy()
+    if rule['query']:
+        aggregates = rule['aggregates']
+        islive     = rule['islive']
+        exists     = rule['exists']
+        assert (exists or template or islive), (
+            "minim:forall construct requires "+
+            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+        if template:  template = str(template).strip()
+        if islive:    islive   = str(islive).strip()
+        queryparams = (
+            { 'queryverb':    "SELECT * WHERE"
+            , 'querypattern': rule['forall']
+            , 'queryorder':   rule['orderby'] or ""
+            })
+        query = querytemplate%queryparams
+        log.debug(" - forall query: "+query)
+        ### @@TODO: Why is this failing?
+        # resp  = rometa.queryAnnotations(query, initBindings=constraintbinding)
+        resp  = rometa.queryAnnotations(query)
+        log.debug(" - forall resp: "+repr(resp))
+        simplebinding['_count'] = len(resp)
+        if len(resp) == 0 and rule['showmiss']:
+            satisfied = False
+        for binding in resp:
+            satisfied = False
+            # Extract keys and values from query result to return with result
+            simplebinding = constraintbinding.copy()
+            for k in binding:
+                if not isinstance(k,rdflib.BNode):
+                    simplebinding[str(k)] = str(binding[k])
+                    simplebinding['_count'] = len(resp)
+                    # @@TODO remove this when rdflib bug resolved 
+                    if str(k) in ['if', 'of'] and str(binding[k])[:5] not in ["file:","http:"]:
+                        # Houston, we have a problem...
+                        agraph = rometa.roannotations
+                        log.warning( "--------------------" )
+                        log.debug( "Graph: "+agraph.serialize(format="xml") )
+                        log.warning( "Query: "+query )
+                        log.warning( "Response bindings: "+repr(resp) )
+                        log.warning( "--------------------" )
+                        ### assert False, "Aborted"
+            if exists:
+                # existence query against forall results
+                existsparams = (
+                    { 'queryverb': "ASK"
+                    , 'querypattern': exists
+                    , 'queryorder':   ""
+                    })
+                query = querytemplate%existsparams
+                log.debug("evalContentMatch RO test exists: \nquery: %s \nbinding: %s"%
+                          (query, repr(binding)))
+                satisfied = rometa.queryAnnotations(query,initBindings=binding)
+            if template:
+                # Construct URI for file from template
+                # Uses code copied from http://code.google.com/p/uri-templates
+                fileref = uritemplate.expand(template, simplebinding)
+                fileuri = rometa.getComponentUri(fileref)
+                # Test if URI is aggregated
+                log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
+                satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
+            if islive:
+                # Construct URI for file from template
+                # Uses code copied from http://code.google.com/p/uri-templates
+                fileref = uritemplate.expand(islive, simplebinding)
+                fileuri = rometa.getComponentUri(fileref)
+                # Test if URI is live (accessible)
+                log.debug("evalContentMatch RO islive %s (%s)"%(fileref, str(fileuri)))
+                satisfied = isLiveUri(fileuri)
+            log.debug("evalContentMatch (forall) RO satisfied %s"%(satisfied))
+            if not satisfied: break
+    elif rule['exists']:
+        queryparams = (
+            { 'queryverb': "ASK"
+            , 'querypattern': rule['exists']
+            , 'queryorder':   ""
+            })
+        query = querytemplate%queryparams
+        log.debug("- query %s"%(query))
+        satisfied = rometa.queryAnnotations(query)
+        log.debug("- satisfied %s"%(satisfied))
+    else:
+        raise ValueError("Unrecognized content match rule: %s"%repr(rule))
+
 
 
     return (satisfied,simplebinding)
@@ -412,5 +459,55 @@ def formatRule(satisfied, rule, bindings):
     template = templateoverride or template or ruledict["show"] or templatedefault
     bindings.update(ruledict)
     return template%bindings
+
+def evalResultGraph(graph, evalresult):
+    """
+    This function combines the results from the evaluate function (above) to return
+    a single RDF result graph that is the result of the checklist evaluation service, 
+    and also is returned when RDF output is requested by 'ro evaluate checklist'.
+    
+    graph       is the minim graph used for the evaluation.
+                The supplied graph is updated and returned by this function.
+    evalresult  is the evaluation result returned by the evaluation
+    """
+    graph.bind("rdf",     RDF.baseUri)
+    graph.bind("rdfs",    RDFS.baseUri)
+    graph.bind("dcterms", DCTERMS.baseUri)
+    graph.bind("result",  RESULT.baseUri)
+    graph.bind("minim",   MINIM.baseUri)
+    rouri     = rdflib.URIRef(evalresult['rouri'])
+    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
+    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
+    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
+    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
+    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
+    for level in evalresult['summary']:
+        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
+        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
+    # Add details for all items tested...
+    def addRequirementsDetail(satisfied, results, satlevel):
+        for (req, binding) in results:
+            b = rdflib.BNode()
+            msg = formatRule(satisfied, req, binding)
+            graph.add( (rouri, satlevel, b) )
+            graph.add( (b, MINIM.tryRequirement, req['uri']) )
+            graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
+            for k in binding:
+                b2 = rdflib.BNode()
+                graph.add( (b,  RESULT.binding,  b2) )
+                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
+                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
+                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
+    addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
+    addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
+    addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
+    addRequirementsDetail(False, evalresult['missingMust'], MINIM.missingMust)
+    return graph
 
 # End.
