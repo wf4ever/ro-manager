@@ -24,27 +24,7 @@ from MiscLib import TestUtils
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
-prefixes = (
-    [ ("",          "http://example.org/")
-    , ("rdf",       "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-    , ("rdfs",      "http://www.w3.org/2000/01/rdf-schema#")
-    , ("owl",       "http://www.w3.org/2002/07/owl#")
-    , ("xsd",       "http://www.w3.org/2001/XMLSchema#")
-    , ("xml",       "http://www.w3.org/XML/1998/namespace")
-    , ("ro",        "http://purl.org/wf4ever/ro#")
-    , ("wfprov",    "http://purl.org/wf4ever/wfprov#")
-    , ("wfdesc",    "http://purl.org/wf4ever/wfdesc#")
-    , ("wf4ever",   "http://purl.org/wf4ever/wf4ever#")
-    , ("rdfg",      "http://www.w3.org/2004/03/trix/rdfg-1/")
-    , ("ore",       "http://www.openarchives.org/ore/terms/")
-    , ("ao",        "http://purl.org/ao/")
-    , ("dcterms",   "http://purl.org/dc/terms/")
-    , ("foaf",      "http://xmlns.com/foaf/0.1/")
-    , ("minim",     "http://purl.org/minim/minim#")
-    ])
-
-turtle_prefixstr = "\n".join([ "@prefix %s: <%s> ."%p for p in prefixes ]) + "\n\n"
-sparql_prefixstr = "\n".join([ "PREFIX %s: <%s>"%p for p in prefixes ]) + "\n\n"
+from ro_prefixes import prefixes, turtle_prefixstr, sparql_prefixstr
 
 class TestSparqlQueries(unittest.TestCase):
     """

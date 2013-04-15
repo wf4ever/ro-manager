@@ -30,6 +30,7 @@ import rdflib
 
 from MiscLib import TestUtils
 
+# from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
@@ -44,16 +45,16 @@ from iaeval.ro_minim import MINIM
 testbase = os.path.dirname(os.path.realpath(__file__))
 
 # Test suite
-class TestMinimAccess2(TestROSupport.TestROSupport):
+class TestEvalQueryMatch(TestROSupport.TestROSupport):
     """
     Test ro annotation commands
     """
     def setUp(self):
-        super(TestMinimAccess2, self).setUp()
+        super(TestEvalQueryMatch, self).setUp()
         return
 
     def tearDown(self):
-        super(TestMinimAccess2, self).tearDown()
+        super(TestEvalQueryMatch, self).tearDown()
         return
 
     # Setup local config for Minim tests
@@ -66,15 +67,14 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
     def testNull(self):
         assert True, 'Null test failed'
 
-    def testSetupConfig(self):
-        (configdir, robasedir) = self.setupConfig()
-        config = ro_utils.readconfig(configdir)
-        self.assertEqual(config["robase"],          os.path.abspath(robasedir))
-        self.assertEqual(config["rosrs_uri"],       TestConfig.ro_test_config.ROSRS_URI)
-        self.assertEqual(config["rosrs_access_token"],  TestConfig.ro_test_config.ROSRS_ACCESS_TOKEN)
-        self.assertEqual(config["username"],        TestConfig.ro_test_config.ROBOXUSERNAME)
-        self.assertEqual(config["useremail"],       TestConfig.ro_test_config.ROBOXEMAIL)
-        return
+    def testQueryTestAggregation(self)::
+        self.setupConfig()
+        rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri      = ro_manifest.getRoUri(rodir)
+
+
+
+
 
     def testMinimRead(self):
         """
@@ -196,7 +196,6 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
-            , "testSetupConfig"
             , "testMinimRead"
             , "testGetConstraints"
             , "testGetConstraint"
@@ -213,9 +212,9 @@ def getTestSuite(select="unit"):
             [ "testPending"
             ]
         }
-    return TestUtils.getTestSuite(TestMinimAccess2, testdict, select=select)
+    return TestUtils.getTestSuite(TestEvalQueryMatch, testdict, select=select)
 
 if __name__ == "__main__":
-    TestUtils.runTests("TestMinimAccess2.log", getTestSuite, sys.argv)
+    TestUtils.runTests("TestEvalQueryMatch.log", getTestSuite, sys.argv)
 
 # End.

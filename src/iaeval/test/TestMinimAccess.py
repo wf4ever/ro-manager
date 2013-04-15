@@ -30,14 +30,12 @@ import rdflib
 
 from MiscLib import TestUtils
 
-from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
-from rocommand.test import StdoutContext
 
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM

@@ -35,6 +35,7 @@ from rocommand import ro_utils
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 from rocommand.ro_annotation import annotationTypes
 from rocommand.ro_metadata   import ro_metadata
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
@@ -484,23 +485,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.outstr.seek(0)
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
-        prefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
-            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
-            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
-            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
-            PREFIX minim:      <http://purl.org/minim/minim#>
-            """
+        prefixes = make_sparql_prefixes()
         # @@TODO: add more probe queries here?
         probequeries = (
             [ "ASK { <%s> minim:minimUri <%s> }"%
@@ -587,24 +572,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.outstr.seek(0)
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
-        prefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
-            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
-            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
-            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
-            PREFIX minim:      <http://purl.org/minim/minim#>
-            PREFIX result:     <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
-            """
+        prefixes = make_sparql_prefixes()
         # @@TODO: add more probe queries here?
         probequeries = (
             [ "ASK { <%s> minim:minimUri <%s> }"%
