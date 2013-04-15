@@ -85,7 +85,7 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         rometa = ro_metadata(ro_config, rodir)
         (g, evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements2-min.rdf",    # Minim file
-            "docs/UserRequirements-astro.csv",    # Target resource
+            "data/UserRequirements-astro.ods",    # Target resource
             "create")                             # Purpose
         log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
         self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
@@ -96,10 +96,10 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMay'],     [])
         self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2-min.rdf"))
-        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['target'],         "data/UserRequirements-astro.ods")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],
-            rometa.getComponentUriAbs("Minim-UserRequirements2-min.rdf#create/docs/UserRequirements-astro.csv"))
+            rometa.getComponentUriAbs("Minim-UserRequirements2-min.rdf#create/data/UserRequirements-astro.ods"))
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements2-min.rdf#runnableRO"))
         self.deleteTestRo(rodir)
@@ -114,12 +114,12 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         rouri = ro_manifest.getRoUri(rodir)
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
-        resuri = rometa.getComponentUriAbs("docs/UserRequirements-astro.csv")
+        resuri = rometa.getComponentUriAbs("data/UserRequirements-astro.ods")
         rometa.addSimpleAnnotation(resuri, "rdfs:label", "Test label")
         # Now run evaluation against test RO
         (g, evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements2-exists.rdf", # Minim file
-            "docs/UserRequirements-astro.csv",    # Target resource
+            "data/UserRequirements-astro.ods",    # Target resource
             "create")                             # Purpose
         log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
         self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
@@ -130,10 +130,10 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMay'],     [])
         self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2-exists.rdf"))
-        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['target'],         "data/UserRequirements-astro.ods")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],
-            rometa.getComponentUriAbs("Minim-UserRequirements2-exists.rdf#create/docs/UserRequirements-astro.csv"))
+            rometa.getComponentUriAbs("Minim-UserRequirements2-exists.rdf#create/data/UserRequirements-astro.ods"))
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements2-exists.rdf#runnableRO"))
         self.deleteTestRo(rodir)
@@ -148,9 +148,12 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         rouri = ro_manifest.getRoUri(rodir)
         self.populateTestRo(testbase, rodir)
         rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("data/UserRequirements-astro.ods")
+        rometa.addSimpleAnnotation(resuri, "rdfs:label", "Test label")
+        # Now run evaluation against test RO
         (g, evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements2.rdf",        # Minim file
-            "docs/UserRequirements-astro.csv",    # Target resource
+            "data/UserRequirements-astro.ods",    # Target resource
             "create")                             # Purpose
         log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
         self.assertIn(MINIM.fullySatisfies,     evalresult['summary'])
@@ -161,10 +164,10 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['missingMay'],     [])
         self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
         self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2.rdf"))
-        self.assertEquals(evalresult['target'],         "docs/UserRequirements-astro.csv")
+        self.assertEquals(evalresult['target'],         "data/UserRequirements-astro.ods")
         self.assertEquals(evalresult['purpose'],        "create")
         self.assertEquals(evalresult['constrainturi'],
-            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#create/docs/UserRequirements-astro.csv"))
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#create/data/UserRequirements-astro.ods"))
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#runnableRO"))
         self.deleteTestRo(rodir)

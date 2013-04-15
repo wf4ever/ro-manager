@@ -34,11 +34,11 @@
      xmlns:minim="&minim;"
 >
 
-  <rdf:Description rdf:about="docs/UserRequirements-astro.csv">
-    <rdfs:label>Label for docs/UserRequirements-astro.csv</rdfs:label>
+  <rdf:Description rdf:about="data/UserRequirements-astro.ods">
+    <rdfs:label>Label for data/UserRequirements-astro.ods</rdfs:label>
     <minim:hasChecklist>
-      <minim:Checklist rdf:about="#create/docs/UserRequirements-astro.csv">
-        <minim:forPurpose>create UserRequirements-astro.csv</minim:forPurpose>
+      <minim:Checklist rdf:about="#create/data/UserRequirements-astro.ods">
+        <minim:forPurpose>create UserRequirements-astro.ods</minim:forPurpose>
         <minim:toModel rdf:resource="#runnableRO" />
       </minim:Checklist>
     </minim:hasChecklist>

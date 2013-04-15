@@ -265,6 +265,7 @@ class ro_metadata(object):
         # Otherwise aggregation is the caller's responsibility
         if self.isRoMetadataRef(bodyuri):
             self.manifestgraph.add((self.getRoUri(), ORE.aggregates, bodyuri))
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def _removeAnnotationFromManifest(self, ann):
@@ -281,6 +282,7 @@ class ro_metadata(object):
         if self.isRoMetadataRef(bodyuri):
             if not self.manifestgraph.value(subject=ann, predicate=AO.body):
                 self.manifestgraph.remove((None, ORE.aggregates, bodyuri))
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def addAggregatedResources(self, ro_file, recurse=True, includeDirs=False):
@@ -363,11 +365,6 @@ class ro_metadata(object):
         assert self._isLocal()
         ro_graph = self._loadManifest()
         self._addAnnotationToManifest(rofile, graph)
-        # ann = rdflib.BNode()
-        # ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-        # ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
-        # ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
-        # ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
         self._updateManifest()
         return
 
@@ -460,6 +457,7 @@ class ro_metadata(object):
         ro_graph.add((subject, predicate,
                       ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
         self._updateManifest()
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def iterateAnnotations(self, subject=None, property=None):
