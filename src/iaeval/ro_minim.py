@@ -78,9 +78,16 @@ def readMinimGraph(minimuri):
     minimgraph.parse(minimuri, format="xml")
     return minimgraph
 
+def iter2(iter1, iter2):
+    for item in iter1: yield item
+    for item in iter2: yield item
+    return
+
 def getConstraints(minimgraph):
-    for (target, constraint) in minimgraph.subject_objects(predicate=MINIM.hasConstraint):
-        # @@TODO: use property of constraint for this, one day
+    constraint_or_checklist = iter2(
+        minimgraph.subject_objects(predicate=MINIM.hasConstraint),
+        minimgraph.subject_objects(predicate=MINIM.hasChecklist ) )
+    for (target, constraint) in constraint_or_checklist:
         c = {'target': target, 'uri': constraint}
         c['target_t']   = minimgraph.value(subject=constraint, predicate=MINIM.forTargetTemplate)
         c['purpose']    = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)

@@ -26,8 +26,9 @@ import TestRemoteROMetadata
 import TestRosrsSync
 import TestEvoCommands
 import TestMinimAccess
-import TestRdfReport
+import TestMinimAccess2
 import TestEvalChecklist
+import TestRdfReport
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
@@ -40,6 +41,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestLinks.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
+    suite.addTest(TestMinimAccess2.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
     suite.addTest(TestRdfReport.getTestSuite(select=select))
     if select != "unit":
