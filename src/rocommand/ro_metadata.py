@@ -504,7 +504,8 @@ class ro_metadata(object):
 
         Each value returned by the iterator is a (annuri, bodyuri, target) triple.
         """
-        for (ann_node, ann_target) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+        annotations = self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource)
+        for (ann_node, ann_target) in annotations:
             ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             yield (ann_node, ann_body, ann_target)
         return

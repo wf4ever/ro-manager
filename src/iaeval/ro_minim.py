@@ -23,6 +23,7 @@ minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
 MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             [ "Constraint", "Checklist"             # synonyms
             , "hasConstraint", "hasChecklist"       # synonyms
+            , "hasPrefix"
             # Model and properties
             , "Model"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
@@ -74,8 +75,11 @@ def readMinimGraph(minimuri):
     """
     Read Minim file, return RDF Graph.
     """
+    log.debug("minimuri %s"%(repr(minimuri)))
+    minimformat   = "xml"
+    if re.search("\.(ttl|n3)$", str(minimuri)): minimformat="n3"
     minimgraph = rdflib.Graph()
-    minimgraph.parse(minimuri, format="xml")
+    minimgraph.parse(minimuri, format=minimformat)
     return minimgraph
 
 def iter2(iter1, iter2):
@@ -114,8 +118,8 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
         if not purpose or purpose.match(c['purpose']):
-            c['targetro_actual']   = mkstr(rouri)
-            c['targetres_actual']  = mkstr(target or c['target'])
+            c['targetro_actual']   = rouri
+            c['targetres_actual']  = target or c['target']
             if not target:
                 # No target specified in request, match any (first) constraint
                 return c
@@ -142,6 +146,13 @@ def getModel(minimgraph, modeluri):
     for m in getModels(minimgraph, modeluri=modeluri):
         return m
     return None
+
+def getPrefixes(minimgraph):
+    for (uri, p, prefix) in minimgraph.triples((None, MINIM.hasPrefix, None)):
+        yield (str(prefix), str(uri))
+
+def litval(l):
+    return l.value if l else None
 
 def getRequirements(minimgraph, modeluri):
     def matchRequirement((s, p, o), reqp, reqval):
@@ -184,8 +195,11 @@ def getRequirements(minimgraph, modeluri):
             elif ruletype == MINIM.QueryTestRule:
                 query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
                 assert query, "QueryTestRule for requirement %s has no query"%(o)
+                rule['prefixes']     = list(getPrefixes(minimgraph))
                 rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
                 rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
+                rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
                 rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)

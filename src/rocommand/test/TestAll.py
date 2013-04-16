@@ -28,6 +28,7 @@ import TestEvoCommands
 import TestMinimAccess
 import TestMinimAccess2
 import TestEvalChecklist
+import TestEvalQueryMatch
 import TestRdfReport
 
 # Code to run unit tests from all library test modules
@@ -43,6 +44,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
     suite.addTest(TestMinimAccess2.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
+    suite.addTest(TestEvalQueryMatch.getTestSuite(select=select))
     suite.addTest(TestRdfReport.getTestSuite(select=select))
     if select != "unit":
         suite.addTest(TestROSRS_Session.getTestSuite(select=select))

@@ -84,13 +84,13 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
         rodir      = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
-        target     = ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
+        target     = ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods")
+        constraint = ro_minim.getElementUri(minimbase, "#create/data/UserRequirements-astro.ods")
         model      = ro_minim.getElementUri(minimbase, "#runnableRO")
         g = ro_minim.readMinimGraph(minimbase)
         expected_minim = (
             [ (target,     MINIM.hasChecklist,  constraint                                          )
-            , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.csv') )
+            , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.ods') )
             , (constraint, MINIM.toModel,       model                                               )
             , (model,      RDF.type,            MINIM.Model                                         )
             ])
@@ -104,14 +104,14 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
+        constraint = ro_minim.getElementUri(minimbase, "#create/data/UserRequirements-astro.ods")
         # Read Minim as graph, scan constraints and look for expected value
         minimgraph = ro_minim.readMinimGraph(minimbase)
         constraints = ro_minim.getConstraints(minimgraph)
         expected_found = False
         for c in constraints:
-            if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv") and
-                 c['purpose']  == rdflib.Literal("create UserRequirements-astro.csv")                   and
+            if ( c['target']   == ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods") and
+                 c['purpose']  == rdflib.Literal("create UserRequirements-astro.ods")                   and
                  c['model']    == model                                                                 and
                  c['uri']      == constraint ) :
                 expected_found = True
@@ -125,13 +125,14 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
         rouri      = ro_manifest.getRoUri(rodir)
         minimbase  = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
         model      = ro_minim.getElementUri(minimbase, "#runnableRO")
-        constraint = ro_minim.getElementUri(minimbase, "#create/docs/UserRequirements-astro.csv")
+        constraint = ro_minim.getElementUri(minimbase, "#create/data/UserRequirements-astro.ods")
         minimgraph = ro_minim.readMinimGraph(minimbase)
         c = ro_minim.getConstraint(minimgraph, rodir,
-            "docs/UserRequirements-astro.csv",
-            r"create.*UserRequirements-astro\.csv")
-        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv"))
-        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.csv"))
+            "data/UserRequirements-astro.ods",
+            r"create.*UserRequirements-astro\.ods")
+        self.assertIsNotNone(c, "Constraint not found")
+        self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods"))
+        self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.ods"))
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
         return
@@ -191,7 +192,7 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
             , 'querytestrule':
               { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
               , 'resultmod':    None
-              , 'aggregates_t': rdflib.Literal("{ro}/data/UserRequirements-astro.ods")
+              , 'aggregates_t': rdflib.Literal("data/UserRequirements-astro.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isAggregated/data/UserRequirements-astro.ods") 
             })
@@ -201,7 +202,7 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
             , 'querytestrule':
               { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
               , 'resultmod':    None
-              , 'islive_t':     rdflib.Literal("{ro}/data/UserRequirements-astro.ods")
+              , 'islive_t':     rdflib.Literal("data/UserRequirements-astro.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isAccessible/data/UserRequirements-astro.ods") 
             })

@@ -173,6 +173,68 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testEvalQueryTestChembox(self):
+        """
+        Evaluate Chembox data against Minim description using QueryTestRules
+        """
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-chembox", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        rometa.addGraphAnnotation(resuri, "Ethane.ttl")
+        # Now run evaluation against test RO
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-chembox.ttl",                  # Minim file
+            resuri,                               # Target resource
+            "complete")                           # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n%s\n----"%(repr(evalresult)))
+        self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(evalresult['missingShould'],  [])
+        self.assertEquals(len(evalresult['missingMay']), 1)
+        self.assertEquals(evalresult['missingMay'][0][0]['seq'], 'Synonym is present')
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-chembox.ttl"))
+        self.assertEquals(evalresult['target'],         resuri)
+        self.assertEquals(evalresult['purpose'],        "complete")
+        self.deleteTestRo(rodir)
+        return
+
+    def testEvalQueryTestChemboxFail(self):
+        """
+        Test for failing chembox requirement
+        """
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-chembox", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        rometa.addGraphAnnotation(resuri, "Ethane.ttl")
+        # Now run evaluation against test RO
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-chembox.ttl",              # Minim file
+            resuri,                           # Target resource
+            "fail")                           # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertNotIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(len(evalresult['missingMust']), 1)
+        self.assertEquals(evalresult['missingMust'][0][0]['seq'], 'This test should fail')
+        self.assertEquals(evalresult['missingShould'],  [])
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-chembox.ttl"))
+        self.assertEquals(evalresult['target'],         resuri)
+        self.assertEquals(evalresult['purpose'],        "fail")
+        self.deleteTestRo(rodir)
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -207,6 +269,8 @@ def getTestSuite(select="unit"):
             , "testEvalQueryTestModelMin"
             , "testEvalQueryTestModelExists"
             , "testEvalQueryTestModel"
+            , "testEvalQueryTestChembox"
+            , "testEvalQueryTestChemboxFail"
             ],
         "component":
             [ "testComponents"

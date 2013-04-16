@@ -277,8 +277,8 @@ def evalQueryTest(rometa, rule, constraintbinding):
 
     Returns ....
     """
-    log.debug("evalQueryTest: rule: \n  %s, \nconstraintbinding:\n  %s"%(repr(rule), repr(constraintbinding)))
-    querytemplate = (make_sparql_prefixes()+
+    log.debug("evalQueryTest: rule: \n----\n  %s, \n----\nconstraintbinding:\n  %s\n----"%(repr(rule), repr(constraintbinding)))
+    querytemplate = (make_sparql_prefixes(rule['prefixes'])+
         """
         BASE <%(querybase)s>
 
@@ -290,12 +290,14 @@ def evalQueryTest(rometa, rule, constraintbinding):
     satisfied     = True
     simplebinding = constraintbinding.copy()
     if rule['query']:
+        count_min  = rule['min']
+        count_max  = rule['max']
         aggregates = rule['aggregates_t']
         islive     = rule['islive_t']
         exists     = rule['exists']
-        assert (aggregates or islive or exists), (
+        assert (count_min or count_max or aggregates or islive or exists), (
             "minim:QueryTestRule requires "+
-            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+            "minim:min, minim:max, minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
         if aggregates:  aggregates = str(aggregates).strip()
         if islive:      islive   = str(islive).strip()
         queryparams = (
@@ -359,7 +361,14 @@ def evalQueryTest(rometa, rule, constraintbinding):
         raise ValueError("Query test rule has no query: %s"%repr(rule))
     # Sort out final response
     log.debug("evalQueryTest RO satisfied_count %d"%(satisfied_count))
-    if total_count == 0:
+    if count_min or count_max:
+        satisfied = ( (not count_min or (satisfied_count >= count_min)) and
+                      (not count_max or (satisfied_count <= count_max)) )
+        binding = constraintbinding.copy()
+        binding['_count'] = satisfied_count
+        msg = (rule['showpass'] if satisfied else rule['showfail'])
+        msh = msg or rule['show'] or "Cardinality requirement failed"
+    elif total_count == 0:
         binding   = simplebinding
         satisfied = False if rule['showmiss'] else True
         msg       = rule['showmiss'] or rule['showpass'] or rule['show'] or "No matches"
