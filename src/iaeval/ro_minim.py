@@ -23,6 +23,7 @@ minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
 MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             [ "Constraint", "Checklist"             # synonyms
             , "hasConstraint", "hasChecklist"       # synonyms
+            , "hasPrefix"
             # Model and properties
             , "Model"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
@@ -33,14 +34,14 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             # Rules and properties
             , "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
-            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
+            , "forTarget", "forTargetTemplate", "forPurpose", "toModel"
             , "aggregates"
             , "command", "response"
             , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
             # Refactored rule and properties
             , "QueryTestRule", "graph", "query"
             , "Query"
-            , "SparqlQuery", "sparql_querty", "result_mod"
+            , "SparqlQuery", "sparql_query", "result_mod"
             , "QueryResultTest"
             , "CardinalityTest", "min", "max"   ### @@use min, max, all as qualifiers for other tests?
             , "RuleTest", "affirmRule"
@@ -74,18 +75,26 @@ def readMinimGraph(minimuri):
     """
     Read Minim file, return RDF Graph.
     """
+    log.debug("minimuri %s"%(repr(minimuri)))
+    minimformat   = "xml"
+    if re.search("\.(ttl|n3)$", str(minimuri)): minimformat="n3"
     minimgraph = rdflib.Graph()
-    minimgraph.parse(minimuri, format="xml")
+    minimgraph.parse(minimuri, format=minimformat)
     return minimgraph
 
+def iter2(iter1, iter2):
+    for item in iter1: yield item
+    for item in iter2: yield item
+    return
+
 def getConstraints(minimgraph):
-    for (target, constraint) in minimgraph.subject_objects(predicate=MINIM.hasConstraint):
-        # @@TODO: use property of constraint for this, one day
+    constraint_or_checklist = iter2(
+        minimgraph.subject_objects(predicate=MINIM.hasConstraint),
+        minimgraph.subject_objects(predicate=MINIM.hasChecklist ) )
+    for (target, constraint) in constraint_or_checklist:
         c = {'target': target, 'uri': constraint}
         c['target_t']   = minimgraph.value(subject=constraint, predicate=MINIM.forTargetTemplate)
         c['purpose']    = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
-        c['resource']   = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
-        c['resource_t'] = minimgraph.value(subject=constraint, predicate=MINIM.onResourceTemplate)
         c['model']      = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
         yield c
     return
@@ -97,7 +106,6 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     Constraint is returned with:
     targetro_actual  -> URI of resource
     targetres_actual -> URI of target if supplied, else subject of minium:hasConstraint
-    resource_actual  -> explicit onResource URI, or expansion of onResourceTemplate with RO URI
     """
     def mkstr(u):
         return u and str(u)
@@ -110,11 +118,8 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
         if not purpose or purpose.match(c['purpose']):
-            c['targetro_actual']   = mkstr(rouri)
-            c['targetres_actual']  = mkstr(target or c['target'])
-            c['onresource_actual'] = ( mkstr(c['resource']) or 
-                                      (c['resource_t'] and uritemplate.expand(c['resource_t'], templatedict))
-                                     )
+            c['targetro_actual']   = rouri
+            c['targetres_actual']  = target or c['target']
             if not target:
                 # No target specified in request, match any (first) constraint
                 return c
@@ -141,6 +146,13 @@ def getModel(minimgraph, modeluri):
     for m in getModels(minimgraph, modeluri=modeluri):
         return m
     return None
+
+def getPrefixes(minimgraph):
+    for (uri, p, prefix) in minimgraph.triples((None, MINIM.hasPrefix, None)):
+        yield (str(prefix), str(uri))
+
+def litval(l):
+    return l.value if l else None
 
 def getRequirements(minimgraph, modeluri):
     def matchRequirement((s, p, o), reqp, reqval):
@@ -180,6 +192,22 @@ def getRequirements(minimgraph, modeluri):
                 rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
+            elif ruletype == MINIM.QueryTestRule:
+                query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                assert query, "QueryTestRule for requirement %s has no query"%(o)
+                rule['prefixes']     = list(getPrefixes(minimgraph))
+                rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
+                rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
+                rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
+                rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                if exists:
+                    rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists'] = None
+                req['querytestrule'] = rule
             else:
                 assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
         return req

@@ -25,10 +25,11 @@ When starting work on a new feature, branch off from the develop branch.
   $ git checkout -b myfeature develop
   Switched to a new branch "myfeature"
 
-Also:
+Also, to create tracking copy in github:
   $ git push origin HEAD
+  $ git branch --set-upstream myfeature origin/myfeature
 
-Pushes to same-name branch at origin repo
+Pushes to same-name branch at origin repo, and sets tracking status.
 
 
 ## Incorporating a finished feature on develop ##

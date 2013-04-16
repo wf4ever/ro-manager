@@ -48,7 +48,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-astro.csv">
         <minim:forPurpose>create UserRequirements-astro.csv</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#runnableRequirementRO" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -60,7 +59,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.csv">
         <minim:forPurpose>create UserRequirements-bio.csv</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingMustRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -72,7 +70,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.html">
         <minim:forPurpose>create UserRequirements-bio.html</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingShouldRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -84,7 +81,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.pdf">
         <minim:forPurpose>create UserRequirements-bio.pdf</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingMayRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>

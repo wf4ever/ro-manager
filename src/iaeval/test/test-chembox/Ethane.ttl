@@ -1,0 +1,189 @@
+<http://purl.org/net/chembox/Ethane>
+      <http://dbpedia.org/property/wikiPageUsesTemplate>
+              <http://dbpedia.org/resource/Template:Chembox> ;
+      <http://dbpedia.org/resource/Template:Chembox:1.3562+mg+cm%26lt%3Bsup%3E%E2%88%923%26lt%3B%2Fsup%3E+%28at+0+%C2%B0C%29%26lt%3Bref+name>
+              "pubchem/>" ;
+      <http://dbpedia.org/resource/Template:Chembox:Appearance>
+              "Colorless gas" ;
+      <http://dbpedia.org/resource/Template:Chembox:Autoignition>
+              "472 °C" ;
+      <http://dbpedia.org/resource/Template:Chembox:Beilstein>
+              "1730716" ;
+      <http://dbpedia.org/resource/Template:Chembox:BoilingPtK>
+              "184.6" ;
+      <http://dbpedia.org/resource/Template:Chembox:C>
+              "2" ;
+      <http://dbpedia.org/resource/Template:Chembox:CASNo>
+              "74-84-0" ;
+      <http://dbpedia.org/resource/Template:Chembox:ChEBI>
+              "42266" ;
+      <http://dbpedia.org/resource/Template:Chembox:ChEMBL>
+              "135626" ;
+      <http://dbpedia.org/resource/Template:Chembox:ChemSpiderID>
+              "6084" ;
+      <http://dbpedia.org/resource/Template:Chembox:DeltaHc>
+              "−1561.0–−1560.4 kJ mol&lt;sup>−1&lt;/sup>" ;
+      <http://dbpedia.org/resource/Template:Chembox:DeltaHf>
+              "−84 kJ mol&lt;sup>−1&lt;/sup>" ;
+      <http://dbpedia.org/resource/Template:Chembox:EINECS>
+              "200-814-8" ;
+      <http://dbpedia.org/resource/Template:Chembox:EUIndex>
+              "601-002-00-X" ;
+      <http://dbpedia.org/resource/Template:Chembox:ExploLimits>
+              "2.9–13%" ;
+      <http://dbpedia.org/resource/Template:Chembox:ExternalMSDS>
+              "[http://www.inchem.org/documents/icsc/icsc/eics0266.htm inchem.org]" ;
+      <http://dbpedia.org/resource/Template:Chembox:FlashPt>
+              "−135 °C" ;
+      <http://dbpedia.org/resource/Template:Chembox:Function>
+              "alkanes" ;
+      <http://dbpedia.org/resource/Template:Chembox:GHSSignalWord>
+              "'''DANGER'''" ;
+      <http://dbpedia.org/resource/Template:Chembox:H>
+              "6" ;
+      <http://dbpedia.org/resource/Template:Chembox:HeatCapacity>
+              "52.49 J K&lt;sup>−1&lt;/sup> mol&lt;sup>−1&lt;/sup>" ;
+      <http://dbpedia.org/resource/Template:Chembox:HenryConstant>
+              "19 nmol Pa&lt;sup>−1&lt;/sup> kg&lt;sup>−1&lt;/sup>" ;
+      <http://dbpedia.org/resource/Template:Chembox:IUPACName>
+              "Ethane" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageFileL1>
+              "Ethan Skelett.svg" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageFileL2>
+              "Ethane-A-3D-balls.png" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageFileR1>
+              "Ethan Lewis.svg" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageFileR2>
+              "Ethane-3D-vdW.png" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageNameL1>
+              "Skeletal formula of ethane with all implicit hydrogens shown" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageNameL2>
+              "Ball and stick model of ethane" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageNameR1>
+              "Skeletal formula of ethane with all implicit carbons shown, and all explicit hydrogens added" ;
+      <http://dbpedia.org/resource/Template:Chembox:ImageNameR2>
+              "Spacefill model of ethane" ;
+      <http://dbpedia.org/resource/Template:Chembox:MeSHName>
+              "Ethane" ;
+      <http://dbpedia.org/resource/Template:Chembox:MeltingPtK>
+              "90.4" ;
+      <http://dbpedia.org/resource/Template:Chembox:NFPA-F>
+              "4" ;
+      <http://dbpedia.org/resource/Template:Chembox:NFPA-H>
+              "1" ;
+      <http://dbpedia.org/resource/Template:Chembox:NFPA-R>
+              "0" ;
+      <http://dbpedia.org/resource/Template:Chembox:Odor>
+              "Odorless" ;
+      <http://dbpedia.org/resource/Template:Chembox:PubChem>
+              "6324" ;
+      <http://dbpedia.org/resource/Template:Chembox:RTECS>
+              "KH3800000" ;
+      <http://dbpedia.org/resource/Template:Chembox:SMILES>
+              "CC" ;
+      <http://dbpedia.org/resource/Template:Chembox:Solubility>
+              "56.8 mg L&lt;sup>−1&lt;/sup>" ;
+      <http://dbpedia.org/resource/Template:Chembox:StdInChI>
+              "1S/C2H6/c1-2/h1-2H3" ;
+      <http://dbpedia.org/resource/Template:Chembox:StdInChIKey>
+              "OTMSDBZUPAUEDD-UHFFFAOYSA-N" ;
+      <http://dbpedia.org/resource/Template:Chembox:UNII>
+              "L99N5N533T" ;
+      <http://dbpedia.org/resource/Template:Chembox:UNNumber>
+              "1035" ;
+      <http://dbpedia.org/resource/Template:Chembox:VaporPressure>
+              "3.8453 MPa (at 21.1 °C)" ;
+      <http://dbpedia.org/resource/Template:Chembox:Watchedfields>
+              "changed" ;
+      <http://dbpedia.org/resource/Template:Chembox:accessdate>
+              "7 December 2011" , "2007-02-12" ;
+      <http://dbpedia.org/resource/Template:Chembox:author>
+              "A. Stern" ;
+      <http://dbpedia.org/resource/Template:Chembox:authorlink>
+              "Alan Stern" ;
+      <http://dbpedia.org/resource/Template:Chembox:bibcode>
+              "2008Natur.454..607B" , "1996Sci...272.1310M" ;
+      <http://dbpedia.org/resource/Template:Chembox:coauthors>
+              "''et al.''" ;
+      <http://dbpedia.org/resource/Template:Chembox:date>
+              "16 September 2004" , "November 1, 2006" ;
+      <http://dbpedia.org/resource/Template:Chembox:display-authors>
+              "1" ;
+      <http://dbpedia.org/resource/Template:Chembox:doi>
+              "10.1126/science.272.5266.1310" , "10.1039/QJ8490100060" , "10.1039/QJ8500200263" , "10.1098/rstl.1834.0008" , "10.1039/QJ8500200157" , "10.1038/nature07100" ;
+      <http://dbpedia.org/resource/Template:Chembox:first>
+              "Michael" , "Hermann" , "Edward" , "Bob" , "Michael J." , "Carl" ;
+      <http://dbpedia.org/resource/Template:Chembox:first1>
+              "Hermann" , "R. H." ;
+      <http://dbpedia.org/resource/Template:Chembox:first2>
+              "L. A." , "Edward" , "M. A." ;
+      <http://dbpedia.org/resource/Template:Chembox:first3>
+              "N. D." , "J. M." ;
+      <http://dbpedia.org/resource/Template:Chembox:first4>
+              "M." , "R. N." ;
+      <http://dbpedia.org/resource/Template:Chembox:first5>
+              "R." , "K." ;
+      <http://dbpedia.org/resource/Template:Chembox:first6>
+              "J. W." , "C. D." ;
+      <http://dbpedia.org/resource/Template:Chembox:first7>
+              "D. X." , "C." ;
+      <http://dbpedia.org/resource/Template:Chembox:first8>
+              "B." ;
+      <http://dbpedia.org/resource/Template:Chembox:first9>
+              "K. H." ;
+      <http://dbpedia.org/resource/Template:Chembox:issue>
+              "7204" , "5266" ;
+      <http://dbpedia.org/resource/Template:Chembox:journal>
+              "Annalen der Chemie" , "Science" , "Nature" , "Journal of the Chemical Society" , "Philosophical Transactions" ;
+      <http://dbpedia.org/resource/Template:Chembox:last>
+              "Faraday" , "Schorlemmer" , "Mumma" , "Kolbe" , "Brown" , "Frankland" ;
+      <http://dbpedia.org/resource/Template:Chembox:last1>
+              "Brown" , "Kolbe" ;
+      <http://dbpedia.org/resource/Template:Chembox:last2>
+              "Disanti" , "Frankland" , "Soderblom" ;
+      <http://dbpedia.org/resource/Template:Chembox:last3>
+              "Russo" , "Soderblom" ;
+      <http://dbpedia.org/resource/Template:Chembox:last4>
+              "Clark" , "Fomenkova" ;
+      <http://dbpedia.org/resource/Template:Chembox:last5>
+              "Jaumann" , "Magee-Sauer" ;
+      <http://dbpedia.org/resource/Template:Chembox:last6>
+              "Kaminski" , "Barnes" ;
+      <http://dbpedia.org/resource/Template:Chembox:last7>
+              "Sotin" , "Xie" ;
+      <http://dbpedia.org/resource/Template:Chembox:last8>
+              "Buratti" ;
+      <http://dbpedia.org/resource/Template:Chembox:last9>
+              "Baines" ;
+      <http://dbpedia.org/resource/Template:Chembox:location>
+              "USA" ;
+      <http://dbpedia.org/resource/Template:Chembox:pKa>
+              "50" ;
+      <http://dbpedia.org/resource/Template:Chembox:pKb>
+              "-36" ;
+      <http://dbpedia.org/resource/Template:Chembox:page>
+              "8.88" , "234" , "3.22" ;
+      <http://dbpedia.org/resource/Template:Chembox:pages>
+              "607–10" , "77–122" , "263–296" , "1310–1314" , "60–74" , "157–184" ;
+      <http://dbpedia.org/resource/Template:Chembox:pmid>
+              "18668101" , "8650540" ;
+      <http://dbpedia.org/resource/Template:Chembox:publisher>
+              "National Center for Biotechnology Information" , "Johns Hopkins University Applied Physics Laboratory" ;
+      <http://dbpedia.org/resource/Template:Chembox:refs>
+              "" ;
+      <http://dbpedia.org/resource/Template:Chembox:title>
+              "The identification of liquid ethane in Titan's Ontario Lacus" , "On the isolation of the organic radicals" , "Detection of Abundant Ethane and Methane, Along with Carbon Monoxide and Water, in Comet C/1996 B2 Hyakutake: Evidence for Interstellar Origin" , "Researches on the electrolysis of organic compounds" , "Making Old Horizons New" , "NASA Confirms Liquid Lake on Saturn Moon" , "On the products of the action of potassium on cyanide of ethyl" , "Experimental researches in electricity: Seventh series" , "Ethane – Compound Summary" ;
+      <http://dbpedia.org/resource/Template:Chembox:url>
+              "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=6324&amp;loc=ec_rcs" , "http://pluto.jhuapl.edu/overview/piPerspectives/piPerspective_11_1_2006.php" , "http://www.jpl.nasa.gov/news/news.cfm?release=2008-152" ;
+      <http://dbpedia.org/resource/Template:Chembox:verifiedrevid>
+              "477168309" ;
+      <http://dbpedia.org/resource/Template:Chembox:volume>
+              "272" , "2" , "132" , "454" , "1" , "124" ;
+      <http://dbpedia.org/resource/Template:Chembox:wikiPageHasName>
+              "Ethane" ;
+      <http://dbpedia.org/resource/Template:Chembox:work>
+              "PubChem Compound" , "The PI's Perspective" ;
+      <http://dbpedia.org/resource/Template:Chembox:year>
+              "1849" , "1864" , "2008" , "1850" , "1996" , "1834" ;
+      <http://www.w3.org/2002/07/owl#sameAs>
+              <http://dbpedia.org/resource/Ethane> .

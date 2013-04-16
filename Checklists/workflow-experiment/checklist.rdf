@@ -55,7 +55,6 @@
         <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
         <minim:forPurpose>ready-to-release</minim:forPurpose>
         <minim:toModel rdf:resource="#experiment_complete_model" />
-        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
         <rdfs:comment>
           Constraint to be satisfied if the target RO is to be considered a
           complete and fully-described workflow experiment.

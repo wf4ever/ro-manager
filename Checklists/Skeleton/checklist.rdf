@@ -55,7 +55,6 @@
         <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
         <minim:forPurpose>ZZZ1</minim:forPurpose>
         <minim:toModel rdf:resource="#ZZZ1__model" />
-        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
         <rdfs:comment>
           Constraint to be satisfied if the target is to be ZZZ1
         </rdfs:comment>
@@ -67,7 +66,6 @@
         <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
         <minim:forPurpose>ZZZ2</minim:forPurpose>
         <minim:toModel rdf:resource="#ZZZ2__model" />
-        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
         <rdfs:comment>
           Constraint to be satisfied if the target is to be ZZZ2
         </rdfs:comment>

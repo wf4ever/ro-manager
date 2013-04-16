@@ -100,8 +100,10 @@ class TestROSupport(unittest.TestCase):
         shutil.rmtree(rodir, ignore_errors=True)
         shutil.copytree(testbase+src, rodir)
         # Confirm non-existence of manifest directory
-        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
-        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
+        self.assertTrue(os.path.exists(rodir),
+            msg="checking copied RO directory (%s)"%(rodir))
+        self.assertFalse(os.path.exists(manifestdir), 
+            msg="checking copied RO manifest dir (%s)"%(manifestdir))
         return rodir
 
     def checkRoFixtureManifest(self, rodir):

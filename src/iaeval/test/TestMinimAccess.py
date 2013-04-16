@@ -30,14 +30,12 @@ import rdflib
 
 from MiscLib import TestUtils
 
-from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
-from rocommand.test import StdoutContext
 
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
@@ -99,7 +97,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                                          )
             , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.csv') )
-            , (constraint, MINIM.onResource,    rouri                                               )
             , (constraint, MINIM.toModel,       model                                               )
             , (model,      RDF.type,            MINIM.Model                                         )
             ])
@@ -121,8 +118,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         for c in constraints:
             if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv") and
                  c['purpose']  == rdflib.Literal("create UserRequirements-astro.csv")                   and
-                 c['resource'] == rouri                                                               and
-                 c['model']    == model                                                               and
+                 c['model']    == model                                                                 and
                  c['uri']      == constraint ) :
                 expected_found = True
                 break
@@ -142,7 +138,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             r"create.*UserRequirements-astro\.csv")
         self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv"))
         self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.csv"))
-        self.assertEquals(c['resource'], rouri)
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
         return
@@ -251,7 +246,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                 )
             , (constraint, MINIM.forPurpose,    rdflib.Literal('Runnable') )
-            , (constraint, MINIM.onResource,    rouri                      )
             , (constraint, MINIM.toModel,       model                      )
             , (model,      RDF.type,            MINIM.Model                )
             ])
@@ -270,7 +264,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         for c in constraints:
             if ( c['target']   == rouri                      and
                  c['purpose']  == rdflib.Literal("Runnable") and
-                 c['resource'] == rouri                      and
                  c['model']    == model                      and
                  c['uri']      == constraint ) :
                 expected_found = True
@@ -289,7 +282,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             "Runnable")
         self.assertEquals(c['target'],   rouri)
         self.assertEquals(c['purpose'],  rdflib.Literal("Runnable"))
-        self.assertEquals(c['resource'], rouri)
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
         return

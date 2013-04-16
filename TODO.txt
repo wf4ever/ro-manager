@@ -50,14 +50,16 @@ Technical debt:
   (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
+
+----
+
+DONE
+
 - role of onresource / onresourcetemplate in constraint is unclear (to me!)
 -- eliminate these from model as they seem to serve no purpose.
 -- Start by removing code in minim.py, then chase through test case failures.
 -- Finally, remove from all minim model files.
 
-----
-
-DONE
 
 * ro eval checklist
 ** Test that aggregated files actually exist - part of liveness?
