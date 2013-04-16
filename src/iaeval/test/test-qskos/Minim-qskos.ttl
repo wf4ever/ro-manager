@@ -1,0 +1,175 @@
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix xml:      <http://www.w3.org/XML/1998/namespace> .
+@prefix rdfg:     <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix ore:      <http://www.openarchives.org/ore/terms/> .
+@prefix ao:       <http://purl.org/ao/> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix ro:       <http://purl.org/wf4ever/ro#> .
+@prefix wfprov:   <http://purl.org/wf4ever/wfprov#> .
+@prefix wfdesc:   <http://purl.org/wf4ever/wfdesc#> .
+@prefix wf4ever:  <http://purl.org/wf4ever/wf4ever#> .
+@prefix minim:    <http://purl.org/minim/minim#> .
+@prefix gn:       <http://www.geonames.org/ontology#> .
+
+@prefix :             <http://example.com/qskos-samples/> .
+
+# These prefixes are added to any SPARQL query generated using the query patterns in this file
+gn:      minim:hasPrefix "gn" .
+:        minim:hasPrefix "default" .
+
+
+:minim_checklists
+  minim:hasChecklist
+    [ a minim:Checklist ;
+      minim:forTargetTemplate "http://www.geonames.org/ontology" ;
+      minim:forPurpose "qskos" ;
+      minim:toModel :minim_qskos ;
+      rdfs:comment
+          """
+          Checklist to be satisfied if the target resource is to be considered a
+          "good" SKOS vocabulary according to QSOS criteria.
+          """ ] .
+
+:minim_checklists
+  minim:hasChecklist
+    [ a minim:Checklist ;
+      minim:forTargetTemplate "http://www.geonames.org/ontology" ;
+      minim:forPurpose "fail" ;
+      minim:toModel :minim_fail ;
+      rdfs:comment
+          """
+          Checklist used for testing failure conditions.
+          """ ] .
+
+:minim_qskos a minim:Model ;
+  rdfs:label "QSKOS Minim checklist" ;
+  rdfs:comment
+    """
+    This checklist refers to QSKOS quality requirements.
+    """ ;
+  # minim:hasMustRequirement   :ValidLanguageTags ;
+  # minim:hasMustRequirement   :ConsistentLanguageTags ;
+  minim:hasMustRequirement   :DocumentedConcepts ;
+  # minim:hasMustRequirement   :NoLabelConflicts ;
+  # minim:hasMustRequirement   :NoOrphanConcepts ;
+  # minim:hasMustRequirement   :NoWeaklyConnectedConcepts ;
+  # minim:hasMustRequirement   :NoCyclicHierarchicalRelations ;
+  # minim:hasMustRequirement   :NoValuelessAssociations ;
+  # minim:hasMustRequirement   :AllTopConceptsIdentified ;
+  # minim:hasMustRequirement   :NoTopConceptWithBroaderConcept ;
+  # minim:hasMustRequirement   :AllConceptsLinkedInwards ;
+  # minim:hasMustRequirement   :AllConceptsLinkedOutwards ;
+  # minim:hasMustRequirement   :NoBrokenLinks ;
+  # minim:hasMustRequirement   :NoBrokenLinks ;
+  # minim:hasMustRequirement   :NoUndefinedSkosTerms ;
+  .
+
+:minim_fail a minim:Model ;
+  rdfs:label "A failing Minim checklist" ;
+  rdfs:comment
+    """
+    This checklist is used to test failure of a minim test
+    """ ;
+  minim:hasMustRequirement   :failreq ;
+  .
+
+:ValidLanguageTags a minim:Requirement;
+  .
+
+:ConsistentLanguageTags a minim:Requirement;
+  .
+
+:DocumentedConcepts a minim:Requirement;
+  rdfs:comment
+    """
+    Check that all SKOS concepts have documentation properties.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      ### NOTE: need subclass inference to ensure this works generically ###
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            { ?concept a skos:Concept }
+            UNION
+            { ?concept a gn:Code }
+            """ ;
+        ] ;
+      minim:affirmRule
+        [ a minim:QueryTestRule ;
+          minim:query
+            [ a minim:SparqlQuery ;
+              minim:sparql_query
+                """
+                ?concept skos:definition ?def
+                """ ;
+            ] ;
+          minim:min 1 ;
+          minim:max 1 ;   ### Is this a good idea?
+        ] ;
+      ### Could use minim:exists instead
+      minim:showpass "Documentation properties are present for all SKOS concepts" ;
+      minim:showfail "Documentation property not provided for %(concept)s" ;
+    ] .
+  .
+
+:NoLabelConflicts a minim:Requirement;
+  .
+
+:NoOrphanConcepts a minim:Requirement;
+  .
+
+:NoWeaklyConnectedConcepts a minim:Requirement;
+  .
+
+:NoCyclicHierarchicalRelations a minim:Requirement;
+  .
+
+:NoValuelessAssociations a minim:Requirement;
+  .
+
+:AllTopConceptsIdentified a minim:Requirement;
+  .
+
+:NoTopConceptWithBroaderConcept a minim:Requirement;
+  .
+
+:AllConceptsLinkedInwards a minim:Requirement;
+  .
+
+:AllConceptsLinkedOutwards a minim:Requirement;
+  .
+
+:NoBrokenLinks a minim:Requirement;
+  .
+
+:NoBrokenLinks a minim:Requirement;
+  .
+
+:NoUndefinedSkosTerms a minim:Requirement;
+  .
+
+:failreq a minim:Requirement ;
+  rdfs:comment
+    """
+    This requirement should be failed.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?targetres skos:NoSuchProperty ?value .
+            """ ;
+        ] ;
+      minim:min 1 ;
+      minim:max 1 ;
+      minim:show "This test should fail" ;
+    ] .
+
