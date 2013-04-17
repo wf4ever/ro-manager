@@ -50,6 +50,8 @@ Technical debt:
   (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
+- replace sparql prefixes in TrafficLightReports.py
+
 
 ----
 
