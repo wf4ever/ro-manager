@@ -51,6 +51,7 @@ Technical debt:
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist
 - replace sparql prefixes in TrafficLightReports.py
+- add minim:query_select to minim model & ontology & diagram
 
 
 ----

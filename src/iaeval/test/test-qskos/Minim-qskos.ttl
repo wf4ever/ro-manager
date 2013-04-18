@@ -84,46 +84,93 @@ gn:      minim:hasPrefix "gn" .
     The requirement summaries have been described using a datalog/prolog based
     notation.  This note describes some common predicates and structures used by
     several requirements.
-    
+
     Common prolog/datalog predicates assumed
-    
+
     q[<sparql-pattern>](<variables>)
     u[<uri>]
-    
-    count(<predicate>) # number of results available for <predicate>
-    
-    validLanguage(LANG) # true is LANG is a valid RFC3066 language tag
-    
+
+    count(<predicate>) :-
+        -- Number of results available for <predicate>
+
     subclass_closure(CLASS, SUBCLASS) :- 
-        q[?subclass a ?class](SUBCLASS, CLASS) ;
-        q[?subclass rdfs:subClassOf ?c](SUBCLASS, C), subclass_closure(CLASS, C).
-    
-    skosconcept(V) :- 
+        SUBCLASS == CLASS
+        ;
+        q[?subclass rdfs:subClassOf ?c](SUBCLASS, C), subclass_closure(CLASS, C)
+        .
+
+    skosConcept(V) :- 
         q[?v a ?concept](V,CONCEPT),
-        subclass_closure(u[skos:Concept],CONCEPT).
-    
-    skosrelationship(CONCEPT, RELPROP, REL) :-
-        q[?relprop rdfs:subPropertyOf* skos:semanticRelation](RELPROP),
-        q[?concept ?relprop ?rel](CONCEPT,RELPROP,REL).
-    
-    skoslabel(CONCEPT,LABEL) :-
+        subclass_closure(u[skos:Concept],CONCEPT)
+        .
+
+    authoritativeConcept(V, NAMESPACE) :-
+        skosConcept(V),
+        inNamespace(V, NAMESPACE)
+        .
+
+    skosLabel(CONCEPT,LABEL) :-
         q[?labelprop rdfs:subPropertyOf* rdfs:label](LABELPROP),
-        q[?concept ?labelprop ?label](CONCEPT,LABELPROP,LABEL).
-    
-    skoslabel(CONCEPT,LABEL,LANG) :-
+        q[?concept ?labelprop ?label](CONCEPT,LABELPROP,LABEL)
+        .
+
+    skosLabel(CONCEPT,LABEL,LANG) :-
         skoslabel(CONCEPT, LABEL),
-        q[BIND lang(?label) AS ?lang](LABEL,LANG).
-    
-    preflabel(CONCEPT,LABEL) :-
-        q[?concept skos:prefLabel ?label](CONCEPT,LABEL).
-    
-    assert(<value>)
+        q[BIND lang(?label) AS ?lang](LABEL,LANG)
+        .
+
+    prefLabel(CONCEPT,LABEL) :-
+        q[?concept skos:prefLabel ?label](CONCEPT,LABEL)
+        .
+
+    skosRelationship(CONCEPT, RELPROP, RELCONCEPT) :-
+        q[?relprop rdfs:subPropertyOf* skos:semanticRelation](RELPROP),
+        q[?concept ?relprop ?rel](CONCEPT,RELPROP,RELCONCEPT)
+        .
+
+    broaderConcept(CONCEPT, SUBCONCEPT) :-
+        q[?concept (skos:broader|^skos:narrower) ?subconcept](CONCEPT, SUBCONCEPT)
+        .
+
+    broaderTransitive(CONCEPT, SUBCONCEPT) :-
+        q[?concept (skos:broader|^skos:narrower)* ?subconcept](CONCEPT, SUBCONCEPT)
+        .
+
+    conceptScheme(SCHEME) :-
+        q[?scheme a skos:ConceptScheme](SCHEME)
+        ;
+        q[?concept skos:inScheme ?scheme](SCHEME)
+        .
+
+    topConcept(SCHEME,CONCEPT) :-
+        q[?scheme skos:hasTopConcept ?concept](SCHEME,CONCEPT)
+        .
+
+    assert(<value>) :-
         -- this needs work; getting a universal quantification over a Prolog predicate 
            seems to need some kind of conversion between predicates and list values.
            member/2 goes one way.  findall/3 goes the other.  See also forall.
              http://www.swi-prolog.org/pldoc/man?predicate=member/2
              http://www.swi-prolog.org/pldoc/man?predicate=findall/3
              http://www.swi-prolog.org/pldoc/man?predicate=forall/2
+
+    inNamespace(CONCEPT, NAMESPACE) :-
+        -- this is a primitive function that fails if CONCEPT is not a term associated
+           with NAMESPACE, as determined by lexical examination of their URIs
+
+    inOtherNamespace(CONCEPT, NAMESPACE) :-
+        -- this is a primitive function that fails if CONCEPT is a term associated
+           with NAMESPACE, as determined by lexical examination of their URIs
+
+    validLanguage(LANG)
+        -- true if LANG is a valid RFC3066 language tag.  Could be implemented 
+           as query to external resource.
+
+    definedSkosTerm(T) :-
+        -- a primitive function that compares the supplied against a list of 
+           those defined in the SKOS namespace.  Could be implemented as query to
+           external resource.
+
     """ .
 
 # Text below describing the various requirements is taken from
@@ -150,8 +197,10 @@ gn:      minim:hasPrefix "gn" .
     validLanguageTags(TARGETRO, TARGETRES) :-
         skosconcept(CONCEPT),
         skoslabel(CONCEPT,LABEL),
-        assert(validLanguage(LABEL)).
+        assert(validLanguage(LABEL))
+        .
     """ ;
+  rdfs:seeAlso :minim_datalog ;
   minim:isDerivedBy
     [ a minim:QueryTestRule ;
       minim:query
@@ -167,7 +216,7 @@ gn:      minim:hasPrefix "gn" .
       ### @@TODO: validLanguageTag(?lang) 
       minim:showpass "Documentation properties are present for all SKOS concepts" ;
       minim:showfail "Documentation property not provided for %(concept)s" ;
-    ] .
+    ]
   .
 
 # The set of language tags used by the literal values linked with a concept should be
@@ -189,8 +238,10 @@ gn:      minim:hasPrefix "gn" .
         skosconcept(CONCEPT1),      -- for every language tag used ...
         skoslabel(CONCEPT1,LABEL1,LANG),
         skosconcept(CONCEPT2),      -- every concept has label with that language
-        assert(count(skoslabel(CONCEPT2,LABEL2,LANG)) >= 1).
+        assert(count(skoslabel(CONCEPT2,LABEL2,LANG)) >= 1)
+        .
     """ ;
+  rdfs:seeAlso :minim_datalog ;
   minim:isDerivedBy
     [ a minim:QueryTestRule ;
       minim:query
@@ -235,8 +286,10 @@ gn:      minim:hasPrefix "gn" .
     
     documentedConcepts(TARGETRO, TARGETRES) :-
         skosconcept(CONCEPT),
-        assert(count(q[?concept skos:definition ?def](CONCEPT, DEF)) == 1).
+        assert(count(q[?concept skos:definition ?def](CONCEPT, DEF)) == 1)
+        .
     """ ;
+  rdfs:seeAlso :minim_datalog ;
   minim:isDerivedBy
     [ a minim:QueryTestRule ;
       minim:query
@@ -288,9 +341,10 @@ gn:      minim:hasPrefix "gn" .
         preflabel(CONCEPT1, LANG1, LABEL1),
         concept(CONCEPT2),
         preflabel(CONCEPT2, LANG2, LABEL2),
-        assert( (LANG1 == LANG2 && LABEL1 == LABEL2) => CONCEPT1 == CONCEPT2 ).
-                                              -- same label only when same concept
+        assert( (LANG1 == LANG2 && LABEL1 == LABEL2) => CONCEPT1 == CONCEPT2 )
+        .                                     -- same label only when same concept
     """ ;
+  rdfs:seeAlso :minim_datalog ;
   minim:isDerivedBy
     [ a minim:QueryTestRule ;
       minim:query
@@ -329,8 +383,10 @@ gn:      minim:hasPrefix "gn" .
     
     NoOrphanConcepts(TARGETRO, TARGETRES) :-
         skosconcept(CONCEPT),
-        assert(count(skosrelationship(CONCEPT, RELPROP, REL)) >= 1).
+        assert(count(skosrelationship(CONCEPT, RELPROP, REL)) >= 1)
+        .
     """ ;
+  rdfs:seeAlso :minim_datalog ;
   minim:isDerivedBy
     [ a minim:QueryTestRule ;
       minim:query
@@ -372,10 +428,27 @@ gn:      minim:hasPrefix "gn" .
     """
     Check for no weakly connected concept clusters.
     
-    NoOrphanConcepts(TARGETRO, TARGETRES) :-
-        skosconcept(CONCEPT),
-        skosrelationship(CONCEPT, RELPROP, REL).
+    noOrphanConcepts(TARGETRO, TARGETRES) :-
+        assert(not weaklyConnected(CONCEPT, skosconcept(CONCEPT)))
+        .
+
+    Here, 'weaklyConnected()' is a new primitive that evaluates the SKOS graph
+    for weak connections between the terms selected by the supplied predicate.
     """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?concept rdf:type/rdfs:subClassOf* skos:Concept .
+            """ ;
+        ] ;
+      ### @@TODO: notWeaklyConnected(?concept) 
+      minim:showpass "No SKOS concepts are weakly connected" ;
+      minim:showfail "SKOS concept %(concept)s is weakly connected" ;
+    ]
   .
 
 # Cyclic Hierarchical Relations is motivated by Soergel et al. [18] who suggest a
@@ -387,6 +460,33 @@ gn:      minim:hasPrefix "gn" .
 # the set of nodes being C and the set of edges being all skos:broader relations.
 # 
 :NoCyclicHierarchicalRelations a minim:Requirement;
+  rdfs:comment
+    """
+    Check for no cyclic hierarchical relations among concepts.
+    
+    noCyclicHierarchicalRelations(TARGETRO, TARGETRES) :-
+        assert(not cyclicHierarchicalRelations(CONCEPT, skosconcept(CONCEPT)))
+        .
+
+    Here, 'cyclicHierarchicalRelations()' is a new primitive that evaluates the 
+    SKOS graph for cyclic hierarchical relations between the terms selected by 
+    the supplied predicate.
+    @@TODO: re-work this to use a more generalized form of graph cycle detection
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?concept rdf:type/rdfs:subClassOf* skos:Concept .
+            """ ;
+        ] ;
+      ### @@TODO: NoCyclicHierarchicalRelations(?concept) 
+      minim:showpass "No SKOS concepts are cyclicly hierarchically connected" ;
+      minim:showfail "SKOS concept %(concept)s cyclicly hierarchically connected" ;
+    ]
   .
 
 # The ISO/DIS 25964-1 standard [1] suggests that terms that share a common broader
@@ -399,6 +499,46 @@ gn:      minim:hasPrefix "gn" .
 # skos:related.
 # 
 :NoValuelessAssociations a minim:Requirement;
+  rdfs:comment
+    """
+    Check for no value-less association relations; 
+    i.e., none also having a common broader concept.
+
+    associatedconcepts(CONCEPT1, CONCEPT2) :-
+        q[?concept1 (skos:related|^skos:related) ?concept2]()CONCEPT1,CONCEPT2)
+        .
+
+    noValuelessAssociations(TARGETRO, TARGETRES) :-
+        broadertransitive(CONCEPT, SUBCONCEPT1),
+        broadertransitive(CONCEPT, SUBCONCEPT2),
+        assert(count(associatedconcepts(SUBCONCEPT1,SUBCONCEPT2) == 0)
+        ,
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?concept (skos:broader|^skos:narrower)* ?subconcept1 ;
+                     (skos:broader|^skos:narrower)* ?subconcept2 .
+            """ ;
+        ] ;
+      minim:affirmRule
+        [ a minim:QueryTestRule ;
+          minim:query
+            [ a minim:SparqlQuery ;
+              minim:sparql_query
+                """
+                ?subconcept1 (skos:related|^skos:related) ?subconcept2
+                """ ;
+            ] ;
+          minim:max 0 ;
+        ] ;
+      minim:showpass "No SKOS concepts have valueless associations" ;
+      minim:showfail "SKOS concepts %(subconcept1)s and %(subconcept2)s have valueless association" ;
+    ]
   .
 
 # Two concepts that are explicitly related by skos:broaderTransitive and/or
@@ -412,6 +552,32 @@ gn:      minim:hasPrefix "gn" .
 # skos:narrower subproperties.
 # 
 :NoTransitivelyRelatedConcepts a minim:Requirement;
+  rdfs:comment
+    """
+    Check for no explicit use of transitive properties.
+
+    transitiveRelation(CONCEPT1,CONCEPT2) :-
+        q[?concept1 (skos:broaderTransitive|skos:narrowerTransitive) ?concept2](CONCEPT1, CONCEPT2)
+        .
+
+    noTransitivelyRelatedConcepts(TARGETRO, TARGETRES) :-
+        assert(count(transitiveRelation(CONCEPT1,CONCEPT2) == 0)
+        ,
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?concept1 (skos:broaderTransitive|skos:narrowerTransitive) ?concept2 .
+            """ ;
+        ] ;
+      minim:max 0 ;
+      minim:showpass "No SKOS concepts have explicit transitive associations" ;
+      minim:showfail "SKOS concepts %(concept1)s and %(concept2)s have explicit transitive relation" ;
+    ]
   .
 
 # The SKOS model provides concept schemes, which are a facility for grouping related
@@ -423,6 +589,42 @@ gn:      minim:hasPrefix "gn" .
 # skos:topConceptOf.
 # 
 :AllTopConceptsIdentified a minim:Requirement;
+  rdfs:comment
+    """
+    Check for top concept in every concept scheme.
+
+    allTopConceptsIdentified(TARGETRO, TARGETRES) :-
+        conceptScheme(SCHEME),
+        assert(count(topConcept(SCHEME, CONCEPT) >= 1))
+        .
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            { ?scheme a skos:ConceptScheme }
+            UNION
+            { ?concept skos:inScheme ?scheme }
+            """ ;
+          minim:query_select "DISTINCT(?scheme)" ;  ### @@TODO: add to minim model
+        ] ;
+      minim:affirmRule       ### Could use minim:exists instead
+        [ a minim:QueryTestRule ;
+          minim:query
+            [ a minim:SparqlQuery ;
+              minim:sparql_query
+                """
+                ?scheme skos:hasTopConcept ?topconcept
+                """ ;
+            ] ;
+          minim:min 1 ;
+        ] ;
+      minim:showpass "Every concept scheme has a top property" ;
+      minim:showfail "Scheme %(scheme)s has no top property" ;
+    ] .
   .
 
 # Allemang et al. [3] propose to “not indicate any concepts internal to the tree as
@@ -431,8 +633,41 @@ gn:      minim:hasPrefix "gn" .
 # resource via a skos:broader statement and not via skos:broadMatch—mappings are not
 # part of a vocabulary’s “intrinsic” definition and a top concept in one vocabulary
 # may perfectly have a broader concept in another vocabulary.
-# 
+#
 :NoTopConceptWithBroaderConcept a minim:Requirement;
+  rdfs:comment
+    """
+    Check for top concept in every concept scheme.
+
+    noTopConceptWithBroaderConcept(TARGETRO, TARGETRES) :-
+        topConcept(SCHEME, CONCEPT),
+        assert(count(broaderConcept(SUPCONCEPT, CONCEPT) == 0))
+        .
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?scheme skos:hasTopConcept ?topconcept
+            """ ;
+        ] ;
+      minim:affirmRule
+        [ a minim:QueryTestRule ;
+          minim:query
+            [ a minim:SparqlQuery ;
+              minim:sparql_query
+                """
+                ?supconcept (skos:broader|^skos:narrower)* ?topconcept
+                """ ;
+            ] ;
+          minim:max 0 ;
+        ] ;
+      minim:showpass "No concept scheme top concept has a broader concept" ;
+      minim:showfail "Scheme %(scheme)s top concept %(topconcept)s has a brader concept %(supconcept)s" ;
+    ] .
   .
 
 # When vocabularies are published on the Web, SKOS concepts become linkable
@@ -447,6 +682,35 @@ gn:      minim:hasPrefix "gn" .
 # covers approximately 230M documents with over 11 billion triples.
 # 
 :AllConceptsLinkedInwards a minim:Requirement;
+  rdfs:comment
+    """
+    Look for inward links for all authoritative concepts (via Sindice).
+    
+    (Assumes that the target resource of the evaluation is the SKOS vocabulary namespace.)
+    
+    allConceptsLinkedInwards(TARGETRO, TARGETRES) :-
+        authoritativeConcept(CONCEPT, TARGETRES),
+        assert(hasInwardLink(CONCEPT))
+        .
+
+    Here, 'hasInwardLink()' is a new primitive that tests for references to its CONCEPT
+    argument via a query to Sindice.
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?concept rdf:type/rdfs:subClassOf* skos:Concept .
+            """ ;
+        ] ;
+      ### @@TODO: namespace filtering for authoritativeConcept()
+      ### @@TODO: hasInwardLink(?concept) via Sindice lookup
+      minim:showpass "All SKOS concepts have inward links" ;
+      minim:showfail "SKOS concept %(concept)s has no inward link known to Sindice" ;
+    ]
   .
 
 # SKOS concepts should also be linked with other related concepts on the Web,
@@ -456,6 +720,35 @@ gn:      minim:hasPrefix "gn" .
 # are not linked with any non-authoritative resource.
 # 
 :AllConceptsLinkedOutwards a minim:Requirement;
+  rdfs:comment
+    """
+    Look for outward links for all authoritative concepts.
+    
+    (Assumes that the target resource of the evaluation is the SKOS vocabulary namespace.)
+    
+    allConceptsLinkedOutwards(TARGETRO, TARGETRES) :-
+        authoritativeConcept(CONCEPT, TARGETRES),
+        skosRelationship(CONCEPT, RELPROP, RELCONCEPT),
+        assert(count(inOtherNamespace(RELCONCEPT, NAMESPACE)) >= 1)
+        .
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?relprop rdfs:subPropertyOf* skos:semanticRelation .
+            ?concept rdf:type/rdfs:subClassOf* skos:Concept ;
+                     ?relprop ?relcponcept .
+            """ ;
+        ] ;
+      ### @@TODO: namespace filtering for authoritativeConcept()
+      ### @@TODO: inOtherNamespace(?relconcept, ?targetres) 
+      minim:showpass "All SKOS concepts have outward links" ;
+      minim:showfail "SKOS concept %(concept)s has no outward link" ;
+    ]
   .
 
 # This issue is caused by vocabulary resources that return HTTP error responses or no
@@ -467,6 +760,42 @@ gn:      minim:hasPrefix "gn" .
 # possible redirects, and including unavailable resources in the result set.
 # 
 :NoBrokenLinks a minim:Requirement;
+  rdfs:comment
+    """
+    Look for outward links for all authoritative concepts.
+    
+    (Assumes that the target resource of the evaluation is the SKOS vocabulary namespace.)
+    
+    noBrokenLinks(TARGETRO, TARGETRES) :-
+        q[?s ?p ?o](S,P,O),
+        inNamespace(P, u[skos:]),
+        assert(isLive(S) && isLive(O))
+        .
+
+    NOTE: this looks for all subjects and objects of SKOS namespace properties, which is
+    slightly different from the paper which looks at all statements in the graph.  I did
+    this because Minim checklist evaluation takes place over the merge of all annotations
+    in an RO, and it is possible that there are additional RDF statements present.  An
+    alternative and probably better approach would be to query explicitly against the SKOS
+    vocabulary being tested, as designated by TARGETRES.
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            {?s ?p ?o},
+            { BIND(?s as ?res) } UNION { BIND(?o as ?res) }
+            """ ;
+          minim:query_select "DISTINCT(?r)" ;  ### @@TODO: add to minim model
+        ] ;
+      ### inNamespace(?r, skos:) @@ TODO
+      minim:isLiveTemplate "{+res}" ;
+      minim:showpass "No broken links" ;
+      minim:showfail "Link %(res)s is broken" ;
+    ]
   .
 
 # The SKOS model is defined within the namespace
@@ -480,6 +809,44 @@ gn:      minim:hasPrefix "gn" .
 # current version of the SKOS ontology.
 # 
 :NoUndefinedSkosTerms a minim:Requirement;
+  rdfs:comment
+    """
+    Look for undefined terms in SKOS namespace (i.e., undefined by SKOS).
+    
+    (Assumes that the target resource of the evaluation is the SKOS vocabulary namespace.)
+    
+    notUndefinedSkosTerm(T) :-
+        inOtherNamespace(T, u[skos:])
+        ;
+        definedSkosTerm(T)
+        .
+
+    noUndefinedSkosTerms(TARGETRO, TARGETRES) :-
+        q[?s ?p ?o](S,P,O),
+        assert(notUndefinedSkosTerm(S) && notUndefinedSkosTerm(P) && notUndefinedSkosTerm(O))
+        .
+
+    NOTE: this looks for all subjects and objects in the merge of all annotations
+    in an RO.  An alternative and better approach would be to query explicitly against 
+    the SKOS vocabulary being tested, as designated by TARGETRES.
+    """ ;
+  rdfs:seeAlso :minim_datalog ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            {?s ?p ?o},
+            { BIND(?s as ?res) } UNION { BIND(?p as ?res) } UNION { BIND(?o as ?res) }
+            """ ;
+          minim:query_select "DISTINCT(?res)" ;  ### @@TODO: add to minim model
+        ] ;
+      ### inNamespace(?res, skos:) @@ TODO
+      ### definedSkosTerm(?res)    @@ TODO
+      minim:showpass "No broken links" ;
+      minim:showfail "Link %(res)s is broken" ;
+    ]
   .
 
 # For testing...
