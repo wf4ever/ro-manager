@@ -21,7 +21,6 @@
 gn:      minim:hasPrefix "gn" .
 :        minim:hasPrefix "default" .
 
-
 :minim_checklists
   minim:hasChecklist
     [ a minim:Checklist ;
@@ -269,8 +268,8 @@ gn:      minim:hasPrefix "gn" .
           minim:min 1 ;
         ] ;
       minim:showpass "All language tags seen are used on all labels" ;
-      minim:showfail "Language tag %(lang)s" used with concept %(concept1)s label is not present for any %(concept2)s label" ;
-    ] .
+      minim:showfail "Language tag %(lang)s used with concept %(concept1)s label is not present for any %(concept2)s label" ;
+    ]
   .
 
 # Svenonius [20] advocates the “inclusion of as much definition material as possible”
@@ -312,7 +311,7 @@ gn:      minim:hasPrefix "gn" .
         ] ;
       minim:showpass "Documentation properties are present for all SKOS concepts" ;
       minim:showfail "Documentation property not provided for %(concept)s" ;
-    ] .
+    ]
   .
 
 # The SKOS Primer [11] recommends that “no two concepts have the same preferred
@@ -362,7 +361,7 @@ gn:      minim:hasPrefix "gn" .
       minim:max 0 ;
       minim:showpass "Preferred labels are distinct for all concepts" ;
       minim:showfail "Concepts %(concept1)s and %(concept2)s share preferred label %(preflabel1)s" ;
-    ] .
+    ]
   .
 
 # Orphan Concepts are motivated by the notion of “orphan terms” in the literature
@@ -410,7 +409,7 @@ gn:      minim:hasPrefix "gn" .
         ] ;
       minim:showpass "Documentation properties are present for all SKOS concepts" ;
       minim:showfail "Documentation property not provided for %(concept)s" ;
-    ] .
+    ]
   .
 
 # A vocabulary can be split into separate “clusters” because of incomplete data
@@ -471,6 +470,7 @@ gn:      minim:hasPrefix "gn" .
     Here, 'cyclicHierarchicalRelations()' is a new primitive that evaluates the 
     SKOS graph for cyclic hierarchical relations between the terms selected by 
     the supplied predicate.
+
     @@TODO: re-work this to use a more generalized form of graph cycle detection
     """ ;
   rdfs:seeAlso :minim_datalog ;
@@ -483,7 +483,7 @@ gn:      minim:hasPrefix "gn" .
             ?concept rdf:type/rdfs:subClassOf* skos:Concept .
             """ ;
         ] ;
-      ### @@TODO: NoCyclicHierarchicalRelations(?concept) 
+      ### @@TODO: noCyclicHierarchicalRelations(?concept) 
       minim:showpass "No SKOS concepts are cyclicly hierarchically connected" ;
       minim:showfail "SKOS concept %(concept)s cyclicly hierarchically connected" ;
     ]
@@ -624,7 +624,7 @@ gn:      minim:hasPrefix "gn" .
         ] ;
       minim:showpass "Every concept scheme has a top property" ;
       minim:showfail "Scheme %(scheme)s has no top property" ;
-    ] .
+    ]
   .
 
 # Allemang et al. [3] propose to “not indicate any concepts internal to the tree as
@@ -667,7 +667,7 @@ gn:      minim:hasPrefix "gn" .
         ] ;
       minim:showpass "No concept scheme top concept has a broader concept" ;
       minim:showfail "Scheme %(scheme)s top concept %(topconcept)s has a brader concept %(supconcept)s" ;
-    ] .
+    ]
   .
 
 # When vocabularies are published on the Web, SKOS concepts become linkable
@@ -868,5 +868,17 @@ gn:      minim:hasPrefix "gn" .
       minim:min 1 ;
       minim:max 1 ;
       minim:show "This test should fail" ;
-    ] .
+    ]
+  .
+
+
+#     minim:query_select "DISTINCT(?scheme)" ;  ### @@TODO: add to minim model
+# ### @@TODO: notWeaklyConnected(?concept) 
+# ### @@TODO: NoCyclicHierarchicalRelations(?concept) -- re-work to use general graph cycle detection
+# ### @@TODO: hasInwardLink(?concept) via Sindice lookup
+# ### @@TODO: namespace filtering for authoritativeConcept()
+              # ### @@TODO: inNamespace(?r, skos:)
+              # ### @@TODO: inOtherNamespace(?relconcept, ?targetres) 
+# ### @@TODO: definedSkosTerm(?res)
+# ### @@TODO: validLanguageTag(?lang) 
 

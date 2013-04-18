@@ -18,6 +18,55 @@ Some form of Minim query chaining might make it easier to express some of the re
 
 Need to check liveness test handles redirections.
 
+## Minim coverage of qSKOS
+
+Based on a hand-conversion of all qSKOS requirements to Minim, the following capabilities have been identified as been identified that are needed for qSKOS analysis (see [Minim-qskos.ttl)[https://github.com/wf4ever/ro-manager/blob/minim-eval/src/iaeval/test/test-qskos/Minim-qskos.ttl], but not currently provided by the Minim model:
+
+* `minim:query_select`: allow to specify a SELECT clause for a query.
+* `notWeaklyConnected`: Tarjan's algorithm
+* `noCyclicHierarchicalRelations`: detection of cyclic hierarchical relations in graph
+* `inNamespace(?term, ?namespace)` and `inOtherNamespace(?term, ?namespace)`
+* `hasInwardLink`: Sindice lookup
+* `definedSkosTerm`: check for defined SKOS term
+* `validLanguageTag`: check for valid language tag
+* 
+
+
+### `minim:query_select`: allow to specify a SELECT clause for a query
+
+This new feature is not strictly needed, but being able to select query results seems likely to offer large performance improvements for some tests, by avoiding re-evaluation of repeated values. Implementation should be very straightforward within the existing code structure.
+
+
+### `notWeaklyConnected`: Tarjan's algorithm
+
+One qSKOS test calls for evaluation of connectedness of concepts in the SKOS graph, which appears to be beyond the scope of what might be achieved in SPARQL.  This would be an ad-hoc test requiring new code to calculate over the graph or query results from the graph.
+
+
+### `noCyclicHierarchicalRelations`: detection of cyclic hierarchical relations in graph
+
+One qSkos test calls for detection of cyclic hierarchical relations between SKOS concepts.  This will need some new code to handle cycle detection, which could be parameterized and combined with queries perform the specific required test.
+
+
+### `inNamespace(?term, ?namespace)` and `inOtherNamespace(?term, ?namespace)`
+
+Some qSkos tests require to select terms that are in or not in the SKOS namespace, or the namespace of a SKOS-defined vocabulary.  (When evaluating a SKOS vocabulary, the vocabulary namespace is assumed to be supplied as the target resource.)
+
+These new Minim model tests can be used to filter out results in which a given term is in or not in a designated namespace.  They will require some new code to analyze the URIs, but should be easy to integrate into the existing code structure.
+
+### `hasInwardLink`: Sindice lookup
+
+The "inward link" test uses Sindice queries to determine if a defined term is used on the web.  Sindice provides a SPARQL endpoint (http://sparql.sindice.com), so this should be implementable using a proposed, but not implemented, external query extension.
+
+This approach means the the proposed external query extension will need to be able to handle SPARQL endpoints as well as external RDF resources, whicvh may be best handled by the introduction of an additional Minim property to distinguish these cases.
+
+### `definedSkosTerm`: check for defined SKOS term
+
+Testing terms in the SKOS namespace requires comparing with a list of defined terms.  Thjis should be achievable using a SPRQL query against the SKOS ontology; i.e. using the proposed, but not implemented, external query extension.
+
+### `validLanguageTag`: check for valid language tag
+
+Testing for valid language tags requires (a) deconstructing a language tag into its component sub-tags, and (b) comparing the sub-tags against a list of valid sub-tags.  The latter may be done using the proposed, but not implemented, external query extension, having the valid tags are assembled into an RDF document.  The deconstruction appears to be beyond the capability of SPARQL expressions, and will probably require some small extension to the Minim model, the design of which needs dome consideration.
+
 
 ## Labeling and Documentation Issues
 
