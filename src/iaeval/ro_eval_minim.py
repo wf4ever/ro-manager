@@ -459,7 +459,7 @@ def formatRule(satisfied, rule, bindings):
         else:
             templatedefault = "Unknown content match rule (no forall or exists)"
     else:
-        ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
+        ruledict = { 'rule': repr(rule), 'show': None, 'templateindex': None }
         templatedefault = "Unrecognized rule: %(rule)s"
     # Select and apply formatting template
     if satisfied:
