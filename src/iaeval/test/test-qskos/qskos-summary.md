@@ -29,12 +29,13 @@ Based on a hand-conversion of all qSKOS requirements to Minim, the following cap
 * `hasInwardLink`: Sindice lookup
 * `definedSkosTerm`: check for defined SKOS term
 * `validLanguageTag`: check for valid language tag
-* 
 
 
 ### `minim:query_select`: allow to specify a SELECT clause for a query
 
 This new feature is not strictly needed, but being able to select query results seems likely to offer large performance improvements for some tests, by avoiding re-evaluation of repeated values. Implementation should be very straightforward within the existing code structure.
+
+In some cases, it might be important to be able to specify DISTINCT results (though that might usefully be a default option).
 
 
 ### `notWeaklyConnected`: Tarjan's algorithm
@@ -52,6 +53,9 @@ One qSkos test calls for detection of cyclic hierarchical relations between SKOS
 Some qSkos tests require to select terms that are in or not in the SKOS namespace, or the namespace of a SKOS-defined vocabulary.  (When evaluating a SKOS vocabulary, the vocabulary namespace is assumed to be supplied as the target resource.)
 
 These new Minim model tests can be used to filter out results in which a given term is in or not in a designated namespace.  They will require some new code to analyze the URIs, but should be easy to integrate into the existing code structure.
+
+* NOTE: Jun points to http://stackoverflow.com/questions/9597981/sparql-restricting-result-resource-to-certain-namespaces - this kind of namespace can be done using SPARQL, so maybe no extension needed.
+
 
 ### `hasInwardLink`: Sindice lookup
 
