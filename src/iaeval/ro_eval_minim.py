@@ -463,10 +463,10 @@ def formatRule(satisfied, rule, bindings):
         templatedefault = "Unrecognized rule: %(rule)s"
     # Select and apply formatting template
     if satisfied:
-        template = ruledict["showpass"]
+        template = ruledict.get("showpass", None)
     else:
-        template = ruledict["showfail"]
-    template = templateoverride or template or ruledict["show"] or templatedefault
+        template = ruledict.get("showfail", None)
+    template = templateoverride or template or ruledict.get("show", None) or templatedefault
     bindings.update(ruledict)
     return template%bindings
 

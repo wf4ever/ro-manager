@@ -21,28 +21,27 @@ chembox: minim:hasPrefix "chembox" .
 :        minim:hasPrefix "default" .
 
 :minim_constraints
-  minim:hasConstraint
-    [ a minim:Constraint ;
-      minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
-      minim:forPurpose "complete" ;
-      minim:toModel :minim_model ;
-      rdfs:comment
-          """
-          Constraint to be satisfied if the target RO is to be considered a
-          complete and fully-described workflow experiment.
-          """ ] .
+  minim:hasConstraint :minim_pass_constraint, :minim_fail_constraint .
 
-:minim_constraints
-  minim:hasConstraint
-    [ a minim:Constraint ;
-      minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
-      minim:forPurpose "fail" ;
-      minim:toModel :minim_fail ;
-      rdfs:comment
-          """
-          Constraint to be satisfied if the target RO is to be considered a
-          complete and fully-described workflow experiment.
-          """ ] .
+:minim_pass_constraint a minim:Constraint ;
+  minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
+  minim:forPurpose "complete" ;
+  minim:toModel :minim_model ;
+  rdfs:comment
+      """
+      Checklist to be satisfied if the chemical description is adequate.
+      """
+  .
+
+:minim_fail_constraint a minim:Constraint ;
+  minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
+  minim:forPurpose "fail" ;
+  minim:toModel :minim_fail ;
+  rdfs:comment
+      """
+      Failing checklist included for testing.
+      """
+  .
 
 :minim_model a minim:Model ;
   rdfs:label "A Minim checklist" ;

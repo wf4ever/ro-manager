@@ -235,6 +235,161 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def setupEvalFormat(self):
+        self.setupConfig()
+        rodir     = self.createTestRo(testbase, "test-chembox", "RO test minim", "ro-testMinim")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-chembox.ttl")
+        modeluri  = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
+        resuri    = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        self.satisfied_result_1 = (
+            { 'seq':    'ChemSpider identifier is present'
+            , 'level': 'SHOULD'
+            , 'uri':    rdflib.URIRef('http://example.com/chembox-samples/ChemSpider')
+            , 'label':  None
+            , 'model':  modeluri
+            , 'querytestrule': 
+                { 'prefixes':
+                    [ ('chembox', 'http://dbpedia.org/resource/Template:Chembox:')
+                    , ('default', 'http://example.com/chembox-samples/')
+                    ]
+                , 'query':        rdflib.Literal('?targetres chembox:ChemSpiderID ?value . FILTER ( str(xsd:integer(?value)) )')
+                , 'resultmod':    None
+                , 'max':          None
+                , 'min':          1
+                , 'aggregates_t': None
+                , 'islive_t':     None
+                , 'exists':       None
+                , 'show':         None
+                , 'showpass':     rdflib.Literal('ChemSpider identifier is present')
+                , 'showfail':     rdflib.Literal('No ChemSpider identifier is present')
+                , 'showmiss':     None
+                , 'derives':      None
+                }
+            })
+        self.satisfied_binding_1 = (
+            { '_count': 1
+            , 'targetro':  rometa.getRoUri()
+            , 'targetres': resuri
+            })
+        self.satisfied_result_2 = (
+            { 'seq':    'InChI identifier is present'
+            , 'level':  'MUST'
+            , 'uri':    rdflib.URIRef('http://example.com/chembox-samples/InChI')
+            , 'label':  None
+            , 'model':  modeluri
+            , 'querytestrule': 
+                { 'prefixes':
+                    [ ('chembox', 'http://dbpedia.org/resource/Template:Chembox:')
+                    , ('default', 'http://example.com/chembox-samples/')
+                    ]
+                , 'query':        rdflib.Literal('?targetres chembox:StdInChI ?value . FILTER ( datatype(?value) = xsd:string )')
+                , 'resultmod':    None
+                , 'min':          1
+                , 'max':          1
+                , 'aggregates_t': None
+                , 'islive_t':     None
+                , 'exists':       None
+                , 'show':         None
+                , 'showpass':     rdflib.Literal('InChI identifier is present')
+                , 'showfail':     rdflib.Literal('No InChI identifier is present')
+                , 'showmiss':     None
+                , 'derives':      None
+                }
+            })
+        self.satisfied_binding_2 = (
+            { '_count': 1
+            , 'targetro':  rometa.getRoUri()
+            , 'targetres': resuri
+            })
+        self.missing_may_result = (
+            { 'seq':    'Synonym is present'
+            , 'level':  'MAY'
+            , 'uri':    rdflib.URIRef('http://example.com/chembox-samples/Synonym')
+            , 'label':  None
+            , 'model':  modeluri
+            , 'querytestrule': 
+                { 'prefixes':
+                    [ ('chembox', 'http://dbpedia.org/resource/Template:Chembox:')
+                    , ('default', 'http://example.com/chembox-samples/')
+                    ]
+                , 'query':        rdflib.Literal('\n            ?targetres chembox:OtherNames ?value .\n            ')
+                , 'resultmod':    None
+                , 'min':          1
+                , 'max':          None
+                , 'aggregates_t': None
+                , 'islive_t':     None
+                , 'exists':       None
+                , 'show':         None
+                , 'showpass':     rdflib.Literal('Synonym is present')
+                , 'showfail':     rdflib.Literal('No synonym is present')
+                , 'showmiss':     None
+                , 'derives':      None
+                }
+            })
+        self.missing_may_binding = (
+            { '_count': 1
+            , 'targetro':  rometa.getRoUri()
+            , 'targetres': resuri
+            })
+        self.eval_result = (
+            { 'summary':        [MINIM.nominallySatisfies, MINIM.minimallySatisfies]
+            , 'missingMust':    []
+            , 'missingShould':  []
+            , 'missingMay':     [(self.missing_may_result, self.missing_may_binding)]
+            , 'satisfied':      [ (self.satisfied_result_1, self.satisfied_binding_1)
+                                , (self.satisfied_result_2, self.satisfied_binding_2)
+                                ]
+            , 'rouri':          rometa.getRoUri()
+            , 'roid':           rdflib.Literal('ro-testMinim')
+            , 'title':          rdflib.Literal('RO test minim')
+            , 'description':    rdflib.Literal('RO test minim')
+            , 'target':         resuri
+            , 'purpose':        'complete'
+            , 'minimuri':       rometa.getComponentUri("Minim-chembox.ttl")
+            , 'constrainturi':  rdflib.URIRef('http://example.com/chembox-samples/minim_pass_constraint')
+            , 'modeluri':       modeluri
+            })
+        self.deleteTestRo(rodir)
+        return rodir
+
+    def testEvalFormatSummary(self):
+        rodir   = self.setupEvalFormat()
+        options = { 'detail': "summary" }
+        stream  = StringIO.StringIO()
+        ro_eval_minim.format(self.eval_result, options, stream)
+        outtxt = stream.getvalue()
+        log.debug("---- Result:\n%s\n----"%(outtxt))
+        expect = (
+            "Research Object file://%s/:\n"%rodir +
+            "Nominally complete for %(purpose)s of resource %(target)s\n"%(self.eval_result)
+            )
+        self.assertEquals(outtxt, expect)
+        return
+
+    def testEvalFormatDetail(self):
+        rodir   = self.setupEvalFormat()
+        options = { 'detail': "full" }
+        stream  = StringIO.StringIO()
+        ro_eval_minim.format(self.eval_result, options, stream)
+        outtxt = stream.getvalue()
+        log.debug("---- Result:\n%s\n----"%(outtxt))
+        expect = (
+            [ "Research Object file://%s/:"%rodir
+            , "Nominally complete for %(purpose)s of resource %(target)s"%(self.eval_result)
+            , "Unsatisfied MUST requirements:"
+            , "Unsatisfied SHOULD requirements:"
+            , "Unsatisfied MAY requirements:"
+            , "  Aggregates resource %s"%(self.eval_result['missingMay'][0][0]['datarule']['aggregates'])
+            , "Research object URI:     %(rouri)s"%(self.eval_result)
+            , "Minimum information URI: %(minimuri)s"%(self.eval_result)
+            ])
+        stream.seek(0)
+        for expect_line in expect:
+            line = stream.readline()
+            self.assertEquals(line, expect_line+"\n")
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -271,6 +426,8 @@ def getTestSuite(select="unit"):
             , "testEvalQueryTestModel"
             , "testEvalQueryTestChembox"
             , "testEvalQueryTestChemboxFail"
+            , "testEvalFormatSummary"
+            , "testEvalFormatDetail"
             ],
         "component":
             [ "testComponents"

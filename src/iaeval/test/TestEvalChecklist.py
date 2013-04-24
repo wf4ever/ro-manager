@@ -241,7 +241,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements.rdf#missingMayRequirement"))
         self.deleteTestRo(rodir)
-        self.deleteTestRo(rodir)
         return
 
     def setupEvalFormat(self):
