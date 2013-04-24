@@ -481,7 +481,7 @@ def evalResultGraph(graph, evalresult):
     
     graph       is the minim graph used for the evaluation.
                 The supplied graph is updated and returned by this function.
-    evalresult  is the evaluation result returned by the evaluation
+    evalresult  is the evaluation result returned by the evaluate function
     """
     graph.bind("rdf",     RDF.baseUri)
     graph.bind("rdfs",    RDFS.baseUri)

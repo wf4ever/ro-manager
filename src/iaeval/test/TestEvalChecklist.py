@@ -485,14 +485,28 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
         prefixes = make_sparql_prefixes()
-        # @@TODO: add more probe queries here?
+        rouri    = rometa.getRoUri()
+        modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model")
         probequeries = (
-            [ "ASK { <%s> minim:minimUri <%s> }"%
+            [ '''ASK { <%s> minim:minimUri <%s> }'''%
               (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:modelUri <%s> }"%
-              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model"))
+            , '''ASK { <%s> minim:modelUri <%s> }'''%
+              (rometa.getRoUri(), modeluri)
+            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "Workflow instance or template found")
+            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "All workflow inputs referenced or present")
+            , '''ASK { <%s> minim:fullySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { <%s> rdfs:label "%s" }'''%
+              (rouri, rdflib.Literal("RO test minim"))
             ])
         for q in probequeries:
+            log.debug("- query %s"%(q))
             r = outgraph.query(prefixes+q)
             self.assertEqual(r.type, 'ASK', "Result type %s for: %s"%(r.type, q))
             self.assertTrue(r.askAnswer, "Failed query: %s"%(q))
@@ -566,18 +580,20 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
                 args)
         outtxt = self.outstr.getvalue()
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
-        log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
+        # log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
         # Check response returned
         self.outstr.seek(0)
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
         prefixes = make_sparql_prefixes()
-        # @@TODO: add more probe queries here?
+        rouri    = rometa.getRoUri()
+        modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model")
+        log.debug("------ outgraph:\n%s\n----"%(outgraph.serialize(format='turtle')))
         probequeries = (
             [ "ASK { <%s> minim:minimUri <%s> }"%
               (rometa.getRoUri(), minimuri)
             , "ASK { <%s> minim:modelUri <%s> }"%
-              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model"))
+              (rometa.getRoUri(), modeluri)
             , """ASK 
               { <%(rouri)s> 
                   minim:testedPurpose "Missing" ;
@@ -585,7 +601,13 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
                     [ minim:tryMessage "No workflow present with hens tooth" ;
                       result:binding [ result:variable "_count" ; result:value 0 ]
                     ]
-              }"""% { 'rouri': rometa.getRoUri() }
+              }"""% { 'rouri': rouri }
+            , '''ASK { <%s> minim:missingMust [ minim:tryMessage "%s" ] }'''%
+              (rouri, "No workflow present with hens tooth")
+            , '''ASK { <%s> minim:testedTarget <%s> }'''%
+              (rouri, rouri)
+            , '''ASK { <%s> rdfs:label "%s" }'''%
+              (rouri, rdflib.Literal("RO test minim"))
           ])
         for q in probequeries:
             r = outgraph.query(prefixes+q)

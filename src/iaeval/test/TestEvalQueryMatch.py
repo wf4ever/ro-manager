@@ -33,6 +33,7 @@ from MiscLib import TestUtils
 from rocommand import ro_manifest
 from rocommand.ro_metadata import ro_metadata
 from rocommand.ro_annotation import annotationTypes, annotationPrefixes
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
@@ -403,6 +404,51 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             line = stream.readline()
             self.assertEquals(line, expect_line+"\n")
         return
+    
+    def testEvaluateRDF(self):
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-chembox", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        rometa.addGraphAnnotation(resuri, "Ethane.ttl")
+        # Now run evaluation against test RO
+        (minimgr, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-chembox.ttl",                  # Minim file
+            resuri,                               # Target resource
+            "complete")                           # Purpose
+        resultgr = ro_eval_minim.evalResultGraph(minimgr, evalresult)
+        log.debug("------ resultgr:\n%s\n----"%(resultgr.serialize(format='turtle'))) # pretty-xml
+        # Check response returned
+        modeluri = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
+        prefixes = make_sparql_prefixes()
+        probequeries = (
+            [ '''ASK { <%s> minim:minimUri <%s> }'''%
+              (rouri, rometa.getComponentUri("Minim-chembox.ttl"))
+            , '''ASK { <%s> minim:modelUri <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "InChI identifier is present")
+            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "ChemSpider identifier is present")
+            , '''ASK { <%s> minim:missingMay [ minim:tryMessage "%s" ] }'''%
+              (rouri, "No synomym is present")
+            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+              (resuri, modeluri)
+            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+              (resuri, modeluri)
+            , '''ASK { <%s> rdfs:label <%s> }'''%
+              (resuri, rdflib.Literal(str(resuri)))
+            , '''ASK { <%s> minim:more <%s> }'''%
+              (resuri, rdflib.Literal(str(resuri)))
+            ])
+        for q in probequeries:
+            r = resultgr.query(prefixes+q)
+            self.assertEqual(r.type, 'ASK', "Result type %s for: %s"%(r.type, q))
+            self.assertTrue(r.askAnswer, "Failed query: %s"%(q))
+        self.deleteTestRo(rodir)
+        return
 
     # Sentinel/placeholder tests
 
@@ -442,6 +488,7 @@ def getTestSuite(select="unit"):
             , "testEvalQueryTestChemboxFail"
             , "testEvalFormatSummary"
             , "testEvalFormatDetail"
+            , "testEvaluateRDF"
             ],
         "component":
             [ "testComponents"
