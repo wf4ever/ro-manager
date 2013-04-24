@@ -1,4 +1,6 @@
 <http://purl.org/net/chembox/Ethane>
+      <http://www.w3.org/2000/01/rdf-schema#label>
+              "Ethane description" ;
       <http://dbpedia.org/property/wikiPageUsesTemplate>
               <http://dbpedia.org/resource/Template:Chembox> ;
       <http://dbpedia.org/resource/Template:Chembox:1.3562+mg+cm%26lt%3Bsup%3E%E2%88%923%26lt%3B%2Fsup%3E+%28at+0+%C2%B0C%29%26lt%3Bref+name>
