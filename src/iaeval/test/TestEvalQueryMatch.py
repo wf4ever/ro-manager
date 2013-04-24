@@ -367,6 +367,17 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.assertEquals(outtxt, expect)
         return
 
+# Research Object file:///usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase/RO_test_minim/:
+# Nominally complete for complete of resource http://purl.org/net/chembox/Ethane
+# Unsatisfied MAY requirements:
+#   No synonym is present
+# Satisfied requirements:
+#   ChemSpider identifier is present
+#   InChI identifier is present
+# Research object URI:     file:///usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase/RO_test_minim/
+# Minimum information URI: file:///usr/workspace/wf4ever-ro-manager/src/iaeval/test/robase/RO_test_minim/Minim-chembox.ttl
+
+
     def testEvalFormatDetail(self):
         rodir   = self.setupEvalFormat()
         options = { 'detail': "full" }
@@ -377,10 +388,13 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         expect = (
             [ "Research Object file://%s/:"%rodir
             , "Nominally complete for %(purpose)s of resource %(target)s"%(self.eval_result)
-            , "Unsatisfied MUST requirements:"
-            , "Unsatisfied SHOULD requirements:"
+            # , "Unsatisfied MUST requirements:"
+            # , "Unsatisfied SHOULD requirements:"
             , "Unsatisfied MAY requirements:"
-            , "  Aggregates resource %s"%(self.eval_result['missingMay'][0][0]['datarule']['aggregates'])
+            , "  No synonym is present"%(self.eval_result['missingMay'][0][0]['querytestrule'])
+            , "Satisfied requirements:"
+            , "  ChemSpider identifier is present"
+            , "  InChI identifier is present"
             , "Research object URI:     %(rouri)s"%(self.eval_result)
             , "Minimum information URI: %(minimuri)s"%(self.eval_result)
             ])

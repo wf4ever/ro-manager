@@ -458,6 +458,9 @@ def formatRule(satisfied, rule, bindings):
             templatedefault = "Match for %(exists)s"
         else:
             templatedefault = "Unknown content match rule (no forall or exists)"
+    elif 'querytestrule' in rule:
+        ruledict = rule['querytestrule']
+        templatedefault = "Query test rule %(query)s"
     else:
         ruledict = { 'rule': repr(rule), 'show': None, 'templateindex': None }
         templatedefault = "Unrecognized rule: %(rule)s"
