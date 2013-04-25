@@ -438,10 +438,10 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
               (resuri, modeluri)
             , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
               (resuri, modeluri)
-            , '''ASK { <%s> rdfs:label <%s> }'''%
-              (resuri, rdflib.Literal(str(resuri)))
-            , '''ASK { <%s> minim:more <%s> }'''%
-              (resuri, rdflib.Literal(str(resuri)))
+            , '''ASK { <%s> rdfs:label "%s" }'''%
+              (resuri, str(resuri))
+            # , '''ASK { <%s> minim:more <%s> }'''%
+            #   (resuri, rdflib.Literal(str(resuri)))
             ])
         for q in probequeries:
             r = resultgr.query(prefixes+q)

@@ -522,17 +522,15 @@ class TestRdfReport(unittest.TestCase):
           , ''', "title":                  "A simple test RO"'''
           , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
+          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
-          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
           , ''', "evalresultlabel":        "minimally satisfies"'''
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        #print "\n-----"
-        #print result
-        #print "-----"
+        log.debug("---- JSON result\n%s\n----"%(result))
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
