@@ -113,6 +113,7 @@ class TestSparqlQueries(unittest.TestCase):
             :s3 :p3 "notaninteger" .
             """
         # Note:
+        #
         # "FILTERs eliminate any solutions that, when substituted into the expression, 
         # either result in an effective boolean value of false or produce an error" 
         # -- http://www.w3.org/TR/rdf-sparql-query/#tests.
@@ -134,10 +135,55 @@ class TestSparqlQueries(unittest.TestCase):
             SELECT * WHERE { :s3 :p3 ?value . FILTER ( str(xsd:integer(?value)) ) }
             """ ;
         self.doAskQuery(g, q1, True)
-        self.doAskQuery(g, q2, True)
+        self.doAskQuery(g, q2, True)    # Is this correct?
         r = self.doSelectQuery(g, q3s, expect=1)
         print "\n----\n%s\n----"%(repr(r))
         self.doAskQuery(g, q3, False)
+        return
+
+    def testRegexFilter(self):
+        g = """
+            :s1 :p1 "111" .
+            :s2 :p2 222 .
+            :s3 :p3 "notaninteger" .
+            """
+        q1 = """
+            ASK { :s1 :p1 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q2 = """
+            ASK { :s2 :p2 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q3 = """
+            ASK { :s3 :p3 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, False)    # Is this correct?
+        self.doAskQuery(g, q3, False)
+        return
+
+    def testDefaultQuery(self):
+        g1 = """
+            :s1 a :test ; rdfs:label "s1" .
+            """
+        g2 = """
+            :s2 a :test .
+            """
+        q1 = """
+            SELECT * WHERE
+            {
+              ?s a :test .
+              OPTIONAL { ?s rdfs:label ?label }
+              OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }
+            } ORDER BY ?s
+            """
+        r1 = self.doSelectQuery(g1, q1, expect=1)
+        print "\n----\n%s\n----"%(repr(r1))
+        self.assertEqual(r1[0]['s'],     rdflib.URIRef("http://example.org/s1"))
+        self.assertEqual(r1[0]['label'], rdflib.Literal("s1"))
+        r2 = self.doSelectQuery(g2, q1, expect=1)
+        print "\n----\n%s\n----"%(repr(r2))
+        self.assertEqual(r2[0]['s'],     rdflib.URIRef("http://example.org/s2"))
+        self.assertEqual(r2[0]['label'], rdflib.Literal("http://example.org/s2"))
         return
 
 if __name__ == "__main__":
@@ -146,6 +192,8 @@ if __name__ == "__main__":
     tests.addTest(TestSparqlQueries("testSimpleSelectQuery"))
     tests.addTest(TestSparqlQueries("testDatatypeFilter"))
     tests.addTest(TestSparqlQueries("testIntegerStringFilter"))
+    tests.addTest(TestSparqlQueries("testRegexFilter"))
+    tests.addTest(TestSparqlQueries("testDefaultQuery"))
     runner.run(tests)
 
 # End.
