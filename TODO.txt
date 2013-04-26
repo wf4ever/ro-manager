@@ -37,7 +37,6 @@ Other functions:
 - display serialization of manifest graph (? - as well as annotations)
 
 Technical debt:
-- try new rdflib SPARQL processor as drop-in for rdfextras 
 - Mop up @@TODOs
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
@@ -58,6 +57,8 @@ Technical debt:
 
 DONE
 
+Technical debt:
+- try new rdflib SPARQL processor as drop-in for rdfextras 
 - role of onresource / onresourcetemplate in constraint is unclear (to me!)
 -- eliminate these from model as they seem to serve no purpose.
 -- Start by removing code in minim.py, then chase through test case failures.

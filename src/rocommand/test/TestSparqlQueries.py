@@ -151,6 +151,40 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q6, True)
         return
 
+    def testIntegerStringFilter(self):
+        g = """
+            :s1 :p1 "111" .
+            :s2 :p2 222 .
+            :s3 :p3 "notaninteger" .
+            """
+        # Note:
+        # "FILTERs eliminate any solutions that, when substituted into the expression, 
+        # either result in an effective boolean value of false or produce an error" 
+        # -- http://www.w3.org/TR/rdf-sparql-query/#tests.
+        #
+        # Further, the str() of any valid integer is a non-blank string, which in SPARQL
+        # yields an equivalent boolean value (EBV) of True.
+        # Thus, only valid integer literals should be accepted.
+        #
+        q1 = """
+            ASK { :s1 :p1 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q2 = """
+            ASK { :s2 :p2 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q3 = """
+            ASK { :s3 :p3 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q3s = """
+            SELECT * WHERE { :s3 :p3 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, True)
+        r = self.doSelectQuery(g, q3s, expect=1)
+        print "\n----\n%s\n----"%(repr(r))
+        self.doAskQuery(g, q3, False)
+        return
+
     def testGraphReadTerms(self):
         gturtle = """
             :s1 :p :o1 .
@@ -205,6 +239,7 @@ def getTestSuite(select="unit"):
             , "testSimpleAskQuery"
             , "testSimpleSelectQuery"
             , "testDatatypeFilter"
+            , "testIntegerStringFilter"
             , "testGraphReadTerms"
             , "testLiteralCompare"
             ],
