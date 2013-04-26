@@ -151,6 +151,7 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q6, True)
         return
 
+    @unittest.skip("Currently 'FILTER ( str(xsd:integer(?value))' does not work")
     def testIntegerStringFilter(self):
         g = """
             :s1 :p1 "111" .
@@ -183,6 +184,52 @@ class TestSparqlQueries(unittest.TestCase):
         r = self.doSelectQuery(g, q3s, expect=1)
         print "\n----\n%s\n----"%(repr(r))
         self.doAskQuery(g, q3, False)
+        return
+
+    def testRegexFilter(self):
+        g = """
+            :s1 :p1 "111" .
+            :s2 :p2 222 .
+            :s3 :p3 "notaninteger" .
+            """
+        q1 = """
+            ASK { :s1 :p1 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q2 = """
+            ASK { :s2 :p2 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q3 = """
+            ASK { :s3 :p3 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, False)    # Is this correct?
+        self.doAskQuery(g, q3, False)
+        return
+
+    @unittest.skip("Currently 'OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }' does not work")
+    def testDefaultQuery(self):
+        g1 = """
+            :s1 a :test ; rdfs:label "s1" .
+            """
+        g2 = """
+            :s2 a :test .
+            """
+        q1 = """
+            SELECT * WHERE
+            {
+              ?s a :test .
+              OPTIONAL { ?s rdfs:label ?label }
+              OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }
+            }
+            """
+        r1 = self.doSelectQuery(g1, q1, expect=1)
+        print "\n----\n%s\n----"%(repr(r1))
+        self.assertEqual(r1[0]['s'],     rdflib.URIRef("http://example.org/s1"))
+        self.assertEqual(r1[0]['label'], rdflib.Literal("s1"))
+        r2 = self.doSelectQuery(g2, q1, expect=1)
+        print "\n----\n%s\n----"%(repr(r2))
+        self.assertEqual(r2[0]['s'],     rdflib.URIRef("http://example.org/s2"))
+        self.assertEqual(r2[0]['label'], rdflib.Literal("http://example.org/s2"))
         return
 
     def testGraphReadTerms(self):
@@ -240,6 +287,8 @@ def getTestSuite(select="unit"):
             , "testSimpleSelectQuery"
             , "testDatatypeFilter"
             , "testIntegerStringFilter"
+            , "testRegexFilter"
+            , "testDefaultQuery"
             , "testGraphReadTerms"
             , "testLiteralCompare"
             ],

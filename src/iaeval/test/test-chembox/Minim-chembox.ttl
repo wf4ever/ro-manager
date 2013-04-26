@@ -100,6 +100,7 @@ chembox: minim:hasPrefix "chembox" .
           minim:sparql_query
             """
             ?targetres chembox:ChemSpiderID ?value .
+            FILTER(regex(?value, "^\\\\d+$"))
             # FILTER ( str(xsd:integer(?value)) )
             """ ;
             # Note:

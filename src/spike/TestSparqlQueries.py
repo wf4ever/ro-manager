@@ -174,7 +174,7 @@ class TestSparqlQueries(unittest.TestCase):
               ?s a :test .
               OPTIONAL { ?s rdfs:label ?label }
               OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }
-            } ORDER BY ?s
+            }
             """
         r1 = self.doSelectQuery(g1, q1, expect=1)
         print "\n----\n%s\n----"%(repr(r1))
@@ -186,6 +186,14 @@ class TestSparqlQueries(unittest.TestCase):
         self.assertEqual(r2[0]['label'], rdflib.Literal("http://example.org/s2"))
         return
 
+    # Related tests
+
+    def testLiteralCompare(self):
+        self.assertEqual(rdflib.Literal("def").value, "def")
+        lit111 = rdflib.Literal("111", datatype=rdflib.URIRef("http://www.w3.org/2001/XMLSchema#integer"))
+        self.assertEqual(lit111.value, 111)
+        return
+
 if __name__ == "__main__":
     runner = unittest.TextTestRunner(verbosity=1)
     tests = unittest.TestSuite()
@@ -194,6 +202,7 @@ if __name__ == "__main__":
     tests.addTest(TestSparqlQueries("testIntegerStringFilter"))
     tests.addTest(TestSparqlQueries("testRegexFilter"))
     tests.addTest(TestSparqlQueries("testDefaultQuery"))
+    tests.addTest(TestSparqlQueries("testLiteralCompare"))
     runner.run(tests)
 
 # End.
