@@ -1,0 +1,198 @@
+# Minim checklist result ontology
+
+Prefix: :         <http://purl.org/minim/minim#>
+Prefix: rdf;      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+Prefix: rdfs;     <http://www.w3.org/2000/01/rdf-schema#>
+# Prefix: rdfg:     <http://www.w3.org/2004/03/trix/rdfg-1/>
+Prefix: ro:       <http://purl.org/wf4ever/ro#>
+Prefix: dcterms;  <http://purl.org/dc/terms/>
+Prefix: result;   <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
+Prefix: minim:    <http://purl.org/minim/minim#>
+
+Ontology:  <http://purl.org/minim/minim-results>
+  # Import: ...
+  # Annotations: ...
+  
+  # Properties
+  # ----------
+
+  # Properties applied to an evaluated research object.  Note that these are included for
+  # convenience when generating checklist reports.  The key result semantics are provided
+  # by the properties described below that are applied to the evaluated target resource.
+
+  # @@TODO: rename/synonym to match changes to Minim model?
+  ObjectProperty: minim:testedConstraint
+    Annotations:
+      rdfs:label "Tested checklist",
+      rdfs:comment
+        "This property is used in checklist results to relate a research object to a checklist
+        (constraint) against which it has been evaluated."
+    Domain: ro:ResearchObject
+    Range: minim:Checklist
+
+  DataProperty: minim:testedPurpose
+    Annotations:
+      rdfs:label "Tested purpose",
+      rdfs:comment
+        "This property is used in checklist results to relate a research object to a string
+        indicating a purpose for which evaluation has been performed.  (Note, this value is
+        technically redundant, being accessible from the tested checklist resource, and 
+        included for convenience of reporting.)"
+    Domain: ro:ResearchObject
+    Range: string
+
+  ObjectProperty: minim:testedTarget
+    Annotations:
+      rdfs:label "Tested target resource",
+      rdfs:comment
+        "This property is used in checklist results to relate a research object to a checklist
+        target resource for which checklist evaluation has been performed."
+    Domain: ro:ResearchObject
+    Range: ro:Resource
+
+  ObjectProperty: minim:minimUri
+    Annotations:
+      rdfs:label "Minim definition resource",
+      rdfs:comment
+        "This property is used in checklist results to relate a research object to a resource
+        containing Minim definitions used to perform a checklist evaluation."
+    Domain: ro:ResearchObject
+    Range: rdfs:Resource
+
+  ObjectProperty: minim:modelUri
+    Annotations:
+      rdfs:label "Tested Minim model",
+      rdfs:comment
+        "This property is used in checklist results to relate a research object to a Minim
+        model defning an evaluated checklist.  (The Minim model definition is contained within 
+        the resource referenced by minim:minimUri, and MAY be the same URI.  More commonly,
+        the Minim model URI is the Minim resource URI with a fragment identifier, allowing a 
+        single Minim resource to contain multiple model (checklist) definitions.
+        
+        Note that the model definition is also included in the result graph returned, 
+        for ease of access."
+    Domain: ro:ResearchObject
+    Range: rdfs:Resource
+
+  # Properties applied to an evaluated target resource.  These definitively convey the result
+  # of a checklist evaluation.
+
+  ObjectProperty: minim:fullySatisfies
+    Annotations:
+      rdfs:label "Fully satisfied model",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist model that is fully satisfied by that resource (i.e. all MUST, SHOULD 
+        and MAY requirements satisfied)."
+    Domain: ro:Resource
+    Range: minim:Model
+
+  ObjectProperty: minim:nominallySatisfies
+    Annotations:
+      rdfs:label "Nominally satisfied model",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist model that is nominally (adequately) satisfied by that resource 
+        (i.e. all MUST and SHOULD requirements satisfied)."
+    Domain: ro:Resource
+    Range: minim:Model
+
+  ObjectProperty: minim:minimallySatisfies
+    Annotations:
+      rdfs:label "Minimally satisfied model",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist model that is minimally (adequately) satisfied by that resource 
+        (i.e. all MUST requirements satisfied)."
+    Domain: ro:Resource
+    Range: minim:Model
+
+  ObjectProperty: minim:satisfied
+    Annotations:
+      rdfs:label "Satisfied checklist item",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist item that is satisfied by that resource."
+    Domain: ro:Resource
+    Range: ChecklistItemReport    # See below
+
+  ObjectProperty: minim:missingMust
+    Annotations:
+      rdfs:label "Unsatisfied MUST item",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist item that is not satisfies by the target resource, but which MUST
+        be satisfied for the overall checklist to be satisfied."
+    Domain: ro:Resource
+    Range: ChecklistItemReport    # See below
+
+  ObjectProperty: minim:missingShould
+    Annotations:
+      rdfs:label "Unsatisfied SHOULD item",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist item that is not satisfies by the target resource, but which SHOULD
+        be satisfied for the overall checklist to be fully satisfied."
+    Domain: ro:Resource
+    Range: ChecklistItemReport    # See below
+
+  ObjectProperty: minim:missingShould
+    Annotations:
+      rdfs:label "Unsatisfied SHOULD item",
+      rdfs:comment
+        "This property is used in checklist results to relate an evaluated target resource
+        with a checklist item that is not satisfies by the target resource, but which is
+        defined as an item whose satisfaction is optional."
+    Domain: ro:Resource
+    Range: ChecklistItemReport    # See below
+
+  # Classes
+  # -------
+
+  Class: ro:ResearchgObject
+    Annotations:
+      rdfs:label "Research Object",
+      rdfs:comment
+          "Many checklist result annotations are applied to the research object that provides
+          the context for the evaluation.
+          
+          In addition to checklist results, some useful descriptive information from the original
+          data may be included with the result graph, including:  rdfs:label, 
+          dctertms:identifier, dcterms:title, dcterms:description"
+
+  Class: ro:Resource
+    Annotations:
+      rdfs:label "Target resource",
+      rdfs:comment
+          "The target resource is deconrated with properties that indicate the extent to which
+          it satisfied a checklist.
+          
+          In addition, a label property from the original data may be included to help with 
+          reporting of results"
+
+  Class: ChecklistItemReport
+      rdfs:label "Checklist item report",
+      rdfs:comment
+          "Each item within a checklist is reported separately by a report structure that
+          is associated with the Research Object (@@should be target resource?) by a property
+          indicating how it affects the overall evaluation: minim:satisfied, minim:missingMust,
+          minim:missingShould or minim:missingMay."
+
+      @@ construct class expression for item report...
+
+    # # Add details for all items tested...
+    # def addRequirementsDetail(satisfied, results, satlevel):
+    #     for (req, binding) in results:
+    #         b = rdflib.BNode()
+    #         msg = formatRule(satisfied, req, binding)
+    #         graph.add( (rouri, satlevel, b) )
+    #         graph.add( (b, MINIM.tryRequirement, req['uri']) )
+    #         graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
+    #         for k in binding:
+    #             b2 = rdflib.BNode()
+    #             graph.add( (b,  RESULT.binding,  b2) )
+    #             graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
+    #             graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+    #         if not graph.value(subject=req['uri'], predicate=MINIM.seq):
+    #             graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
+
