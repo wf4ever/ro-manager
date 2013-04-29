@@ -1,16 +1,16 @@
 # Minim checklist result ontology
 
 Prefix: :         <http://purl.org/minim/minim#>
-Prefix: rdf;      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-Prefix: rdfs;     <http://www.w3.org/2000/01/rdf-schema#>
+Prefix: rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+Prefix: rdfs:     <http://www.w3.org/2000/01/rdf-schema#>
 # Prefix: rdfg:     <http://www.w3.org/2004/03/trix/rdfg-1/>
 Prefix: ro:       <http://purl.org/wf4ever/ro#>
-Prefix: dcterms;  <http://purl.org/dc/terms/>
-Prefix: result;   <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
+Prefix: dcterms:  <http://purl.org/dc/terms/>
+Prefix: result:   <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
 Prefix: minim:    <http://purl.org/minim/minim#>
 
 Ontology:  <http://purl.org/minim/minim-results>
-  # Import: ...
+  # Import: <file:///Users/graham/workspace/wf4ever-ro-manager/Minim/minim-revised.omn>
   # Annotations: ...
   
   # Properties
@@ -57,7 +57,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate a research object to a resource
         containing Minim definitions used to perform a checklist evaluation."
     Domain: ro:ResearchObject
-    Range: rdfs:Resource
+    Range: owl:Thing
 
   ObjectProperty: minim:modelUri
     Annotations:
@@ -72,7 +72,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         Note that the model definition is also included in the result graph returned, 
         for ease of access."
     Domain: ro:ResearchObject
-    Range: rdfs:Resource
+    Range: owl:Thing
 
   # Properties applied to an evaluated target resource.  These definitively convey the result
   # of a checklist evaluation.
@@ -114,7 +114,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is satisfied by that resource."
     Domain: ro:Resource
-    Range: ChecklistItemReport    # See below
+    Range: :ChecklistItemReport    # See below
 
   ObjectProperty: minim:missingMust
     Annotations:
@@ -124,7 +124,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         with a checklist item that is not satisfies by the target resource, but which MUST
         be satisfied for the overall checklist to be satisfied."
     Domain: ro:Resource
-    Range: ChecklistItemReport    # See below
+    Range: :ChecklistItemReport    # See below
 
   ObjectProperty: minim:missingShould
     Annotations:
@@ -134,7 +134,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         with a checklist item that is not satisfies by the target resource, but which SHOULD
         be satisfied for the overall checklist to be fully satisfied."
     Domain: ro:Resource
-    Range: ChecklistItemReport    # See below
+    Range: :ChecklistItemReport    # See below
 
   ObjectProperty: minim:missingShould
     Annotations:
@@ -144,12 +144,39 @@ Ontology:  <http://purl.org/minim/minim-results>
         with a checklist item that is not satisfies by the target resource, but which is
         defined as an item whose satisfaction is optional."
     Domain: ro:Resource
-    Range: ChecklistItemReport    # See below
+    Range: :ChecklistItemReport    # See below
+
+  # Properties used with a Checklist item report
+
+  ObjectProperty: minim:tryRequirement
+    Annotations:
+      rdfs:label "Tested requirement",
+      rdfs:comment
+        "This property indicates a minim requirement tested by a checklist item report"
+    Domain: :ChecklistItemReport
+    Range: minim:Requirement
+
+  DataProperty: minim:tryMessage
+    Annotations:
+      rdfs:label "Tested requirement message",
+      rdfs:comment
+        "This property indicates a message that described the outcome of the tested requirement"
+    Domain: :ChecklistItemReport
+    Range: string
+
+  # properties from <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>, used
+  # to describe query result bindings
+
+  ObjectProperty: result:binding
+
+  DataProperty: result:variable
+
+  DataProperty: result:value
 
   # Classes
   # -------
 
-  Class: ro:ResearchgObject
+  Class: ro:ResearchObject
     Annotations:
       rdfs:label "Research Object",
       rdfs:comment
@@ -162,37 +189,55 @@ Ontology:  <http://purl.org/minim/minim-results>
 
   Class: ro:Resource
     Annotations:
-      rdfs:label "Target resource",
+      rdfs:label "RO Target resource",
       rdfs:comment
-          "The target resource is deconrated with properties that indicate the extent to which
+          "The target resource is decorated with properties that indicate the extent to which
           it satisfied a checklist.
           
           In addition, a label property from the original data may be included to help with 
           reporting of results"
 
-  Class: ChecklistItemReport
+  Class: :ChecklistItemReport
+    Annotations:
       rdfs:label "Checklist item report",
       rdfs:comment
           "Each item within a checklist is reported separately by a report structure that
           is associated with the Research Object (@@should be target resource?) by a property
           indicating how it affects the overall evaluation: minim:satisfied, minim:missingMust,
           minim:missingShould or minim:missingMay."
+    EquivalentTo: 
+      ( (minim:tryRequirement exactly 1 minim:Requirement) and
+        (minim:tryMessage exactly 1 string) and
+        (result:binding only
+          ( (result:variable exactly 1 string) and
+            (result:value    exactly 1 string) )
+        )
+      )
 
-      @@ construct class expression for item report...
+  # External classes
+  # ---------------- 
+  #
+  # Ideally, these will be picked up from imported ontologies, but that's not currently working for me.
 
-    # # Add details for all items tested...
-    # def addRequirementsDetail(satisfied, results, satlevel):
-    #     for (req, binding) in results:
-    #         b = rdflib.BNode()
-    #         msg = formatRule(satisfied, req, binding)
-    #         graph.add( (rouri, satlevel, b) )
-    #         graph.add( (b, MINIM.tryRequirement, req['uri']) )
-    #         graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
-    #         for k in binding:
-    #             b2 = rdflib.BNode()
-    #             graph.add( (b,  RESULT.binding,  b2) )
-    #             graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
-    #             graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-    #         if not graph.value(subject=req['uri'], predicate=MINIM.seq):
-    #             graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
+  Class: minim:Checklist
+    Annotations:
+      rdfs:label "Minim checklist",
+      rdfs:comment
+        "A checklist object indicates a minim:Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  As such, it links a target resource and a purpose for which it might be used with a minim:Model that must be satisfied for the resource to be considered fit for that purpose.
 
+A Checklist may be associated directly with a target resource as the subject of a minim:hasChecklist statement, or may be associated indirectly via a URI template that is the object of an associated minim:forTargetTemplate statement.  The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources."
+
+  Class: minim:Model
+    Annotations:
+      rdfs:label "Minim model",
+      rdfs:comment
+        "A Minim model collects a number of requirements, and associates each with a MUST, SHOULD or MAY requirement level."
+
+  Class: minim:Requirement
+    Annotations:
+      rdfs:label "Minim requirement",
+      rdfs:comment
+        "A Minim requirement, whose satisfaction is determined by evaluation of the indicated rule.
+       
+         The minim:seq value is used to order the requirement results returned, 
+         to allow more consistent reporting of results."
