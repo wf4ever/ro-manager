@@ -114,6 +114,9 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
     templatedict = {'targetro': urllib.unquote(str(rouri))}
+    if target:
+        # Allow use of {+targetres} in checklist target template:
+        templatedict['targetres'] = urllib.unquote(str(target))
     for c in getConstraints(minimgraph):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
