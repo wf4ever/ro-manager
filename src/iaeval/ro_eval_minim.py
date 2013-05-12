@@ -358,7 +358,7 @@ def evalQueryTest(rometa, rule, constraintbinding):
             simplebinding = constraintbinding.copy()
             for k in binding:
                 if not isinstance(k,rdflib.BNode):
-                    simplebinding[str(k)]   = str(binding[k])
+                    simplebinding[str(k)]   = unicode(binding[k])
                     simplebinding['_count'] = len(resp)
             # Do the required test
             if aggregates:
