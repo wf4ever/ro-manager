@@ -11,6 +11,7 @@ Research Object evaluation withj respoect to a MINIM description
 import re
 import subprocess
 import logging
+import urllib
 
 log = logging.getLogger(__name__)
 

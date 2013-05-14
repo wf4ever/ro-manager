@@ -90,7 +90,7 @@ class ro_metadata(object):
             assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
                                     (str(self.rouri), status, reason))
             self.manifestgraph = manifest 
-        log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
+        # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
 
     def _updateManifest(self):
@@ -146,7 +146,7 @@ class ro_metadata(object):
                     annotation_uris_loaded.add(auri)
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
-        log.debug("roannotations graph:\n"+self.roannotations.serialize())
+        # log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
 
     def isInternalResource(self, resuri):
@@ -526,7 +526,7 @@ class ro_metadata(object):
         """
         log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
-        log.debug("queryAnnotations graph: \n----\n%s\n--------\n"%(ann_gr.serialize(format='xml')))
+        # log.debug("queryAnnotations graph: \n----\n%s\n--------\n"%(ann_gr.serialize(format='xml')))
         resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
             return resp.askAnswer
