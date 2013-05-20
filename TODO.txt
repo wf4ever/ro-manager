@@ -37,6 +37,7 @@ Other functions:
 - display serialization of manifest graph (? - as well as annotations)
 
 Technical debt:
+- test with latest rdflib, update dependencies
 - Mop up @@TODOs
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
@@ -51,6 +52,7 @@ Technical debt:
 - See also decay detection with checklist
 - replace sparql prefixes in TrafficLightReports.py
 - add minim:query_select to minim model & ontology & diagram
+- format guessing: see http://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html#rdflib.util.guess_format
 
 
 ----

@@ -14,7 +14,7 @@ from wsgiref.simple_server import make_server
 
 if __name__ == '__main__':
     sys.path.append("..")
-    logging.basicConfig(level=logging.INFO)
+    logging.basicConfig(level=logging.DEBUG)
 
 from uritemplate import uritemplate
 
@@ -118,7 +118,7 @@ def real_evaluate(request):
     # gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
     # sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
     #              / "*" / "+" / "," / ";" / "="
-    quotesafe = ":/?#[]@!$&'()*+,;="
+    quotesafe = ":/?#[]@!$&'()*+,;=" + "%"
     # isolate parameters (keep invalid URI characters %-encoded)
     RO      = urllib.quote(request.params["RO"], quotesafe)
     minim   = urllib.quote(request.params["minim"], quotesafe)
