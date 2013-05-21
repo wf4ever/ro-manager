@@ -130,7 +130,7 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
                 # Match explicit target specification (subject of minim:hasConstraint)
                 return c
             log.debug("- target: %s, c['target_t']: %s"%(target, repr(c['target_t'])))
-            if c['target_t'].value == "*":
+            if c['target_t'] and c['target_t'].value == "*":
                 # Special case: wilcard ("*") template matches any target
                 return c
             if target and c['target_t']:

@@ -11,6 +11,7 @@ import re
 import urllib
 import urlparse
 import logging
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -231,8 +232,13 @@ class ro_metadata(object):
         try:
             anngr.parse(annotationuri, format=annotationformat)
             log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-        except IOError, e:
-            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
+        except IOError as e:
+            log.debug("_readAnnotationBody %s, %s"%(str(annotationref), repr(e)))
+            anngr = None
+        except Exception as e:
+            log.debug("Failed to load annotation %s as %s"%(annotationuri, annotationformat))
+            log.debug("Exception %s"%(repr(e)))
+            raise
             anngr = None
         return anngr
 

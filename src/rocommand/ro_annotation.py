@@ -466,7 +466,7 @@ def showAnnotations(ro_config, ro_dir, annotations, outstr):
             if sname == "":
                 sname = ro_manifest.getRoUri(ro_dir)
             if sname != sname_prev:
-                print "\n<"+sname+">"
+                print "\n<"+str(sname)+">"
                 sname_prev = sname
             outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
     return
