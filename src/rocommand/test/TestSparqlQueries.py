@@ -151,7 +151,6 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q6, True)
         return
 
-    @unittest.skip("Currently 'FILTER ( str(xsd:integer(?value))' does not work")
     def testIntegerStringFilter(self):
         g = """
             :s1 :p1 "111" .
@@ -181,8 +180,8 @@ class TestSparqlQueries(unittest.TestCase):
             """ ;
         self.doAskQuery(g, q1, True)
         self.doAskQuery(g, q2, True)
-        r = self.doSelectQuery(g, q3s, expect=1)
-        print "\n----\n%s\n----"%(repr(r))
+        r = self.doSelectQuery(g, q3s, expect=0)
+        # print "\n----\n%s\n----"%(repr(r))
         self.doAskQuery(g, q3, False)
         return
 
@@ -206,7 +205,7 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q3, False)
         return
 
-    @unittest.skip("Currently 'OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }' does not work")
+    # @unittest.skip("Currently 'OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }' does not work")
     def testDefaultQuery(self):
         g1 = """
             :s1 a :test ; rdfs:label "s1" .
@@ -218,16 +217,24 @@ class TestSparqlQueries(unittest.TestCase):
             SELECT * WHERE
             {
               ?s a :test .
-              OPTIONAL { ?s rdfs:label ?label }
+              OPTIONAL { ?s rdfs:label ?label }{
               OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }
             }
             """
-        r1 = self.doSelectQuery(g1, q1, expect=1)
-        print "\n----\n%s\n----"%(repr(r1))
+        q2 = """
+            SELECT ?s (COALESCE(?reallabel, ?genlabel) AS ?label) WHERE 
+            { 
+              ?s a :test . 
+              BIND(str(?s) as ?genlabel) 
+              OPTIONAL { ?s rdfs:label ?reallabel } 
+            }
+            """
+        r1 = self.doSelectQuery(g1, q2, expect=1)
+        # print "\n----\n%s\n----"%(repr(r1))
         self.assertEqual(r1[0]['s'],     rdflib.URIRef("http://example.org/s1"))
         self.assertEqual(r1[0]['label'], rdflib.Literal("s1"))
-        r2 = self.doSelectQuery(g2, q1, expect=1)
-        print "\n----\n%s\n----"%(repr(r2))
+        r2 = self.doSelectQuery(g2, q2, expect=1)
+        # print "\n----\n%s\n----"%(repr(r2))
         self.assertEqual(r2[0]['s'],     rdflib.URIRef("http://example.org/s2"))
         self.assertEqual(r2[0]['label'], rdflib.Literal("http://example.org/s2"))
         return

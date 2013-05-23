@@ -146,7 +146,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
-        self.assertEqual(str(rouri), Config.TEST_RO_URI)
+        self.assertEqual(str(rouri)[:len(Config.TEST_RO_URI)-1]+"/", Config.TEST_RO_URI)
         self.assertIn((rouri, RDF.type, RO.ResearchObject), manifest)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
