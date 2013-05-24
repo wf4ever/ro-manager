@@ -492,6 +492,8 @@ class TestROSRS_Session(unittest.TestCase):
         buris1 = list(self.rosrs.getROAnnotationBodyUris(rouri, resuri))
         self.assertIn(bodyuri1, buris1)
         # Update annotation using external body reference
+        # @@TODO - this doesn't check that old annotation is removed.
+        # @@TODO - currently, update is not fully implemented (2013-05).
         bodyuri2 = rdflib.URIRef("http://example.org/ext/ann2.rdf")
         (status, reason, annuri) = self.rosrs.createROAnnotationExt(rouri, resuri, bodyuri2)
         self.assertEqual(status, 201)
