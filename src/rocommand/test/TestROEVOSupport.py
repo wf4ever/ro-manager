@@ -45,7 +45,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
         while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
         assert  status == "DONE"
-        return status
+        return (status,id)
     
     def createArchive(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
@@ -67,7 +67,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
         status = "RUNNING"
         while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
-        return status
+        return (status, id)
     
     # Sentinel/placeholder tests
     def freeze(self, ro_uri):
