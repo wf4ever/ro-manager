@@ -110,6 +110,10 @@ def freeze(options, args):
         print "freeze operation finished successfully"
         return 0
     else:
+        print status
+        print reason
+        print headers
+        print data
         print "Given URI isn't correct"
         return -1
     
