@@ -121,7 +121,7 @@ Ontology:  <http://purl.org/minim/minim-results>
       rdfs:label "Unsatisfied MUST item",
       rdfs:comment
         "This property is used in checklist results to relate an evaluated target resource
-        with a checklist item that is not satisfies by the target resource, but which MUST
+        with a checklist item that is not satisfied by the target resource, but which MUST
         be satisfied for the overall checklist to be satisfied."
     Domain: ro:Resource
     Range: :ChecklistItemReport    # See below
@@ -131,17 +131,17 @@ Ontology:  <http://purl.org/minim/minim-results>
       rdfs:label "Unsatisfied SHOULD item",
       rdfs:comment
         "This property is used in checklist results to relate an evaluated target resource
-        with a checklist item that is not satisfies by the target resource, but which SHOULD
+        with a checklist item that is not satisfied by the target resource, but which SHOULD
         be satisfied for the overall checklist to be fully satisfied."
     Domain: ro:Resource
     Range: :ChecklistItemReport    # See below
 
-  ObjectProperty: minim:missingShould
+  ObjectProperty: minim:missingMay
     Annotations:
-      rdfs:label "Unsatisfied SHOULD item",
+      rdfs:label "Unsatisfied MAY item",
       rdfs:comment
         "This property is used in checklist results to relate an evaluated target resource
-        with a checklist item that is not satisfies by the target resource, but which is
+        with a checklist item that is not satisfied by the target resource, but which is
         defined as an item whose satisfaction is optional."
     Domain: ro:Resource
     Range: :ChecklistItemReport    # See below
