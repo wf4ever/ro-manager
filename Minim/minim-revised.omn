@@ -213,7 +213,7 @@ Note that minim:min and minim:max can be used together to define an exact cardin
     Annotations:
       rdfs:label "Minim checklist",
       rdfs:comment
-        "A checklist object indicates a minim:Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  As such, it links a target resource and a purpose for which it might be used with a minim:Model that must be satisfied for the resource to be considered fit for that purpose..
+        "A checklist object indicates a minim:Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  As such, it links a target resource and a purpose for which it might be used with a minim:Model that must be satisfied for the resource to be considered fit for that purpose.
 
 A Checklist may be associated directly with a target resource as the subject of a minim:hasChecklist statement, or may be associated indirectly via a URI template that is the object of an associated minim:forTargetTemplate statement.  The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources."
     EquivalentTo: 
