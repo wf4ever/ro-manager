@@ -22,4 +22,7 @@
                              # Ordering of checklist display
                              # Various display formatting enhancements
 #__version__ = "0.2.11"      # Add RO evolution commands; ro snapshow, ro archive, ro freeze
-__version__ = "0.2.12"      # ... (Fix queries to work with rdflib-sparql)
+__version__ = "0.2.12"      # Fix queries to work with rdflib 4.0.1 and rdflib-sparql
+                            # Fix some bugs in RODL synchronization and evolution
+                            # Refactor Minim model and add some new capabilities
+
