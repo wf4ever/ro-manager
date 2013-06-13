@@ -101,3 +101,26 @@ Looks like this does it:
 
 Note: this may lose history on the current branch.
 
+
+## Create local copy of remote branch ##
+
+    git checkout -b <branch> origin/<branch>
+
+or (1.6.2)
+
+    git checkout --track origin/<branch>
+
+This automatically creates a tracking branch.
+
+(See also "Reconnecting upstream branch" above.)
+
+
+## Delete remote branch ##
+
+    git push origin :<branch>
+
+cf. general form of push:
+
+    git push [remotename] [localbranch]:[remotebranch]
+
+See: http://git-scm.com/book/en/Git-Branching-Remote-Branches

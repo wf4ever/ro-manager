@@ -11,6 +11,7 @@ import re
 import codecs
 import optparse
 import logging
+logging.basicConfig()
 
 log = logging.getLogger(__name__)
 

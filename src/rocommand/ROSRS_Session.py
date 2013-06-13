@@ -150,6 +150,10 @@ def testParseLinks():
     assert str(parseLinks(links)['http://example.org/rel/fum']) == 'http://example.org/fum'
     assert str(parseLinks(links)['http://example.org/rel/fas']) == 'http://example.org/fas;far'
 
+
+def getResourceUri(rouri, resuriref):
+    return URIRef(urlparse.urljoin(str(rouri), str(resuriref)))
+
 # Class for handling ROSRS access
 
 class ROSRS_Session(object):
@@ -369,26 +373,25 @@ class ROSRS_Session(object):
         """
         resuri = str(resuriref)
         if rouri:
-            resuri = urlparse.urljoin(str(rouri), resuri)
+            resuri = getResourceUri(rouri, resuri)
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(resuri,
             method="GET", accept=accept, reqheaders=reqheaders)
         if status in [200, 404]:
             return (status, reason, headers, uri, data)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
 
-    def getROResourceRDF(self, resuriref, rouri=None, reqheaders=None):
+    def getROResourceRDF(self, resuri, rouri=None, reqheaders=None):
         """
         Retrieve RDF resource from RO
         Return (status, reason, headers, data), where status is 200 or 404
         """
-        resuri = str(resuriref)
         if rouri:
-            resuri = urlparse.urljoin(str(rouri), resuri)
+            resuri = getResourceUri(rouri, resuri)
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(resuri,
             method="GET", reqheaders=reqheaders)
         if status in [200, 404]:
             return (status, reason, headers, uri, data)
-        raise self.error("Error retrieving RO RDF resource", "%03d %s (%s)"%(status, reason, resuriref))
+        raise self.error("Error retrieving RO RDF resource", "%03d %s (%s)"%(status, reason, resuri))
 
     def getROResourceProxy(self, resuriref, rouri):
         """
@@ -401,7 +404,7 @@ class ROSRS_Session(object):
                              (status, reason))
         proxyuri = None
         if status == 200:
-            resuri = rdflib.URIRef(urlparse.urljoin(str(rouri), str(resuriref)))
+            resuri = getResourceUri(rouri, resuriref)
             proxyterms = list(manifest.subjects(predicate=ORE.proxyFor, object=resuri))
             log.debug("getROResourceProxy proxyterms: %s"%(repr(proxyterms)))
             if len(proxyterms) == 1:
@@ -742,7 +745,8 @@ class ROSRS_Session(object):
     def getROEvolution(self, rouri):
         #if len(rouri.split(self._srsuri))>1:
             #rouri = rouri.split(self._srsuri)[-1]
-        (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml")
+        (manifest_status, manifest_reason, manifest_headers, manifest_data) = (
+            self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml"))
         if manifest_status == 404:
             return (manifest_status, manifest_reason, manifest_data, None)
         (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=rouri, accept="application/rdf+xml")
@@ -758,11 +762,12 @@ class ROSRS_Session(object):
         graph = rdflib.Graph()
         graph.parse(data=evolution_data, format="n3")
         try:
-            (graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)),ROEVO.isFinalized)).next()
+            (graph.objects(getResourceUri(self._srsuri, rouri), ROEVO.isFinalized)).next()
             return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
         except StopIteration  as error:            
             try:
-                return (evolution_status, evolution_reason, evolution_data, self.checkType(graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type)))
+                return (evolution_status, evolution_reason, evolution_data,
+                        self.checkType(graph.objects(getResourceUri(self._srsuri, rouri), RDF.type)))
             except StopIteration  as error:
                 return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
             

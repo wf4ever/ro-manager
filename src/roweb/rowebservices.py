@@ -118,8 +118,8 @@ def real_evaluate(request):
     # gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
     # sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
     #              / "*" / "+" / "," / ";" / "="
-    quotesafe = ":/?#[]@!$&'()*+.;="
-    # isolate parameters (keep invaliud URI characters %-encoded)
+    quotesafe = ":/?#[]@!$&'()*+,;=" + "%"
+    # isolate parameters (keep invalid URI characters %-encoded)
     RO      = urllib.quote(request.params["RO"], quotesafe)
     minim   = urllib.quote(request.params["minim"], quotesafe)
     target  = urllib.quote(request.params.get("target","."), quotesafe)

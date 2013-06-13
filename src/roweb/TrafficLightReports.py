@@ -258,9 +258,10 @@ EvalChecklistJson = (
             '''\n, "title":                  "%(title_esc)s"'''+
             '''\n, "description":            "%(description_esc)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
+            '''\n, "checklistpurpose":       "%(purpose)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
-            '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
-            '''\n, "checklistpurpose":       "%(purpose)s"'''
+            # '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
+            ''''''
         , 'query':
             sparql_prefixes+
             """
@@ -273,12 +274,35 @@ EvalChecklistJson = (
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
-              ?target rdfs:label ?targetlabel .
             }
             LIMIT 1
             """
+              # OPTIONAL { ?target rdfs:label ?targetlabel }
+              # OPTIONAL { FILTER( !bound(?targetlabel) ) BIND(str(?target) as ?targetlabel) }
+
+              # { 
+              #   ?target rdfs:label ?targetlabel
+              # }
+              # UNION
+              # {
+              #   OPTIONAL { ?target rdfs:label ?targethaslabel }
+              #   FILTER(!bound(?targethaslabel))
+              #   BIND(str(?target) as ?targetlabel)
+              # }
         , 'report':
           [ { 'output':
+                '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''
+            , 'query':
+              sparql_prefixes+
+              """
+              SELECT ?targetlabel WHERE
+              {
+                ?target 
+                  rdfs:label ?targetlabel
+              }
+              """
+            }
+          , { 'output':
                 '''\n, "evalresult":             "'''
             }
           , { 'report': EvalTargetResultUri
@@ -467,7 +491,7 @@ EvalChecklistHtml = (
                 minim:modelUri ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
-              ?target rdfs:label ?targetlabel .
+              OPTIONAL { ?target rdfs:label ?targetlabel . }
             }
             LIMIT 1
             """
