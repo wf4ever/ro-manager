@@ -11,6 +11,7 @@ import re
 import urllib
 import urlparse
 import logging
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -90,7 +91,7 @@ class ro_metadata(object):
             assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
                                     (str(self.rouri), status, reason))
             self.manifestgraph = manifest 
-        log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
+        # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
 
     def _updateManifest(self):
@@ -146,7 +147,7 @@ class ro_metadata(object):
                     annotation_uris_loaded.add(auri)
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
-        log.debug("roannotations graph:\n"+self.roannotations.serialize())
+        # log.debug("roannotations graph:\n"+self.roannotations.serialize())
         return self.roannotations
 
     def isInternalResource(self, resuri):
@@ -231,8 +232,13 @@ class ro_metadata(object):
         try:
             anngr.parse(annotationuri, format=annotationformat)
             log.debug("_readAnnotationBody parse %s, len %i"%(annotationuri, len(anngr)))
-        except IOError, e:
-            log.debug("_readAnnotationBody "+annotationref+", "+repr(e))
+        except IOError as e:
+            log.debug("_readAnnotationBody %s, %s"%(str(annotationref), repr(e)))
+            anngr = None
+        except Exception as e:
+            log.debug("Failed to load annotation %s as %s"%(annotationuri, annotationformat))
+            log.debug("Exception %s"%(repr(e)))
+            raise
             anngr = None
         return anngr
 
@@ -265,6 +271,7 @@ class ro_metadata(object):
         # Otherwise aggregation is the caller's responsibility
         if self.isRoMetadataRef(bodyuri):
             self.manifestgraph.add((self.getRoUri(), ORE.aggregates, bodyuri))
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def _removeAnnotationFromManifest(self, ann):
@@ -281,6 +288,7 @@ class ro_metadata(object):
         if self.isRoMetadataRef(bodyuri):
             if not self.manifestgraph.value(subject=ann, predicate=AO.body):
                 self.manifestgraph.remove((None, ORE.aggregates, bodyuri))
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def addAggregatedResources(self, ro_file, recurse=True, includeDirs=False):
@@ -363,11 +371,6 @@ class ro_metadata(object):
         assert self._isLocal()
         ro_graph = self._loadManifest()
         self._addAnnotationToManifest(rofile, graph)
-        # ann = rdflib.BNode()
-        # ro_graph.add((ann, RDF.type, RO.AggregatedAnnotation))
-        # ro_graph.add((ann, RO.annotatesAggregatedResource, self.getComponentUri(rofile)))
-        # ro_graph.add((ann, AO.body, self.getComponentUri(graph)))
-        # ro_graph.add((self.getRoUri(), ORE.aggregates, ann))
         self._updateManifest()
         return
 
@@ -460,6 +463,7 @@ class ro_metadata(object):
         ro_graph.add((subject, predicate,
                       ro_annotation.makeAnnotationValue(self.roconfig, attrvalue, valtype)))
         self._updateManifest()
+        self.roannotations = None   # Flush cached annotation graph
         return
 
     def iterateAnnotations(self, subject=None, property=None):
@@ -506,7 +510,8 @@ class ro_metadata(object):
 
         Each value returned by the iterator is a (annuri, bodyuri, target) triple.
         """
-        for (ann_node, ann_target) in self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource):
+        annotations = self.manifestgraph.subject_objects(predicate=RO.annotatesAggregatedResource)
+        for (ann_node, ann_target) in annotations:
             ann_body   = self.manifestgraph.value(subject=ann_node, predicate=AO.body)
             yield (ann_node, ann_body, ann_target)
         return
@@ -527,6 +532,7 @@ class ro_metadata(object):
         """
         log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
+        # log.debug("queryAnnotations graph: \n----\n%s\n--------\n"%(ann_gr.serialize(format='xml')))
         resp = ann_gr.query(query,initBindings=initBindings)
         if resp.type == 'ASK':
             return resp.askAnswer

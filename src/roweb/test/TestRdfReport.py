@@ -188,7 +188,7 @@ class TestRdfReport(unittest.TestCase):
         RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         outstr   = StringIO.StringIO()
-        RdfReport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'label': rdflib.Literal('simple-test-data')}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
@@ -386,7 +386,7 @@ class TestRdfReport(unittest.TestCase):
             PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
             PREFIX dct:     <http://purl.org/dc/terms/>
 
-            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER DESC BY ?label
+            SELECT * WHERE { ?s dct:title ?title; rdfs:label ?label } ORDER BY DESC(?label)
             """
         resp = rdfgraph.query(query, initBindings={ 'title': "foo" })
         self.assertEqual(resp.type, 'SELECT')
@@ -522,17 +522,15 @@ class TestRdfReport(unittest.TestCase):
           , ''', "title":                  "A simple test RO"'''
           , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
+          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
-          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
           , ''', "evalresultlabel":        "minimally satisfies"'''
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        #print "\n-----"
-        #print result
-        #print "-----"
+        log.debug("---- JSON result\n%s\n----"%(result))
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())

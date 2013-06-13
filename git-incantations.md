@@ -25,10 +25,11 @@ When starting work on a new feature, branch off from the develop branch.
   $ git checkout -b myfeature develop
   Switched to a new branch "myfeature"
 
-Also:
+Also, to create tracking copy in github:
   $ git push origin HEAD
+  $ git branch --set-upstream myfeature origin/myfeature
 
-Pushes to same-name branch at origin repo
+Pushes to same-name branch at origin repo, and sets tracking status.
 
 
 ## Incorporating a finished feature on develop ##
@@ -79,6 +80,7 @@ Finishing a release branch
   $ git branch -d release-1.2
   Deleted branch release-1.2 (was ff452fe).
 
+
 ## Reconnecting upstream branch ##
 
 "So having done "git remote rm origin", how do I configure the git pull branches again?"
@@ -91,3 +93,34 @@ Looks like this does it:
 
 -- http://www.haskell.org/pipermail/ghc-devs/2013-February/000261.html
 
+
+## Force current branch to be a copy of another ##
+
+    git reset --hard <branch>
+    git push --force
+
+Note: this may lose history on the current branch.
+
+
+## Create local copy of remote branch ##
+
+    git checkout -b <branch> origin/<branch>
+
+or (1.6.2)
+
+    git checkout --track origin/<branch>
+
+This automatically creates a tracking branch.
+
+(See also "Reconnecting upstream branch" above.)
+
+
+## Delete remote branch ##
+
+    git push origin :<branch>
+
+cf. general form of push:
+
+    git push [remotename] [localbranch]:[remotebranch]
+
+See: http://git-scm.com/book/en/Git-Branching-Remote-Branches

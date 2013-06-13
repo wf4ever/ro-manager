@@ -33,11 +33,14 @@ TODO:
 * Options for RO logging of changes, etc.
 * ro list currently shows only files: want to show directories too?
 
+* RO folder support
+
 Other functions:
 - display serialization of manifest graph (? - as well as annotations)
 
+Bug in results model.  If the same target is evaluated using the same model in the context of two different ROs, with different results, the resulting combined graph is ambiguous.  An additional node is needed to create a 3-way satisfaction relation between RO, target, minim.  Fix, I think is to introduce a result node to replace ResearchObject, then have link from RO to the result node (or maybe the other way round).
+
 Technical debt:
-- try new rdflib SPARQL processor as drop-in for rdfextras 
 - Mop up @@TODOs
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
@@ -49,13 +52,28 @@ Technical debt:
   (It was fixed, but a similar problem with query parameter ordering has been found.)
   (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
-- See also decay detection with checklist
-- role of onresource / onresourcetemplate in constraint is unclear (to me!)
+- See also decay detection with checklist ???
+- replace sparql prefixes in TrafficLightReports.py
+- add minim:query_select to minim model & ontology & diagram
+- format guessing: see http://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html#rdflib.util.guess_format
+- Minim liveness follows redirection?
+- Update home page of web service; esp links; also link to API description in wf4ever wiki
+- Fix bug in checklist evaluation service with wrong content negotiated type - wrong response if content negotiate for bad type
+- Namespace test in checklist eval (cf. qSKOS) - can do with DSPARQL 1.1?
 
 
 ----
 
 DONE
+
+Technical debt:
+- test with latest rdflib, update dependencies
+- try new rdflib SPARQL processor as drop-in for rdfextras 
+- role of onresource / onresourcetemplate in constraint is unclear (to me!)
+-- eliminate these from model as they seem to serve no purpose.
+-- Start by removing code in minim.py, then chase through test case failures.
+-- Finally, remove from all minim model files.
+
 
 * ro eval checklist
 ** Test that aggregated files actually exist - part of liveness?

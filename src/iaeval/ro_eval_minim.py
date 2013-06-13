@@ -11,6 +11,7 @@ Research Object evaluation withj respoect to a MINIM description
 import re
 import subprocess
 import logging
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -23,8 +24,41 @@ from uritemplate import uritemplate
 from rocommand.ro_uriutils   import isLiveUri, resolveUri
 from rocommand.ro_namespaces import RDF, RDFS, ORE, DCTERMS
 from rocommand.ro_metadata   import ro_metadata
+from rocommand.ro_prefixes   import make_sparql_prefixes
 import ro_minim
 from ro_minim import MINIM, RESULT
+
+def doQuery(rometa, queryPattern, queryVerb=None, resultMod="", queryPrefixes=None, initBindings=None):
+    # @@TODO - factor out query construction from various places below to use this
+    querytemplate = (make_sparql_prefixes(queryPrefixes or [])+
+        """
+        BASE <%(querybase)s>
+
+        %(queryverb)s
+        {
+          %(querypattern)s
+        } %(resultmod)s
+        """)
+    queryparams = (
+        { 'querybase':    str(rometa.getRoUri())
+        , 'queryverb':    queryVerb or "SELECT * WHERE"
+        , 'querypattern': queryPattern
+        , 'resultmod':    resultMod or ""
+        })
+    query = querytemplate%queryparams
+    log.debug(" - doQuery: "+query)
+    resp  = rometa.queryAnnotations(query, initBindings=initBindings)
+    return resp
+
+def getLabel(rometa, target):
+    """
+    Discover or make up a label for the designated resource
+    """
+    targetlabel = str(target)
+    resp = doQuery(rometa, "<%s> rdfs:label ?label ."%(targetlabel))
+    if len(resp) > 0: targetlabel = resp[0]['label']
+    log.debug("getLabel %s"%(targetlabel))
+    return targetlabel
 
 def evaluate(rometa, minim, target, purpose):
     """
@@ -63,6 +97,7 @@ def evaluate(rometa, minim, target, purpose):
       , 'description':    rodesc
       , 'minimuri':       minim
       , 'target':         target
+      , 'targetlabel':    targetlabel
       , 'purpose':        purpose
       , 'constrainturi':  constraint['uri']
       , 'modeluri':       model['uri']
@@ -86,7 +121,6 @@ def evaluate(rometa, minim, target, purpose):
     assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
     cbindings    = { 'targetro':   constraint['targetro_actual']
                    , 'targetres':  constraint['targetres_actual']
-                   , 'onresource': constraint['onresource_actual']
                    }
     model        = ro_minim.getModel(minimgraph, constraint['model'])
     assert model != None, "Missing minim:Model for target %s, purpose %s"%(target, purpose)
@@ -117,14 +151,15 @@ def evaluate(rometa, minim, target, purpose):
             reqeval.append((r,satisfied,bindings))
             log.debug("- ContentMatch: rule %s, bindings %s, satisfied %s"%
                       (repr(r['contentmatchrule']), repr(bindings), "OK" if satisfied else "Fail"))
+        elif 'querytestrule' in r:
+            (satisfied, bindings, msg) = evalQueryTest(rometa, r['querytestrule'], cbindings)
+            reqeval.append((r,satisfied,bindings))
+            log.debug("- QueryTest: rule %s, bindings %s, satisfied %s"%
+                      (repr(r['querytestrule']), repr(bindings), "OK" if satisfied else "Fail"))
         else:
             raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
     # Evaluate overall satisfaction of model
-    sat_levels = (
-        { 'MUST':   MINIM.minimallySatisfies
-        , 'SHOULD': MINIM.nominallySatisfies
-        , 'MAY':    MINIM.fullySatisfies
-        })
+    targetlabel = getLabel(rometa, target)
     eval_result = (
         { 'summary':        []
         , 'missingMust':    []
@@ -137,9 +172,17 @@ def evaluate(rometa, minim, target, purpose):
         , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
+        , 'targetlabel':    targetlabel
         , 'purpose':        purpose
         , 'constrainturi':  constraint['uri']
         , 'modeluri':       model['uri']
+        })
+    # sat_levels initially assume all requirements pass, then reset levels achieved as
+    # individual requirements are examined.
+    sat_levels = (
+        { 'MUST':   MINIM.minimallySatisfies
+        , 'SHOULD': MINIM.nominallySatisfies
+        , 'MAY':    MINIM.fullySatisfies
         })
     for (r, satisfied, binding) in reqeval:
         if satisfied:
@@ -160,88 +203,22 @@ def evaluate(rometa, minim, target, purpose):
     eval_result['summary'] = [ sat_levels[k] for k in sat_levels if sat_levels[k] ]
     return (minimgraph, eval_result)
 
-def evalResultGraph(graph, evalresult):
-    """
-    This function combines the results from the evaluate function (above) to return
-    a single RDF result graph that is the result of the checklist evaluation service, 
-    and also is returned when RDF output is requested by 'ro evaluate checklist'.
-    
-    graph       is the minim graph used for the evaluation.
-                The supplied graph is updated and returned by this function.
-    evalresult  is the evaluation result returned by the evaluation
-    """
-    graph.bind("rdf",     RDF.baseUri)
-    graph.bind("rdfs",    RDFS.baseUri)
-    graph.bind("dcterms", DCTERMS.baseUri)
-    graph.bind("result",  RESULT.baseUri)
-    graph.bind("minim",   MINIM.baseUri)
-    rouri     = rdflib.URIRef(evalresult['rouri'])
-    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
-    graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
-    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
-    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
-    graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
-    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
-    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
-    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
-    for level in evalresult['summary']:
-        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
-        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
-    # Add details for all items tested...
-    def addRequirementsDetail(satisfied, results, satlevel):
-        for (req, binding) in results:
-            b = rdflib.BNode()
-            msg = formatRule(satisfied, req, binding)
-            graph.add( (rouri, satlevel, b) )
-            graph.add( (b, MINIM.tryRequirement, req['uri']) )
-            graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
-            for k in binding:
-                b2 = rdflib.BNode()
-                graph.add( (b,  RESULT.binding,  b2) )
-                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
-                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
-            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
-                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
-    addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
-    addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
-    addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
-    addRequirementsDetail(False, evalresult['missingMust'], MINIM.missingMust)
-    return graph
-
 def evalContentMatch(rometa, rule, constraintbinding):
     """
     rometa      ro_metadata for RO to test
     rule        requirement rule to evaluate
     constraintbinding
                 value bindings generated by constraint matching:
-                'targetro', 'targetres' and 'onresource'
+                'targetro' and 'targetres'
     """
     log.debug("evalContentMatch: rule: \n  %s, \nconstraintbinding:\n  %s"%(repr(rule), repr(constraintbinding)))
-    # @@TODO: DRY: generate prefix list from values in ~/.ro-config.  Thus only one set of default prefixes.
-    querytemplate = """
-        PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-        PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-        PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
-        PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
-        PREFIX ro:         <http://purl.org/wf4ever/ro#>
-        PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
-        PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-        PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
-        PREFIX roterms:    <http://purl.org/wf4ever/roterms#>
-        PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-        PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-        PREFIX ao:         <http://purl.org/ao/>
-        PREFIX dcterms:    <http://purl.org/dc/terms/>
-        PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
-
+    querytemplate = (make_sparql_prefixes()+
+        """
         %(queryverb)s
         {
           %(querypattern)s
         } %(queryorder)s
-        """
+        """)
     satisfied     = True
     simplebinding = constraintbinding.copy()
     if rule['forall']:
@@ -328,6 +305,121 @@ def evalContentMatch(rometa, rule, constraintbinding):
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)
 
+def evalQueryTest(rometa, rule, constraintbinding):
+    """
+    rometa      ro_metadata for RO to test
+    rule        requirement rule to evaluate
+    constraintbinding
+                value bindings generated by constraint matching:
+                'targetro' and 'targetres', and maybe others
+
+    Returns ....
+    """
+    log.debug("evalQueryTest: rule: \n----\n  %s, \n----\nconstraintbinding:\n  %s\n----"%(repr(rule), repr(constraintbinding)))
+    querytemplate = (make_sparql_prefixes(rule['prefixes'])+
+        """
+        BASE <%(querybase)s>
+
+        %(queryverb)s
+        {
+          %(querypattern)s
+        } %(resultmod)s
+        """)
+    satisfied     = True
+    simplebinding = constraintbinding.copy()
+    if rule['query']:
+        count_min  = rule['min']
+        count_max  = rule['max']
+        aggregates = rule['aggregates_t']
+        islive     = rule['islive_t']
+        exists     = rule['exists']
+        assert (count_min or count_max or aggregates or islive or exists), (
+            "minim:QueryTestRule requires "+
+            "minim:min, minim:max, minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+        if aggregates:  aggregates = str(aggregates).strip()
+        if islive:      islive   = str(islive).strip()
+        queryparams = (
+            { 'querybase':    str(rometa.getRoUri())
+            , 'queryverb':    "SELECT * WHERE"
+            , 'querypattern': rule['query']
+            , 'resultmod':    rule['resultmod'] or ""
+            })
+        query = querytemplate%queryparams
+        log.debug(" - QueryTest: "+query)
+        resp  = rometa.queryAnnotations(query, initBindings=constraintbinding)
+        log.debug(" - QueryTest resp: "+repr(resp))
+        simplebinding['_count'] = len(resp)
+        satisfied_count  = 0
+        total_count      = len(resp)
+        result_list      = []
+        failure_message_template = rule['showfail'] or rule['show']
+        for binding in resp:
+            satisfied = True
+            failmsg   = failure_message_template
+            simplebinding = constraintbinding.copy()
+            for k in binding:
+                if not isinstance(k,rdflib.BNode):
+                    simplebinding[str(k)]   = unicode(binding[k])
+                    simplebinding['_count'] = len(resp)
+            # Do the required test
+            if aggregates:
+                fileref   = uritemplate.expand(aggregates, simplebinding)
+                fileuri   = rometa.getComponentUri(fileref)
+                simplebinding.update({'_fileref': fileref, '_fileuri': fileuri})
+                log.debug("evalQueryTest RO aggregates %s (%s)"%(fileref, str(fileuri)))
+                satisfied = rometa.roManifestContains( (rometa.getRoUri(), ORE.aggregates, fileuri) )
+                failmsg   = failmsg or "Aggregates %(_fileref)s"
+            if islive:
+                fileref   = uritemplate.expand(islive, simplebinding)
+                fileuri   = rometa.getComponentUri(fileref)
+                simplebinding.update({'_fileref': fileref, '_fileuri': fileuri})
+                log.debug("evalQueryTest RO isLive %s (%s)"%(fileref, str(fileuri)))
+                satisfied = isLiveUri(fileuri)
+                failmsg   = failmsg or "Accessible %(_fileref)s"
+            if exists:
+                existsparams = (
+                    { 'querybase':    str(rometa.getRoUri())
+                    , 'queryverb':    "ASK"
+                    , 'querypattern': exists
+                    , 'resultmod':    ""
+                    })
+                query = querytemplate%existsparams
+                simplebinding.update({'_pattern': exists, '_query': query})
+                log.debug("evalContentMatch RO test exists: \nquery: %s \nbinding: %s"%
+                          (query, repr(binding)))
+                satisfied = rometa.queryAnnotations(query,initBindings=binding)
+                failmsg   = failmsg or "Exists %(_fileref)s"
+            # Test done, defines: satisfied, failmsg, simplebinding 
+            log.debug("Satisfied: %s"%(repr(satisfied)))
+            if satisfied:
+                satisfied_count += 1
+            result_list.append((satisfied, failmsg, simplebinding))
+        # All responses tested
+    else:
+        raise ValueError("Query test rule has no query: %s"%repr(rule))
+    # Sort out final response
+    log.debug("evalQueryTest RO satisfied_count %d"%(satisfied_count))
+    if count_min or count_max:
+        satisfied = ( (not count_min or (satisfied_count >= count_min)) and
+                      (not count_max or (satisfied_count <= count_max)) )
+        binding = constraintbinding.copy()
+        binding['_count'] = satisfied_count
+        msg = (rule['showpass'] if satisfied else rule['showfail'])
+        msh = msg or rule['show'] or "Cardinality requirement failed"
+    elif total_count == 0:
+        binding   = simplebinding
+        satisfied = False if rule['showmiss'] else True
+        msg       = rule['showmiss'] or rule['showpass'] or rule['show'] or "No matches"
+    elif (satisfied_count < total_count):
+        satisfied = False
+        # Pick out first failure (for now):
+        (msg, binding) = ((failmsg,binding) for (satisfied, failmsg, binding) in result_list if not satisfied).next()
+    else:
+        satisfied = True
+        binding   = simplebinding     # last result tested
+        msg       = rule['showpass']
+    return (satisfied, binding, msg)
+
 def format(eval_result, options, ostr):
     """
     Formats a completeness evaluation report, and writes it to the supplied stream.
@@ -404,16 +496,70 @@ def formatRule(satisfied, rule, bindings):
             templatedefault = "Match for %(exists)s"
         else:
             templatedefault = "Unknown content match rule (no forall or exists)"
+    elif 'querytestrule' in rule:
+        ruledict = rule['querytestrule']
+        templatedefault = "Query test rule %(query)s"
     else:
-        ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
+        ruledict = { 'rule': repr(rule), 'show': None, 'templateindex': None }
         templatedefault = "Unrecognized rule: %(rule)s"
     # Select and apply formatting template
     if satisfied:
-        template = ruledict["showpass"]
+        template = ruledict.get("showpass", None)
     else:
-        template = ruledict["showfail"]
-    template = templateoverride or template or ruledict["show"] or templatedefault
+        template = ruledict.get("showfail", None)
+    template = templateoverride or template or ruledict.get("show", None) or templatedefault
     bindings.update(ruledict)
     return template%bindings
+
+def evalResultGraph(graph, evalresult):
+    """
+    This function combines the results from the evaluate function (above) to return
+    a single RDF result graph that is the result of the checklist evaluation service, 
+    and also is returned when RDF output is requested by 'ro evaluate checklist'.
+    
+    graph       is the minim graph used for the evaluation.
+                The supplied graph is updated and returned by this function.
+    evalresult  is the evaluation result returned by the evaluate function
+    """
+    graph.bind("rdf",     RDF.baseUri)
+    graph.bind("rdfs",    RDFS.baseUri)
+    graph.bind("dcterms", DCTERMS.baseUri)
+    graph.bind("result",  RESULT.baseUri)
+    graph.bind("minim",   MINIM.baseUri)
+    rouri     = rdflib.URIRef(evalresult['rouri'])
+    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
+    graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
+    graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
+    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
+    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
+    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
+    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
+    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel'])) )
+    for level in evalresult['summary']:
+        log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
+        graph.add( (targeturi, level, rdflib.URIRef(evalresult['modeluri'])) )
+    # Add details for all items tested...
+    def addRequirementsDetail(satisfied, results, satlevel):
+        for (req, binding) in results:
+            b = rdflib.BNode()
+            msg = formatRule(satisfied, req, binding)
+            graph.add( (rouri, satlevel, b) )
+            graph.add( (b, MINIM.tryRequirement, req['uri']) )
+            graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
+            for k in binding:
+                b2 = rdflib.BNode()
+                graph.add( (b,  RESULT.binding,  b2) )
+                graph.add( (b2, RESULT.variable, rdflib.Literal(k)) )
+                graph.add( (b2, RESULT.value,    rdflib.Literal(binding[k])) )
+            if not graph.value(subject=req['uri'], predicate=MINIM.seq):
+                graph.add( (req['uri'], MINIM.seq, rdflib.Literal(req['seq'])) )
+    addRequirementsDetail(True,  evalresult['satisfied'], MINIM.satisfied)
+    addRequirementsDetail(False, evalresult['missingMay'], MINIM.missingMay)
+    addRequirementsDetail(False, evalresult['missingShould'], MINIM.missingShould)
+    addRequirementsDetail(False, evalresult['missingMust'], MINIM.missingMust)
+    return graph
 
 # End.

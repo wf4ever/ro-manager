@@ -33,6 +33,7 @@ from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_annotation
 from rocommand.ro_namespaces import RDF, RDFS, ORE, RO, ROEVO, AO, DCTERMS
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from ROSRS_Session import ROSRS_Error, ROSRS_Session
 
@@ -145,7 +146,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
-        self.assertEqual(str(rouri), Config.TEST_RO_URI)
+        self.assertEqual(str(rouri)[:len(Config.TEST_RO_URI)-1]+"/", Config.TEST_RO_URI)
         self.assertIn((rouri, RDF.type, RO.ResearchObject), manifest)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
@@ -218,14 +219,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri, resref)
         self.assertEqual(status, 201)
         # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
+        queryprefixes = make_sparql_prefixes()
         query = (queryprefixes +
             """
             ASK

@@ -40,7 +40,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#test">
         <minim:forPurpose>test RO</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#testROcomplete" />
       </minim:Constraint>
     </minim:hasConstraint>

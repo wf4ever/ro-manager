@@ -1,0 +1,122 @@
+# Saved by TopBraid on Sat Jul 07 20:31:52 BST 2012
+# baseURI: http://sierra-nevada.cs.man.ac.uk/mim/chembox/chemmim
+# imports: http://purl.org/net/mim/ns
+# imports: http://www.polymerinformatics.com/ChemAxiom/ChemDomain.owl
+
+@prefix :        <http://sierra-nevada.cs.man.ac.uk/mim/chembox/chemmim#> .
+@prefix chemdomain:  <http://www.polymerinformatics.com/ChemAxiom/ChemDomain.owl#> .
+@prefix dc:      <http://purl.org/dc/elements/1.1/> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix foaf:    <http://xmlns.com/foaf/0.1/> .
+@prefix mim:     <http://purl.org/net/mim/ns#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+
+<http://sierra-nevada.cs.man.ac.uk/mim/chembox/chemmim>
+      rdf:type owl:Ontology ;
+      owl:imports <http://purl.org/net/mim/ns> , <http://www.polymerinformatics.com/ChemAxiom/ChemDomain.owl> .
+
+:MeltingPoint
+      rdf:type mim:RequirementSet ;
+      mim:hasMustRequirement
+              :MeltingPointUnits , :MeltingPointValue ;
+      mim:hasRestriction
+              [ mim:exactCardinality
+                        1 ;
+                mim:onRequirement :MeltingPointUnits , :MeltingPointValue
+              ] .
+
+:ChemSpider
+      rdf:type mim:DataRequirement ;
+      mim:hasRestriction
+              [ mim:onSelf "true"^^xsd:boolean ;
+                mim:type xsd:integer
+              ] .
+
+:Identifiers
+      rdf:type mim:RequirementSet ;
+      mim:hasMustRequirement
+              :InChI , :SMILES ;
+      mim:hasShouldRequirement
+              :ChemSpider , :PubChem .
+
+:InChI
+      rdf:type mim:DataRequirement ;
+      mim:hasRestriction
+              [ mim:onSelf "true"^^xsd:boolean ;
+                mim:type xsd:string
+              ] .
+
+:MIM  rdf:type mim:MIM ;
+      mim:hasMustRequirement
+              :Properties , :Identifiers ;
+      mim:hasOptionalRequiremet
+              :Synonym ;
+      mim:hasRestriction
+              [ mim:exactCardinality
+                        1 ;
+                mim:onRequirement :Properties , :Identfiers
+              ] ;
+      mim:hasShouldRequirement
+              :IUPACName , :Image .
+
+:MolarMass
+      rdf:type mim:DataRequirement .
+
+:MolecularFormula
+      rdf:type mim:DataRequirement ;
+      mim:hasRestriction
+              [ mim:onSelf "true"^^xsd:boolean ;
+                mim:type xsd:string
+              ] .
+
+:Properties
+      rdf:type mim:RequirementSet ;
+      mim:hasMustRequirement
+              :MolecularFormula ;
+      mim:hasOptionalRequirement
+              :Solubility ;
+      mim:hasRestriction
+              [ mim:exactCardinality
+                        1 ;
+                mim:onRequirement :MolecularFormula
+              ] ;
+      mim:hasShouldRequirement
+              :MeltingPoint , :MolarMass .
+
+:PubChem
+      rdf:type mim:DataRequirement ;
+      mim:hasRestriction
+              [ mim:onSelf "true"^^xsd:boolean ;
+                mim:type xsd:integer
+              ] .
+
+:SMILES
+      rdf:type mim:DataRequirement ;
+      mim:hasRestriction
+              [ mim:onSelf "true"^^xsd:boolean ;
+                mim:type xsd:string
+              ] .
+
+:Solubility
+      rdf:type mim:DataRequirement .
+
+:Synonym
+      rdf:type mim:DataRequirement .
+      
+:Image 
+	rdf:type mim:DataRequirement . 
+
+:IUPACName
+	rdf:type mim:DataRequirement . 
+	
+:MeltingPointUnits
+	rdf:type mim:DataRequirement . 
+
+:MeltingPointValue
+	rdf:type mim:DataRequirement .
+
+	
+

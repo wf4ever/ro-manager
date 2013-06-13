@@ -23,6 +23,14 @@ Research Object Digital Library (RODL):
 * The sample scripts are written to run under BASH
 * Python pip utility, or git, depending on the installation option used.
 
+Some parts of rdflib rely on `pyparsing` but the default version (2.0 or later)
+works only with Python 3.0.  To overcome this, manually install `pyparsing-1.5.7`
+_before_ installing RO Manager, thus:
+
+    pip install "pyparsing<=1.5.7"
+
+(I found that doing this after attempting to install the 2.0 version did not work, even if I tried `pip uninstall pypi`.  So it's probably safest to do this immediately after creating a new virtual Python environment.)
+
 
 ## Installation overview
 
@@ -278,9 +286,20 @@ The output should look something like this:
 
 ## Revision history
 
+
+### Changes for V0.2.12
+
+* Refactor Minim model and extend checklist evaluation capabilities
+* Fix queries to work with rdflib 4.0.1 and rdflib-sparql
+* Fix some bugs in RODL synchronization and evolution
+* Fix rowebservices handling of URIs containing escaped characters and special characters
+* Fix problems with extended (non-ASCII) characters in checklist query results
+
+
+
 ### Changes for V0.2.11
 
-* Add RO evolution commands; ro snapshow, ro archive, ro freeze
+* Add RO evolution commands; ro snapshot, ro archive, ro freeze
 
 
 ### Changes for V0.2.10
