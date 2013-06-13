@@ -286,9 +286,20 @@ The output should look something like this:
 
 ## Revision history
 
+
+### Changes for V0.2.12
+
+* Refactor Minim model and extend checklist evaluation capabilities
+* Fix queries to work with rdflib 4.0.1 and rdflib-sparql
+* Fix some bugs in RODL synchronization and evolution
+* Fix rowebservices handling of URIs containing escaped characters and special characters
+* Fix problems with extended (non-ASCII) characters in checklist query results
+
+
+
 ### Changes for V0.2.11
 
-* Add RO evolution commands; ro snapshow, ro archive, ro freeze
+* Add RO evolution commands; ro snapshot, ro archive, ro freeze
 
 
 ### Changes for V0.2.10

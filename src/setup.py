@@ -70,8 +70,7 @@ setup(
         "Programming Language :: Python",
         ],
     zip_safe=False,
-    # install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2", "httplib2"],
-    install_requires=["rdflib >= 4.0.1", "rdflib-sparql", "httplib2", "uritemplate"],
+    install_requires=["rdflib == 4.0.1", "rdflib-sparql == 0.2", "httplib2", "uritemplate"],
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
