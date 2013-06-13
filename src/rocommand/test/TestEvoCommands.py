@@ -206,12 +206,11 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
 
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+        (status, reason, createdRoUri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
-        self.createSnapshot(self.TEST_RO_ID+"/", self.TEST_SNAPHOT_ID, False)
-        
+        (createdSnapshotStatus, createdSnapshotId) =  self.createSnapshot(createdRoUri, self.TEST_SNAPHOT_ID, False)
         args = [
-            "ro", "freeze",ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/", 
+            "ro", "freeze",createdSnapshotId , 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
             "-v"
@@ -220,8 +219,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
             self.assertEqual(self.outstr.getvalue().count("freeze operation finished successfully"), 1)
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(createdRoUri)
+        (status, reason) = self.rosrs.deleteRO(createdSnapshotId)
         return
         
     def FreezeNonExistetSnaphot(self):
@@ -253,13 +252,13 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     def testRemoteStatusSnapshotRO(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+        (status, reason, createdRoUri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID + "/")
-        self.createSnapshot(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, True)
+        (createdSnapshotStatus, createdSnapshotUri) = self.createSnapshot(createdRoUri, self.TEST_SNAPHOT_ID, True)
         
         args = [
-            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/",
+            "ro", "status", createdSnapshotUri,
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -269,19 +268,19 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == 0
             outtxt = self.outstr.getvalue()
             self.assertEqual(outtxt.count("SNAPSHOT"), 1)
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID + "/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(createdSnapshotUri)
+        (status, reason) = self.rosrs.deleteRO(createdRoUri)
         
     def testRemoteStatusArchiveRO(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+        (status, reason, createdRoUri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
         (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
-        self.createArchive(self.TEST_RO_ID + "/", self.TEST_ARCHIVE_ID, True)
+        (createdArchiveStatus, createdArchiveUri) = self.createArchive(createdRoUri, self.TEST_ARCHIVE_ID, True)
         
         args = [
-            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
+            "ro", "status", createdArchiveUri,
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -291,19 +290,19 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == 0
             outtxt = self.outstr.getvalue()
             self.assertEqual(outtxt.count("ARCHIVE"), 1)
-        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(createdArchiveUri)
+        (status, reason) = self.rosrs.deleteRO(createdRoUri)
     
     def testRemoteStatusUndefinedRO(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
-        (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
+        (status, reason, createdRoUri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
         (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
-        self.createArchive(self.TEST_RO_ID + "/", self.TEST_ARCHIVE_ID, False)
+        (createdArchiveStatus, createdArchiveUri) = self.createArchive(createdRoUri, self.TEST_ARCHIVE_ID, False)
         
         args = [
-            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_ARCHIVE_ID + "/",
+            "ro", "status", createdArchiveUri,
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -313,8 +312,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == 0
             outtxt = self.outstr.getvalue()
             self.assertEqual(outtxt.count("UNDEFINED"), 1)
-        (status, reason) = self.rosrs.deleteRO(self.TEST_ARCHIVE_ID + "/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(createdArchiveUri)
+        (status, reason) = self.rosrs.deleteRO(createdRoUri)
     
     def testRemoteStatusLiveRO(self):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
@@ -323,7 +322,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
         
         args = [
-            "ro", "status", ro_test_config.ROSRS_URI + self.TEST_RO_ID + "/",
+            "ro", "status", rouri,
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -333,7 +332,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             assert status == 0
             outtxt = self.outstr.getvalue()
             self.assertEqual(outtxt.count("LIVE"), 1)
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID + "/")
+        (status, reason) = self.rosrs.deleteRO(rouri)
     
     
     

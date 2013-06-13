@@ -187,12 +187,18 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
+        createdUri = self.outstr.getvalue().splitlines()[1].split("Created RO: ")[1].split(ro_test_config.ROSRS_URI)[1]
+        
         # check it out as a copy
-        rodir2 = os.path.join(ro_test_config.ROBASEDIR, "RO_test_checkout_copy")
+        rodir2 = os.path.join(ro_test_config.ROBASEDIR, createdUri)
+        
+        rodir_original_path = os.path.join(ro_test_config.ROBASEDIR, "origin")
+        shutil.rmtree(rodir_original_path, ignore_errors = True)
         shutil.rmtree(rodir2, ignore_errors = True)
-        shutil.move(rodir, rodir2)
+        shutil.move(rodir, rodir_original_path)
+        
         args = [
-            "ro", "checkout", "RO_test_ro_checkout",
+            "ro", "checkout", createdUri,
             "-d", ro_test_config.ROBASEDIR,
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
@@ -202,37 +208,38 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
         assert status == 0
         
-        files = [ "robase/RO_test_ro_checkout/README-ro-test-1"
-          , "robase/RO_test_ro_checkout/minim.rdf"
-          , "robase/RO_test_ro_checkout/subdir1/subdir1-file.txt"
-          , "robase/RO_test_ro_checkout/subdir2/subdir2-file.txt"
-          , "robase/RO_test_ro_checkout/filename with spaces.txt"
-          , "robase/RO_test_ro_checkout/filename#with#hashes.txt"
-          , "robase/RO_test_ro_checkout/.ro/manifest.rdf"
-          , "robase/RO_test_ro_checkout/" + ann1
-          , "robase/RO_test_ro_checkout/" + ann2
-          , "robase/RO_test_ro_checkout/.ro/evo_info.ttl"
+        files = [ "robase/"+ createdUri +"README-ro-test-1"
+          , "robase/"+ createdUri + "minim.rdf"
+          , "robase/"+ createdUri + "subdir1/subdir1-file.txt"
+          , "robase/"+ createdUri + "subdir2/subdir2-file.txt"
+          , "robase/"+ createdUri + "filename with spaces.txt"
+          , "robase/"+ createdUri + "filename#with#hashes.txt"
+          , "robase/"+ createdUri + ".ro/manifest.rdf"
+          , "robase/"+ createdUri + ann1
+          , "robase/"+ createdUri + ann2
+          , "robase/"+ createdUri + ".ro/evo_info.ttl"
           ]
 
         self.assertEqual(self.outstr.getvalue().count("ro checkout"), 1)
         for f in files:
-            self.assertEqual(self.outstr.getvalue().count(f), 1, "file: %s"%f)
+            self.assertEqual(self.outstr.getvalue().count(f), 1, "%s"%f)
         self.assertEqual(self.outstr.getvalue().count("%d files checked out" % len(files)), 1)
         
         # compare they're identical, with the exception of registries.pickle
-        cmpres = filecmp.dircmp(rodir2, rodir)
+       
+        cmpres = filecmp.dircmp(rodir_original_path,rodir2)
         self.assertEquals(cmpres.left_only, [ro_settings.REGISTRIES_FILE])
         self.assertEquals(cmpres.right_only, [])
         self.assertListEqual(cmpres.diff_files, [], "Files should be the same (manifest is ignored)")
 
         # delete the checked out copy
-        self.deleteTestRo(rodir)
         self.deleteTestRo(rodir2)
+        self.deleteTestRo(rodir_original_path)
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_checkout/"))
+        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), createdUri))
         return
-
+    
     # Sentinel/placeholder tests
 
     def testUnits(self):

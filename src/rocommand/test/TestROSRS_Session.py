@@ -86,10 +86,10 @@ class TestROSRS_Session(unittest.TestCase):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
-        self.assertEqual(str(rouri), Config.TEST_RO_URI)
+        #self.assertEqual(str(rouri), Config.TEST_RO_URI)
         self.assertIn((rouri, RDF.type, RO.ResearchObject), manifest)
         rolist = self.rosrs.listROs()
-        self.assertIn(Config.TEST_RO_URI, [ r["uri"] for r in rolist ])
+        self.assertIn(str(rouri), [ r["uri"] for r in rolist ])
         return
 
     def testDeleteRO(self):
@@ -97,16 +97,16 @@ class TestROSRS_Session(unittest.TestCase):
         self.assertEqual(status, 201)
         # Test that new RO is in collection
         rolist = self.rosrs.listROs()
-        self.assertIn(Config.TEST_RO_URI, [ r["uri"] for r in rolist ])
+        self.assertIn(str(rouri), [ r["uri"] for r in rolist ])
         # Delete RO
-        (status, reason) = self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        (status, reason) = self.rosrs.deleteRO(str(rouri))
         self.assertEqual(status, 204)
         self.assertEqual(reason, "No Content")
         # Test that new RO is not in collection
         rolist = self.rosrs.listROs()
-        self.assertNotIn(Config.TEST_RO_URI, [ r["uri"] for r in rolist ])
+        self.assertNotIn(str(rouri), [ r["uri"] for r in rolist ])
         # Delete again
-        (status, reason) = self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        (status, reason) = self.rosrs.deleteRO(str(rouri))
         self.assertEqual(status, 404)
         self.assertEqual(reason, "Not Found")
         return
