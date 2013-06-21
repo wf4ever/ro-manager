@@ -26,6 +26,8 @@ TODO:
 ** Target specification is very error prone
 ** Error handling when target not found is poor
 
+* Mechanism to define new SPARQL prefixes in Minim file/model
+
 * ro users
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
@@ -59,7 +61,7 @@ Technical debt:
 - Minim liveness follows redirection?
 - Update home page of web service; esp links; also link to API description in wf4ever wiki
 - Fix bug in checklist evaluation service with wrong content negotiated type - wrong response if content negotiate for bad type
-- Namespace test in checklist eval (cf. qSKOS) - can do with DSPARQL 1.1?
+- Namespace test in checklist eval (cf. qSKOS) - can do with SPARQL 1.1?
 
 
 ----

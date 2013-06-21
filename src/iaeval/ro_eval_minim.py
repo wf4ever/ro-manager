@@ -546,7 +546,7 @@ def evalResultGraph(graph, evalresult):
         for (req, binding) in results:
             b = rdflib.BNode()
             msg = formatRule(satisfied, req, binding)
-            graph.add( (rouri, satlevel, b) )
+            graph.add( (targeturi, satlevel, b) )
             graph.add( (b, MINIM.tryRequirement, req['uri']) )
             graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
             for k in binding:
