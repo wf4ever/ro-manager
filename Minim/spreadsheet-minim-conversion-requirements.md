@@ -109,3 +109,87 @@ to generate:
 (See example 4b)
 
 
+# Evaluations
+
+See also: [http://answers.semanticweb.com/questions/2476/popular-tools-to-migrate-data-from-excel-ss-to-rdf]()
+
+## Rightfield
+
+[http://www.sysmo-db.org/rightfield]()
+
+At first appearance, Rightfield seems to be limited to associating single cells with Ontology subclasses or individuals of a specified class, and contraining the cell contents accordingly.  There's also some mention of generating an RDF statement for sucvh a cell using a specified property, but I haven't been able to find out how that works.  As such, I don't see it handling any of the requirements listed here.
+
+(@@ Have posted a question to the Rightfield group to check I'm not missing anything)
+
+## Ontomaton
+
+[http://isatools.wordpress.com/2012/07/13/introducing-ontomaton-ontology-search-tagging-for-google-spreadsheets/]()
+
+As far as I can tell, this tool is lmited to locating and resticting free text cells to contain terms from an ontology.  I don't see anything about generating RDF from the resulting spreadsheet.
+
+I see nothing to indicate that this tool will begin to addressz the requirements of spreadsheet-to-checklist conversion.
+
+## XLWrap
+
+[http://xlwrap.sourceforge.net]()
+
+This tool seems to have the kind iof transfiormation capabilities needed, but they seem to be based on specified cell tranghes.  I see no way to apply trasformations based on matches found in the content of the spreadsheet (e.g. cells containing "Model:", "Rule:", etc. in the above examples).
+
+## OwlPopulous
+
+[http://code.google.com/p/owlpopulous/]()
+
+[http://e-lico.eu/populous.html]()
+
+This tool appears to have some of the required mapping caoabiulities, but seems to be intebnded for generaiting OWL ontologies rather than generic RDF.  Documentation is provided only as a video of the tool in use, which isn't very helpful.
+
+## RDF123
+
+[http://rdf123.umbc.edu]()
+
+[http://ebiquity.umbc.edu/_file_directory_/papers/370.pdf]()
+
+This tool comes close to what is needed to map the checklist description foprmat to RDF, but is very row-oriented.  As such, it does not appear to be able to match multi-row structures (as exemplified for requirements 2 and 4 above) and generate RDF accordingly.
+
+## Anzo for Excel
+
+[http://www.cambridgesemantics.com/products/anzo-express]()
+
+Commercial software - not evaluated.  (They don't even publish pricing, so it's bound to be sky-high)
+
+## csv2rdf
+
+[https://github.com/timrdf/csv2rdf4lod-automation/wiki]()
+
+Can't figure out what it does.
+
+## Tarql
+
+[https://github.com/cygri/tarql]()
+
+This is promising as it makes the full expressive power of SPARQL available for converting tabular data.  But the CSV input is treated as a table of bindings, so we're stuck with the view of spreadsheet data as independent rows.
+
+## Others
+
+I glanced briefly at a number of other spreadsheet/tabular data conversion tools, and as far as I could tell they were (maybe unsurporisingly) all very much focused on treating each row as an independent record to be converted.  The designed format for checklist-in-spreadsheets captures a structure that is somewhat deeper than tabular data, and as such uses multiple rows to encode a information about a common entity, such as a rule.
+
+See also:
+
+* [http://www.python-excel.org]()
+
+
+# Tentative design for a converter
+
+(@@rough notes only)
+
+To meet the requirements outlined above, my tenative design for a converter would use a number of template "queries".  Each template would be a pattern that matches a rectangular portion of a spreadsheet, and the resulting RDF would be generated using an associated CONSTRUCT-like pattern for each match.  This would allow values to be picked out from arbitrary regions of a spreadsheet.  The intent is to make extensive use of explicit labels in the spreadsheet content to drive the matching of these templates.
+
+In general, a template could match anywhere in a spreadsheet, but might be constrained in where it can be matched.  A common case envisaged to to restrict matches to the first column, which could thereby be reserved as a kind of keyword field and thus avoid unwanted matches.
+
+An additional wrinkle is introduced by requirement 2: repeated values.  Two approaches might be considered for this:  (1) an explicit repeart construct in a template, and/or (2) a variable "skip" construct that allows a template to match multiple regions separated by designated content - the repatition woukld then be handled by repeated matching of the template with differently sized skips.
+
+Implementation of the templkate matching could be handled by a Parsec/pyParsing style combinator library, which would allow the initial implementation to be focused on immediate needs, and functionality to be added in as needed.
+
+
+
+
