@@ -83,19 +83,23 @@ def service_html(request):
           <ul>
             <li><code>/evaluate/checklist{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
               Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
+              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
               description, selected based on the indicated target resource and purpose,
               and returns the result as an RDF graph in a selected format.
             </li>
             <li><code>/evaluate/trafficlight_json{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
               Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
+              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
               description, selected based on the indicated target resource and purpose.
               The result of the evaluation is then processeds into data to drive
-              a "traffic-light" display of the health of the RO with respect to the checklist.
+              a "traffic-light" display of the conformance of the RO with the checklist requirements.
             </li>
-            <li>
-            ...
+            <li><code>/evaluate/trafficlight_html{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
+              Evaluates an identified research object using a checklist defined by the referenced
+              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
+              description, selected based on the indicated target resource and purpose.
+              The result of the evaluation is then processed into HTML that presents a "traffic-light"
+              display of the conformance of the RO with the checklist requirements.
             </li>
           </ul>
           </p>
