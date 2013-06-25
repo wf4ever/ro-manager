@@ -1,4 +1,4 @@
-# ro_metadata.py
+# ro_uriutils.py
 
 """
 Helper functions for manipulasting and testing URIs and URI-related file paths,
