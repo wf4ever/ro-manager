@@ -38,8 +38,9 @@ class TestGridMatch(unittest.TestCase):
         # Set up grid for testing
         csvname = testbase+"/TestGridMatch.csv"
         log.debug("CSV file: %s"%csvname)
-        with open(csvname, "r") as csvfile:
-            self.grid = gridmatch.GridCSV(csvfile, dialect=csv.excel)
+        self.base = "/foo/bar#"
+        with open(csvname, "rU") as csvfile:
+            self.grid = gridmatch.GridCSV(self.base, csvfile, dialect=csv.excel)
         return
 
     def tearDown(self):
@@ -88,14 +89,6 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(c, 2,  "newcol mismatch")
         return
 
-    def testGridMatchAlt(self):
-        gm = gridmatch.text("Checklist:") | gridmatch.text("Target")
-        (d,(r,c)) = gm.match(self.grid, 17, 0)
-        self.assertEquals(d, {}, "expected empty dictionary")
-        self.assertEquals(r, 18, "newrow mismatch")
-        self.assertEquals(c, 2,  "newcol mismatch")
-        return
-
     def testSaveSimpleTextMatch(self):
         gm = gridmatch.save("foo") + gridmatch.text("Checklist:")
         (d,(r,c)) = gm.match(self.grid, 17, 0)
@@ -107,6 +100,74 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d, {"foo": "Target"}, "expected saved cell value")
         self.assertEquals(r, 17, "newrow mismatch")
         self.assertEquals(c, 1,  "newcol mismatch")
+        return
+
+    def testGridMatchAltValues(self):
+        gm = ( (gridmatch.value("alt", "1") + gridmatch.text("Checklist:")) 
+             | (gridmatch.value("alt", "2") + gridmatch.text("Target"))
+             )
+        (d,(r,c)) = gm.match(self.grid, 17, 0)
+        self.assertEquals(d, {"alt": "1"}, "expected 1st alternative match")
+        self.assertEquals(r, 18, "newrow mismatch")
+        self.assertEquals(c, 1,  "newcol mismatch")
+        (d,(r,c)) = gm.match(self.grid, 17, 1)
+        self.assertEquals(d, {"alt": "2"}, "expected 2nd alternative match")
+        self.assertEquals(r, 18, "newrow mismatch")
+        self.assertEquals(c, 2,  "newcol mismatch")
+        return
+
+    def testGridMatchOptValue(self):
+        gm = (gridmatch.value("alt", "1") + gridmatch.text("Checklist:")).optional()
+        (d,(r,c)) = gm.match(self.grid, 17, 0)
+        self.assertEquals(d, {"alt": "1"}, "expected optional match")
+        self.assertEquals(r, 18, "newrow mismatch")
+        self.assertEquals(c, 1,  "newcol mismatch")
+        (d,(r,c)) = gm.match(self.grid, 17, 1)
+        self.assertEquals(d, {}, "optional no-match match")
+        self.assertEquals(r, 17, "newrow mismatch")
+        self.assertEquals(c, 1,  "newcol mismatch")
+        return
+
+    def testGridMatchMinimModel(self):
+        # Model:,#experiment_complete_model,,,,This model defines information that must be satisfied by the target RO for the target RO to be considered a complete and fully-described workflow experiment.,
+        # Items:,Level,Rule,,,,
+        # 010,SHOULD,#RO_has_hypothesys,,,RO should contain a resource describing the hypothesis the experiment is intended to test,
+        # 020,SHOULD,#RO_has_sketch,,,RO should contain a resource that is a high level sketch of the workflow that is used to test the hypothesys,
+        # 030,MUST,#WF_accessible,,,The RO must contain an accessible workflow definition,
+        # 040,MUST,#WF_services_accessible,,,All services used by the workflow must be live,
+        # 050,MUST,#RO_has_inputdata,,,The RO must specify input data that is used by the workflow,
+        # 060,SHOULD,#RO_has_conclusion,,,The RO should contain a resource that describes outcomes and conclusions obtained by running the workflow. ,
+        save   = gridmatch.save  
+        text   = gridmatch.text
+        refval = gridmatch.refval
+        anyval = gridmatch.anyval
+        gm = ( ( text("Model:") + refval("model_uri") ) //
+               ( text("Items:") ) //
+               ( anyval("seq")  + save("level") + (text("MUST") | text("SHOULD") | text("MAY")) + refval("req_uri") ).repeatdown("item", min=1)
+             )
+        (d,(r,c)) = gm.match(self.grid, 21, 0)
+        self.assertEquals(r, 29, "newrow mismatch")
+        self.assertEquals(c, 3,  "newcol mismatch")
+        base = self.base
+        self.assertEquals(d["model_uri"], base+"experiment_complete_model", "model_uri (%s)"%(d["model_uri"]))
+        self.assertEquals(d["item"][0]["seq"],      "010",                          "seq[0]"  )
+        self.assertEquals(d["item"][0]["level"],    "SHOULD",                       "level[0]")
+        self.assertEquals(d["item"][0]["req_uri"],  base+"RO_has_hypothesys",       "seq[0]"  )
+        self.assertEquals(d["item"][1]["seq"],      "020",                          "seq[1]"  )
+        self.assertEquals(d["item"][1]["level"],    "SHOULD",                       "level[1]")
+        self.assertEquals(d["item"][1]["req_uri"],  base+"RO_has_sketch",           "seq[1]"  )
+        self.assertEquals(d["item"][2]["seq"],      "030",                          "seq[2]"  )
+        self.assertEquals(d["item"][2]["level"],    "MUST",                         "level[2]")
+        self.assertEquals(d["item"][2]["req_uri"],  base+"WF_accessible",           "seq[2]"  )
+        self.assertEquals(d["item"][3]["seq"],      "040",                          "seq[3]"  )
+        self.assertEquals(d["item"][3]["level"],    "MUST",                         "level[3]")
+        self.assertEquals(d["item"][3]["req_uri"],  base+"WF_services_accessible",  "seq[3]"  )
+        self.assertEquals(d["item"][4]["seq"],      "050",                          "seq[4]"  )
+        self.assertEquals(d["item"][4]["level"],    "MUST",                         "level[4]")
+        self.assertEquals(d["item"][4]["req_uri"],  base+"RO_has_inputdata",        "seq[4]"  )
+        self.assertEquals(d["item"][5]["seq"],      "060",                          "seq[5]"  )
+        self.assertEquals(d["item"][5]["level"],    "SHOULD",                       "level[5]")
+        self.assertEquals(d["item"][5]["req_uri"],  base+"RO_has_conclusion",       "seq[5]"  )
         return
 
     # Sentinel/placeholder tests
@@ -145,6 +206,9 @@ def getTestSuite(select="unit"):
             , "testGridMatchNextCol"
             , "testGridMatchNextRow"
             , "testSaveSimpleTextMatch"
+            , "testGridMatchAltValues"
+            , "testGridMatchOptValue"
+            , "testGridMatchMinimModel"
             ],
         "component":
             [ "testComponents"

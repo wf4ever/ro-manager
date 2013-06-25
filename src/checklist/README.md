@@ -69,6 +69,15 @@ Grid matching functions may be combined in various ways to make more complex pat
     at most `max` times (default unlimited).
     The value returned is a single element dictionary whose value is a list of dictionaries.
 
+*   Select base URI from results for processing of second pattern
+
+        gm1.usebaseuri(gm2, key)
+
+    Matches `gm1`, then matches `gm2` starting from the same grid position, with the base 
+    for URI reference resolution taken from the dictionary obtained by matching `gm1`.  
+    The resulting dictionary is the merge of dictionaries obtained from both matches.
+
+
 # Grid matching primitives
 
 These primitives match (or fail to match) a single cell, and return a value accordingly.
@@ -84,14 +93,14 @@ row and column values (i.e. returns the values supplied).
 
 *   Match and save arbitrary cell value:
 
-        any(["key"])
+        anyval(["key"])
 
     matches any cell, and returns a dictionary in which its value accessed using the suplied key.
     If no key is provided, returns an empty diuctionary.
 
 *   Match and save URI reference:
 
-        ref("key")
+        refval(["key"], ["basekey"])
 
     matches a URI reference, and returns a dictionary in which its resolved value accessed using 
     the suplied key.  The containing document URI, with '#' appended, is used as a base URI for 
@@ -99,17 +108,17 @@ row and column values (i.e. returns the values supplied).
 
 *   Match and save integer value:
 
-        int("key")
+        intval(["key"])
 
     matches an integer value, and returns a dictionary in which it is accessed using the suplied key.
 
 *   Match nothing, but return a dictionary with the supplied key referencing the curremnt cell value:
 
-        save("key", value)
+        save("key")
 
 *   Match nothing, but return a dictionary with the supplied key+value:
 
-        return("key", value)
+        value("key", value)
 
 *   Always fails to match, and returns a supplied error message:
 
