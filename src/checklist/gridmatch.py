@@ -9,10 +9,11 @@ import os, os.path
 import sys
 import logging
 import csv
+import urlparse
 
 log = logging.getLogger(__name__)
 
-from rocommand import ro_uriutils
+# from rocommand import ro_uriutils
 
 class GridMatchError(Exception):
     """
@@ -45,7 +46,8 @@ class Grid(object):
             self._baseuri = self.resolveUri(uriref, self._baseuri)
         return self._baseuri
     def resolveUri(self, uriref):
-        return ro_uriutils.resolveUri(uriref, self._baseuri)
+        # return ro_uriutils.resolveUri(uriref, self._baseuri)
+        return urlparse.urljoin(self._baseuri, uriref)
     def cell(self, row, col):
         assert False, "Unimplemented 'cell' method"
     def __getitem__(self, row):
@@ -260,6 +262,8 @@ class anyval(GridMatch):
 class refval(GridMatch):
     """
     Match reference value in current cell, return as result is key given
+
+    @@TODO: handle CURIE prefix expansion
     """
     def __init__(self, k=None):
         self._k = k
@@ -272,8 +276,6 @@ class refval(GridMatch):
 class intval(GridMatch):
     """
     Match integer value in current cell, return as result is key given
-
-    @@TODO: sort out integer matching details
     """
     def __init__(self, k=None):
         self._k = k
