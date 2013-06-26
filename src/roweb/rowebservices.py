@@ -79,32 +79,46 @@ def service_html(request):
         <body>
           <h1>Research Object services</h1>
           <p>
-          This web site offers services to evaluate Research Objects.  The services offered are:
+          This web site offers services to evaluate Research Objects.
+          Dereferencing the URI of this page with content negotiation for RDF/XML or Turtle
+          will return a service description document that contains URI templates
+          (<a href="http://tools.ietf.org/html/rfc6570">RFC 6570</a>) for each of the service 
+          described below.
+          </p>
+          <p>
+          The services offered are:
           <ul>
             <li><code>/evaluate/checklist{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
-              Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
+              This is the primaruy checklist evaluation service.
+              It evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
               description, selected based on the indicated target resource and purpose,
-              and returns the result as an RDF graph in a selected format.
+              and returns the result as an RDF graph in a selected format using the
+              <a href="http://purl.org/minim/results">Minim-results</a> vocabulary.
+              Further descriptions of these can be found on 
+              <a href="https://github.com/wf4ever/ro-manager/blob/master/Minim/Minim-description.md">GitHub</a>. 
             </li>
             <li><code>/evaluate/trafficlight_json{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
-              Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
+              This is a layered checklist result presentation service that 
+              evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
               description, selected based on the indicated target resource and purpose.
-              The result of the evaluation is then processeds into data to drive
+              The result of the evaluation is then processed into JSON data designed to drive
               a "traffic-light" display of the conformance of the RO with the checklist requirements.
             </li>
             <li><code>/evaluate/trafficlight_html{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
-              Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">Minim</a>
+              This is another layered checklist result presentation service that 
+              evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
               description, selected based on the indicated target resource and purpose.
               The result of the evaluation is then processed into HTML that presents a "traffic-light"
-              display of the conformance of the RO with the checklist requirements.
+              display of the conformance of the RO with the checklist requirements, summarizing the overall
+              result and which of the individual checklist items were satisfied or not satisfied.
             </li>
           </ul>
           </p>
           <p>
-          Where the URI query parameters provided are:
+          The URI query parameters provided are:
           <ul>
             <li><code><cite>RO</cite></code> is the %-escaped URI of a research object to be evaluated</li>
             <li><code><cite>minim</cite></code> is the %-escaped URI of a MINIM model to be evaluated</li>
