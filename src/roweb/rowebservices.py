@@ -79,7 +79,7 @@ def service_html(request):
         <body>
           <h1>Research Object services</h1>
           <p>
-          This web site offers services to evaluate Research Objects.
+          This web server offers services to evaluate Research Objects.
           Dereferencing the URI of this page with content negotiation for RDF/XML or Turtle
           will return a service description document that contains URI templates
           (<a href="http://tools.ietf.org/html/rfc6570">RFC 6570</a>) for each of the service 
