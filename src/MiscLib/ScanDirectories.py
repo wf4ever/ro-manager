@@ -90,6 +90,7 @@ def CollectDirectoryContents(srcDir, baseDir="",
     def CollectDir(path):
         if listDirs: collection.append(path.replace(baseDir,"",1)+dirsuffix)
     def CollectFile(path):
+        ### print "- collect %s (base %s)"%(path, baseDir)
         if listFiles: collection.append(path.replace(baseDir,"",1))
     ScanDirectoriesEx(srcDir, CollectDir, CollectFile, recursive)
     return collection

@@ -41,7 +41,6 @@ setup(
                ,'iaeval','iaeval.test'
                ,'MiscLib'
                ,'samples'
-               # ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
                ],
     package_data = {
         'rocommand':    [ 'test/config/*','test/robase/README','test/nobase/README'

@@ -420,6 +420,7 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             "complete")                           # Purpose
         resultgr = ro_eval_minim.evalResultGraph(minimgr, evalresult)
         log.debug("------ resultgr:\n%s\n----"%(resultgr.serialize(format='turtle'))) # pretty-xml
+        ## print "------ resultgr:\n%s\n----"%(resultgr.serialize(format='turtle'))
         # Check response returned
         modeluri = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
         prefixes = make_sparql_prefixes()
@@ -429,11 +430,11 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             , '''ASK { <%s> minim:modelUri <%s> }'''%
               (rouri, modeluri)
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
-              (rouri, "InChI identifier is present")
+              (resuri, "InChI identifier is present")
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
-              (rouri, "ChemSpider identifier is present")
+              (resuri, "ChemSpider identifier is present")
             , '''ASK { <%s> minim:missingMay [ minim:tryMessage "%s" ] }'''%
-              (rouri, "No synomym is present")
+              (resuri, "No synomym is present")
             , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
