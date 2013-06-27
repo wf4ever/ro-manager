@@ -82,7 +82,7 @@ def service_html(request):
           This web server offers services to evaluate Research Objects.
           Dereferencing the URI of this page with content negotiation for RDF/XML or Turtle
           will return a service description document that contains URI templates
-          (<a href="http://tools.ietf.org/html/rfc6570">RFC 6570</a>) for each of the service 
+          (<a href="http://tools.ietf.org/html/rfc6570">RFC 6570</a>) for each of the services 
           described below.
           </p>
           <p>
