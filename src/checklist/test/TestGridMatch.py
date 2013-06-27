@@ -24,6 +24,7 @@ if __name__ == "__main__":
 from MiscLib import TestUtils
 
 from checklist import gridmatch 
+from checklist import checklist_template 
 
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.realpath(__file__))
@@ -38,7 +39,7 @@ class TestGridMatch(unittest.TestCase):
         # Set up grid for testing
         csvname = testbase+"/TestGridMatch.csv"
         log.debug("CSV file: %s"%csvname)
-        self.base = "/foo/bar#"
+        self.base = ""
         with open(csvname, "rU") as csvfile:
             self.grid = gridmatch.GridCSV(self.base, csvfile, dialect=csv.excel)
         return
@@ -53,7 +54,7 @@ class TestGridMatch(unittest.TestCase):
         assert True, 'Null test failed'
 
     def testSimpleTextMatch(self):
-        gm = gridmatch.text("Checklist:")
+        gm = gridmatch.text("Checklists:")
         (d,(r,c)) = gm.match(self.grid, 17, 0)
         self.assertEquals(d, {}, "expected empty dictionary")
         self.assertEquals(r, 18, "newrow mismatch")
@@ -74,7 +75,7 @@ class TestGridMatch(unittest.TestCase):
         return
 
     def testGridMatchNextCol(self):
-        gm = gridmatch.text("Checklist:") + gridmatch.text("Target")
+        gm = gridmatch.text("Checklists:") + gridmatch.text("Target")
         (d,(r,c)) = gm.match(self.grid, 17, 0)
         self.assertEquals(d, {}, "expected empty dictionary")
         self.assertEquals(r, 18, "newrow mismatch")
@@ -90,12 +91,12 @@ class TestGridMatch(unittest.TestCase):
         return
 
     def testSaveSimpleTextMatch(self):
-        gm = gridmatch.save("foo") + gridmatch.text("Checklist:")
+        gm = gridmatch.save("foo") + gridmatch.text("Checklists:")
         (d,(r,c)) = gm.match(self.grid, 17, 0)
-        self.assertEquals(d, {"foo": "Checklist:"}, "expected saved cell value")
+        self.assertEquals(d, {"foo": "Checklists:"}, "expected saved cell value")
         self.assertEquals(r, 18, "newrow mismatch")
         self.assertEquals(c, 1,  "newcol mismatch")
-        gm = gridmatch.text("Checklist:") + gridmatch.save("foo")
+        gm = gridmatch.text("Checklists:") + gridmatch.save("foo")
         (d,(r,c)) = gm.match(self.grid, 17, 0)
         self.assertEquals(d, {"foo": "Target"}, "expected saved cell value")
         self.assertEquals(r, 17, "newrow mismatch")
@@ -103,7 +104,7 @@ class TestGridMatch(unittest.TestCase):
         return
 
     def testGridMatchAltValues(self):
-        gm = ( (gridmatch.value("alt", "1") + gridmatch.text("Checklist:")) 
+        gm = ( (gridmatch.value("alt", "1") + gridmatch.text("Checklists:")) 
              | (gridmatch.value("alt", "2") + gridmatch.text("Target"))
              )
         (d,(r,c)) = gm.match(self.grid, 17, 0)
@@ -117,7 +118,7 @@ class TestGridMatch(unittest.TestCase):
         return
 
     def testGridMatchOptValue(self):
-        gm = (gridmatch.value("alt", "1") + gridmatch.text("Checklist:")).optional()
+        gm = (gridmatch.value("alt", "1") + gridmatch.text("Checklists:")).optional()
         (d,(r,c)) = gm.match(self.grid, 17, 0)
         self.assertEquals(d, {"alt": "1"}, "expected optional match")
         self.assertEquals(r, 18, "newrow mismatch")
@@ -145,6 +146,8 @@ class TestGridMatch(unittest.TestCase):
                ( text("Items:") ) //
                ( anyval("seq")  + save("level") + (text("MUST") | text("SHOULD") | text("MAY")) + refval("req_uri") ).repeatdown("item", min=1)
              )
+        self.base = "/foo/bar#"
+        self.grid.baseUri(self.base)
         (d,(r,c)) = gm.match(self.grid, 21, 0)
         self.assertEquals(r, 29, "newrow mismatch")
         self.assertEquals(c, 3,  "newcol mismatch")
@@ -152,7 +155,7 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["model_uri"], base+"experiment_complete_model", "model_uri (%s)"%(d["model_uri"]))
         self.assertEquals(d["item"][0]["seq"],      "010",                          "seq[0]"  )
         self.assertEquals(d["item"][0]["level"],    "SHOULD",                       "level[0]")
-        self.assertEquals(d["item"][0]["req_uri"],  base+"RO_has_hypothesys",       "seq[0]"  )
+        self.assertEquals(d["item"][0]["req_uri"],  base+"RO_has_hypothesis",       "seq[0]"  )
         self.assertEquals(d["item"][1]["seq"],      "020",                          "seq[1]"  )
         self.assertEquals(d["item"][1]["level"],    "SHOULD",                       "level[1]")
         self.assertEquals(d["item"][1]["req_uri"],  base+"RO_has_sketch",           "seq[1]"  )
@@ -168,6 +171,58 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["item"][5]["seq"],      "060",                          "seq[5]"  )
         self.assertEquals(d["item"][5]["level"],    "SHOULD",                       "level[5]")
         self.assertEquals(d["item"][5]["req_uri"],  base+"RO_has_conclusion",       "seq[5]"  )
+        return
+
+    def testGridMatchChecklist(self):
+        """
+        Test match of full checklist using the defined checklist template
+        """
+        (d,(r,c)) = checklist_template.checklist.match(self.grid, 0, 0)
+        self.assertEquals(r, 70, "newrow (%d)"%(r))
+        self.assertEquals(c, 0,  "newcol (%d)"%(c))
+        base = self.base
+        ### print repr(d)
+        self.assertEquals(d["matchtemplate"],       'checklist',                        "matchtemplate")
+        self.assertEquals(d["prefixes"]['ro'],      'http://purl.org/wf4ever/ro#',      "Prefix 'ro'")
+        self.assertEquals(d["prefixes"]['minim'],   'http://purl.org/minim/minim#',     "Prefix 'minim'")
+        self.assertEquals(d["prefixes"]['ao'],      'http://purl.org/ao/',              "Prefix 'ao'")
+        self.assertEquals(d["prefixes"]['wfdesc'],  'http://purl.org/wf4ever/wfdesc#',  "Prefix 'wfdesc'")
+        self.assertEquals(d["prefixes"]['wfprov'],  'http://purl.org/wf4ever/wfprov#',  "Prefix 'wfprov'")
+        self.assertEquals(d["prefixes"]['wf4ever'], 'http://purl.org/wf4ever/wf4ever#', "Prefix 'wf4ever'")
+
+        self.assertEquals(len(d["checklists"]), 2, "Checklist count")
+        self.assertEquals(d["checklists"][0]["model"],       '#experiment_complete_model', "Checklist[1] model")
+        self.assertEquals(d["checklists"][0]["target_urit"], '{+targetro}',                "Checklist[1] uri")
+        self.assertEquals(d["checklists"][0]["purpose"],     'ready-to-release',           "Checklist[1] purpose")
+        self.assertEquals(d["checklists"][1]["model"],       '#wf_accessible_model',       "Checklist[2] model")
+        self.assertEquals(d["checklists"][1]["target_urit"], '{+targetro}',                "Checklist[2] uri")
+        self.assertEquals(d["checklists"][1]["purpose"],     'wf-accessible',              "Checklist[2] purpose")
+
+        self.assertEquals(len(d["models"]), 2, "Model count")
+        self.assertEquals(d["models"][0]["modelid"],       '#experiment_complete_model', "Model[1] id")
+        self.assertEquals(len(d["models"][0]["items"]), 6, "Model[1] item count")
+        self.assertEquals(d["models"][0]["items"][1]["seq"],    '020',              "Model[1] Item[2] seq")
+        self.assertEquals(d["models"][0]["items"][1]["level"],  'SHOULD',           "Model[1] Item[2] level")
+        self.assertEquals(d["models"][0]["items"][1]["reqid"],  '#RO_has_sketch',   "Model[1] Item[2] reqid")
+
+        self.assertEquals(d["models"][1]["modelid"],       '#wf_accessible_model',    "Model[2] id")
+        self.assertEquals(len(d["models"][1]["items"]), 1, "Model[2] item count")
+        self.assertEquals(d["models"][1]["items"][0]["seq"],    '030',              "Model[2] Item[1] seq")
+        self.assertEquals(d["models"][1]["items"][0]["level"],  'MUST',             "Model[2] Item[1] level")
+        self.assertEquals(d["models"][1]["items"][0]["reqid"],  '#WF_accessible',   "Model[2] Item[1] reqid")
+
+        self.assertEquals(len(d["requirements"]), 6, "Requirement count")
+        self.assertEquals(d["requirements"][0]["reqid"],    '#RO_has_hypothesis')
+        self.assertEquals(d["requirements"][0]["pattern"],  '?hypothesis rdf:type roterms:Hypothesis')
+        self.assertEquals(d["requirements"][0]["pass"],     'Experiment hypothesis is present')
+        self.assertEquals(d["requirements"][0]["fail"],     'Experiment hypothesis is not present')
+        self.assertEquals(d["requirements"][0].get("miss"), None)
+        self.assertEquals(d["requirements"][2]["reqid"],    '#WF_accessible')
+        self.assertEquals(d["requirements"][2]["pattern"],  '?wf rdf:type wfdesc:Workflow ;\n  rdfs:label ?wflab ;\n  wfdesc:hasWorkflowDefinition ?wfdef')
+        self.assertEquals(d["requirements"][2]["pass"],     'All workflow definitions are accessible')
+        self.assertEquals(d["requirements"][2]["fail"],     'The definition for workflow <i>%(wflab)s</i> is not accessible')
+        self.assertEquals(d["requirements"][2]["miss"],     'No workflow definitions are present')
+
         return
 
     # Sentinel/placeholder tests
@@ -209,6 +264,7 @@ def getTestSuite(select="unit"):
             , "testGridMatchAltValues"
             , "testGridMatchOptValue"
             , "testGridMatchMinimModel"
+            , "testGridMatchChecklist"
             ],
         "component":
             [ "testComponents"

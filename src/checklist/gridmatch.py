@@ -7,6 +7,7 @@
 
 import os, os.path
 import sys
+import re
 import logging
 import csv
 import urlparse
@@ -19,19 +20,21 @@ class GridMatchError(Exception):
     """
     Class for reporting match failures
     """
-    def __init__(self, msg="GridMatchError", value=None):
+    def __init__(self, msg="GridMatchError", row=0, col=0, value=None):
         self._msg    = msg
+        self._row    = row
+        self._col    = col
         self._value  = value
         return
 
     def __str__(self):
-        txt = self._msg
+        txt = "%s @[%d,%d]"%(self._msg, self._row, self._col)
         if self._value:  txt += ": "+repr(self._value)
         return txt
 
     def __repr__(self):
-        return ( "GridMatchError(%s, value=%s)"%
-                 (repr(self._msg), repr(self._value)))
+        return ( "GridMatchError(%s (%d,%d), value=%s)"%
+                 (repr(self._msg), self._row, self._col, repr(self._value)))
 
 class Grid(object):
     """
@@ -43,7 +46,7 @@ class Grid(object):
         return
     def baseUri(self, uriref=None):
         if uriref:
-            self._baseuri = self.resolveUri(uriref, self._baseuri)
+            self._baseuri = self.resolveUri(uriref)
         return self._baseuri
     def resolveUri(self, uriref):
         # return ro_uriutils.resolveUri(uriref, self._baseuri)
@@ -122,8 +125,11 @@ class GridMatch(object):
     def optional(self):
         return GridMatchOpt(self)
 
-    def repeatdown(self, key, min=0, max=None):
-        return GridMatchRepeatDown(self, key, min, max)
+    def repeatdown(self, key, min=0, max=None, dkey=None, dval=None):
+        return GridMatchRepeatDown(self, key, min, max, dkey, dval)
+
+    def skipdownto(self):
+        return GridMatchSkipDown(self)
 
     def usebaseuri(self, other, key):
         return GridMatchBaseUri(self, other, key)
@@ -190,12 +196,22 @@ class GridMatchOpt(GridMatch):
 class GridMatchRepeatDown(GridMatch):
     """
     Downwards repeat combinator
+
+    @param min:     minimum number of repeats (default: 0)
+    @param max:     maximum number of repeats (defaul: no limit)
+    @param dkey:    field for resulting dictionary key
+    @param dval:    field for resulting dictionary value
+
+    If 'dkey' and 'dval' are defibned, they are keys that are used to select values
+    from the list of results, and comnstruct a dictionary from the list.
     """
-    def __init__(self, m, key="repeatdown", min=0, max=None):
+    def __init__(self, m, key="repeatdown", min=0, max=None, dkey=None, dval=None):
         self._m   = m
         self._key = key
         self._min = min
         self._max = max if max else sys.maxint
+        self._dk  = dkey
+        self._dv  = dval
         return
     def match(self, grid, row, col):
         log.debug("GridMatchRepeatDown.match %d, %d"%(row, col))
@@ -214,9 +230,35 @@ class GridMatchRepeatDown(GridMatch):
                 savedexc = e
                 break
         if count < self._min:
-            raise Exception("Repeat down < min: %s"%(savedexc))
-        return ({self._key: resultlist}, (rnew, cmax))
+            raise GridMatchError("Repeat down < min", rnew, col, str(savedexc))
+        if self._dk and self._dv:
+            res = dict( [ (r[self._dk], r[self._dv]) for r in resultlist ] )
+        else:
+            res = resultlist
+        return ({self._key: res}, (rnew, cmax))
 
+class GridMatchSkipDown(GridMatch):
+    """
+    Skip down over non matching rows until a match is found.
+    Downwards matching continues with the matched item; mno m,atych result is returned.
+    """
+    def __init__(self, m):
+        self._m   = m
+        return
+    def match(self, grid, row, col):
+        log.debug("GridMatchSkipDown.match %d, %d"%(row, col))
+        while True:
+            log.debug("- row %d, col %d"%(row, col))
+            try:
+                self._m.match(grid, row, col)
+                break
+            except GridMatchError, e:
+                savedexc = e
+                row += 1
+                continue
+            except IndexError, e:
+                raise GridMatchError("GridMatchSkipDown: target not found", row, col, str(savedexc))
+        return ({}, (row, col))
 
 class GridMatchBaseUri(GridMatch):
     """
@@ -236,6 +278,15 @@ class GridMatchBaseUri(GridMatch):
 
 # Match primitive classes
 
+class start(GridMatch):
+    """
+    Mark start of pattern - mainly to set GridMatch comntext for operators.
+    """
+    def __init__(self):
+        return
+    def match(self, grid, row, col):
+        return ({}, (row, col))
+
 class text(GridMatch):
     """
     Match supplied text string
@@ -245,18 +296,33 @@ class text(GridMatch):
         return
     def match(self, grid, row, col):
         if grid.cell(row, col) != self._t:
-            raise GridMatchError("gridmatch.text not matched", (self._t,row,col))
+            raise GridMatchError("gridmatch.text not matched", row, col, self._t)
         return ({}, (row+1, col+1))
 
 class anyval(GridMatch):
     """
-    Match any value in current cell, return as result is key given
+    Match any value in current cell, return as result if key given
     """
     def __init__(self, k=None):
         self._k = k
         return
     def match(self, grid, row, col):
         d = {self._k: grid.cell(row, col)} if self._k else {}
+        return (d, (row+1, col+1))
+
+class regexval(GridMatch):
+    """
+    Match any value that matches the supplied regexp, return as result if key given
+    """
+    def __init__(self, rex, k=None):
+        self._r = rex
+        self._k = k
+        return
+    def match(self, grid, row, col):
+        v =  grid.cell(row, col)
+        if not re.match(self._r, v):
+            raise GridMatchError("gridmatch.regexval not matched", row, col, self._r)
+        d = {self._k: v} if self._k else {}
         return (d, (row+1, col+1))
 
 class refval(GridMatch):
@@ -281,10 +347,11 @@ class intval(GridMatch):
         self._k = k
         return
     def match(self, grid, row, col):
+        t = grid.cell(row, col)
         try:
-            v = int(grid.cell(row, col))
+            v = int(t)
         except Exception, e:
-            raise GridMatchError("gridmatch.intval not matched", (grid.cell(row, col),row,col))
+            raise GridMatchError("gridmatch.intval not matched", row, col, t)
         d = {self._k: v} if self._k else {}
         return (d, (row+1, col+1))
 
@@ -313,10 +380,11 @@ class error(GridMatch):
     Do not match; raise error with supplied message and value
     """
     def __init__(self, msg="gridmatch.error", val=None):
-        self._e = GridMatchError(msg, val)
+        self._msg = msg
+        self._val = val
         return
     def match(self, grid, row, col):
-        raise self._e
+        raise GridMatchError(self._msg, row, col, self._val)
 
 # End.
 
