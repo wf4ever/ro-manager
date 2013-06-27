@@ -7,7 +7,6 @@ Basic command functions for ro, research object manager
 import sys
 import os
 import os.path
-### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
@@ -19,10 +18,6 @@ import zipfile
 from ro_utils import EvoType
 from xml.parsers import expat
 from httplib2 import RelativeURIError
-
-###@@TODO:
-###Where did this come from???
-###from _pyio import BytesIO
 
 try:
     # Running Python 2.5 with simplejson?
