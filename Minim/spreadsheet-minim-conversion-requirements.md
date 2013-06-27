@@ -125,7 +125,7 @@ At first appearance, Rightfield seems to be limited to associating single cells 
 
 As far as I can tell, this tool is lmited to locating and resticting free text cells to contain terms from an ontology.  I don't see anything about generating RDF from the resulting spreadsheet.
 
-I see nothing to indicate that this tool will begin to addressz the requirements of spreadsheet-to-checklist conversion.
+I see nothing to indicate that this tool will begin to address the requirements of spreadsheet-to-checklist conversion.
 
 ## XLWrap
 
@@ -198,6 +198,7 @@ An additional wrinkle is introduced by requirement 2: repeated values.  Two appr
 
 Implementation of the templkate matching could be handled by a Parsec/pyParsing style combinator library, which would allow the initial implementation to be focused on immediate needs, and functionality to be added in as needed.
 
-
+See also:
+* [checklist/README.md](../src/checklist/README.md)
 
 
