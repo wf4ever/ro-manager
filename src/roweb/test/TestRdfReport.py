@@ -92,6 +92,26 @@ class TestRdfReport(unittest.TestCase):
     def testNull(self):
         assert True, 'Null test failed'
 
+    def testEscapeJSON(self):
+        s = []
+        for i in range(0,128):
+            s.append(unichr(i))
+        s = "".join(s)
+        s_esc = RdfReport.escape_json(s)
+        e_esc = ( u'\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007'+
+                  u'\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f'+
+                  u'\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017'+
+                  u'\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f'+
+                  u' !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`'+
+                  u'abcdefghijklmnopqrstuvwxyz{|}~\\u007f')
+        # print "----"
+        # print repr(s_esc)
+        # print repr(e_esc)
+        self.assertEqual(s_esc, e_esc)
+        s_loads = json.loads('"'+s_esc+'"')
+        self.assertEqual(s_loads, s)
+        return
+
     def testHelloWorld(self):
         """
         Test just about the simplest possible report
@@ -648,6 +668,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testEscapeJSON"
             , "testHelloWorld"
             , "testSimpleQuery"
             , "testSimpleQuotedJson"
