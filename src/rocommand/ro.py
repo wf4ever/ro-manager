@@ -11,12 +11,12 @@ import re
 import codecs
 import optparse
 import logging
-logging.basicConfig()
 
 log = logging.getLogger(__name__)
 
 # Make sure MiscLib can be found on path
 if __name__ == "__main__":
+    logging.basicConfig()
     sys.path.append(os.path.join(sys.path[0],".."))
 
 import ro_settings

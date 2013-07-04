@@ -37,13 +37,24 @@ model = ( text("Model:").skipdownto()
 
 models = model.repeatdown("models", min=1)
 
-matchexists = text("Exists:") + regexval(".+", "pattern")
-
-matchislive = ( (text("ForEach:") + anyval("pattern"))
-    // (text("IsLive:") + anyval("islive_urit"))
+matchforeach = ( (text("ForEach:") + regexval(".+", "foreach"))
+    // (text("Exists:")     + regexval(".+", "exists")).optional()
+    // (text("Aggregates:") + regexval(".+", "aggregates_urit")).optional()
+    // (text("IsLive:")     + regexval(".+", "islive_urit")).optional()
+    // (text("Min:")        + intval("min")).optional()
+    // (text("Max:")        + intval("max")).optional()
     )
 
-rulebody = matchexists | matchislive | error("No rule body found")
+matchexists = text("Exists:") + regexval(".+", "exists")
+
+matchsoftware = ( (text("Command:") + anyval("command"))
+    // (text("Response:") + anyval("response"))
+    )
+
+rulebody = ( matchforeach
+    | matchexists 
+    | matchsoftware 
+    | error("No rule body found")
 
 rulediag = ( (text("Pass:") + anyval("pass"))
     // (text("Fail:") + anyval("fail"))
