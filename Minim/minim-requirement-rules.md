@@ -6,7 +6,7 @@ Example: does the RO contain a hypothesis?
 
 Rule:
 
-    Exists("?hyp rdf:type roterms:Hypothnesis")
+    Exists("?hyp rdf:type roterms:Hypothesis")
 
 In order to formulate the query, knowledge of the vocabulary used in the RO metadata is required (as well as knowledge of SPARQL query patterns).
 
