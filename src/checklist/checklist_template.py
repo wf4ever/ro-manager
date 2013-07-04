@@ -55,6 +55,7 @@ rulebody = ( matchforeach
     | matchexists 
     | matchsoftware 
     | error("No rule body found")
+    )
 
 rulediag = ( (text("Pass:") + anyval("pass"))
     // (text("Fail:") + anyval("fail"))

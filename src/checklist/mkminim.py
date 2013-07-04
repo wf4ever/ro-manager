@@ -10,7 +10,6 @@ import re
 import argparse
 import logging
 import csv
-import rdflib
 
 log = logging.getLogger(__name__)
 
@@ -22,6 +21,7 @@ from rocommand import ro_utils
 
 from checklist import gridmatch 
 from checklist import checklist_template 
+from checklist.minim_graph import Minim_graph
 
 VERSION = "0.1"
 
@@ -46,53 +46,52 @@ def mkminim(grid, outstr, options):
     # Add models to graph
     for cm in d["models"]:
         mgr.model(cm["modelid"],
-            [ mgr.item(seq=mi["seq"], level=mi["level"], reqid=["reqid"])
+            [ mgr.item(seq=mi["seq"], level=mi["level"], reqid=mi["reqid"])
                 for mi in cm["items"]
             ])
     # Add requirement rules to graph
     for rq in d["requirements"]:
-        if rq.haskey("foreach"):
+        if "foreach" in rq:
             # ForEach ...
             mgr.rule(rq["reqid"], 
                 ForEach=rq["foreach"], 
                 Exists=rq.get("exists"),
                 Min=rq.get("min"),
                 Max=rq.get("max"), 
-                IsAggregated=rq.get("aggregates"), 
+                Aggregates=rq.get("aggregates"), 
                 IsLive=rq.get("islive"), 
-                Show=rq.get("show")
+                Show=rq.get("show"),
                 Pass=rq.get("pass"), 
                 Fail=rq.get("fail"), 
                 NoMatch=rq.get("miss"))
-        elif rq.haskey("exists"):
+        elif "exists" in rq:
             # Simple exists
             mgr.rule(rq["reqid"], 
                 Exists=rq["exists"], 
-                Show=rq.get("show")
+                Show=rq.get("show"),
                 Pass=rq.get("pass"), 
                 Fail=rq.get("fail"), 
                 NoMatch=rq.get("miss"))
-        elif rq.haskey("command"):
+        elif "command" in rq:
             mgr.rule(rq["reqid"], 
                 Command=rq["command"],
                 Response=rq["response"], 
-                Show=rq.get("show")
+                Show=rq.get("show"),
                 Pass=rq.get("pass"), 
                 Fail=rq.get("fail"), 
                 NoMatch=rq.get("miss"))
     # Serialize graph to output stream
-    mgr.serialize(sys.stdout)
+    mgr.serialize(sys.stdout, format=options.outformat)
     return
 
-def run(configbase, filebase, options, args):
+def run(configbase, filebase, options, progname):
     """
     Access input file as grid, and generate Minim
     """
     status = 0
-    progname = ro_utils.progname(args)
     # open spreadsheet file as grid
-    log.debug("Open grid %s"%(args[1]))
-    csvname = os.path.join(filebase,args[1])
+    log.debug("%s: open grid %s"%(progname, options.checklist))
+    csvname = os.path.join(filebase,options.checklist)
     log.debug("CSV file: %s"%csvname)
     base = ""
     try:
@@ -118,29 +117,29 @@ def parseCommandArgs(argv):
     OptionParser, and any remaining unparsed arguments.
     """
     # create a parser for the command line options
-    parser = optparse.OptionParser(
-                usage="\n  %prog [options] minim-table-input"+
-                      "\n  %prog --help"+
-                      "\n"+
-                      "\nminim-table-input is file conmtaining minim-defining table in CSV format",
-                version="%prog "+VERSION)
-    # parser.add_option("-a", "--all",
-    #                   action="store_true",
-    #                   dest="all",
-    #                   default=False,
-    #                   help="All, list all files, depends on the context")
-    parser.add_option("-o", "--output",
-                      dest="outformat",
-                      help="Output format to generate: ...")
-    parser.add_option("--debug",
-                      action="store_true", 
-                      dest="debug", 
-                      default=False,
-                      help="run with full debug output enabled")
+    parser = argparse.ArgumentParser(
+                description="Generate Minim RDF file from tabular checklist description.",
+                epilog="The RDF Graph generated is written to standard output.")
+    # parser.add_argument("-a", "--all",
+    #                     action="store_true",
+    #                     dest="all",
+    #                     default=False,
+    #                     help="All, list all files, depends on the context")
+    parser.add_argument("checklist", help="File containing checklist description in tabular format")
+    parser.add_argument('--version', action='version', version='%(prog)s '+VERSION)
+    parser.add_argument("-o", "--output",
+                        dest="outformat",
+                        default="turtle",
+                        help="Output format to generate: ...")
+    parser.add_argument("--debug",
+                        action="store_true", 
+                        dest="debug", 
+                        default=False,
+                        help="Run with full debug output enabled")
     # parse command line now
-    (options, args) = parser.parse_args(argv)
-    if len(args) < 2: parser.error("No checklist file specified")
-    return (options, args)
+    options = parser.parse_args(argv)
+    log.debug("Options: %s"%(repr(options)))
+    return options
 
 def runCommand(configbase, filebase, argv):
     """
@@ -151,15 +150,16 @@ def runCommand(configbase, filebase, argv):
 
     Returns exit status.
     """
-    (options, args) = parseCommandArgs(argv)
+    options = parseCommandArgs(argv[1:])
     if not options or options.debug:
         logging.basicConfig(level=logging.DEBUG)
+    log.debug("runCommand: configbase %s, filebase %s, argv %s"%(configbase, filebase, repr(argv)))
     # else:
     #     logging.basicConfig()
-    log.debug("runCommand: configbase %s, filebase %s, argv %s"%(configbase, filebase, repr(argv)))
     status = 1
     if options:
-        status  = run(configbase, filebase, options, args)
+        progname = ro_utils.progname(argv)
+        status   = run(configbase, filebase, options, progname)
     return status
 
 def runMain():

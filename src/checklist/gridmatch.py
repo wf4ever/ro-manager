@@ -13,6 +13,7 @@ import csv
 import urlparse
 
 log = logging.getLogger(__name__)
+log.setLevel(logging.INFO)
 
 # from rocommand import ro_uriutils
 
