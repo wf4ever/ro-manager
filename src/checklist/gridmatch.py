@@ -66,19 +66,20 @@ class GridRow(object):
         self._row  = row
         return
     def __getitem__(self, col):
-        return _grid.cell(_row, col)
+        return self._grid.cell(self._row, col)
 
 class GridCSV(Grid):
     """
     Initialize a grid object based on a CSV file
 
     @param csvfile:     A file-like object that contains CSV data
+    @param baseuri:     A string used as the base URI for references in the grid.
     @param dialect:     An optional dialect parameter (e.g. 'excel', 'excel-tab').
                         If not specified, the system sniffs the content of the CSV 
                         to guess the CSV dialect used.
     """
-    def __init__(self, csvname, csvfile, dialect=None):
-        super(GridCSV, self).__init__(csvname)
+    def __init__(self, csvfile, baseuri=None, dialect=None):
+        super(GridCSV, self).__init__(baseuri=baseuri)
         if not dialect:
             dialect = csv.Sniffer().sniff(csvfile.read(1024))
             csvfile.seek(0)

@@ -41,7 +41,7 @@ class TestGridMatch(unittest.TestCase):
         log.debug("CSV file: %s"%csvname)
         self.base = ""
         with open(csvname, "rU") as csvfile:
-            self.grid = gridmatch.GridCSV(self.base, csvfile, dialect=csv.excel)
+            self.grid = gridmatch.GridCSV(csvfile, baseuri=self.base, dialect=csv.excel)
         return
 
     def tearDown(self):
@@ -178,8 +178,8 @@ class TestGridMatch(unittest.TestCase):
         Test match of full checklist using the defined checklist template
         """
         (d,(r,c)) = checklist_template.checklist.match(self.grid, 0, 0)
-        self.assertEquals(r, 70, "newrow (%d)"%(r))
-        self.assertEquals(c, 0,  "newcol (%d)"%(c))
+        self.assertEquals(r, 71, "newrow (%d)"%(r))
+        self.assertEquals(c, 1,  "newcol (%d)"%(c))
         base = self.base
         ### print repr(d)
         self.assertEquals(d["matchtemplate"],       'checklist',                        "matchtemplate")

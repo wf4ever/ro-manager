@@ -69,7 +69,7 @@ requirement = ( text("Rule:").skipdownto()
 
 requirements = requirement.repeatdown("requirements", min=1)
 
-checklist_end = text("End:").skipdownto()
+checklist_end = text("End:").skipdownto() // text("End:")
 
 checklist = ( checklist_start
     // prefixes

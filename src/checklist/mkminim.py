@@ -25,18 +25,21 @@ from checklist.minim_graph import Minim_graph
 
 VERSION = "0.1"
 
-def mkminim(grid, outstr, options):
+def mkminim(grid, baseuri=None):
     """
-    Generate minim file from supplied grid
+    Generate minim graph from supplied grid
+
+    Returns (status,mgr) where mgr is RDF graph containing minim description,
+    or None.
     """
     # Decode the grid
     try:
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
     except Exception, e:
         print "Failed to parse minim table %s"%(e)
-        return 2
+        return (2,None)
     # Create RDF graph and initialize Minim graph creation
-    mgr = Minim_graph()
+    mgr = Minim_graph(base=baseuri)
     # Add prefixes to graph
     for pre in d["prefixes"]:
         mgr.prefix(pre, d["prefixes"][pre])
@@ -80,9 +83,7 @@ def mkminim(grid, outstr, options):
                 Pass=rq.get("pass"), 
                 Fail=rq.get("fail"), 
                 NoMatch=rq.get("miss"))
-    # Serialize graph to output stream
-    mgr.serialize(sys.stdout, format=options.outformat)
-    return
+    return (0,mgr)
 
 def run(configbase, filebase, options, progname):
     """
@@ -96,13 +97,16 @@ def run(configbase, filebase, options, progname):
     base = ""
     try:
         with open(csvname, "rU") as csvfile:
-            grid = gridmatch.GridCSV("", csvfile, dialect=csv.excel)
+            grid = gridmatch.GridCSV(csvfile, baseuri="", dialect=csv.excel)
     except IOError, e:
         print "Failed to open table file %s"%(e)
         return 2
     # Make minim file
     log.debug("mkminim %s"%(repr(options)))
-    status = mkminim(grid, sys.stdout, options)
+    (status, mgr) = mkminim(grid,  baseuri=grid.resolveUri(""))
+    # Serialize graph to output stream
+    if status == 0:
+        mgr.serialize(sys.stdout, format=options.outformat)
     # Exit
     return status
 
