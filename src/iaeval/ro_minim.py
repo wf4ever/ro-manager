@@ -29,7 +29,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             # Requirement and properties
             , "Requirement"
-            , "derives", "reports", "isDerivedBy"
+            , "isDerivedBy"
             , "show", "showpass", "showfail", "showmiss", "seq"
             # Rules and properties
             , "RequirementRule"
@@ -173,8 +173,7 @@ def getRequirements(minimgraph, modeluri):
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
             rule = (
-                { 'derives':    minimgraph.value(subject=ruleuri, predicate=MINIM.derives) 
-                , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
+                { 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)

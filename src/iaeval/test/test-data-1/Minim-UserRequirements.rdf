@@ -104,7 +104,6 @@
           <minim:SoftwareEnvironmentRule>
             <minim:command>python -V</minim:command>
             <minim:response>Python 2.7</minim:response>
-            <minim:derives rdf:resource="#environment-software/python-27" />
             <minim:show>01 - python 2.7</minim:show>
           </minim:SoftwareEnvironmentRule>
         </minim:isDerivedBy>
@@ -117,7 +116,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="data/UserRequirements-astro.ods" />
-            <minim:derives rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
             <minim:show>02 - aggregates data/UserRequirements-astro.ods</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
@@ -130,7 +128,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="docs/reqs.css" />
-            <minim:derives rdf:resource="#isPresent/docs/reqs.css" />
             <minim:show>03 - aggregates docs/reqs.css</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
@@ -156,7 +153,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="data/UserRequirements-bio.ods" />
-            <minim:derives rdf:resource="#isPresent/data/UserRequirements-bio.ods" />
             <minim:show>04 - aggregates data/UserRequirements-bio.ods</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
@@ -185,7 +181,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="docs/missing.css" />
-            <minim:derives rdf:resource="#isPresent/docs/missing.css" />
             <minim:show>05 - aggregates docs/missing.css</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>

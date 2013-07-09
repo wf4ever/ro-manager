@@ -148,7 +148,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
             , 'seq': "04 - aggregates data/UserRequirements-bio.ods"
@@ -185,7 +184,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'seq': "05 - aggregates docs/missing.css"
@@ -222,7 +220,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'seq': "05 - aggregates docs/missing.css"
@@ -259,7 +256,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
             })
@@ -273,7 +269,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
             })
@@ -287,7 +282,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
             })

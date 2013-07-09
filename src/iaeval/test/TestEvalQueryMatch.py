@@ -265,7 +265,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('ChemSpider identifier is present')
                 , 'showfail':     rdflib.Literal('No ChemSpider identifier is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.satisfied_binding_1 = (
@@ -295,7 +294,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('InChI identifier is present')
                 , 'showfail':     rdflib.Literal('No InChI identifier is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.satisfied_binding_2 = (
@@ -325,7 +323,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('Synonym is present')
                 , 'showfail':     rdflib.Literal('No synonym is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.missing_may_binding = (
@@ -441,8 +438,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
               (resuri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (resuri, str(resuri))
-            # , '''ASK { <%s> minim:more <%s> }'''%
-            #   (resuri, rdflib.Literal(str(resuri)))
             ])
         for q in probequeries:
             r = resultgr.query(prefixes+q)
