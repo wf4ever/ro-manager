@@ -170,6 +170,8 @@ class TestMkMinim(TestROSupport.TestROSupport):
         # Check content of minim graph
         ### minimgr.serialize(sys.stdout, format="turtle")
         self.checkTargetGraph(minimgr.graph(), expectgr, msg="Not found in constructed minim graph")
+
+        self.deleteTestRo(rodir)
         return
 
     # Sentinel/placeholder tests

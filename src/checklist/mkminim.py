@@ -49,7 +49,7 @@ def mkminim(grid, baseuri=None):
     # Add models to graph
     for cm in d["models"]:
         mgr.model(cm["modelid"],
-            [ mgr.item(seq=mi["seq"], level=mi["level"], reqid=mi["reqid"])
+            [ mgr.item(seq=mi["seq"], level=mi["level"], ruleid=mi["reqid"])
                 for mi in cm["items"]
             ])
     # Add requirement rules to graph

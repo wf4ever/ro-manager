@@ -23,94 +23,71 @@
 
 <#model_test1> a minim:Model ;
     minim:hasMustRequirement
-        <#req_exists>,
-        <#req_foreach_accessible>,
-        <#req_foreach_aggregated>,
-        <#req_foreach_exists> ;
+        [ minim:seq "010" ; minim:isDerivedBy <#req_exists> ],
+        [ minim:seq "020" ; minim:isDerivedBy <#req_foreach_accessible> ],
+        [ minim:seq "030" ; minim:isDerivedBy <#req_foreach_aggregated> ],
+        [ minim:seq "040" ; minim:isDerivedBy <#req_foreach_exists> ];
     minim:hasShouldRequirement
-        <#req_max> ,
-        <#req_min> ;
+        [ minim:seq "050" ; minim:isDerivedBy <#req_max>  ],
+        [ minim:seq "060" ; minim:isDerivedBy <#req_min>  ];
     minim:hasMayRequirement
-        <#req_python> .
+        [ minim:seq "070" ; minim:isDerivedBy <#req_python> ].
 
 <#model_test2> a minim:Model ;
     minim:hasMustRequirement
-        <#req_exists>,
-        <#req_foreach_aggregated>,
-        <#req_foreach_exists> ;
+        [ minim:seq "010" ; minim:isDerivedBy <#req_exists> ],
+        [ minim:seq "020" ; minim:isDerivedBy <#req_foreach_aggregated> ],
+        [ minim:seq "030" ; minim:isDerivedBy <#req_foreach_exists> ];
     minim:hasShouldRequirement
-        <#req_max>,
-        <#req_min> .
+        [ minim:seq "040" ; minim:isDerivedBy <#req_max> ],
+        [ minim:seq "050" ; minim:isDerivedBy <#req_min> ].
 
-<#req_exists> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:exists "?file rdf:type ex:Part" ;
-            minim:showpass "File exists as a part" ;
-            minim:showfail "File as part does not exist" ;
-        ] ;
-    minim:seq "010" .
+<#req_exists> a minim:ContentMatchRequirementRule ;
+    minim:exists "?file rdf:type ex:Part" ;
+    minim:showpass "File exists as a part" ;
+    minim:showfail "File as part does not exist" ;
+    .
 
-<#req_foreach_exists> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:forall "?file rdf:type ex:Part" ;
-            minim:exists "?file ex:partOf [ rdf:type ex:Whole ] " ;
-            minim:showpass "Files as part are partOf some indicated whole" ;
-            minim:showfail "File as part %(file)s is not part of some whole" ;
-        ] ;
-    minim:seq "020" .
+<#req_foreach_exists> a minim:ContentMatchRequirementRule ;
+    minim:forall "?file rdf:type ex:Part" ;
+    minim:exists "?file ex:partOf [ rdf:type ex:Whole ] " ;
+    minim:showpass "Files as part are partOf some indicated whole" ;
+    minim:showfail "File as part %(file)s is not part of some whole" ;
+    .
 
-<#req_foreach_aggregated> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:forall "?file rdf:type ex:Part" ;
-            minim:showpass "All file as part resources are aggregated in RO" ;
-            minim:showfail "File as part %(file)s is not aggregated in RO" ;
-            minim:showmiss "No file as part definitions are present" ;
-        ] ;
-    minim:seq "030" .
+<#req_foreach_aggregated> a minim:ContentMatchRequirementRule ;
+    minim:forall "?file rdf:type ex:Part" ;
+    minim:showpass "All file as part resources are aggregated in RO" ;
+    minim:showfail "File as part %(file)s is not aggregated in RO" ;
+    minim:showmiss "No file as part definitions are present" ;
+    .
 
-<#req_foreach_accessible> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:forall "?file rdf:type ex:Part" ;
-            minim:showpass "All file as part resources are accessible (live)" ;
-            minim:showfail "File as part %(file)s is not accessible" ;
-            minim:showmiss "No file as part definitions are present" ;
-        ] ;
-    minim:seq "040" .
+<#req_foreach_accessible> a minim:ContentMatchRequirementRule ;
+    minim:forall "?file rdf:type ex:Part" ;
+    minim:showpass "All file as part resources are accessible (live)" ;
+    minim:showfail "File as part %(file)s is not accessible" ;
+    minim:showmiss "No file as part definitions are present" ;
+    .
 
-<#req_min> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:forall "?file rdf:type ex:Part" ;
-            minim:min 3 ;
-            minim:showpass "At least 3 file as part values are present" ;
-            minim:showfail "Fewer than 3 file as part values are present" ;
-        ] ;
-    minim:seq "040",
-        "050" .
+<#req_min> a minim:ContentMatchRequirementRule ;
+    minim:forall "?file rdf:type ex:Part" ;
+    minim:min 3 ;
+    minim:showpass "At least 3 file as part values are present" ;
+    minim:showfail "Fewer than 3 file as part values are present" ;
+    .
 
-<#req_max> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:ContentMatchRequirementRule ;
-            minim:forall "?file rdf:type ex:Part" ;
-            minim:max 3 ;
-            minim:showpass "At most 3 file as part values are present" ;
-            minim:showfail "At more than 3 file as part values are present" ;
-        ] ;
-    minim:seq "050",
-        "060" .
+<#req_max> a minim:ContentMatchRequirementRule ;
+    minim:forall "?file rdf:type ex:Part" ;
+    minim:max 3 ;
+    minim:showpass "At most 3 file as part values are present" ;
+    minim:showfail "At more than 3 file as part values are present" ;
+    .
 
-<#req_python> a minim:Requirement ;
-    minim:isDerivedBy 
-        [ a minim:SoftwareEnvironmentRule ;
-            minim:command "python --version" ;
-            minim:response "^Python 2\\.7.*$" ;
-            minim:showpass "Python 2.7.x present" ;
-            minim:showfail "Python 2.7.x not present" ;
-        ] ;
-    minim:seq "070" .
+<#req_python> a minim:SoftwareEnvironmentRule ;
+    minim:command "python --version" ;
+    minim:response "^Python 2\\.7.*$" ;
+    minim:showpass "Python 2.7.x present" ;
+    minim:showfail "Python 2.7.x not present" ;
+    .
 
 # End.

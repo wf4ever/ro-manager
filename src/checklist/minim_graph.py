@@ -48,8 +48,11 @@ class Minim_graph(object):
             self._minimgr.add( (model, level, item) )
         return model
 
-    def item(self, seq=None, level="MUST", reqid=None):
-        item = rdflib.URIRef(reqid, base=self._base)
+    def item(self, seq=None, level="MUST", ruleid=None):
+        item = rdflib.BNode()
+        rule = rdflib.URIRef(ruleid, base=self._base)
+        self._minimgr.add( (item, RDF.type, MINIM.Requirement) )
+        self._minimgr.add( (item, MINIM.isDerivedBy, rule) )
         if seq:
             self._minimgr.add( (item, MINIM.seq, rdflib.Literal(seq)) )
         levelmap = (
@@ -60,14 +63,11 @@ class Minim_graph(object):
         return (levelmap[level], item)
 
     def rule(self,
-             reqid, ForEach=None, Exists=None, Min=0, Max=None, 
+             ruleid, ForEach=None, Exists=None, Min=0, Max=None, 
              Aggregates=None, IsLive=None, 
              Command=None, Response=None,
              Show=None, Pass="None", Fail="None", NoMatch="None"):
-        item = rdflib.URIRef(reqid, base=self._base)
-        rule = rdflib.BNode()
-        self._minimgr.add( (item, RDF.type, MINIM.Requirement) )
-        self._minimgr.add( (item, MINIM.isDerivedBy, rule) )
+        rule = rdflib.URIRef(ruleid, base=self._base)
         if ForEach:
             ruletype = MINIM.ContentMatchRequirementRule
             self._minimgr.add( (rule, MINIM.forall, rdflib.Literal(ForEach)) )

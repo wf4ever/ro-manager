@@ -51,7 +51,11 @@ class Grid(object):
         return self._baseuri
     def resolveUri(self, uriref):
         # return ro_uriutils.resolveUri(uriref, self._baseuri)
-        return urlparse.urljoin(self._baseuri, uriref)
+        endswithhash = uriref.endswith("#")
+        resolveduri  = urlparse.urljoin(self._baseuri, uriref)
+        if endswithhash and not resolveduri.endswith("#"):
+            resolveduri = resolveduri + "#"
+        return resolveduri
     def cell(self, row, col):
         assert False, "Unimplemented 'cell' method"
     def __getitem__(self, row):
