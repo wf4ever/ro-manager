@@ -64,7 +64,6 @@
 <#req_foreach_aggregated> a minim:Requirement ;
     minim:isDerivedBy 
         [ a minim:ContentMatchRequirementRule ;
-            minim:derives <#req_foreach_aggregated> ;
             minim:forall "?file rdf:type ex:Part" ;
             minim:showpass "All file as part resources are aggregated in RO" ;
             minim:showfail "File as part %(file)s is not aggregated in RO" ;
@@ -75,7 +74,6 @@
 <#req_foreach_accessible> a minim:Requirement ;
     minim:isDerivedBy 
         [ a minim:ContentMatchRequirementRule ;
-            minim:derives <#req_foreach_accessible> ;
             minim:forall "?file rdf:type ex:Part" ;
             minim:showpass "All file as part resources are accessible (live)" ;
             minim:showfail "File as part %(file)s is not accessible" ;

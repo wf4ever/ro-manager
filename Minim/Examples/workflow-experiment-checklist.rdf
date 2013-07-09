@@ -121,7 +121,6 @@
         </minim:exists>
         <minim:showpass>Experiment hypothesis is present</minim:showpass>
         <minim:showfail>Experiment hypothesis is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_hypothesys" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>010</minim:seq>
@@ -136,7 +135,6 @@
         </minim:exists>
         <minim:showpass>Workflow design sketch is present</minim:showpass>
         <minim:showfail>Workflow design sketch is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_sketch" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>011</minim:seq>
@@ -157,7 +155,6 @@
         <minim:showpass>All workflow definitions are accessible</minim:showpass>
         <minim:showfail>The definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:showmiss>No workflow definitions are present</minim:showmiss>
-        <minim:derives rdf:resource="#WF_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>027</minim:seq>
@@ -186,7 +183,6 @@
         <minim:showfail___>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail___>
         <minim:showfail>One or more web services used by one of the workflows are inaccessible, including &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt;</minim:showfail>
         <minim:showmiss___>No workflow services are referenced</minim:showmiss___>
-        <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>028</minim:seq>
@@ -201,7 +197,6 @@
         </minim:exists>
         <minim:showpass>Input data is present</minim:showpass>
         <minim:showfail>Input data is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_inputdata" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>030</minim:seq>
@@ -216,7 +211,6 @@
         </minim:exists>
         <minim:showpass>Experiment conclusions are present</minim:showpass>
         <minim:showfail>Experiment conclusions are not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_conclusion" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>062</minim:seq>

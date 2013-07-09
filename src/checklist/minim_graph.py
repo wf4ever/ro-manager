@@ -99,7 +99,6 @@ class Minim_graph(object):
             self._minimgr.add( (rule, MINIM.showfail, rdflib.Literal(Fail)) )
         if NoMatch:
             self._minimgr.add( (rule, MINIM.showmiss, rdflib.Literal(NoMatch)) )
-        self._minimgr.add( (rule, MINIM.derives, item) )
         return rule
 
     def serialize(self, outstr, format="turtle"):

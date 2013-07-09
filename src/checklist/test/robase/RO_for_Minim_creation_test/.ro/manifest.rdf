@@ -13,7 +13,7 @@
             <dcterms:title>RO for Minim creation test</dcterms:title>
             <dcterms:description>RO for Minim creation test</dcterms:description>
             <dcterms:creator>Test User</dcterms:creator>
-            <dcterms:created>2013-07-09T14:47:55</dcterms:created>
+            <dcterms:created>2013-07-09T15:39:03</dcterms:created>
             <!-- self-reference to include above details as annotation -->
             <ore:aggregates>
               <ro:AggregatedAnnotation>
