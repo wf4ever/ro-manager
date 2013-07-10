@@ -63,6 +63,7 @@ def mkminim(grid, baseuri=None):
                 return (2, None)
             mgr.rule(rq["reqid"], 
                 ForEach=rq["foreach"], 
+                ResultMod=rq.get("result_mod"),
                 Exists=rq.get("exists"),
                 Min=rq.get("min"),
                 Max=rq.get("max"), 

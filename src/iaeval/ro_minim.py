@@ -218,7 +218,8 @@ def getRequirements(minimgraph, modeluri):
                 rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['querytestrule'] = rule
             else:
-                assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
+                assert False, ("Unrecognized rule type %s for requirement %s, rule %s"%
+                               (str(ruletype), str(o), ruleuri))
         return req
     for stmt in minimgraph.triples( (modeluri, None, None) ):
         pred_level_list = (

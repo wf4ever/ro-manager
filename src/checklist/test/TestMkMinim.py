@@ -153,6 +153,13 @@ class TestMkMinim(TestROSupport.TestROSupport):
         self.assertEquals(d["requirements"][0]["fail"],             'File as part does not exist')
         self.assertEquals(d["requirements"][0].get("miss"),         None)
 
+        self.assertEquals(d["requirements"][1]["reqid"],            '#req_foreach_exists')
+        self.assertEquals(d["requirements"][1]["foreach"],          '?file rdf:type ex:Part')
+        self.assertEquals(d["requirements"][1]["result_mod"],       'ORDER BY ?file')
+        self.assertEquals(d["requirements"][1]["exists"],           '?file ex:partOf [ rdf:type ex:Whole ]')
+        self.assertEquals(d["requirements"][1]["pass"],             'Files as part are partOf some indicated whole')
+        self.assertEquals(d["requirements"][1]["fail"],             'File as part %(file)s is not part of some whole')
+
         self.assertEquals(d["requirements"][2]["reqid"],            '#req_foreach_aggregated')
         self.assertEquals(d["requirements"][2]["foreach"],          '?file rdf:type ex:Part')
         self.assertEquals(d["requirements"][2]["aggregates"],       '{+file}')

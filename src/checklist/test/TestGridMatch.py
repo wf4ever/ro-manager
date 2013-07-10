@@ -153,7 +153,7 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(c, 3,  "newcol mismatch")
         base = self.base
         self.assertEquals(d["model_uri"], base+"experiment_complete_model", "model_uri (%s)"%(d["model_uri"]))
-        self.assertEquals(d["item"][0]["seq"],      "010",                          "seq[0]"  )
+        self.assertEquals(d["item"][0]["seq"],      "010",                          "seq[0] (%s)"%(d["item"][0]["seq"])  )
         self.assertEquals(d["item"][0]["level"],    "SHOULD",                       "level[0]")
         self.assertEquals(d["item"][0]["req_uri"],  base+"RO_has_hypothesis",       "seq[0]"  )
         self.assertEquals(d["item"][1]["seq"],      "020",                          "seq[1]"  )
@@ -178,7 +178,7 @@ class TestGridMatch(unittest.TestCase):
         Test match of full checklist using the defined checklist template
         """
         (d,(r,c)) = checklist_template.checklist.match(self.grid, 0, 0)
-        self.assertEquals(r, 71, "newrow (%d)"%(r))
+        self.assertEquals(r, 72, "newrow (%d)"%(r))
         self.assertEquals(c, 1,  "newcol (%d)"%(c))
         base = self.base
         ### print repr(d)
@@ -204,6 +204,9 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["models"][0]["items"][1]["seq"],    '020',              "Model[1] Item[2] seq")
         self.assertEquals(d["models"][0]["items"][1]["level"],  'SHOULD',           "Model[1] Item[2] level")
         self.assertEquals(d["models"][0]["items"][1]["reqid"],  '#RO_has_sketch',   "Model[1] Item[2] reqid")
+        self.assertEquals(d["models"][0]["items"][3]["seq"],    '040',              "Model[1] Item[2] seq")
+        self.assertEquals(d["models"][0]["items"][3]["level"],  'MUST',             "Model[1] Item[2] level")
+        self.assertEquals(d["models"][0]["items"][3]["reqid"],  '#WF_services_accessible', "Model[1] Item[2] reqid")
 
         self.assertEquals(d["models"][1]["modelid"],       '#wf_accessible_model',    "Model[2] id")
         self.assertEquals(len(d["models"][1]["items"]), 1, "Model[2] item count")
@@ -219,10 +222,18 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["requirements"][0].get("miss"),     None)
         self.assertEquals(d["requirements"][2]["reqid"],        '#WF_accessible')
         self.assertEquals(d["requirements"][2]["foreach"],      '?wf rdf:type wfdesc:Workflow ;\n  rdfs:label ?wflab ;\n  wfdesc:hasWorkflowDefinition ?wfdef')
+        self.assertEquals(d["requirements"][2].get("result_mod"), None)       
         self.assertEquals(d["requirements"][2]["islive"],       '{+wfdef}')
         self.assertEquals(d["requirements"][2]["pass"],         'All workflow definitions are accessible')
         self.assertEquals(d["requirements"][2]["fail"],         'The definition for workflow <i>%(wflab)s</i> is not accessible')
         self.assertEquals(d["requirements"][2]["miss"],         'No workflow definitions are present')
+        self.assertEquals(d["requirements"][3]["reqid"],        '#WF_services_accessible')
+        self.assertEquals(d["requirements"][3]["foreach"],      '?pr rdf:type wfdesc:Process ;\n  rdfs:label ?prlab .\n    { ?pr wf4ever:serviceURI ?pruri }\n  UNION\n    { ?pr wf4ever:wsdlURI ?pruri }')
+        self.assertEquals(d["requirements"][3]["result_mod"],   'ORDER BY ?prlab')       
+        self.assertEquals(d["requirements"][3]["islive"],       '{+pruri}')
+        self.assertEquals(d["requirements"][3]["pass"],         'All web services used by workflows are accessible')
+        self.assertEquals(d["requirements"][3]["fail"],         'One or more web services used by a workflow are inaccessible, including <a href="%(pruri)s"><i>%(prlab)s</i></a>')
+        self.assertEquals(d["requirements"][3]["miss"],         'No web services are referenced by any workflow')
 
         return
 

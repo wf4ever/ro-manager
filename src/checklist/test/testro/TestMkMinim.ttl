@@ -51,9 +51,9 @@
 
 <#req_foreach_exists> a minim:QueryTestRule ;
     minim:query
-        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+        [ minim:sparql_query "?file rdf:type ex:Part" ; minim:result_mod  "ORDER BY ?file" ] ;
     minim:exists
-        [ minim:sparql_query "?file ex:partOf [ rdf:type ex:Whole ] " ] ;
+        [ minim:sparql_query "?file ex:partOf [ rdf:type ex:Whole ]" ] ;
     minim:showpass "Files as part are partOf some indicated whole" ;
     minim:showfail "File as part %(file)s is not part of some whole" ;
     .

@@ -74,7 +74,7 @@ class Minim_graph(object):
             self._minimgr.add( (rule, MINIM.query, querynode) )
             self._minimgr.add( (querynode, MINIM.sparql_query, rdflib.Literal(ForEach)) )
             if ResultMod:
-                self._minimgr.add( (querynode, MINIM.result_mod, rdflib.Literal(Exists)) )
+                self._minimgr.add( (querynode, MINIM.result_mod, rdflib.Literal(ResultMod)) )
             if Exists:
                 existsnode = rdflib.BNode()
                 self._minimgr.add( (rule, MINIM.exists, existsnode) )

@@ -38,6 +38,7 @@ model = ( text("Model:").skipdownto()
 models = model.repeatdown("models", min=1)
 
 matchforeach = ( (text("ForEach:") + regexval(".+", "foreach"))
+    // (text("ResultMod:")  + regexval(".+", "result_mod")).optional()
     // (text("Exists:")     + regexval(".+", "exists")).optional()
     // (text("Aggregates:") + regexval(".+", "aggregates")).optional()
     // (text("IsLive:")     + regexval(".+", "islive")).optional()
