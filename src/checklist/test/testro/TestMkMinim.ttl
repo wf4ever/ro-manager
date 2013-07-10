@@ -42,42 +42,51 @@
         [ minim:seq "040" ; minim:isDerivedBy <#req_max> ],
         [ minim:seq "050" ; minim:isDerivedBy <#req_min> ].
 
-<#req_exists> a minim:ContentMatchRequirementRule ;
-    minim:exists "?file rdf:type ex:Part" ;
+<#req_exists> a minim:QueryTestRule ;
+    minim:exists
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
     minim:showpass "File exists as a part" ;
     minim:showfail "File as part does not exist" ;
     .
 
-<#req_foreach_exists> a minim:ContentMatchRequirementRule ;
-    minim:forall "?file rdf:type ex:Part" ;
-    minim:exists "?file ex:partOf [ rdf:type ex:Whole ] " ;
+<#req_foreach_exists> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:exists
+        [ minim:sparql_query "?file ex:partOf [ rdf:type ex:Whole ] " ] ;
     minim:showpass "Files as part are partOf some indicated whole" ;
     minim:showfail "File as part %(file)s is not part of some whole" ;
     .
 
-<#req_foreach_aggregated> a minim:ContentMatchRequirementRule ;
-    minim:forall "?file rdf:type ex:Part" ;
+<#req_foreach_aggregated> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:aggregatesTemplate "{+file}" ;
     minim:showpass "All file as part resources are aggregated in RO" ;
     minim:showfail "File as part %(file)s is not aggregated in RO" ;
     minim:showmiss "No file as part definitions are present" ;
     .
 
-<#req_foreach_accessible> a minim:ContentMatchRequirementRule ;
-    minim:forall "?file rdf:type ex:Part" ;
+<#req_foreach_accessible> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:isLiveTemplate "{+pruri}" ;
     minim:showpass "All file as part resources are accessible (live)" ;
     minim:showfail "File as part %(file)s is not accessible" ;
     minim:showmiss "No file as part definitions are present" ;
     .
 
-<#req_min> a minim:ContentMatchRequirementRule ;
-    minim:forall "?file rdf:type ex:Part" ;
+<#req_min> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
     minim:min 3 ;
     minim:showpass "At least 3 file as part values are present" ;
     minim:showfail "Fewer than 3 file as part values are present" ;
     .
 
-<#req_max> a minim:ContentMatchRequirementRule ;
-    minim:forall "?file rdf:type ex:Part" ;
+<#req_max> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
     minim:max 3 ;
     minim:showpass "At most 3 file as part values are present" ;
     minim:showfail "At more than 3 file as part values are present" ;

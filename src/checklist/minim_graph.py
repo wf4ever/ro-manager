@@ -63,16 +63,22 @@ class Minim_graph(object):
         return (levelmap[level], item)
 
     def rule(self,
-             ruleid, ForEach=None, Exists=None, Min=0, Max=None, 
+             ruleid, ForEach=None, ResultMod=None, Exists=None, Min=0, Max=None, 
              Aggregates=None, IsLive=None, 
              Command=None, Response=None,
              Show=None, Pass="None", Fail="None", NoMatch="None"):
         rule = rdflib.URIRef(ruleid, base=self._base)
         if ForEach:
-            ruletype = MINIM.ContentMatchRequirementRule
-            self._minimgr.add( (rule, MINIM.forall, rdflib.Literal(ForEach)) )
+            ruletype  = MINIM.QueryTestRule
+            querynode = rdflib.BNode()
+            self._minimgr.add( (rule, MINIM.query, querynode) )
+            self._minimgr.add( (querynode, MINIM.sparql_query, rdflib.Literal(ForEach)) )
+            if ResultMod:
+                self._minimgr.add( (querynode, MINIM.result_mod, rdflib.Literal(Exists)) )
             if Exists:
-                self._minimgr.add( (rule, MINIM.exists, rdflib.Literal(Exists)) )
+                existsnode = rdflib.BNode()
+                self._minimgr.add( (rule, MINIM.exists, existsnode) )
+                self._minimgr.add( (existsnode, MINIM.sparql_query, rdflib.Literal(Exists)) )
             if Min:
                 self._minimgr.add( (rule, MINIM.min, rdflib.Literal(Min)) )
             if Max:
@@ -82,8 +88,10 @@ class Minim_graph(object):
             if IsLive:
                 self._minimgr.add( (rule, MINIM.isLiveTemplate, rdflib.Literal(IsLive)) )
         elif Exists:
-            ruletype = MINIM.ContentMatchRequirementRule
-            self._minimgr.add( (rule, MINIM.exists, rdflib.Literal(Exists)) )
+            ruletype = MINIM.QueryTestRule
+            existsnode = rdflib.BNode()
+            self._minimgr.add( (rule, MINIM.exists, existsnode) )
+            self._minimgr.add( (existsnode, MINIM.sparql_query, rdflib.Literal(Exists)) )
         elif Command:
             ruletype = MINIM.SoftwareEnvironmentRule
             self._minimgr.add( (rule, MINIM.command, rdflib.Literal(Command)) )

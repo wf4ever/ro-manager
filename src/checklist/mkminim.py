@@ -56,6 +56,11 @@ def mkminim(grid, baseuri=None):
     for rq in d["requirements"]:
         if "foreach" in rq:
             # ForEach ...
+            if not ( rq.get("exists") or rq.get("aggregates") or rq.get("islive") or
+                     rq.get("min") or rq.get("max")):
+                print "Missing 'exists', 'aggregates', 'islive', 'min' or 'max' in 'foreach' rule:"
+                print "- "+repr(rq)
+                return (2, None)
             mgr.rule(rq["reqid"], 
                 ForEach=rq["foreach"], 
                 Exists=rq.get("exists"),

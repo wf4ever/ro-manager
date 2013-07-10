@@ -24,12 +24,14 @@ if __name__ == "__main__":
 
 from MiscLib import TestUtils
 
+from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
+from rocommand.test import StdoutContext
 
 from checklist import gridmatch 
 from checklist import checklist_template 
@@ -55,6 +57,27 @@ class TestMkMinim(TestROSupport.TestROSupport):
 
     def setupConfig(self):
         return self.setupTestBaseConfig(testbase)
+
+    # Annotate RO with metadata file
+    def annotateResource(self, testbase, rodir, resref, annref):
+        """
+        Annotate named resource with named annotation resource
+        Names are appended to the RO directory.
+
+        Returns RO directory.
+        """
+        # $RO annotate $resuri -g $annuri
+        args = [
+            "ro", "annotate", rodir+"/"+resref, "-g", rodir+"/"+annref
+            ]
+        with StdoutContext.SwitchStdout(self.outstr):
+            configdir = self.getConfigDir(testbase)
+            robasedir = self.getRoBaseDir(testbase)
+            status    = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        self.outstr = StringIO.StringIO()
+        return rodir
 
     # Actual tests follow
 
@@ -132,7 +155,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
 
         self.assertEquals(d["requirements"][2]["reqid"],            '#req_foreach_aggregated')
         self.assertEquals(d["requirements"][2]["foreach"],          '?file rdf:type ex:Part')
-        self.assertEquals(d["requirements"][2]["aggregates_urit"],  '{+file}')
+        self.assertEquals(d["requirements"][2]["aggregates"],       '{+file}')
         self.assertEquals(d["requirements"][2]["pass"],             'All file as part resources are aggregated in RO')
         self.assertEquals(d["requirements"][2]["fail"],             'File as part %(file)s is not aggregated in RO')
         self.assertEquals(d["requirements"][2]["miss"],             'No file as part definitions are present')
@@ -148,7 +171,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
 
     def testMkMinim(self):
         self.setupConfig()
-        rodir     = self.createTestRo(testbase, "testro", "RO for Minim creation test", "ro-testMkMinim")
+        rodir     = self.createTestRo(testbase, "testro", "RO for testMkMinim", "ro-testMkMinim")
         rouri     = ro_manifest.getRoUri(rodir)
         # Create minim graph from CSV file
         # NOTE: a base URI may be specoified when decoding the grid or when constructing the minim
@@ -168,9 +191,74 @@ class TestMkMinim(TestROSupport.TestROSupport):
         with open(graphname) as expectfile:
             expectgr.parse(file=expectfile, location=gridbase, format="turtle")
         # Check content of minim graph
-        ### minimgr.serialize(sys.stdout, format="turtle")
+        ###minimgr.serialize(sys.stdout, format="turtle")
         self.checkTargetGraph(minimgr.graph(), expectgr, msg="Not found in constructed minim graph")
 
+        self.deleteTestRo(rodir)
+        return
+
+    def testChecklistEval(self):
+        """
+        Test checklist evaluation with generated Minim file
+        """
+        self.setupConfig()
+        rodir     = self.createTestRo(testbase, "testro", "RO for testMkMinim", "ro-testMkMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateResource(testbase, rodir, "", "FileAnnotations.ttl")
+        rouri     = ro_manifest.getRoUri(rodir)
+        # Create minim graph from CSV file
+        gridname  = "TestMkMinim.csv"
+        griduri   = ro_manifest.getComponentUri(rodir, gridname)
+        gridcsv   = os.path.join(rodir, gridname)
+        gridbase  = "http://example.org/base/"
+        with open(gridcsv, "rU") as gridfile:
+            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+        (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
+        self.assertEquals(status, 0)
+        # Write Minim
+        minimname = "TestMkMinim_minim.ttl"
+        with open(rodir+"/"+minimname, "w") as minimfile:
+            minimgr.serialize(minimfile, format="turtle")
+        # Evaluate checklist
+        minimuri = ro_manifest.getComponentUri(rodir, minimname)
+        minimpurpose = "test1"
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , minimname
+               , minimpurpose
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: %s"%(status, outtxt))
+        # print "@@@@@@@@"
+        # print outtxt
+        # print "@@@@@@@@"
+        # Check response returned
+        expect = (
+            [ "Research Object file://%s/:"%(rodir)
+            , "Fully complete for test1 of resource ."
+            , "Satisfied requirements:"
+            , "  At least 3 file as part values are present"
+            , "  At most 3 file as part values are present"
+            , "  All file as part resources are accessible (live)"
+            , "  All file as part resources are aggregated in RO"
+            , "  Python 2.7.x present"
+            , "  Files as part are partOf some indicated whole"
+            , "  File exists as a part"
+            , "Research object URI:     %s"%(rouri)
+            , "Minimum information URI: %s"%(minimuri)
+            ])
+        self.outstr.seek(0)
+        for line in self.outstr:
+            self.assertIn(str(line)[:-1], expect)
         self.deleteTestRo(rodir)
         return
 
@@ -209,6 +297,7 @@ def getTestSuite(select="unit"):
             , "testGridRead"
             , "testGridMatch"
             , "testMkMinim"
+            , "testChecklistEval"
             ],
         "component":
             [ "testComponents"
