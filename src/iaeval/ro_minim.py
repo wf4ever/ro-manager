@@ -198,20 +198,24 @@ def getRequirements(minimgraph, modeluri):
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
             elif ruletype == MINIM.QueryTestRule:
-                query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
-                assert query, "QueryTestRule for requirement %s has no query"%(o)
+                query  = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                assert query or exists, "QueryTestRule for requirement %s/rule %s has no query"%(o, ruleuri)
                 rule['prefixes']     = list(getPrefixes(minimgraph))
-                rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
-                rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                if query:
+                    rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                    rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                else:
+                    rule['query']        = None
+                    rule['resultmod']    = None
+                if exists:
+                    rule['exists']   = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists']   = None
                 rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
                 rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
                 rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
-                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
-                if exists:
-                    rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
-                else:
-                    rule['exists'] = None
                 req['querytestrule'] = rule
             else:
                 assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
