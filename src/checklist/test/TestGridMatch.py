@@ -219,7 +219,7 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["requirements"][0].get("miss"),     None)
         self.assertEquals(d["requirements"][2]["reqid"],        '#WF_accessible')
         self.assertEquals(d["requirements"][2]["foreach"],      '?wf rdf:type wfdesc:Workflow ;\n  rdfs:label ?wflab ;\n  wfdesc:hasWorkflowDefinition ?wfdef')
-        self.assertEquals(d["requirements"][2]["islive_urit"],  '{+wfdef}')
+        self.assertEquals(d["requirements"][2]["islive"],       '{+wfdef}')
         self.assertEquals(d["requirements"][2]["pass"],         'All workflow definitions are accessible')
         self.assertEquals(d["requirements"][2]["fail"],         'The definition for workflow <i>%(wflab)s</i> is not accessible')
         self.assertEquals(d["requirements"][2]["miss"],         'No workflow definitions are present')
