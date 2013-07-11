@@ -140,7 +140,7 @@ def parseCommandArgs(argv):
     parser.add_argument("-o", "--output",
                         dest="outformat",
                         default="turtle",
-                        help="Output format to generate: ...")
+                        help="Output format to generate: xml, turtle, n3, etc.  Default: 'turtle'.")
     parser.add_argument("--debug",
                         action="store_true", 
                         dest="debug", 
