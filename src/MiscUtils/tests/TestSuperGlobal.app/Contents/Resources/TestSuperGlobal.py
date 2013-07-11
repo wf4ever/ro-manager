@@ -8,7 +8,7 @@ import sys
 import unittest
 
 sys.path.append("../..")
-from MiscLib.SuperGlobal import *
+from MiscUtils.SuperGlobal import *
 
 class TestSuperGlobal(unittest.TestCase):
 

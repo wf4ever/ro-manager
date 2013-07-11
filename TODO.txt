@@ -26,6 +26,8 @@ TODO:
 ** Target specification is very error prone
 ** Error handling when target not found is poor
 
+* Mechanism to define new SPARQL prefixes in Minim file/model
+
 * ro users
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
@@ -45,7 +47,6 @@ Technical debt:
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
 - refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to show this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
-- refactor minim so that checklist ordering is defined by model, not rules
 - remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
 - new test cases for evaluation
 - Check out rdflib sparql query bnode bug - is it fixed?
@@ -54,15 +55,19 @@ Technical debt:
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
 - See also decay detection with checklist ???
 - replace sparql prefixes in TrafficLightReports.py
-- add minim:query_select to minim model & ontology & diagram
 - format guessing: see http://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html#rdflib.util.guess_format
 - Minim liveness follows redirection?
-- Update home page of web service; esp links; also link to API description in wf4ever wiki
 - Fix bug in checklist evaluation service with wrong content negotiated type - wrong response if content negotiate for bad type
-- Namespace test in checklist eval (cf. qSKOS) - can do with DSPARQL 1.1?
+- Namespace test in checklist eval (cf. qSKOS) - can do with SPARQL 1.1?
 
 
 ----
+
+WONTDO
+
+Technical debt:
+- add minim:query_select to minim model & ontology & diagram
+
 
 DONE
 
@@ -73,6 +78,9 @@ Technical debt:
 -- eliminate these from model as they seem to serve no purpose.
 -- Start by removing code in minim.py, then chase through test case failures.
 -- Finally, remove from all minim model files.
+- refactor minim so that checklist ordering is defined by model, not rules
+-- (sort-of done: Minim creator uses bklank node for Requirements, and labels the rules.)
+- Update home page of web service; esp links; also link to API description in wf4ever wiki
 
 
 * ro eval checklist

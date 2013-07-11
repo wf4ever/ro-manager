@@ -13,7 +13,7 @@ import unittest
 testAllNetMasks = ["193.123.216.64/26" ]
 
 sys.path.append("../..")
-from MiscLib.NetUtils import *
+from MiscUtils.NetUtils import *
 
 class TestNetUtils(unittest.TestCase):
     def setUp(self):

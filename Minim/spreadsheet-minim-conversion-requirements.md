@@ -117,9 +117,7 @@ See also: [http://answers.semanticweb.com/questions/2476/popular-tools-to-migrat
 
 [http://www.sysmo-db.org/rightfield]()
 
-At first appearance, Rightfield seems to be limited to associating single cells with Ontology subclasses or individuals of a specified class, and contraining the cell contents accordingly.  There's also some mention of generating an RDF statement for sucvh a cell using a specified property, but I haven't been able to find out how that works.  As such, I don't see it handling any of the requirements listed here.
-
-(@@ Have posted a question to the Rightfield group to check I'm not missing anything)
+At first appearance, Rightfield seems to be limited to associating single cells with Ontology subclasses or individuals of a specified class, and contraining the cell contents accordingly.  There's also some mention of generating an RDF statement for sucvh a cell using a specified property, but I haven't been able to find out how that works.  As such, I don't see it handling any of the requirements listed here.  A query to the Rightfield support group confirms that what I'm trying to do is not within Rightfield's design remit.
 
 ## Ontomaton
 
@@ -127,13 +125,15 @@ At first appearance, Rightfield seems to be limited to associating single cells 
 
 As far as I can tell, this tool is lmited to locating and resticting free text cells to contain terms from an ontology.  I don't see anything about generating RDF from the resulting spreadsheet.
 
-I see nothing to indicate that this tool will begin to addressz the requirements of spreadsheet-to-checklist conversion.
+I see nothing to indicate that this tool will begin to address the requirements of spreadsheet-to-checklist conversion.
 
 ## XLWrap
 
 [http://xlwrap.sourceforge.net]()
 
-This tool seems to have the kind iof transfiormation capabilities needed, but they seem to be based on specified cell tranghes.  I see no way to apply trasformations based on matches found in the content of the spreadsheet (e.g. cells containing "Model:", "Rule:", etc. in the above examples).
+This tool seems to have the kind iof transfiormation capabilities needed, but they seem to be based on specified cell tranghes.
+I see no way to apply trasformations based on matches found in the content of the spreadsheet 
+(e.g. cells containing "Model:", "Rule:", etc. in the above examples).
 
 ## OwlPopulous
 
@@ -141,7 +141,9 @@ This tool seems to have the kind iof transfiormation capabilities needed, but th
 
 [http://e-lico.eu/populous.html]()
 
-This tool appears to have some of the required mapping caoabiulities, but seems to be intebnded for generaiting OWL ontologies rather than generic RDF.  Documentation is provided only as a video of the tool in use, which isn't very helpful.
+This tool appears to have some of the required mapping caoabiulities, 
+but seems to be intebnded for generaiting OWL ontologies rather than generic RDF.
+Documentation is provided only as a video of the tool in use, which isn't very helpful.
 
 ## RDF123
 
@@ -169,6 +171,12 @@ Can't figure out what it does.
 
 This is promising as it makes the full expressive power of SPARQL available for converting tabular data.  But the CSV input is treated as a table of bindings, so we're stuck with the view of spreadsheet data as independent rows.
 
+## OpenRefine
+
+[http://openrefine.org]()
+
+A veritable swiss-army-knife of a tool, that seems to be aimed primarily at cleaning of tabular data.  It does seem to support some flexible pattern-match-driven data transformation capabilities.  As with other tools for processing tabular data, it is very focused on the row/column structure, and I could find no facility for matching patterns that extend over multiple rows.  It's possible that such features could be added, but that would involve a significant learning curve for understanding how to extend the system.
+
 ## Others
 
 I glanced briefly at a number of other spreadsheet/tabular data conversion tools, and as far as I could tell they were (maybe unsurporisingly) all very much focused on treating each row as an independent record to be converted.  The designed format for checklist-in-spreadsheets captures a structure that is somewhat deeper than tabular data, and as such uses multiple rows to encode a information about a common entity, such as a rule.
@@ -190,6 +198,7 @@ An additional wrinkle is introduced by requirement 2: repeated values.  Two appr
 
 Implementation of the templkate matching could be handled by a Parsec/pyParsing style combinator library, which would allow the initial implementation to be focused on immediate needs, and functionality to be added in as needed.
 
-
+See also:
+* [checklist/README.md](../src/checklist/README.md)
 
 

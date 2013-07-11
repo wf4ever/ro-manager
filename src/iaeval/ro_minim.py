@@ -29,7 +29,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             # Requirement and properties
             , "Requirement"
-            , "derives", "reports", "isDerivedBy"
+            , "isDerivedBy"
             , "show", "showpass", "showfail", "showmiss", "seq"
             # Rules and properties
             , "RequirementRule"
@@ -173,8 +173,7 @@ def getRequirements(minimgraph, modeluri):
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
             rule = (
-                { 'derives':    minimgraph.value(subject=ruleuri, predicate=MINIM.derives) 
-                , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
+                { 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
@@ -199,23 +198,28 @@ def getRequirements(minimgraph, modeluri):
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
             elif ruletype == MINIM.QueryTestRule:
-                query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
-                assert query, "QueryTestRule for requirement %s has no query"%(o)
+                query  = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                assert query or exists, "QueryTestRule for requirement %s/rule %s has no query"%(o, ruleuri)
                 rule['prefixes']     = list(getPrefixes(minimgraph))
-                rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
-                rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                if query:
+                    rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                    rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                else:
+                    rule['query']        = None
+                    rule['resultmod']    = None
+                if exists:
+                    rule['exists']   = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists']   = None
                 rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
                 rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
                 rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
-                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
-                if exists:
-                    rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
-                else:
-                    rule['exists'] = None
                 req['querytestrule'] = rule
             else:
-                assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
+                assert False, ("Unrecognized rule type %s for requirement %s, rule %s"%
+                               (str(ruletype), str(o), ruleuri))
         return req
     for stmt in minimgraph.triples( (modeluri, None, None) ):
         pred_level_list = (

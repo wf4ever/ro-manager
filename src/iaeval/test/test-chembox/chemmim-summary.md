@@ -61,7 +61,6 @@ The same requirement would be expressed in Minim thus:
             """
           minim:showpass "Synonym is present" ;
           minim:showfail "No synonym is present" ;
-          minim:derives :Synonym
         ] .
 
 where the value of `minim:exists` is the body of a SPARQL ASK query.  The MiM rule that reports a value and the requirement that the value be reported are combined here into a single `minim:Requirement` structure.
@@ -114,7 +113,6 @@ The same requirement would be expressed in a Minim requirement thus (not incorpo
             """
           minim:showpass "InChI identifier is present" ;
           minim:showfail "No InChI identifier is present" ;
-          minim:derives :InChI
         ] .
 
 In the Minim case, the datatype checking is performed within the SPARQL query.  The current version of the checklist tool does not support this, as the datatype function is not supported by the SPARQL query engine used.
@@ -170,7 +168,6 @@ The same requirement would be expressed in a Minim requirement thus (not incorpo
             """
           minim:showpass "ChemSpider identifier is present" ;
           minim:showfail "No ChemSpider identifier is present" ;
-          minim:derives :ChemSpider
         ] .
 
 Note: "FILTERs eliminate any solutions that, when substituted into the expression, either result in an effective boolean value of false or produce an error" -- http://www.w3.org/TR/rdf-sparql-query/#tests.  Thus, only valid integers will be accepted.
@@ -240,7 +237,6 @@ Assuming SPARQL 1.1 path expression support, this might be represented in Minim 
             """
           minim:showpass "MeltingPoint is present" ;
           minim:showfail "No MeltingPoint is present" ;
-          minim:derives :MeltingPoint
         ] .
 
 This could be expressed equivalently using SPARQL 1.0 as a 6-way UNION query.

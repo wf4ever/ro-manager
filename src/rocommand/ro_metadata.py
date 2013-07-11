@@ -15,7 +15,7 @@ import traceback
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -300,14 +300,17 @@ class ro_metadata(object):
             return re.match("\.|.*/\.", f) == None
         log.debug("addAggregatedResources: roref %s, file %s"%(self.roref, ro_file))
         self.getRoFilename()  # Check that we have one
-        basedir = os.path.abspath(self.roref)
+        basedir = os.path.abspath(self.roref)+os.path.sep
+        ### print "- ro_file: %s"%(ro_file)
         if os.path.isdir(ro_file):
             ro_file = os.path.abspath(ro_file)+os.path.sep
+            ### print "- ro_file: %s"%(ro_file)
+            ### print "- basedir: %s"%(basedir)
             #if ro_file.endswith(os.path.sep):
             #    ro_file = ro_file[0:-1]
             if recurse:
                 rofiles = filter(notHidden,
-                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, 
+                    MiscUtils.ScanDirectories.CollectDirectoryContents(ro_file, 
                           baseDir=basedir,
                           listDirs=includeDirs, 
                           listFiles=True, 
@@ -315,12 +318,14 @@ class ro_metadata(object):
                           appendSep=True
                           )
                     )
+                log.debug("- rofiles: %s"%(repr(rofiles)))
             else:
                 rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
         else:
             rofiles = [self.getComponentUriRel(ro_file)]
         s = self.getRoUri()
         for f in rofiles:
+            ### print "- file %s"%f
             log.debug("- file %s"%f)
             stmt = (s, ORE.aggregates, self.getComponentUri(f))
             if stmt not in self.manifestgraph: self.manifestgraph.add(stmt)

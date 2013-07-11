@@ -2,7 +2,7 @@
 
 import sys, os, os.path
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 def runTestSuite():
     """

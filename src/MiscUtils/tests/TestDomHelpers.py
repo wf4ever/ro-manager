@@ -11,7 +11,7 @@ from os import *
 from os.path import *
 
 sys.path.append("../..")
-from MiscLib.DomHelpers import *
+from MiscUtils.DomHelpers import *
 
 class TestDomHelpers(unittest.TestCase):
 

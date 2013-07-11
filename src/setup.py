@@ -39,9 +39,9 @@ setup(
     url=URL,
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
-               ,'MiscLib'
+               ,'checklist','checklist.test'
+               ,'MiscUtils'
                ,'samples'
-               # ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
                ],
     package_data = {
         'rocommand':    [ 'test/config/*','test/robase/README','test/nobase/README'
@@ -74,6 +74,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
+            'mkminim = checklist.mkminim:runMain',
             'ro-manager-test = rocommand.test.RunRoManagerTests:runTestSuite'
             ],
         },

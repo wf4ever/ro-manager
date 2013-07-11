@@ -159,7 +159,7 @@ def getHostIpsAndMask():
                 # class A
                 result.append( "%i.0.0.0/8" % (byts[0]) )
     except Exception, ex :
-        _log = logging.getLogger('WebBrickLibs.MiscLib.NetUtils')
+        _log = logging.getLogger('WebBrickLibs.MiscUtils.NetUtils')
         _log.exception(ex)
     return result
 

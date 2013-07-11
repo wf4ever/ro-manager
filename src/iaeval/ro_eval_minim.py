@@ -4,7 +4,7 @@
 Research Object evaluation withj respoect to a MINIM description
 """
 
-#import sys
+import sys
 #import os
 #import os.path
 #import urlparse
@@ -222,12 +222,14 @@ def evalContentMatch(rometa, rule, constraintbinding):
     satisfied     = True
     simplebinding = constraintbinding.copy()
     if rule['forall']:
+        log.debug("forall rule: "+repr(rule))
         exists   = rule['exists']
         template = rule['template']
         islive   = rule['islive']
         assert (exists or template or islive), (
-            "minim:forall construct requires "+
-            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+            "minim:forall construct (%(forall)s) requires "%(rule)+
+            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value"+
+            "")
         if template:  template = str(template).strip()
         if islive:    islive   = str(islive).strip()
         queryparams = (
@@ -327,6 +329,14 @@ def evalQueryTest(rometa, rule, constraintbinding):
         """)
     satisfied     = True
     simplebinding = constraintbinding.copy()
+    if rule['exists'] and not rule['query']:
+        # Bare "exists" is syntactic sugar for "query" with "min=1"
+        rule['query']  = rule['exists']
+        rule['exists'] = None
+        rule['min']    = rule['min'] or 1
+    # print >>sys.stderr, "@@@@@@"
+    # print >>sys.stderr, repr(rule)
+    # print >>sys.stderr, "@@@@@@"
     if rule['query']:
         count_min  = rule['min']
         count_max  = rule['max']
@@ -340,7 +350,7 @@ def evalQueryTest(rometa, rule, constraintbinding):
         if islive:      islive   = str(islive).strip()
         queryparams = (
             { 'querybase':    str(rometa.getRoUri())
-            , 'queryverb':    "SELECT * WHERE"
+            , 'queryverb':    "SELECT DISTINCT * WHERE"
             , 'querypattern': rule['query']
             , 'resultmod':    rule['resultmod'] or ""
             })
@@ -546,7 +556,7 @@ def evalResultGraph(graph, evalresult):
         for (req, binding) in results:
             b = rdflib.BNode()
             msg = formatRule(satisfied, req, binding)
-            graph.add( (rouri, satlevel, b) )
+            graph.add( (targeturi, satlevel, b) )
             graph.add( (b, MINIM.tryRequirement, req['uri']) )
             graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
             for k in binding:

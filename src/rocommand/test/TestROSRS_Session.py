@@ -20,7 +20,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from ro_namespaces import RDF, RDFS, ORE, RO, DCTERMS, AO
 from ROSRS_Session import ROSRS_Error, ROSRS_Session, testSplitValues, testParseLinks

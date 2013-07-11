@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_manifest
 from rocommand.ro_metadata import ro_metadata
@@ -265,7 +265,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('ChemSpider identifier is present')
                 , 'showfail':     rdflib.Literal('No ChemSpider identifier is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.satisfied_binding_1 = (
@@ -295,7 +294,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('InChI identifier is present')
                 , 'showfail':     rdflib.Literal('No InChI identifier is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.satisfied_binding_2 = (
@@ -325,7 +323,6 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
                 , 'showpass':     rdflib.Literal('Synonym is present')
                 , 'showfail':     rdflib.Literal('No synonym is present')
                 , 'showmiss':     None
-                , 'derives':      None
                 }
             })
         self.missing_may_binding = (
@@ -420,6 +417,7 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             "complete")                           # Purpose
         resultgr = ro_eval_minim.evalResultGraph(minimgr, evalresult)
         log.debug("------ resultgr:\n%s\n----"%(resultgr.serialize(format='turtle'))) # pretty-xml
+        ## print "------ resultgr:\n%s\n----"%(resultgr.serialize(format='turtle'))
         # Check response returned
         modeluri = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
         prefixes = make_sparql_prefixes()
@@ -429,19 +427,17 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             , '''ASK { <%s> minim:modelUri <%s> }'''%
               (rouri, modeluri)
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
-              (rouri, "InChI identifier is present")
+              (resuri, "InChI identifier is present")
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
-              (rouri, "ChemSpider identifier is present")
+              (resuri, "ChemSpider identifier is present")
             , '''ASK { <%s> minim:missingMay [ minim:tryMessage "%s" ] }'''%
-              (rouri, "No synomym is present")
+              (resuri, "No synomym is present")
             , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (resuri, str(resuri))
-            # , '''ASK { <%s> minim:more <%s> }'''%
-            #   (resuri, rdflib.Literal(str(resuri)))
             ])
         for q in probequeries:
             r = resultgr.query(prefixes+q)

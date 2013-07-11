@@ -59,7 +59,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="README-ro-test-1" />
-            <minim:derives rdf:resource="#isPresent/README-ro-test-1" />
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -71,7 +70,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="minim.rdf" />
-            <minim:derives rdf:resource="#isPresent/minim.rdf" />
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -83,7 +81,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="subdir1/subdir1-file.txt" />
-            <minim:derives rdf:resource="#isPresent/subdir1/subdir1-file.txt" />
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -95,7 +92,6 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="subdir2/subdir2-file.txt" />
-            <minim:derives rdf:resource="#isPresent/subdir2/subdir2-file.txt" />
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>

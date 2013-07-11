@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_utils
 from rocommand import ro_manifest
@@ -198,7 +198,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'softwarerule':
               { 'command':  rdflib.Literal("python -V")
               , 'response': rdflib.Literal("Python 2.7")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/python-27")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/python-27") 
             })
@@ -207,7 +206,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
             , 'datarule':
               { 'aggregates': ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods")
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods") 
             })
@@ -216,7 +214,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/reqs.css")
             , 'datarule':
               { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/reqs.css") 
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css") 
             })
@@ -338,7 +335,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'softwarerule':
               { 'command':  rdflib.Literal("python -V")
               , 'response': rdflib.Literal("Python 2.7")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/Python 2.7")
               , 'show': rdflib.term.Literal('python -V command %(command)s returns %(response)s')
               , 'showfail': None
               , 'showpass': None
@@ -354,7 +350,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
               , 'show':     None
               , 'template': None
               , 'forall':   None
-              , 'derives':  ro_minim.getElementUri(minimbase, "#isPresent/workflow-instance")
               , 'showfail': rdflib.term.Literal('No workflow instance or template found')
               , 'showpass': rdflib.term.Literal('Workflow instance or template found')
               }

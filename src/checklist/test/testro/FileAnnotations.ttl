@@ -1,0 +1,23 @@
+@prefix rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:    <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:     <http://www.w3.org/2002/07/owl#> .
+@prefix xml:     <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd:     <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdfg:    <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix minim:   <http://purl.org/minim/minim#> .
+@prefix ore:     <http://www.openarchives.org/ore/terms/> .
+@prefix ao:      <http://purl.org/ao/> .
+@prefix ro:      <http://purl.org/wf4ever/ro#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex:      <http://example.org/> .
+
+<File1.txt> a ex:Part ;
+	ex:partOf <#whole> .
+
+<File2.txt> a ex:Part ;
+	ex:partOf <#whole> .
+
+<File3.txt> a ex:Part ;
+	ex:partOf <#whole> .
+
+<#whole> a ex:Whole .

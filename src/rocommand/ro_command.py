@@ -7,7 +7,6 @@ Basic command functions for ro, research object manager
 import sys
 import os
 import os.path
-### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
@@ -20,10 +19,6 @@ from ro_utils import EvoType
 from xml.parsers import expat
 from httplib2 import RelativeURIError
 
-###@@TODO:
-###Where did this come from???
-###from _pyio import BytesIO
-
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -32,7 +27,7 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import ro_settings
 import ro_utils
@@ -551,7 +546,7 @@ def list(progname, configbase, options, args):
     if options.all:
         prep_f = "f: "
         prep_a = "a: "
-        rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+        rofiles = MiscUtils.ScanDirectories.CollectDirectoryContents(
                     ro_dir, baseDir=os.path.abspath(ro_dir),
                     listDirs=False, listFiles=True, recursive=True, appendSep=False)
         if not options.hidden:

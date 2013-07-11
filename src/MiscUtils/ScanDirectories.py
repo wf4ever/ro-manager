@@ -9,6 +9,7 @@ import os
 import logging
 
 logger = logging.getLogger("ScanDirectories")
+#logger.setLevel(logging.INFO)
 
 # Scan the sub-directory structure in a given directory
 #
@@ -88,8 +89,10 @@ def CollectDirectoryContents(srcDir, baseDir="",
     if (baseDir != "") and (not baseDir.endswith(os.path.sep)):
         baseDir = baseDir+os.path.sep
     def CollectDir(path):
+        logger.debug("- CollectDir base: %s, path: %s"%(baseDir, path))
         if listDirs: collection.append(path.replace(baseDir,"",1)+dirsuffix)
     def CollectFile(path):
+        logger.debug("- CollectFile base: %s, path: %s"%(baseDir, path))
         if listFiles: collection.append(path.replace(baseDir,"",1))
     ScanDirectoriesEx(srcDir, CollectDir, CollectFile, recursive)
     return collection

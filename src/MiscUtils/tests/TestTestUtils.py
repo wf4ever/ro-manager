@@ -39,7 +39,7 @@ class TestExample(unittest.TestCase):
 
 # Assemble test suite
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 def getTestSuite(select="unit"):
     """

@@ -154,7 +154,6 @@
         </minim:exists>
         <minim:showpass>Experiment hypothesis is present</minim:showpass>
         <minim:showfail>Experiment hypothesis is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_hypothesys" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>010</minim:seq>
@@ -169,7 +168,6 @@
         </minim:exists>
         <minim:showpass>Workflow design sketch is present</minim:showpass>
         <minim:showfail>Workflow design sketch is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_sketch" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>011</minim:seq>
@@ -194,7 +192,6 @@
         </minim:exists>
         <minim:showpass>Workflow is present</minim:showpass>
         <minim:showfail>Workflow is not present.</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_workflow" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>021</minim:seq>
@@ -213,7 +210,6 @@
         </minim:exists>
         <minim:showpass>All workflow labels are present</minim:showpass>
         <minim:showfail>Workflow label for %(wfdef)s is not present</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_label" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>023</minim:seq>
@@ -232,7 +228,6 @@
         </minim:exists>
         <minim:showpass>All workflow titles are present</minim:showpass>
         <minim:showfail>Workflow title for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_title" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>024</minim:seq>
@@ -251,7 +246,6 @@
         </minim:exists>
         <minim:showpass>Descriptive metadata are present for all workflows</minim:showpass>
         <minim:showfail>Description metadata for &lt;i&gt;%(wflab)s &lt;/i&gt; is not present</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_description" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>025</minim:seq>
@@ -271,7 +265,6 @@
         <minim:showpass>Workflow definition are specified for all workflows</minim:showpass>
         <minim:showfail>No workflow definition is specified for &lt;i&gt;%(wflab)s &lt;/i&gt;</minim:showfail>
         <minim:showmiss>No workflows are described</minim:showmiss>
-        <minim:derives rdf:resource="#WF_has_definition" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>026</minim:seq>
@@ -292,7 +285,6 @@
         <minim:showpass>All workflow definitions are accessible</minim:showpass>
         <minim:showfail>The definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
         <minim:showmiss>No workflow definitions are present</minim:showmiss>
-        <minim:derives rdf:resource="#WF_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>027</minim:seq>
@@ -328,7 +320,6 @@
         <!-- Enable this entry to fake inaccessible REST service;
              to be removed when REST service references can be included in  the probe queru -->
         <minim:showmiss___>One or more web services used by one of the workflows are inaccessible, including http://rest.kegg.jp/get/{query}</minim:showmiss___>
-        <minim:derives rdf:resource="#WF_services_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>028</minim:seq>
@@ -347,7 +338,6 @@
         </minim:exists>
         <minim:showpass>Input data is present</minim:showpass>
         <minim:showfail>Input data is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_inputdata" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>030</minim:seq>
@@ -367,7 +357,6 @@
         </minim:exists>
         <minim:showpass>Workflow inputs are described</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s&lt;/i&gt; has no inputs described</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_input" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>031</minim:seq>
@@ -387,7 +376,6 @@
         </minim:exists>
         <minim:showpass>Workflow inputs are labelled</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input %(if)s is not labelled</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_input" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>032</minim:seq>
@@ -409,7 +397,6 @@
         </minim:aggregatesTemplate>
         <minim:showpass>Workflow inputs are aggregated</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input &lt;i&gt;%(iflab)s &lt;/i&gt; is not aggregated</minim:showfail>
-        <minim:derives rdf:resource="#WF_inputs_agregated" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>033</minim:seq>
@@ -431,7 +418,6 @@
         </minim:isLiveTemplate>
         <minim:showpass>Workflow inputs are all accessible</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; input &lt;i&gt;%(iflab)s &lt;/i&gt; is not accessible</minim:showfail>
-        <minim:derives rdf:resource="#WF_inputs_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>034</minim:seq>
@@ -454,7 +440,6 @@
         </minim:exists>
         <minim:showpass>Workflow outputs are described</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; has no outputs specified</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_output" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>041</minim:seq>
@@ -474,7 +459,6 @@
         </minim:exists>
         <minim:showpass>Workflow outputs are labelled</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output %(of)s is not labelled</minim:showfail>
-        <minim:derives rdf:resource="#WF_has_output_label" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>042</minim:seq>
@@ -496,7 +480,6 @@
         </minim:aggregatesTemplate>
         <minim:showpass>Workflow outputs are described and aggregated</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output &lt;i&gt;%(oflab)s &lt;/i&gt; is not aggregated</minim:showfail>
-        <minim:derives rdf:resource="#WF_outputs_aggregated" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>043</minim:seq>
@@ -518,7 +501,6 @@
         </minim:isLiveTemplate>
         <minim:showpass>Workflow outputs are all accessible</minim:showpass>
         <minim:showfail>Workflow &lt;i&gt;%(wflab)s &lt;/i&gt; output &lt;i&gt;%(oflab)s &lt;/i&gt; is not accessible</minim:showfail>
-        <minim:derives rdf:resource="#WF_outputs_accessible" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>044</minim:seq>
@@ -537,7 +519,6 @@
         </minim:exists>
         <minim:showpass>Workflow results figure is present</minim:showpass>
         <minim:showfail>Workflow results figure is not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_result_presentation" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>061</minim:seq>
@@ -552,7 +533,6 @@
         </minim:exists>
         <minim:showpass>Experiment conclusions are present</minim:showpass>
         <minim:showfail>Experiment conclusions are not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_conclusion" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>062</minim:seq>
@@ -571,7 +551,6 @@
         </minim:exists>
         <minim:showpass>Annotations are present</minim:showpass>
         <minim:showfail>Annotations are not present</minim:showfail>
-        <minim:derives rdf:resource="#RO_has_annotations" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>101</minim:seq>
@@ -590,7 +569,6 @@
         </minim:isLiveTemplate>
         <minim:showpass>Annotations bodies are all accessible</minim:showpass>
         <minim:showfail>Annotation body %(abody)s for %(astub)s is not accessible</minim:showfail>
-        <minim:derives rdf:resource="#RO_live_annotations" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
     <minim:seq>102</minim:seq>

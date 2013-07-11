@@ -71,15 +71,6 @@ Note that a purpose is implicit in a checklist object itself, so the purpose is 
         Failure to satisfy a MAY requirement is not considered to be indicative of any problem."
     SubPropertyOf: hasRequirement
     
-  # ObjectProperty: minim:derives
-  #   Annotations:
-  #     rdfs:label "derives",
-  #     rdfs:comment 
-  #       "Indicates a requirement that is derived by a rule."
-  #   Domain: minim:Rule
-  #   Range: minim:Requirement
-  #   InverseOf: minim:isDerivedBy
-    
   ObjectProperty: minim:isDerivedBy
     Annotations:
       rdfs:label "is derived by",

@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
