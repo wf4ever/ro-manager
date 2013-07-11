@@ -44,6 +44,7 @@ Bug in results model.  If the same target is evaluated using the same model in t
 
 Technical debt:
 - Mop up @@TODOs
+- ro-manager-test problem: https://jira.man.poznan.pl/jira/browse/WFE-1154
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
 - refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to show this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
