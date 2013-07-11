@@ -25,5 +25,11 @@
 #__version__ = "0.2.12"      # Fix queries to work with rdflib 4.0.1 and rdflib-sparql
                              # Fix some bugs in RODL synchronization and evolution
                              # Refactor Minim model and add some new capabilities
-__version__ = "0.2.13"      # ...
+__version__ = "0.2.13"      # Implement Minim file creator from spreadsheet description
+                            # Renamed library that was clashing with other installations
+                            # Fixed bugs in processing of refactored Minim model
+                            # Removed all references to minim:derives
+                            # Improve escaping of string values in JSON output
+                            # Updated REST checklisrt service landing page
+                            # Various bug fixes
 

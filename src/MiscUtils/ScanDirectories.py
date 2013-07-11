@@ -9,6 +9,7 @@ import os
 import logging
 
 logger = logging.getLogger("ScanDirectories")
+#logger.setLevel(logging.INFO)
 
 # Scan the sub-directory structure in a given directory
 #
