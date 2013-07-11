@@ -318,7 +318,7 @@ class ro_metadata(object):
                           appendSep=True
                           )
                     )
-                ### print "- rofiles: %s"%(repr(rofiles))
+                log.debug("- rofiles: %s"%(repr(rofiles)))
             else:
                 rofiles = [ro_file.split(basedir+os.path.sep,1)[-1]]
         else:

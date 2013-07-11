@@ -39,6 +39,7 @@ setup(
     url=URL,
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
+               ,'checklist','checklist.test'
                ,'MiscLib'
                ,'samples'
                ],
@@ -73,6 +74,7 @@ setup(
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
+            'mkminim = checklist.mkminim:runMain',
             'ro-manager-test = rocommand.test.RunRoManagerTests:runTestSuite'
             ],
         },

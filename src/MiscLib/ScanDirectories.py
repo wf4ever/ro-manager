@@ -88,9 +88,10 @@ def CollectDirectoryContents(srcDir, baseDir="",
     if (baseDir != "") and (not baseDir.endswith(os.path.sep)):
         baseDir = baseDir+os.path.sep
     def CollectDir(path):
+        log.debug("- CollectDir base: %s, path: %s"%(base, path))
         if listDirs: collection.append(path.replace(baseDir,"",1)+dirsuffix)
     def CollectFile(path):
-        ### print "- collect %s (base %s)"%(path, baseDir)
+        log.debug("- CollectFile base: %s, path: %s"%(base, path))
         if listFiles: collection.append(path.replace(baseDir,"",1))
     ScanDirectoriesEx(srcDir, CollectDir, CollectFile, recursive)
     return collection
