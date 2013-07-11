@@ -279,6 +279,17 @@ The output should look something like this:
 ## Revision history
 
 
+### Changes for V0.2.13
+
+* Implement Minim file creator from spreadsheet description (mkminim command)
+* Renamed library that was clashing with other installations
+* Fixed bugs in processing of refactored Minim model
+* Removed all references to minim:derives
+* Improve escaping of string values in JSON output
+* Updated REST checklisrt service landing page
+* Various bug fixes
+
+
 ### Changes for V0.2.12
 
 * Refactor Minim model and extend checklist evaluation capabilities
