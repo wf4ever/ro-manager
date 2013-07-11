@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Add main project directory at start of python path
     sys.path.insert(0, "../..")
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils

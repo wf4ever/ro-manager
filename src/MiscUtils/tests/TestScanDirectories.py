@@ -11,9 +11,9 @@ import logging
 from os.path import normpath, abspath
 
 sys.path.append("../..")
-from MiscLib.ScanDirectories import CollectDirectoryContents
-from MiscLib.Functions import compareLists
-from MiscLib import TestUtils
+from MiscUtils.ScanDirectories import CollectDirectoryContents
+from MiscUtils.Functions import compareLists
+from MiscUtils import TestUtils
 
 class TestScanDirectories (unittest.TestCase):
 

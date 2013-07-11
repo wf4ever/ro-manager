@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 

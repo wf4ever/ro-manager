@@ -10,8 +10,8 @@ import re
 from os.path import normpath
 
 sys.path.append("../..")
-from MiscLib.ScanFiles import *
-from MiscLib.Functions import compareLists
+from MiscUtils.ScanFiles import *
+from MiscUtils.Functions import compareLists
 
 class TestScanFiles(unittest.TestCase):
     def setUp(self):

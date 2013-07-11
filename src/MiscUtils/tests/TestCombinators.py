@@ -8,7 +8,7 @@ import sys
 import unittest
 
 sys.path.append("../..")
-from MiscLib.Combinators import *
+from MiscUtils.Combinators import *
 
 class TestCombinators(unittest.TestCase):
 

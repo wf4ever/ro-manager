@@ -27,7 +27,7 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import ro_settings
 import ro_utils
@@ -546,7 +546,7 @@ def list(progname, configbase, options, args):
     if options.all:
         prep_f = "f: "
         prep_a = "a: "
-        rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+        rofiles = MiscUtils.ScanDirectories.CollectDirectoryContents(
                     ro_dir, baseDir=os.path.abspath(ro_dir),
                     listDirs=False, listFiles=True, recursive=True, appendSep=False)
         if not options.hidden:

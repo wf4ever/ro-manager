@@ -13,7 +13,7 @@ from ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 #external
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     

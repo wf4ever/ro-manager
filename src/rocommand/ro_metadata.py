@@ -15,7 +15,7 @@ import traceback
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -310,7 +310,7 @@ class ro_metadata(object):
             #    ro_file = ro_file[0:-1]
             if recurse:
                 rofiles = filter(notHidden,
-                    MiscLib.ScanDirectories.CollectDirectoryContents(ro_file, 
+                    MiscUtils.ScanDirectories.CollectDirectoryContents(ro_file, 
                           baseDir=basedir,
                           listDirs=includeDirs, 
                           listFiles=True, 

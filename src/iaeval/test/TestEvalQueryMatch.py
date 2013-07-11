@@ -28,7 +28,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_manifest
 from rocommand.ro_metadata import ro_metadata

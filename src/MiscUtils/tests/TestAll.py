@@ -31,7 +31,7 @@ def getTestSuite(select="unit"):
     suite.addTest(TestSuperGlobal.getTestSuite())
     return suite
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 if __name__ == "__main__":
     TestUtils.runTests("TestAll", getTestSuite, sys.argv)

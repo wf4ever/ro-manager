@@ -10,9 +10,9 @@ import unittest
 from string import upper
 
 sys.path.append("../..")
-from MiscLib.Functions import *
+from MiscUtils.Functions import *
 
-LibName = "MiscLib"
+LibName = "MiscUtils"
 
 class TestFunctions(unittest.TestCase):
     def setUp(self):

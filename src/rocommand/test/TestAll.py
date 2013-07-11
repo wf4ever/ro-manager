@@ -60,7 +60,7 @@ def getTestSuite(select="unit"):
         suite.addTest(TestEvoCommands.getTestSuite(select));
     return suite
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 def runTestSuite():
     """

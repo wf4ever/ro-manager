@@ -40,7 +40,7 @@ setup(
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
                ,'checklist','checklist.test'
-               ,'MiscLib'
+               ,'MiscUtils'
                ,'samples'
                ],
     package_data = {
