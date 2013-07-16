@@ -32,4 +32,4 @@
                              # Improve escaping of string values in JSON output
                              # Updated REST checklisrt service landing page
                              # Various bug fixes
-__version__ = "0.2.14"      # ...
+__version__ = "0.2.14"      # ro list supports URI argument as alternative to directory

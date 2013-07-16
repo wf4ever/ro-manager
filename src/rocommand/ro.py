@@ -60,6 +60,8 @@ def run(configbase, options, args):
         status = ro_command.push(progname, configbase, options, args)
     elif args[1] == "dump":
         status = ro_command.dump(progname, configbase, options, args)
+    elif args[1] == "manifest":
+        status = ro_command.manifest(progname, configbase, options, args)
     elif args[1] == "snapshot":
         status = ro_command.snapshot(progname, configbase, options, args)
     elif args[1] == "archive":

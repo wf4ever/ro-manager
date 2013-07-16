@@ -164,6 +164,8 @@ ro_command_usage = (
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["dump"], argminmax(2, 3),
           ["dump [ -d <dir> | <rouri> ] [ -o <format> ]"])
+    , (["manifest"], argminmax(2, 3),
+          ["manifest [ -d <dir> | <rouri> ] [ -o <format> ]"])
     , (["snapshot"],  argminmax(4, 4),
           ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
     , (["archive"],  argminmax(4, 4),
@@ -958,9 +960,7 @@ def evaluate(progname, configbase, options, args):
 
 def dump(progname, configbase, options, args):
     """
-    Sump RDF of manifest+annotations
-
-    ro dump [ -d dir ] [ -o format ]
+    Dump RDF of annotations
     """
     log.debug("dump: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
@@ -974,20 +974,53 @@ def dump(progname, configbase, options, args):
         rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
         if not rouri: return 1
         if options.verbose:
-            print "ro dump -d \"%(rodir)s\" " % ro_options
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
     else:
         if ro_options['rodir']:
             print ("%s: specify either RO directory or URI, not both" % (cmdname))
             return 1
         rouri = ro_options['rouri']
         if options.verbose:
-            print "ro dump \"%(rouri)s\" " % ro_options
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"
     if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
         format = options.outformat.upper()
     graph = rometa.getAnnotationGraph()
+    graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
+    return 0
+
+def manifest(progname, configbase, options, args):
+    """
+    Dump RDF of manifest
+    """
+    log.debug("manifest: progname %s, configbase %s, args %s" % 
+              (progname, configbase, repr(args)))
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rouri":        (args[2] if len(args) >= 3 else ""),
+        "rodir":        options.rodir or ""
+        }
+    cmdname = progname + " manifest"
+    if not ro_options['rouri']:
+        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
+        if not rouri: return 1
+        if options.verbose:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
+    else:
+        if ro_options['rodir']:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        rouri = ro_options['rouri']
+        if options.verbose:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+    # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, rouri)
+    format = "RDFXML"
+    if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+        format = options.outformat.upper()
+    graph = rometa.getManifestGraph()
     graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
     return 0
 
