@@ -1,0 +1,200 @@
+# http://bramp.github.io/js-sequence-diagrams/
+#
+
+participant User
+participant Client
+participant Server
+participant ROclient
+participant Checklist
+participant ROStore
+participant ROGraph
+participant Web
+
+User->Client: roverlay uri1,uri2,...uriN
+Client->Server: POST http://roverlay.example.org/\nContent-type: text/uri-list
+Note right of Client: uri1\nuri2\n :\nuriN
+Note left of Server: for each uri: 
+Server->Web: GET uri
+Web->Server: Data
+Server->ROStore: Data
+Note left of Server: if Data is RDF
+Server->ROGraph: add data to graph
+Server->Client: 201 Created\nLocation: roURI
+
+
+
+
+# http://www.websequencediagrams.com (free level)
+
+
+title Create Overlay RO
+
+participant User
+participant Client
+participant Server
+participant ROStore
+participant ROGraph
+participant Web
+
+User->+Client: roverlay uri1,uri2,...uriN
+Client->+Server: POST http://roverlay.example.org/\nContent-type: text/uri-list
+note right of Client
+  uri1
+  uri2
+   :
+  uriN
+end note
+
+Server->ROStore: Create RO
+activate ROStore
+
+Server->ROGraph: create graph
+activate ROGraph
+
+loop for each uri
+  Server->Web: HEAD uri
+  Web->Server: Response
+  opt if response OK
+  Server->ROStore: Save URI
+  opt if content-type is RDF
+    Server->Web: GET uri
+    Web->Server: Data
+    Server->ROStore: Save data
+    Server->ROGraph: add data to graph
+  end
+end
+Server->-Client: 201 Created\nLocation: roURI\n Link: <roGraphURI>;rel=rometadata
+Client->-User: display roURI
+
+
+####
+
+title acess Overlay RO
+
+participant ROClient
+note over ROClient: e.g. Checklist service
+participant Server
+participant ROStore
+participant ROGraph
+#participant Web
+
+Server-->>ROStore: Create RO
+activate ROStore
+Server-->>ROGraph: Create RO graph
+activate ROGraph
+
+ROClient->Server: GET roURI
+alt RO exists
+  Server->ROStore: fetch RO details
+  ROStore->Server: RO content
+  Server->ROClient: 200 OK
+  note right of ROClient
+    Manifest data
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+
+ROClient->Server: GET roGraphURI
+alt RO exists
+  Server->ROGraph: fetch RO graph
+  ROGraph->Server:> RO graph
+  Server->ROClient: 200 OK
+  note right of ROClient
+    RO metadata graph
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+
+
+
+
+
+##########################################################
+
+
+
+
+
+
+
+# http://www.websequencediagrams.com (free level)
+
+title Create and Access Overlay RO
+
+participant User
+participant ROClient
+note over ROClient: e.g. Command line client\nor Checklist service
+participant Server
+participant ROStore
+participant ROGraph
+participant Web
+
+# Create
+
+User->+ROClient: roverlay uri1,uri2,...uriN
+ROClient->+Server: POST http://roverlay.example.org/\nContent-type: text/uri-list
+note right of ROClient
+  uri1
+  uri2
+   :
+  uriN
+end note
+
+Server->ROStore: Create RO
+activate ROStore
+
+Server->ROGraph: create graph
+activate ROGraph
+
+loop for each uri
+  Server->Web: HEAD uri
+  Web->Server: Response
+  opt if response OK
+  Server->ROStore: Save URI
+  opt if content-type is RDF
+    Server->Web: GET uri
+    Web->Server: Data
+    Server->ROStore: Save data
+    Server->ROGraph: add data to graph
+  end
+end
+Server->-ROClient: 201 Created\nLocation: roURI\n Link: <roGraphURI>;rel=rometadata
+ROClient->-User: display roURI
+
+# Get RIO manifest
+
+User-->>ROClient:
+activate ROClient 
+ROClient->Server: GET roURI
+alt RO exists
+  Server->ROStore: fetch RO details
+  ROStore->Server: RO content
+  Server->ROClient: 200 OK
+  note right of ROClient
+    Manifest data
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+ROClient-->>User:
+deactivate ROClient
+
+# Get RO graph
+
+User-->>ROClient:
+activate ROClient 
+ROClient->Server: GET roGraphURI
+alt RO exists
+  Server->ROGraph: fetch RO graph
+  ROGraph->Server:> RO graph
+  Server->ROClient: 200 OK
+  note right of ROClient
+    RO metadata graph
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+ROClient-->>User:
+deactivate ROClient 
