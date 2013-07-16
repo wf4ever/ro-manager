@@ -2,7 +2,7 @@
 
 # roverlay: Service to create RO overlays on generic linked data
 
-## roverlay command line client and relaed utilities
+## roverlay command line client and related utilities
 
     # Create an RO
     roverlay -s http://roverlay.example.org/ uri1 uri2 ... uriN
@@ -35,11 +35,20 @@
 ## roverlay software framework
 
 roverlay web service:
-* Django web framework
+* Base on Django web framework
+* Have asked about SPARQL protocol server implementation in Django
 * POST to create RO
 * DELETE to delete RO
-* GET, HEAD to access RO using read-[only elements of RO API
+* GET, HEAD to access RO using read-only elements of RO API
 
 roverlay command line tool:
-* use mkminim as initial template; command options as illustrated above.
+* use mkminim as initial template; command options as illustrated above.  Interacts with web service.
+
+> The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of theinitial implementation.
+
+## roverlay deployment plans
+
+Initial deployment on Andros.
+
+Subsequent deployment on Wf4Ever sandbox?  May need to arrange an alternate port number (or migrate checklist service to Django platform).
 
