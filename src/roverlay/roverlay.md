@@ -8,12 +8,18 @@
     roverlay -s http://roverlay.example.org/ uri1 uri2 ... uriN
     http://roverlay.example.org/ROs/id1234/
 
-    # List agregated contebnt of RO
+    # List agregated content of RO
     ro list http://roverlay.example.org/RO/id1234/
     uri1
     uri2
      :
     uriN
+
+    # List available overlay RO URIs at this service:
+    curl http://roverlay.example.org/
+     :
+    http://roverlay.example.org/ROs/id1234/
+     :
 
     # Get URI for collected annotations
     roverlay -r http://roverlay.example.org/ROs/id1234/ -g
