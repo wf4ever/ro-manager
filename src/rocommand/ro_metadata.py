@@ -86,6 +86,8 @@ class ro_metadata(object):
         elif self._isLocal():
             # Read manifest graph
             self.manifestgraph = rdflib.Graph()
+            for (prefix, uri) in ro_prefixes.prefixes:
+                self.manifestgraph.bind(prefix, rdflib.namespace.Namespace(uri))
             self.manifestgraph.parse(self._getManifestUri())
         else:
             (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
@@ -93,8 +95,6 @@ class ro_metadata(object):
                                     (str(self.rouri), status, reason))
             self.manifestgraph = manifest 
         # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
-        for (prefix, uri) in ro_prefixes.prefixes:
-            self.manifestgraph.bind(prefix, rdflib.namespace.Namespace(uri))
         return self.manifestgraph
 
     def getManifestGraph(self):

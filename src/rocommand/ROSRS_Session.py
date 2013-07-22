@@ -9,6 +9,7 @@ import urlparse
 import rdflib.graph
 import logging
 
+import ro_prefixes
 from ro_namespaces import RDF, ORE, RO, AO, ROEVO
 from rdflib.term import URIRef
 from ro_utils import EvoType
@@ -685,6 +686,8 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
+        for (prefix, uri) in ro_prefixes.prefixes:
+            agraph.bind(prefix, rdflib.namespace.Namespace(uri))
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
             (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
             log.debug("- body uri %s, content uri %s"%(buri, curi))
@@ -694,6 +697,7 @@ class ROSRS_Session(object):
                 if content_type in ANNOTATION_CONTENT_TYPES:
                     bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
                     agraph.parse(data=bodytext, format=bodyformat)
+                    log.debug("- agraph len: %d"%(len(agraph)))
                 else:
                     log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
                              (str(buri),content_type))
