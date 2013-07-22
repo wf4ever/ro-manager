@@ -122,7 +122,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
 
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
-        self.assertEquals(r, 85, "newrow (%d)"%(r))
+        self.assertEquals(r, 87, "newrow (%d)"%(r))
         self.assertEquals(c, 1,  "newcol (%d)"%(c))
         ### print repr(d)
         self.assertEquals(d["matchtemplate"],       'checklist',                        "matchtemplate")
