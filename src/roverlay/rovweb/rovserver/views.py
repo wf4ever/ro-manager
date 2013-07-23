@@ -3,27 +3,14 @@
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 
-def index1(request):
-    responseHTML = """
-        <h1>roverlay service</h1>
-        <p>
-          GET returns a list of currently-defined ROs.
-        </p>
-        <p>
-          POST acepts a list of URIs, creates a new Overlay RO, and returns a "201 Created"
-          response with a Location header giving the URI of the newly created RO.
-        </p>
-        <p>
-          See also: <a href="https://github.com/wf4ever/ro-manager/blob/develop/src/roverlay/roverlay.md">ro-manager/src/roverlay/roverlay.md in GitHub</a>.
-        </p>
-        """
-    return HttpResponse(responseHTML)
+from rovserver.models import ResearchObject
 
 def accept_html(request):
-    return accept_types(request, ["application/html", "text/html"])
+    return accept_types(request, ["application/html", "text/html", "default_type"])
 
 def accept_types(request, types):
-    acc = [ a.split(';')[0].strip().lower() for a in request.META['HTTP_ACCEPT'].split(',') ]
+    accept_header = request.META.get('HTTP_ACCEPT',"default_type")
+    acc = [ a.split(';')[0].strip().lower() for a in accept_header.split(',') ]
     for t in types:
         if t in acc: return t
     return None
@@ -34,11 +21,15 @@ def index(request):
         context = RequestContext(request, {})
         resp = HttpResponse(template.render(context))
     elif request.method == "GET" and accept_types(request, ["text/uri-list"]):
+        resp = HttpResponse(status=200, content_type="text/uri-list")
+        for ro in ResearchObject.objects.all():
+            resp.write(str(ro)+"\n")
+    elif request.method == "GET":
         template = loader.get_template('rovserver_error.html')
         context = RequestContext(request, 
-            { 'status': 501
-            , 'reason': "Not implemented"
-            , 'message': "GET for text/uri-list not currently implemented"
+            { 'status': 406
+            , 'reason': "Not acceptable"
+            , 'message': "GET for %s not supported"%(request.META.get('HTTP_ACCEPT',"default_type"))
             })
         resp = HttpResponse(template.render(context), status=501)
     else:
@@ -46,7 +37,8 @@ def index(request):
         context = RequestContext(request, 
             { 'status': 501
             , 'reason': "Not implemented"
-            , 'message': "Methods other than GET not currenmtly implemented for this resource"
+            , 'message': "Methods other than GET not currently implemented for this resource"
             })
         resp = HttpResponse(template.render(context), status=501)
     return resp
+
