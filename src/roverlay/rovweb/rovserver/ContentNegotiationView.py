@@ -20,6 +20,7 @@ class ContentNegotiationView(generic.View):
                                   for a in accept_header.split(',') ]
                 for t in types:
                     if t in accept_types:
+                        values['accept_type'] = t
                         return func(self, values)
                 return None
             return guard
