@@ -16,7 +16,8 @@ class ContentNegotiationView(generic.View):
         def decorator(func):
             def guard(self, values):
                 accept_header = self.request.META.get('HTTP_ACCEPT',"default_type")
-                accept_types  = [ a.split(';')[0].strip().lower() for a in accept_header.split(',') ]
+                accept_types  = [ a.split(';')[0].strip().lower() 
+                                  for a in accept_header.split(',') ]
                 for t in types:
                     if t in accept_types:
                         return func(self, values)

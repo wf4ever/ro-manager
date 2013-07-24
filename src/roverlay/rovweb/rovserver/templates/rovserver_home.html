@@ -15,4 +15,11 @@
     <p>
       See also: <a href="https://github.com/wf4ever/ro-manager/blob/develop/src/roverlay/roverlay.md">ro-manager/src/roverlay/roverlay.md in GitHub</a>.
     </p>
+    <p>ROs currently allocated:
+      <ul>
+      {% for rouri in rouris %}
+      <li><a href="{{rouri}}">{{rouri}}</a></li>
+      {% endfor %}
+      </ul>
+    </p>
 {% endblock %}

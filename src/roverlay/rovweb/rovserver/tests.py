@@ -142,6 +142,30 @@ class RovServerTest(TestCase):
         self.assertRegexpMatches(r.content, "<h2>415: Unsupported Media Type</h2>")
         return
 
+    def test_roverlay_home_ros_listed(self):
+        """
+        Test ROs listed on service page
+        """
+        self.assertEqual(len(ResearchObject.objects.all()), 0)
+        c = Client()
+        # Create new ROs
+        r = c.post("/rovserver/", data="", content_type="text/uri-list")
+        self.assertEqual(r.status_code, 201)
+        uri1 = r["Location"]
+        r = c.post("/rovserver/", data="", content_type="text/uri-list")
+        self.assertEqual(r.status_code, 201)
+        uri2 = r["Location"]
+        # Read it back
+        r = c.get("/rovserver/")
+        self.assertEqual(r.status_code, 200)
+        # self.assertEqual(r.reason_phrase, "OK") # Django 1.6 only
+        self.assertEqual(r["Content-Type"].split(';')[0], "text/html")
+        def urilisting(uri):
+            return """<a href="%s">%s</a>"""%(uri, uri)
+        self.assertRegexpMatches(r.content, urilisting(uri1))
+        self.assertRegexpMatches(r.content, urilisting(uri2))
+        return
+
         # import inspect
         # print "ATTRIBUTES:"
         # for (k,v) in inspect.getmembers(r):

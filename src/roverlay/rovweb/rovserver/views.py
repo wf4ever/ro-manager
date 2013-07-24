@@ -26,9 +26,9 @@ class RovServerHomeView(ContentNegotiationView):
     # GET
 
     @ContentNegotiationView.accept_types(["text/uri-list"])
-    def render_uri_list(self, values):
+    def render_uri_list(self, resultdata):
         resp = HttpResponse(status=200, content_type="text/uri-list")
-        for ro in values['ros']:
+        for ro in resultdata['rouris']:
             resp.write(str(ro)+"\n")
         return resp
 
@@ -40,7 +40,7 @@ class RovServerHomeView(ContentNegotiationView):
 
     def get(self, request):
         self.request = request      # For clarity: generic.View does this anyway
-        resultdata = {'ros': ResearchObject.objects.all()}
+        resultdata = {'rouris': ResearchObject.objects.all()}
         return (
             self.render_uri_list(resultdata) or
             self.render_html(resultdata) or 
