@@ -272,7 +272,6 @@ class RovServerTest(TestCase):
 
     # @unittest.skip("RO GET HTML not yet implemented")
     def test_roverlay_ro_get_html(self):
-        # print "********** test_roverlay_ro_get_html"
         c = Client()
         base_uri = "http://example.org/resource/"
         uri_list = (
@@ -281,14 +280,7 @@ class RovServerTest(TestCase):
             , base_uri+"res3"
             ])
         ro_uri = self.create_test_ro(uri_list)
-        # print "**** Created "+ro_uri
-        ros = ResearchObject.objects.filter(uri=ro_uri)
-        self.assertEqual(len(ros), 1)
-        ars = AggregatedResource.objects.filter(ro=ros[0])
-        self.assertEqual(len(ars), 3)
-        for ar in ars:
-            self.assertIn(ar.uri, uri_list)
-        # print "**** About to GET "+ro_uri
+        # Read HTML for created RO
         r = c.get(ro_uri, HTTP_ACCEPT="text/html")
         self.assertEqual(r.status_code, 200)
         self.assertEqual(r["Content-Type"].split(';')[0], "text/html")

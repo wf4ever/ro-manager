@@ -105,14 +105,14 @@ class ResearchObjectView(ContentNegotiationView):
         return HttpResponse(template.render(context))
 
     def get(self, request, roslug):
-        print "RO slug: %s"%(roslug)
+        # print "RO slug: %s"%(roslug)
         self.request = request      # For clarity: generic.View does this anyway
         ro_uri       = self.get_request_uri()
         ro           = ResearchObject.objects.get(uri=ro_uri)
-        print "RO URI: %s (%s)"%(ro_uri, ro.uri)
+        # print "RO URI: %s (%s)"%(ro_uri, ro.uri)
         ro_resources = AggregatedResource.objects.filter(ro=ro)
-        for res in ro_resources:
-            print "ro_resource: %s"%(res)
+        # for res in ro_resources:
+        #     print "ro_resource: %s"%(res)
         resultdata = (
             { 'ro_uri':         ro_uri
             , 'ro_resources':   ro_resources
