@@ -102,15 +102,14 @@ class TestROSRS_Session(unittest.TestCase):
         # Test that new RO is in collection
         rolist = self.rosrs.listROs()
         self.assertIn(str(rouri), [ r["uri"] for r in rolist ])
-        # Delete ROs
-        (status, reason) = self.rosrs.deleteRO(str(rouri))
+        # Delete RO
+        (status, reason) = self.rosrs.deleteRO(rouri)
         self.assertEqual(status, 204)
         self.assertEqual(reason, "No Content")
         # Test that new RO is not in collection
         rolist = self.rosrs.listROs()
         self.assertNotIn(str(rouri), [ r["uri"] for r in rolist ])
         # Delete again
-        (status, reason) = self.rosrs.deleteRO(str(rouri))
         (status, reason) = self.rosrs.deleteRO(rouri)
         self.assertEqual(status, 404)
         self.assertEqual(reason, "Not Found")
