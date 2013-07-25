@@ -4,13 +4,14 @@
 Research Object evaluation withj respoect to a MINIM description
 """
 
-#import sys
+import sys
 #import os
 #import os.path
 #import urlparse
 import re
 import subprocess
 import logging
+import urllib
 
 log = logging.getLogger(__name__)
 
@@ -26,6 +27,38 @@ from rocommand.ro_metadata   import ro_metadata
 from rocommand.ro_prefixes   import make_sparql_prefixes
 import ro_minim
 from ro_minim import MINIM, RESULT
+
+def doQuery(rometa, queryPattern, queryVerb=None, resultMod="", queryPrefixes=None, initBindings=None):
+    # @@TODO - factor out query construction from various places below to use this
+    querytemplate = (make_sparql_prefixes(queryPrefixes or [])+
+        """
+        BASE <%(querybase)s>
+
+        %(queryverb)s
+        {
+          %(querypattern)s
+        } %(resultmod)s
+        """)
+    queryparams = (
+        { 'querybase':    str(rometa.getRoUri())
+        , 'queryverb':    queryVerb or "SELECT * WHERE"
+        , 'querypattern': queryPattern
+        , 'resultmod':    resultMod or ""
+        })
+    query = querytemplate%queryparams
+    log.debug(" - doQuery: "+query)
+    resp  = rometa.queryAnnotations(query, initBindings=initBindings)
+    return resp
+
+def getLabel(rometa, target):
+    """
+    Discover or make up a label for the designated resource
+    """
+    targetlabel = str(target)
+    resp = doQuery(rometa, "<%s> rdfs:label ?label ."%(targetlabel))
+    if len(resp) > 0: targetlabel = resp[0]['label']
+    log.debug("getLabel %s"%(targetlabel))
+    return targetlabel
 
 def evaluate(rometa, minim, target, purpose):
     """
@@ -64,6 +97,7 @@ def evaluate(rometa, minim, target, purpose):
       , 'description':    rodesc
       , 'minimuri':       minim
       , 'target':         target
+      , 'targetlabel':    targetlabel
       , 'purpose':        purpose
       , 'constrainturi':  constraint['uri']
       , 'modeluri':       model['uri']
@@ -125,11 +159,7 @@ def evaluate(rometa, minim, target, purpose):
         else:
             raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
     # Evaluate overall satisfaction of model
-    sat_levels = (
-        { 'MUST':   MINIM.minimallySatisfies
-        , 'SHOULD': MINIM.nominallySatisfies
-        , 'MAY':    MINIM.fullySatisfies
-        })
+    targetlabel = getLabel(rometa, target)
     eval_result = (
         { 'summary':        []
         , 'missingMust':    []
@@ -142,9 +172,17 @@ def evaluate(rometa, minim, target, purpose):
         , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
+        , 'targetlabel':    targetlabel
         , 'purpose':        purpose
         , 'constrainturi':  constraint['uri']
         , 'modeluri':       model['uri']
+        })
+    # sat_levels initially assume all requirements pass, then reset levels achieved as
+    # individual requirements are examined.
+    sat_levels = (
+        { 'MUST':   MINIM.minimallySatisfies
+        , 'SHOULD': MINIM.nominallySatisfies
+        , 'MAY':    MINIM.fullySatisfies
         })
     for (r, satisfied, binding) in reqeval:
         if satisfied:
@@ -184,12 +222,14 @@ def evalContentMatch(rometa, rule, constraintbinding):
     satisfied     = True
     simplebinding = constraintbinding.copy()
     if rule['forall']:
+        log.debug("forall rule: "+repr(rule))
         exists   = rule['exists']
         template = rule['template']
         islive   = rule['islive']
         assert (exists or template or islive), (
-            "minim:forall construct requires "+
-            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value")
+            "minim:forall construct (%(forall)s) requires "%(rule)+
+            "minim:aggregatesTemplate, minim:isLiveTemplate and/or minim:exists value"+
+            "")
         if template:  template = str(template).strip()
         if islive:    islive   = str(islive).strip()
         queryparams = (
@@ -289,6 +329,14 @@ def evalQueryTest(rometa, rule, constraintbinding):
         """)
     satisfied     = True
     simplebinding = constraintbinding.copy()
+    if rule['exists'] and not rule['query']:
+        # Bare "exists" is syntactic sugar for "query" with "min=1"
+        rule['query']  = rule['exists']
+        rule['exists'] = None
+        rule['min']    = rule['min'] or 1
+    # print >>sys.stderr, "@@@@@@"
+    # print >>sys.stderr, repr(rule)
+    # print >>sys.stderr, "@@@@@@"
     if rule['query']:
         count_min  = rule['min']
         count_max  = rule['max']
@@ -302,7 +350,7 @@ def evalQueryTest(rometa, rule, constraintbinding):
         if islive:      islive   = str(islive).strip()
         queryparams = (
             { 'querybase':    str(rometa.getRoUri())
-            , 'queryverb':    "SELECT * WHERE"
+            , 'queryverb':    "SELECT DISTINCT * WHERE"
             , 'querypattern': rule['query']
             , 'resultmod':    rule['resultmod'] or ""
             })
@@ -321,7 +369,7 @@ def evalQueryTest(rometa, rule, constraintbinding):
             simplebinding = constraintbinding.copy()
             for k in binding:
                 if not isinstance(k,rdflib.BNode):
-                    simplebinding[str(k)]   = str(binding[k])
+                    simplebinding[str(k)]   = unicode(binding[k])
                     simplebinding['_count'] = len(resp)
             # Do the required test
             if aggregates:
@@ -458,15 +506,18 @@ def formatRule(satisfied, rule, bindings):
             templatedefault = "Match for %(exists)s"
         else:
             templatedefault = "Unknown content match rule (no forall or exists)"
+    elif 'querytestrule' in rule:
+        ruledict = rule['querytestrule']
+        templatedefault = "Query test rule %(query)s"
     else:
-        ruledict = { 'rule': repr(rule), 'show': None, templateindex: None }
+        ruledict = { 'rule': repr(rule), 'show': None, 'templateindex': None }
         templatedefault = "Unrecognized rule: %(rule)s"
     # Select and apply formatting template
     if satisfied:
-        template = ruledict["showpass"]
+        template = ruledict.get("showpass", None)
     else:
-        template = ruledict["showfail"]
-    template = templateoverride or template or ruledict["show"] or templatedefault
+        template = ruledict.get("showfail", None)
+    template = templateoverride or template or ruledict.get("show", None) or templatedefault
     bindings.update(ruledict)
     return template%bindings
 
@@ -478,7 +529,7 @@ def evalResultGraph(graph, evalresult):
     
     graph       is the minim graph used for the evaluation.
                 The supplied graph is updated and returned by this function.
-    evalresult  is the evaluation result returned by the evaluation
+    evalresult  is the evaluation result returned by the evaluate function
     """
     graph.bind("rdf",     RDF.baseUri)
     graph.bind("rdfs",    RDFS.baseUri)
@@ -496,15 +547,16 @@ def evalResultGraph(graph, evalresult):
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
+    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel'])) )
     for level in evalresult['summary']:
         log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
-        graph.add( (rouri, level, rdflib.URIRef(evalresult['modeluri'])) )
+        graph.add( (targeturi, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all items tested...
     def addRequirementsDetail(satisfied, results, satlevel):
         for (req, binding) in results:
             b = rdflib.BNode()
             msg = formatRule(satisfied, req, binding)
-            graph.add( (rouri, satlevel, b) )
+            graph.add( (targeturi, satlevel, b) )
             graph.add( (b, MINIM.tryRequirement, req['uri']) )
             graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
             for k in binding:

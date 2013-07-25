@@ -7,7 +7,6 @@ Basic command functions for ro, research object manager
 import sys
 import os
 import os.path
-### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
@@ -20,10 +19,6 @@ from ro_utils import EvoType
 from xml.parsers import expat
 from httplib2 import RelativeURIError
 
-###@@TODO:
-###Where did this come from???
-###from _pyio import BytesIO
-
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -32,7 +27,7 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import ro_settings
 import ro_utils
@@ -143,9 +138,9 @@ ro_command_usage = (
           ["remove [ -d <dir> ] <file-or-uri>"
           , "remove -d <dir> -w <pattern>"
           ])
-    , (["list", "ls"], argminmax(2, 2),
-          ["list [ -a ] [ -s ] [ -d <dir> ]"
-          , "ls   [ -a ] [ -s ] [ -d <dir> ]"
+    , (["list", "ls"], argminmax(2, 3),
+          ["list [ -a ] [ -s ] [ -d <dir> | <uri> ]"
+          , "ls   [ -a ] [ -s ] [ -d <dir> | <uri> ]"
           ])
     , (["annotate"], (lambda options, args: (len(args) == 3 if options.graph else len(args) in [4, 5])),
           ["annotate [ -d <dir> ] <file-or-uri> <attribute-name> <attribute-value>"
@@ -169,6 +164,8 @@ ro_command_usage = (
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["dump"], argminmax(2, 3),
           ["dump [ -d <dir> | <rouri> ] [ -o <format> ]"])
+    , (["manifest"], argminmax(2, 3),
+          ["manifest [ -d <dir> | <rouri> ] [ -o <format> ]"])
     , (["snapshot"],  argminmax(4, 4),
           ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
     , (["archive"],  argminmax(4, 4),
@@ -525,33 +522,45 @@ def list(progname, configbase, options, args):
     """
     List contents of a designated research object
     
-    -a displays files present as well as aggregated resources
+    -a displays files present in directory as well as aggregated resources
     -h includes hidden files in display
 
-    ro list [ -a ] [ -h ] [ -d dir ]
-    ro ls   [ -a ] [ -h ] [ -d dir ]
+    ro list [ -a ] [ -h ] [ -d dir | uri ]
+    ro ls   [ -a ] [ -h ] [ -d dir | uri ]
     """
     # Check command arguments
     ro_config = ro_utils.readconfig(configbase)
     ro_options = {
+        "rouri":   (args[2] if len(args) >= 3 else ""),
         "rodir":   options.rodir or "",
         "all":     " -a" if options.all    else "",
         "hidden":  " -h" if options.hidden else "",
         }
     log.debug("ro_options: " + repr(ro_options))
-    # Find RO root directory
-    ro_dir = ro_root_directory(progname + " list", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
-    # Scan directory tree and collect filenames
-    if options.verbose:
-        print "ro list%(all)s%(hidden)s -d \"%(rodir)s\"" % ro_options
+    cmdname = progname + " list"
+    if not ro_options['rouri']:
+        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
+        if not rouri: return 1
+        if options.verbose:
+            print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
+    else:
+        if ro_options['rodir']:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        rouri = ro_options['rouri']
+        if options.verbose:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+    # Prepare to display aggregated resources
     prep_f = ""
     prep_a = ""
     rofiles = []
     if options.all:
+        if ro_options['rodir']:
+            print ("%s: '--all' option is valid only with RO directory, not URI" % (cmdname))
+            return 1
         prep_f = "f: "
         prep_a = "a: "
-        rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+        rofiles = MiscUtils.ScanDirectories.CollectDirectoryContents(
                     ro_dir, baseDir=os.path.abspath(ro_dir),
                     listDirs=False, listFiles=True, recursive=True, appendSep=False)
         if not options.hidden:
@@ -559,7 +568,7 @@ def list(progname, configbase, options, args):
                 return re.match("\.|.*/\.", f) == None
             rofiles = filter(notHidden, rofiles)
     # Scan RO and collect aggregated resources
-    rometa = ro_metadata(ro_config, ro_dir)
+    rometa = ro_metadata(ro_config, rouri)
     roaggs = [ str(rometa.getComponentUriRel(a)) for a in rometa.getAggregatedResources() ]
     # Assemble and output listing
     print "\n".join(mapmerge(prepend_f(prep_a), roaggs, prepend_f(prep_f), rofiles))
@@ -951,9 +960,7 @@ def evaluate(progname, configbase, options, args):
 
 def dump(progname, configbase, options, args):
     """
-    Sump RDF of manifest+annotations
-
-    ro dump [ -d dir ] [ -o format ]
+    Dump RDF of annotations
     """
     log.debug("dump: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
@@ -967,20 +974,53 @@ def dump(progname, configbase, options, args):
         rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
         if not rouri: return 1
         if options.verbose:
-            print "ro dump -d \"%(rodir)s\" " % ro_options
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
     else:
         if ro_options['rodir']:
             print ("%s: specify either RO directory or URI, not both" % (cmdname))
             return 1
         rouri = ro_options['rouri']
         if options.verbose:
-            print "ro dump \"%(rouri)s\" " % ro_options
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"
     if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
         format = options.outformat.upper()
     graph = rometa.getAnnotationGraph()
+    graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
+    return 0
+
+def manifest(progname, configbase, options, args):
+    """
+    Dump RDF of manifest
+    """
+    log.debug("manifest: progname %s, configbase %s, args %s" % 
+              (progname, configbase, repr(args)))
+    ro_config = ro_utils.readconfig(configbase)
+    ro_options = {
+        "rouri":        (args[2] if len(args) >= 3 else ""),
+        "rodir":        options.rodir or ""
+        }
+    cmdname = progname + " manifest"
+    if not ro_options['rouri']:
+        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
+        if not rouri: return 1
+        if options.verbose:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
+    else:
+        if ro_options['rodir']:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        rouri = ro_options['rouri']
+        if options.verbose:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+    # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, rouri)
+    format = "RDFXML"
+    if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+        format = options.outformat.upper()
+    graph = rometa.getManifestGraph()
     graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
     return 0
 

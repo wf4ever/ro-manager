@@ -20,7 +20,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from ro_namespaces import RDF, RDFS, ORE, RO, DCTERMS, AO
 from ROSRS_Session import ROSRS_Error, ROSRS_Session, testSplitValues, testParseLinks
@@ -56,12 +56,15 @@ class TestROSRS_Session(unittest.TestCase):
             accesskey=Config.AUTHORIZATION)
         # Clean up from previous runs
         self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        self.createdTestRO = None
         return
 
     def tearDown(self):
         super(TestROSRS_Session, self).tearDown()
         # Clean up
         self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        if self.createdTestRO:
+            self.rosrs.deleteRO(self.createdTestRO)
         self.rosrs.close()
         return
 
@@ -69,6 +72,7 @@ class TestROSRS_Session(unittest.TestCase):
         (status, reason, rouri, manifest) = self.rosrs.createRO(Config.TEST_RO_NAME,
             "Test RO for ROSRS_Session", "TestROSRS_Session.py", "2012-09-06")
         self.assertEqual(status, 201)
+        self.createdTestRO = rouri
         return (status, reason, rouri, manifest)
 
     # Actual tests follow
@@ -86,7 +90,7 @@ class TestROSRS_Session(unittest.TestCase):
         (status, reason, rouri, manifest) = self.createTestRO()
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
-        #self.assertEqual(str(rouri), Config.TEST_RO_URI)
+        self.assertEqual(str(rouri)[:len(Config.TEST_RO_URI)-1]+"/", Config.TEST_RO_URI)
         self.assertIn((rouri, RDF.type, RO.ResearchObject), manifest)
         rolist = self.rosrs.listROs()
         self.assertIn(str(rouri), [ r["uri"] for r in rolist ])
@@ -98,7 +102,7 @@ class TestROSRS_Session(unittest.TestCase):
         # Test that new RO is in collection
         rolist = self.rosrs.listROs()
         self.assertIn(str(rouri), [ r["uri"] for r in rolist ])
-        # Delete RO
+        # Delete ROs
         (status, reason) = self.rosrs.deleteRO(str(rouri))
         self.assertEqual(status, 204)
         self.assertEqual(reason, "No Content")
@@ -107,6 +111,7 @@ class TestROSRS_Session(unittest.TestCase):
         self.assertNotIn(str(rouri), [ r["uri"] for r in rolist ])
         # Delete again
         (status, reason) = self.rosrs.deleteRO(str(rouri))
+        (status, reason) = self.rosrs.deleteRO(rouri)
         self.assertEqual(status, 404)
         self.assertEqual(reason, "Not Found")
         return
@@ -488,6 +493,8 @@ class TestROSRS_Session(unittest.TestCase):
         buris1 = list(self.rosrs.getROAnnotationBodyUris(rouri, resuri))
         self.assertIn(bodyuri1, buris1)
         # Update annotation using external body reference
+        # @@TODO - this doesn't check that old annotation is removed.
+        # @@TODO - currently, update is not fully implemented (2013-05).
         bodyuri2 = rdflib.URIRef("http://example.org/ext/ann2.rdf")
         (status, reason, annuri) = self.rosrs.createROAnnotationExt(rouri, resuri, bodyuri2)
         self.assertEqual(status, 201)

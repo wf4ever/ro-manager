@@ -23,7 +23,7 @@ if __name__ == "__main__":
 import rdflib
 import uuid
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_remote_metadata
 from rocommand.ROSRS_Session import ROSRS_Session

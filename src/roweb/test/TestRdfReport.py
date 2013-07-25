@@ -25,7 +25,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
@@ -91,6 +91,26 @@ class TestRdfReport(unittest.TestCase):
 
     def testNull(self):
         assert True, 'Null test failed'
+
+    def testEscapeJSON(self):
+        s = []
+        for i in range(0,128):
+            s.append(unichr(i))
+        s = "".join(s)
+        s_esc = RdfReport.escape_json(s)
+        e_esc = ( u'\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007'+
+                  u'\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f'+
+                  u'\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017'+
+                  u'\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f'+
+                  u' !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`'+
+                  u'abcdefghijklmnopqrstuvwxyz{|}~\\u007f')
+        # print "----"
+        # print repr(s_esc)
+        # print repr(e_esc)
+        self.assertEqual(s_esc, e_esc)
+        s_loads = json.loads('"'+s_esc+'"')
+        self.assertEqual(s_loads, s)
+        return
 
     def testHelloWorld(self):
         """
@@ -522,17 +542,15 @@ class TestRdfReport(unittest.TestCase):
           , ''', "title":                  "A simple test RO"'''
           , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
+          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
-          , ''', "checklistpurpose":       "Runnable"'''
           , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
           , ''', "evalresultlabel":        "minimally satisfies"'''
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        #print "\n-----"
-        #print result
-        #print "-----"
+        log.debug("---- JSON result\n%s\n----"%(result))
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -650,6 +668,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testEscapeJSON"
             , "testHelloWorld"
             , "testSimpleQuery"
             , "testSimpleQuotedJson"

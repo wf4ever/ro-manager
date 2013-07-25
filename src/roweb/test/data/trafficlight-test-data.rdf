@@ -109,12 +109,6 @@
           </rdf:Description>
         </result:binding>
         <result:binding>
-          <rdf:Description rdf:nodeID="Nc0b747ebc0184c65902168dec0a00afe">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible</result:value>
-            <result:variable>derives</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
           <rdf:Description rdf:nodeID="N409bb61c798f4fb3a71d0dab5d558db2">
             <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
             <result:variable>targetres</result:variable>
@@ -149,12 +143,6 @@
           <rdf:Description rdf:nodeID="N4712a6043bbd404abf15ffaa624faeb1">
             <result:value>Workflow %(wf)s input %(if)s is not aggregated</result:value>
             <result:variable>showfail</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
-          <rdf:Description rdf:nodeID="N854e0a72e855460082e8acbd463bbf1b">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated</result:value>
-            <result:variable>derives</result:variable>
           </rdf:Description>
         </result:binding>
         <result:binding>
@@ -251,12 +239,6 @@
           </rdf:Description>
         </result:binding>
         <result:binding>
-          <rdf:Description rdf:nodeID="Nf964ab508e3745f6825ce32e06b0d99b">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs</result:value>
-            <result:variable>derives</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
           <rdf:Description rdf:nodeID="N78da59603c8e47c890dcd6c470a6bdd3">
             <result:value>No workflow inputs found</result:value>
             <result:variable>showfail</result:variable>
@@ -303,12 +285,6 @@
           <rdf:Description rdf:nodeID="N20f3d9314ca249689fab494fda514167">
             <result:value>None</result:value>
             <result:variable>template</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
-          <rdf:Description rdf:nodeID="N00640f7c206944408e800f6ef5c703c7">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow</result:value>
-            <result:variable>derives</result:variable>
           </rdf:Description>
         </result:binding>
         <result:binding>
@@ -409,12 +385,6 @@
           </rdf:Description>
         </result:binding>
         <result:binding>
-          <rdf:Description rdf:nodeID="Nc1f345bdac9147a5a0f05f2de8923f88">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated</result:value>
-            <result:variable>derives</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
           <rdf:Description rdf:nodeID="Na74b8c63c97a4e289e7043aa8e5e37e4">
             <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
             <result:variable>targetro</result:variable>
@@ -487,12 +457,6 @@
           </rdf:Description>
         </result:binding>
         <result:binding>
-          <rdf:Description rdf:nodeID="Na363ddf38f8048478728efd313aaf708">
-            <result:value>file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible</result:value>
-            <result:variable>derives</result:variable>
-          </rdf:Description>
-        </result:binding>
-        <result:binding>
           <rdf:Description rdf:nodeID="Nc29ef30f76ca4dc2ae5fb0bac0c0a7c4">
             <result:value>None</result:value>
             <result:variable>template</result:variable>
@@ -549,7 +513,6 @@
   <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule rdf:nodeID="N0157aa132d094765850a850d6dfcdfa6">
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated"/>
         <minim:aggregatesTemplate>
           {+wf}
         </minim:aggregatesTemplate>
@@ -564,7 +527,6 @@
   <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule rdf:nodeID="Nf204f480a24749e4ab67179b3a7fd1dd">
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible"/>
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow .
         </minim:forall>
@@ -581,7 +543,6 @@
       <minim:ContentMatchRequirementRule rdf:nodeID="N18813926b4e64b42b677a6c064456e11">
         <minim:showpass>Workflow input(s) found</minim:showpass>
         <minim:showfail>No workflow inputs found</minim:showfail>
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"/>
         <minim:exists>
           ?wf rdf:type wfdesc:Workflow ;
               wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
@@ -594,7 +555,6 @@
       <minim:ContentMatchRequirementRule rdf:nodeID="Na335d32d5dd4449f8488f5540c3ac6e7">
         <minim:showpass>Workflow description found</minim:showpass>
         <minim:showfail>No workflow description found</minim:showfail>
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow"/>
         <minim:exists>
           ?wf rdf:type wfdesc:Workflow .
         </minim:exists>
@@ -604,7 +564,6 @@
   <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule rdf:nodeID="N98af81d1e2b440d78302c51cd6bcdc45">
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated"/>
         <minim:aggregatesTemplate>
           {+if}
         </minim:aggregatesTemplate>
@@ -620,7 +579,6 @@
   <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible">
     <minim:isDerivedBy>
       <minim:ContentMatchRequirementRule rdf:nodeID="N6dd04c15a94842668b7cef5997feb4b1">
-        <minim:derives rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible"/>
         <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
               wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .

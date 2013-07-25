@@ -1,0 +1,681 @@
+<?xml version="1.0"?>
+
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY owl "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY dc "http://purl.org/dc/elements/1.1/" >
+    <!ENTITY xsd "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfs "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY rdfg "http://www.w3.org/2004/03/trix/rdfg-1/" >
+    <!ENTITY rdf "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+]>
+
+
+<rdf:RDF xmlns="http://purl.org/minim/minim#"
+     xml:base="http://purl.org/minim/minim"
+     xmlns:dc="http://purl.org/dc/elements/1.1/"
+     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+     xmlns:owl="http://www.w3.org/2002/07/owl#"
+     xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+     xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+     xmlns:xml="http://www.w3.org/XML/1998/namespace"
+     xmlns:rdfg="http://www.w3.org/2004/03/trix/rdfg-1/">
+    <owl:Ontology rdf:about="http://purl.org/minim/minim"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Annotation properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Datatypes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/minim/minim#integer -->
+
+    <rdfs:Datatype rdf:about="http://purl.org/minim/minim#integer"/>
+    
+
+
+    <!-- http://purl.org/minim/minim#string -->
+
+    <rdfs:Datatype rdf:about="http://purl.org/minim/minim#string"/>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Object Properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/minim/minim#affirmRule -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#affirmRule">
+        <rdfs:label>test affirmed rule</rdfs:label>
+        <rdfs:comment>Indicates a rule that is invoked with the current query result as predefined variable bindings.  The result returned is the result of the rule invocation.</rdfs:comment>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Rule"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#RuleTest"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#exists -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#exists">
+        <rdfs:label>exists query</rdfs:label>
+        <rdfs:comment>This property is used with minim:ExistsTest to indicate a further query that is used to test for the existence of required metadata related to the results so far retrieved.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#ExistsTest"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#SparqlQuery"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#hasChecklist -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#hasChecklist">
+        <rdfs:label>has checklist</rdfs:label>
+        <rdfs:comment>Supplies a minim:Checklist to be associated with some target resource.  The subject of this property may be a target resource to which the checklist may be applied, or some arbitrary resource used as a collection of checklists, in which case the checklist itself should include a minim:forTargetTemplate property that is used in the selection of a checklist for some evaluation.</rdfs:comment>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Checklist"/>
+        <rdfs:domain rdf:resource="&owl;Thing"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#hasMayRequirement -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#hasMayRequirement">
+        <rdfs:label>has MAY requirement</rdfs:label>
+        <rdfs:comment>indicates a requirement is optional for a checklist to be satisfied.
+        
+        Failure to satisfy a MAY requirement is not considered to be indicative of any problem.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#hasRequirement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#hasMustRequirement -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#hasMustRequirement">
+        <rdfs:label>has MUST requirement</rdfs:label>
+        <rdfs:comment>indicates a requirement that MUST be satisfied for a checklist to be satisfied</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#hasRequirement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#hasRequirement -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#hasRequirement">
+        <rdfs:label>has requirement</rdfs:label>
+        <rdfs:comment>Place holder for minim:hasMustRequirement, minim:hasShouldRequirement or minim:hasMayRequirement</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Model"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Requirement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#hasShouldRequirement -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#hasShouldRequirement">
+        <rdfs:label>has SHOULD requirement</rdfs:label>
+        <rdfs:comment>indicates a requirement is not mandatory for a checklist to be satisfied, but which is strongly recommended.  Failure to satisfy a SHOULD requirement could be indicative of a problem.</rdfs:comment>
+        <rdfs:subPropertyOf rdf:resource="http://purl.org/minim/minim#hasRequirement"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#isDerivedBy -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#isDerivedBy">
+        <rdfs:label>is derived by</rdfs:label>
+        <rdfs:comment>Indicates a rule that, when its test evaluates to True, indicates that a requirement is satisfied.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Requirement"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Rule"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#negateRule -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#negateRule">
+        <rdfs:label>test negated rule</rdfs:label>
+        <rdfs:comment>Indicates a rule that is invoked with the current query result as predefined variable bindings.  The result returned is success if the rule invocation fails, otherwise failure if the rule succeeds.</rdfs:comment>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Rule"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#RuleNegationTest"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#query -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#query">
+        <rdfs:label>query</rdfs:label>
+        <rdfs:comment>This property indicates a query used to extract information from an RDF graph for requirement testing.  In the current design, the only form of query defined is a SPARQL query, but other forms may be introduced later.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#QueryTestRule"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#SparqlQuery"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#toModel -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#toModel">
+        <rdfs:label>to model</rdfs:label>
+        <rdfs:comment>Indicates a minim:Model to be used to perform checklist evaluation for the indicated target resource to be suitable for the indicated purpose.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Checklist"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Data properties
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/minim/minim#aggregatesTemplate -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#aggregatesTemplate">
+        <rdfs:label>aggregation test URI template</rdfs:label>
+        <rdfs:comment>This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570) that is in turn used to construct the URI of resource that is tested for inclusion in the current RO aggregation.  The test makes sense only for evaluations performed in the context provided by a Research Object.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#AggregationTest"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#command -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#command">
+        <rdfs:label>software test command</rdfs:label>
+        <rdfs:comment>This property indicates a command to be issued to test the software environment</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#SoftwareEnvRule"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#forPurpose -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#forPurpose">
+        <rdfs:label>for purpose</rdfs:label>
+        <rdfs:comment>Supplies a string which describes a purpose for which checklist evaluation of the target resource is to be performed.
+
+Note that a purpose is implicit in a checklist object itself, so the purpose is not treated as a separate resource, or given a separate URI.  Rather, this string serves as a label or keyword that can be used in a user interface.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Checklist"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#forTargetTemplate -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#forTargetTemplate">
+        <rdfs:label>target resource URI template</rdfs:label>
+        <rdfs:comment>Supplies a URI template that is expanded using predefined variable {targetro} to refer to the Research Object resource targeted by a checklist evaluation (typically, the URI template used is &#39;{+targetro}&#39;).  Future implementations may provide alternative variables that may be used in a URI template to construct the URI of a resource to be targeted.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Checklist"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#graph -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#graph">
+        <rdfs:label>target graph</rdfs:label>
+        <rdfs:comment>This property indicates a graph to be queried, by way of a URI template that is expanded using any currently result variable bindings.  This is the mechanism whereby metadata from an RO may be compared with metadata from external resources.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#QueryTestRule"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#isLiveTemplate -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#isLiveTemplate">
+        <rdfs:label>accessibility test URI template</rdfs:label>
+        <rdfs:comment>This property is used to specify a URI template (cf. http://tools.ietf.org/html/rfc6570)
+         that is in turn used to construct the URI of resource to be tested for accessibility (liveness).</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#AccessibilityTest"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#max -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#max">
+        <rdfs:label>maximum occurrences</rdfs:label>
+        <rdfs:comment>This property is used with minim:CardinalityTest to indicate maximum number of distinct results that are required for a cardinality test to be satisfied.
+
+Note that minim:min and minim:max can be used together to define an exact cardinality or cardinality range test.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#CardinalityTest"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#min -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#min">
+        <rdfs:label>minimum occurrences</rdfs:label>
+        <rdfs:comment>This property is used with minim:CardinalityTest to indicate minimum number of distinct results that are required for a cardinality test to be satisfied.
+       
+Note that minim:min and minim:max can be used together to define an exact cardinality or cardinality range test.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#CardinalityTest"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#integer"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#response -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#response">
+        <rdfs:label>software response regex</rdfs:label>
+        <rdfs:comment>This property indicates a regular expression that is required to be matched by the
+         output from the command used to test the software environment.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#SoftwareEnvRule"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#result_mod -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#result_mod">
+        <rdfs:label>SPARQL result modifier</rdfs:label>
+        <rdfs:comment>This property is used with minim:SparqlQuery to indicate a result modifier (e.g. ORDER BY, GROUP BY, etc.) that is applied to the results results obtained to matching the query pattern.  Using result modifiers can make it easier to produce consistent diagnostic information.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#SparqlQuery"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#seq -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#seq">
+        <rdfs:label>sequence</rdfs:label>
+        <rdfs:comment>A value that is used to order the requirements in a checklist for reporting purpose.  It has no effect on the overall outcome of a checklist evaluation.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Requirement"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#sparql_query -->
+
+    <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#sparql_query">
+        <rdfs:label>SPARQL query pattern</rdfs:label>
+        <rdfs:comment>This property indicates a SPARQL query pattern (such as would appear in a SPARQL WHERE clause) that is used to query the content of an RDF graph.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#SparqlQuery"/>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- 
+    ///////////////////////////////////////////////////////////////////////////////////////
+    //
+    // Classes
+    //
+    ///////////////////////////////////////////////////////////////////////////////////////
+     -->
+
+    
+
+
+    <!-- http://purl.org/minim/minim#AccessibilityTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#AccessibilityTest">
+        <rdfs:label>Accessibility test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#isLiveTemplate"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Test if a specified resource is accessible (live).  The resource URI is constructed by using the corresponding query result to provide values for variables in an expansion of the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#AggregationTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#AggregationTest">
+        <rdfs:label>Aggregation test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#aggregatesTemplate"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Test if a specified resource is part of an RO aggregation.  The resource URI is constructed by using the corresponding query result to provide values for variables in an expansion of the supplied URI template (cf. http://tools.ietf.org/html/rfc6570)</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#CardinalityTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#CardinalityTest">
+        <rdfs:label>Cardinality test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:unionOf rdf:parseType="Collection">
+                    <owl:Class>
+                        <owl:intersectionOf rdf:parseType="Collection">
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="http://purl.org/minim/minim#max"/>
+                                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#integer"/>
+                            </owl:Restriction>
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="http://purl.org/minim/minim#min"/>
+                                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#integer"/>
+                            </owl:Restriction>
+                        </owl:intersectionOf>
+                    </owl:Class>
+                    <owl:Class>
+                        <owl:intersectionOf rdf:parseType="Collection">
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="http://purl.org/minim/minim#min"/>
+                                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#integer"/>
+                            </owl:Restriction>
+                            <owl:Restriction>
+                                <owl:onProperty rdf:resource="http://purl.org/minim/minim#max"/>
+                                <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                                <owl:onDataRange rdf:resource="http://purl.org/minim/minim#integer"/>
+                            </owl:Restriction>
+                        </owl:intersectionOf>
+                    </owl:Class>
+                </owl:unionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Tests the number of results returned by a query</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Checklist -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Checklist">
+        <rdfs:label>Minim checklist</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#toModel"/>
+                        <owl:onClass rdf:resource="http://purl.org/minim/minim#Model"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#forPurpose"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#forTargetTemplate"/>
+                        <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:comment>A checklist object indicates a minim:Model to be satisfied if a target resource is to be considered suitable for some specific purpose.  As such, it links a target resource and a purpose for which it might be used with a minim:Model that must be satisfied for the resource to be considered fit for that purpose.
+
+A Checklist may be associated directly with a target resource as the subject of a minim:hasChecklist statement, or may be associated indirectly via a URI template that is the object of an associated minim:forTargetTemplate statement.  The latter form is is more flexible as it allows a given checklist to be more easily used with multiple resources.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#ExistsTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#ExistsTest">
+        <rdfs:label>Metadata exists test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#exists"/>
+                <owl:onClass rdf:resource="http://purl.org/minim/minim#Query"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Tests to see if a supplied query is satisfied by available metadata, matching the
+         query results retrieved so far.
+         
+         This test is a short-cut for a minim:RuleTest that refers to a &#39;min 1&#39; cardinality test.
+         
+         @@TBD: keep this or drop it as redundant?</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Model -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Model">
+        <rdfs:label>Minim model</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#hasRequirement"/>
+                <owl:allValuesFrom rdf:resource="http://purl.org/minim/minim#Requirement"/>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:comment>A Minim model collects a number of requirements, and associates each with a MUST, SHOULD or MAY requirement level.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Query -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Query">
+        <rdfs:label>Generic query</rdfs:label>
+        <rdfs:comment>Query an RDF graph and return values that match the supplied pattern.  The results returned are a set of results, where each is a set of query variable bindings corresponding to a single match of the pattern, and the entire result set contains all distinct matches achieved.
+
+Specific query forms are subclasses of this class.  Possible subclass types might include patterns based on SPARQL, SPIN, OWL and maybe other data-matching patterns.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#QueryResultTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#QueryResultTest">
+        <rdfs:label>Query result test</rdfs:label>
+        <rdfs:comment>A test of a query result used in conjunction with a Query value to make a QueryTestRule.  Any query tests should be declared as a subclass of this.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#QueryTestRule -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#QueryTestRule">
+        <rdfs:label>Query test rule</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <rdf:Description rdf:about="http://purl.org/minim/minim#QueryResultTest"/>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#query"/>
+                        <owl:onClass rdf:resource="http://purl.org/minim/minim#Query"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#graph"/>
+                        <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#Rule"/>
+        <rdfs:comment>Generalized rule consisting of a query to extract information from an RDF graph, and a test that is applied to the results from applying that query.
+
+The query is assumed to return a set of results, each of which contains one ormore variable bindings.  This currently available implementation uses a SPARQL query, but in principle other forms of query are possible, such as an OWL class expression.
+
+If a minim:graph value is supplied, it supplies a URI template used to identify the graph to be queried, otherwise the supplied RO annotation graph is queried.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Requirement -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Requirement">
+        <rdfs:label>Minim requirement</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#isDerivedBy"/>
+                        <owl:onClass rdf:resource="http://purl.org/minim/minim#Rule"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#seq"/>
+                        <owl:allValuesFrom rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:comment>A Minim requirement, whose satisfaction is determined by evaluation of the indicated rule.
+       
+         The minim:seq value is used to order the requirement results returned, 
+         to allow more consistent reporting of results.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Rule -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Rule">
+        <rdfs:label>Minim rule</rdfs:label>
+        <rdfs:comment>This is a generic placeholder for any rule which is evaluated to determine whether or not a Minim requirement is satisfied.  The various checklist item rules should be declared as subclasses of this rule.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#RuleNegationTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#RuleNegationTest">
+        <rdfs:label>Rule negation test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#negateRule"/>
+                <owl:onClass rdf:resource="http://purl.org/minim/minim#Rule"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Invokes a specified rule with the current result as predefined variable bindings.  The result returned is success if the rule invocation fails, otherwise failure if the rule succeeds.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#RuleTest -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#RuleTest">
+        <rdfs:label>Rule test</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Restriction>
+                <owl:onProperty rdf:resource="http://purl.org/minim/minim#affirmRule"/>
+                <owl:onClass rdf:resource="http://purl.org/minim/minim#Rule"/>
+                <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+            </owl:Restriction>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#QueryResultTest"/>
+        <rdfs:comment>Invokes a specified rule with the current result as predefined variable bindings.  The result returned is the result of the rule invocation.  This recursive invocation of minim:Rule allows chains of tests to be assembled when a single test alone does not suffice.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#SoftwareEnvRule -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#SoftwareEnvRule">
+        <rdfs:label>Software environment rule</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#command"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#response"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#Rule"/>
+        <rdfs:comment>A checklist requirement rule that tests the local software environment provides some specified capability or meets some specified requirement.
+
+The test works by issuing a command and testing to see if the response matches asupplied regular expression.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#SparqlQuery -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#SparqlQuery">
+        <rdfs:label>SPARQL query</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#sparql_query"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#result_mod"/>
+                        <owl:maxQualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:maxQualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:subClassOf rdf:resource="http://purl.org/minim/minim#Query"/>
+        <rdfs:comment>Query an RDF graph and returns results that match the supplied SPARQL query body.  The results returned are a set of results, where each result is a set of query variable bindings corresponding to a single match of the query, and the entire result set contains all distinct matches achieved.
+
+The minim:result_mod value, if present, is added as a query result modifier, and may be used, among other things, to obtain results returned in a consistent oder for better diagnostics.</rdfs:comment>
+    </owl:Class>
+</rdf:RDF>
+
+
+
+<!-- Generated by the OWL API (version 3.2.3.1824) http://owlapi.sourceforge.net -->
+

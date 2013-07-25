@@ -20,7 +20,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
@@ -151,6 +151,94 @@ class TestSparqlQueries(unittest.TestCase):
         self.doAskQuery(g, q6, True)
         return
 
+    def testIntegerStringFilter(self):
+        g = """
+            :s1 :p1 "111" .
+            :s2 :p2 222 .
+            :s3 :p3 "notaninteger" .
+            """
+        # Note:
+        # "FILTERs eliminate any solutions that, when substituted into the expression, 
+        # either result in an effective boolean value of false or produce an error" 
+        # -- http://www.w3.org/TR/rdf-sparql-query/#tests.
+        #
+        # Further, the str() of any valid integer is a non-blank string, which in SPARQL
+        # yields an equivalent boolean value (EBV) of True.
+        # Thus, only valid integer literals should be accepted.
+        #
+        q1 = """
+            ASK { :s1 :p1 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q2 = """
+            ASK { :s2 :p2 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q3 = """
+            ASK { :s3 :p3 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        q3s = """
+            SELECT * WHERE { :s3 :p3 ?value . FILTER ( str(xsd:integer(?value)) ) }
+            """ ;
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, True)
+        r = self.doSelectQuery(g, q3s, expect=0)
+        # print "\n----\n%s\n----"%(repr(r))
+        self.doAskQuery(g, q3, False)
+        return
+
+    def testRegexFilter(self):
+        g = """
+            :s1 :p1 "111" .
+            :s2 :p2 222 .
+            :s3 :p3 "notaninteger" .
+            """
+        q1 = """
+            ASK { :s1 :p1 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q2 = """
+            ASK { :s2 :p2 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        q3 = """
+            ASK { :s3 :p3 ?value . FILTER(regex(?value, "^\\\\d+$")) }
+            """ ;
+        self.doAskQuery(g, q1, True)
+        self.doAskQuery(g, q2, False)    # Is this correct?
+        self.doAskQuery(g, q3, False)
+        return
+
+    # @unittest.skip("Currently 'OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }' does not work")
+    def testDefaultQuery(self):
+        g1 = """
+            :s1 a :test ; rdfs:label "s1" .
+            """
+        g2 = """
+            :s2 a :test .
+            """
+        q1 = """
+            SELECT * WHERE
+            {
+              ?s a :test .
+              OPTIONAL { ?s rdfs:label ?label }{
+              OPTIONAL { filter(!bound(?label)) BIND(str(?s) as ?label) }
+            }
+            """
+        q2 = """
+            SELECT ?s (COALESCE(?reallabel, ?genlabel) AS ?label) WHERE 
+            { 
+              ?s a :test . 
+              BIND(str(?s) as ?genlabel) 
+              OPTIONAL { ?s rdfs:label ?reallabel } 
+            }
+            """
+        r1 = self.doSelectQuery(g1, q2, expect=1)
+        # print "\n----\n%s\n----"%(repr(r1))
+        self.assertEqual(r1[0]['s'],     rdflib.URIRef("http://example.org/s1"))
+        self.assertEqual(r1[0]['label'], rdflib.Literal("s1"))
+        r2 = self.doSelectQuery(g2, q2, expect=1)
+        # print "\n----\n%s\n----"%(repr(r2))
+        self.assertEqual(r2[0]['s'],     rdflib.URIRef("http://example.org/s2"))
+        self.assertEqual(r2[0]['label'], rdflib.Literal("http://example.org/s2"))
+        return
+
     def testGraphReadTerms(self):
         gturtle = """
             :s1 :p :o1 .
@@ -205,6 +293,9 @@ def getTestSuite(select="unit"):
             , "testSimpleAskQuery"
             , "testSimpleSelectQuery"
             , "testDatatypeFilter"
+            , "testIntegerStringFilter"
+            , "testRegexFilter"
+            , "testDefaultQuery"
             , "testGraphReadTerms"
             , "testLiteralCompare"
             ],

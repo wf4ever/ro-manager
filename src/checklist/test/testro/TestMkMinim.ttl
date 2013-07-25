@@ -1,0 +1,102 @@
+@prefix ao: <http://purl.org/ao/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix ex: <http://example.org/> .
+@prefix minim: <http://purl.org/minim/minim#> .
+@prefix ore: <http://www.openarchives.org/ore/terms/> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfg: <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix ro: <http://purl.org/wf4ever/ro#> .
+@prefix xml: <http://www.w3.org/XML/1998/namespace> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<#ChecklistConstraints> minim:hasChecklist
+    [ a minim:Checklist ;
+        minim:forPurpose "test1" ;
+        minim:forTargetTemplate "{+targetro}" ;
+        minim:toModel <#model_test1> ] ,
+    [ a minim:Checklist ;
+        minim:forPurpose "test2" ;
+        minim:forTargetTemplate "{+targetro}" ;
+        minim:toModel <#model_test2> ] .
+
+<#model_test1> a minim:Model ;
+    minim:hasMustRequirement
+        [ minim:seq "010" ; minim:isDerivedBy <#req_exists> ],
+        [ minim:seq "020" ; minim:isDerivedBy <#req_foreach_accessible> ],
+        [ minim:seq "030" ; minim:isDerivedBy <#req_foreach_aggregated> ],
+        [ minim:seq "040" ; minim:isDerivedBy <#req_foreach_exists> ];
+    minim:hasShouldRequirement
+        [ minim:seq "050" ; minim:isDerivedBy <#req_max>  ],
+        [ minim:seq "060" ; minim:isDerivedBy <#req_min>  ];
+    minim:hasMayRequirement
+        [ minim:seq "070" ; minim:isDerivedBy <#req_python> ].
+
+<#model_test2> a minim:Model ;
+    minim:hasMustRequirement
+        [ minim:seq "010" ; minim:isDerivedBy <#req_exists> ],
+        [ minim:seq "020" ; minim:isDerivedBy <#req_foreach_aggregated> ],
+        [ minim:seq "030" ; minim:isDerivedBy <#req_foreach_exists> ];
+    minim:hasShouldRequirement
+        [ minim:seq "040" ; minim:isDerivedBy <#req_max> ],
+        [ minim:seq "050" ; minim:isDerivedBy <#req_min> ].
+
+<#req_exists> a minim:QueryTestRule ;
+    minim:exists
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:showpass "File exists as a part" ;
+    minim:showfail "File as part does not exist" ;
+    .
+
+<#req_foreach_exists> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ; minim:result_mod  "ORDER BY ?file" ] ;
+    minim:exists
+        [ minim:sparql_query "?file ex:partOf [ rdf:type ex:Whole ]" ] ;
+    minim:showpass "Files as part are partOf some indicated whole" ;
+    minim:showfail "File as part %(file)s is not part of some whole" ;
+    .
+
+<#req_foreach_aggregated> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:aggregatesTemplate "{+file}" ;
+    minim:showpass "All file as part resources are aggregated in RO" ;
+    minim:showfail "File as part %(file)s is not aggregated in RO" ;
+    minim:showmiss "No file as part definitions are present" ;
+    .
+
+<#req_foreach_accessible> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:isLiveTemplate "{+pruri}" ;
+    minim:showpass "All file as part resources are accessible (live)" ;
+    minim:showfail "File as part %(file)s is not accessible" ;
+    minim:showmiss "No file as part definitions are present" ;
+    .
+
+<#req_min> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:min 3 ;
+    minim:showpass "At least 3 file as part values are present" ;
+    minim:showfail "Fewer than 3 file as part values are present" ;
+    .
+
+<#req_max> a minim:QueryTestRule ;
+    minim:query
+        [ minim:sparql_query "?file rdf:type ex:Part" ] ;
+    minim:max 3 ;
+    minim:showpass "At most 3 file as part values are present" ;
+    minim:showfail "At more than 3 file as part values are present" ;
+    .
+
+<#req_python> a minim:SoftwareEnvironmentRule ;
+    minim:command "python --version" ;
+    minim:response "^Python 2\\.7.*$" ;
+    minim:showpass "Python 2.7.x present" ;
+    minim:showfail "Python 2.7.x not present" ;
+    .
+
+# End.

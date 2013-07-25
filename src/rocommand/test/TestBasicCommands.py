@@ -28,7 +28,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from rocommand.ROSRS_Session import ROSRS_Session
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro, ro_utils
 

@@ -29,7 +29,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
             # Requirement and properties
             , "Requirement"
-            , "derives", "reports", "isDerivedBy"
+            , "isDerivedBy"
             , "show", "showpass", "showfail", "showmiss", "seq"
             # Rules and properties
             , "RequirementRule"
@@ -114,6 +114,9 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
     templatedict = {'targetro': urllib.unquote(str(rouri))}
+    if target:
+        # Allow use of {+targetres} in checklist target template:
+        templatedict['targetres'] = urllib.unquote(str(target))
     for c in getConstraints(minimgraph):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
@@ -123,10 +126,13 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
             if not target:
                 # No target specified in request, match any (first) constraint
                 return c
-            if target == c['target']:
+            if c['target'] == target:
                 # Match explicit target specification (subject of minim:hasConstraint)
                 return c
-            log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
+            log.debug("- target: %s, c['target_t']: %s"%(target, repr(c['target_t'])))
+            if c['target_t'] and c['target_t'].value == "*":
+                # Special case: wilcard ("*") template matches any target
+                return c
             if target and c['target_t']:
                 log.debug("- expand %s"%(uritemplate.expand(c['target_t'], templatedict)))
                 if str(target) == uritemplate.expand(c['target_t'], templatedict):
@@ -167,8 +173,7 @@ def getRequirements(minimgraph, modeluri):
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
             rule = (
-                { 'derives':    minimgraph.value(subject=ruleuri, predicate=MINIM.derives) 
-                , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
+                { 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
@@ -193,23 +198,28 @@ def getRequirements(minimgraph, modeluri):
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
             elif ruletype == MINIM.QueryTestRule:
-                query = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
-                assert query, "QueryTestRule for requirement %s has no query"%(o)
+                query  = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                assert query or exists, "QueryTestRule for requirement %s/rule %s has no query"%(o, ruleuri)
                 rule['prefixes']     = list(getPrefixes(minimgraph))
-                rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
-                rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                if query:
+                    rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                    rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                else:
+                    rule['query']        = None
+                    rule['resultmod']    = None
+                if exists:
+                    rule['exists']   = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists']   = None
                 rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
                 rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
                 rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
-                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
-                if exists:
-                    rule['exists']        = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
-                else:
-                    rule['exists'] = None
                 req['querytestrule'] = rule
             else:
-                assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
+                assert False, ("Unrecognized rule type %s for requirement %s, rule %s"%
+                               (str(ruletype), str(o), ruleuri))
         return req
     for stmt in minimgraph.triples( (modeluri, None, None) ):
         pred_level_list = (

@@ -1,4 +1,4 @@
-# ro_metadata.py
+# ro_uriutils.py
 
 """
 Helper functions for manipulasting and testing URIs and URI-related file paths,
@@ -43,6 +43,7 @@ def resolveFileAsUri(path):
     """
     if urlparse.urlsplit(path).scheme == "":
         path = resolveUri("", fileuribase, os.path.abspath(path))
+        # path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
     return path
 
 def getFilenameFromUri(uri):

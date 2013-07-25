@@ -14,7 +14,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -217,7 +217,7 @@ class ro_remote_metadata(object):
 #        rofiles = [ro_file]
 #        if os.path.isdir(ro_file):
 #            rofiles = filter( notHidden,
-#                                MiscLib.ScanDirectories.CollectDirectoryContents(
+#                                MiscUtils.ScanDirectories.CollectDirectoryContents(
 #                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.roref),
 #                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
 #                            )
