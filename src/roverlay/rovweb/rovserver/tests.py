@@ -293,12 +293,31 @@ class RovServerTest(TestCase):
             self.assertRegexpMatches(r.content, urilisting(uri))
         return
 
+    def test_roverlay_ro_get_404(self):
+        c = Client()
+        base_uri = "http://example.org/resource/"
+        uri_list = (
+            [ base_uri+"res1"
+            , base_uri+"res2"
+            , base_uri+"res3"
+            ])
+        ro_uri = self.create_test_ro(uri_list)
+        # Read HTML for created RO
+        r = c.get(ro_uri, HTTP_ACCEPT="text/html")
+        self.assertEqual(r.status_code, 200)
+        no_uri = ro_uri[:-9]+"c01dca11/"
+        r = c.get(no_uri, HTTP_ACCEPT="text/html")
+        self.assertEqual(r.status_code, 404)
+        self.assertRegexpMatches(r.content, r"<title>Error 404: Not found .*</title>")
+        self.assertRegexpMatches(r.content, r"<h1>Error 404: Not found .*</h1>")
+        self.assertRegexpMatches(r.content, "<p>Research object %s not found</p>"%(no_uri))
+        return
+
     @unittest.skip("RO GET RDF not yet implemented")
     def test_roverlay_ro_get_rdf(self):
         assert False, "@@TODO: test not implemented"
         return
 
-    @unittest.skip("DELETE not yet implemented")
     def test_roverlay_ro_delete(self):
         """
         Test logic for deleting RO aggregation by DELETE to service
@@ -321,12 +340,12 @@ class RovServerTest(TestCase):
         self.assertEqual(len(ResearchObject.objects.all()), 1)
         self.assertEqual(len(AggregatedResource.objects.all()), 3)
         # Delete RO
-        r = c.delete("/rovserver/")
+        r = c.delete(ro_uri)
         self.assertEqual(r.status_code, 204)
-        # Check aggregated content
+        # Check RO and aggregated content are gone
         ros = ResearchObject.objects.filter(uri=ro_uri)
         self.assertEqual(len(ros), 0)
-        ars = AggregatedResource.objects.filter(ro=ros[0])
+        ars = AggregatedResource.objects.all()
         self.assertEqual(len(ars), 0)
         return
 

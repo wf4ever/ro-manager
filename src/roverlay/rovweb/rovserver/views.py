@@ -1,6 +1,7 @@
 # Create your views here.
 
 import random
+import logging
 
 from django.http import HttpResponse
 from django.template import RequestContext, loader
@@ -9,6 +10,9 @@ from django.views import generic
 from rovserver.ContentNegotiationView import ContentNegotiationView
 
 from rovserver.models import ResearchObject, AggregatedResource
+
+# Logger for this module
+log = logging.getLogger(__name__)
 
 # Start RO IDs from random value to reduce chance of conflict when service is restarted
 RO_generator = random.randint(0x00000000,0x7FFFFFFF)
@@ -92,6 +96,13 @@ class ResearchObjectView(ContentNegotiationView):
     View class to handle requests to a research obect URI
     """
 
+    def error404values(self):
+        return self.errorvalues(404, "Not found (No such RO)", 
+            "Research object %(request_uri)s not found"
+            )
+
+    # GET
+
     @ContentNegotiationView.accept_types(["application/rdf+xml", "text/turtle", ""])
     def render_rdf(self, resultdata):
         resp = HttpResponse(status=200, content_type=resultdata["accept_type"])
@@ -105,14 +116,14 @@ class ResearchObjectView(ContentNegotiationView):
         return HttpResponse(template.render(context))
 
     def get(self, request, roslug):
-        # print "RO slug: %s"%(roslug)
+        log.debug("ResearchObjectView.get: RO slug %s"%(roslug))
         self.request = request      # For clarity: generic.View does this anyway
         ro_uri       = self.get_request_uri()
-        ro           = ResearchObject.objects.get(uri=ro_uri)
-        # print "RO URI: %s (%s)"%(ro_uri, ro.uri)
+        try:
+            ro = ResearchObject.objects.get(uri=ro_uri)
+        except ResearchObject.DoesNotExist, e:
+            return self.error(self.error404values())
         ro_resources = AggregatedResource.objects.filter(ro=ro)
-        # for res in ro_resources:
-        #     print "ro_resource: %s"%(res)
         resultdata = (
             { 'ro_uri':         ro_uri
             , 'ro_resources':   ro_resources
@@ -123,10 +134,18 @@ class ResearchObjectView(ContentNegotiationView):
             self.error(self.error406values())
             )
 
-    def delete(self, request):
+    # DELETE
+
+    def delete(self, request, roslug):
+        log.debug("ResearchObjectView.delete: RO slug %s"%(roslug))
         self.request = request      # For clarity: generic.View does this anyway
-        raise Exception("@@TODO: unimplemented")
-        return self.error(self.error405values())
+        ro_uri       = self.get_request_uri()
+        try:
+            ro = ResearchObject.objects.get(uri=ro_uri)
+        except ResearchObject.DoesNotExist, e:
+            return self.error(self.error404values())
+        ro.delete()
+        return HttpResponse(None, status=204)
 
 # End.
 

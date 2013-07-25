@@ -79,6 +79,11 @@ class ContentNegotiationView(generic.View):
                 }
             })
 
+    def error404values(self):
+        return self.errorvalues(404, "Not found", 
+            "Resource %(request_uri)s not found"
+            )
+
     def error405values(self):
         return self.errorvalues(405, "Method not allowed", 
             "Method %(method)s is not recognized for %(request_uri)s"
