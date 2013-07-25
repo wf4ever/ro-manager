@@ -5,13 +5,47 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
+import os
 import random
 import unittest
 
 from django.test import TestCase
 from django.test.client import Client
 
+from MiscUtils.HttpSession       import HTTP_Error, HTTP_Session
+from MiscUtils.MockHttpResources import MockHttpResources
+
 from rovserver.models import ResearchObject, AggregatedResource
+
+TestBaseDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "testdata/")
+
+class MockHttpResourcesTest(TestCase):
+
+    def test_MockHttpResources(self):
+        c = Client()
+        testbaseuri  = "http://example.org/testdata/ro-test-1/"
+        testbasepath = os.path.join(TestBaseDir, "ro-test-1/")
+        with MockHttpResources(testbaseuri, testbasepath):
+            hs = HTTP_Session(testbaseuri)
+            (status, reason, headers, body) = hs.doRequest("README-ro-test-1.txt")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            self.assertRegexpMatches(body, "README-ro-test-1")
+            (status, reason, headers, body) = hs.doRequest("README-ro-test-1.txt", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            self.assertEquals(body, "")
+            (status, reason, headers, body) = hs.doRequest("subdir1/subdir1-file.txt")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            (status, reason, headers, body) = hs.doRequest("minim.rdf", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "application/rdf+xml")
+        return
 
 class ResearchObjectsTest(TestCase):
 
