@@ -2,13 +2,16 @@
 
 import random
 import logging
+import rdflib
 
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views import generic
 
-from rovserver.ContentNegotiationView import ContentNegotiationView
+from MiscUtils.HttpSession   import HTTP_Error, HTTP_Session
+from rocommand.ro_namespaces import RDF, RO, ORE, AO
 
+from rovserver.ContentNegotiationView import ContentNegotiationView
 from rovserver.models import ResearchObject, AggregatedResource
 
 # Logger for this module
@@ -16,6 +19,12 @@ log = logging.getLogger(__name__)
 
 # Start RO IDs from random value to reduce chance of conflict when service is restarted
 RO_generator = random.randint(0x00000000,0x7FFFFFFF)
+
+RDF_serialize_formats = (
+    { "application/rdf+xml":    "xml"
+    , "text/turtle":            "turtle"
+    })
+
 
 class RovServerHomeView(ContentNegotiationView):
     """
@@ -59,8 +68,15 @@ class RovServerHomeView(ContentNegotiationView):
         return self.get_request_uri() + "ROs/%08x/"%RO_generator 
 
     def make_resource(self, ro, uri):
-        # @@TODO: test URI content type
-        return AggregatedResource(ro=ro, uri=uri, is_rdf=False)
+        log.debug("RovServerHomeView.make_resource: res %s"%(uri))
+        try:
+            (status, reason, headers, body) = HTTP_Session(uri).doRequest("", method="HEAD")
+            is_rdf = ( (status == 200) and 
+                       (headers["content-type"] in RDF_serialize_formats.iterkeys())
+                     )
+        except Exception, e:
+            is_rdf = False
+        return AggregatedResource(ro=ro, uri=uri, is_rdf=is_rdf)
 
     @ContentNegotiationView.content_types(["text/uri-list"])
     def post_uri_list(self, values):
@@ -103,10 +119,12 @@ class ResearchObjectView(ContentNegotiationView):
 
     # GET
 
-    @ContentNegotiationView.accept_types(["application/rdf+xml", "text/turtle", ""])
+    @ContentNegotiationView.accept_types(RDF_serialize_formats.keys())
     def render_rdf(self, resultdata):
-        resp = HttpResponse(status=200, content_type=resultdata["accept_type"])
-        raise Exception("@@TODO: unimplemented")
+        ct = resultdata["accept_type"]
+        sf = RDF_serialize_formats[ct]
+        resp = HttpResponse(status=200, content_type=ct)
+        resultdata['ro_manifest'].serialize(resp, format=sf, base=self.get_request_uri())
         return resp
 
     @ContentNegotiationView.accept_types(["text/html", "application/html", "default_type"])
@@ -114,6 +132,23 @@ class ResearchObjectView(ContentNegotiationView):
         template = loader.get_template('research_object_home.html')
         context  = RequestContext(self.request, resultdata)
         return HttpResponse(template.render(context))
+
+    def getManifestGraph(self, ro, ro_resources):
+        manifestgr = rdflib.Graph()
+        rosub = rdflib.URIRef(ro.uri)
+        manifestgr.add( (rosub, RDF.type, RO.ResearchObject) )
+        for res in ro_resources:
+            resuri = rdflib.URIRef(res.uri)
+            manifestgr.add( (rosub, ORE.aggregates, resuri) )
+            if res.is_rdf:
+                # Annotation...
+                astub = rdflib.BNode()
+                manifestgr.add( (rosub, ORE.aggregates, astub) )
+                manifestgr.add( (astub, RDF.type, RO.AggregatedAnnotation) )
+                manifestgr.add( (astub, RDF.type, RO.AggregatedAnnotation) )
+                manifestgr.add( (astub, RO.annotatesAggregatedResource, rosub) )
+                manifestgr.add( (astub, AO.body, resuri) )
+        return manifestgr
 
     def get(self, request, roslug):
         log.debug("ResearchObjectView.get: RO slug %s"%(roslug))
@@ -127,6 +162,7 @@ class ResearchObjectView(ContentNegotiationView):
         resultdata = (
             { 'ro_uri':         ro_uri
             , 'ro_resources':   ro_resources
+            , 'ro_manifest':    self.getManifestGraph(ro, ro_resources)
             })
         return (
             self.render_rdf(resultdata) or
