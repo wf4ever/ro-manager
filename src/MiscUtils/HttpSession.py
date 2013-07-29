@@ -9,6 +9,16 @@ import logging
 # Logger for this module
 log = logging.getLogger(__name__)
 
+RDF_CONTENT_TYPES = (
+    { "application/rdf+xml":    "xml"
+    , "text/turtle":            "n3"
+    , "text/n3":                "n3"
+    , "text/nt":                "nt"
+    , "application/json":       "jsonld"
+    , "application/xhtml":      "rdfa"
+    })
+
+ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
 
 def splitValues(txt, sep=",", lq='"<', rq='">'):
     """
@@ -124,9 +134,18 @@ class HTTP_Session(object):
 
     Creates a session to access a single HTTP endpoint,
     and provides methods to issue requests on this session
+
+    This class is primarily designed to access a specific endpoint, and 
+    by default refuses requests for different endpoints.  But the request
+    methods accept an additional "exthost" parameter that can be used to
+    override this behaviour.  Specifying "exthost=True" causes the request 
+    to allow URIs that use different scheme, hostname or port than the original
+    request, but such requests are not issued using the access key of the HTTP
+    session.
+
     """
 
-    def __init__(self, baseuri, accesskey = None):
+    def __init__(self, baseuri, accesskey=None):
         log.debug("HTTP_Session.__init__: baseuri "+baseuri)
         self._baseuri = baseuri
         self._key     = accesskey
@@ -145,6 +164,10 @@ class HTTP_Session(object):
     def baseuri(self):
         return self._baseuri
 
+    def getpathuri(self, uripath):
+        # str used here so rdflib.URIRef values can be accepted
+        return urlparse.urljoin(self._baseuri, str(uripath))
+
     def error(self, msg, value=None):
         return HTTP_Error(msg=msg, value=value, uri=self._baseuri)
 
@@ -154,35 +177,58 @@ class HTTP_Session(object):
         """
         return parseLinks(headers["_headerlist"])
 
-    def doRequest(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
+    def doRequest(self, uripath,
+            method="GET", body=None, ctype=None, accept=None, reqheaders=None, exthost=False):
         """
-        Perform HTTP request
+        Perform HTTP request.
 
-        Return status, reason(text), response headers, response body
+        Parameters:
+            uripath     URI reference of resource to access, resolved against the base URI of
+                        the current HTTP_Session object.
+            method      HTTP method to use (default GET)
+            body        request body to use (default none)
+            ctype       content-type of request body (default none)
+            accept      string containing list of content types for HTTP accept header
+            reqheaders  dictionary of additional header fields to send with the HTTP request
+            exthost     True if a request to a URI with a scheme and/or host different than 
+                        the session base URI is to be respected (default False).
+
+        Return:
+             status, reason(text), response headers, response body
+
         """
-        # Sort out path to use in HTTP request: request may be path or full URI or rdflib.URIRef
-        uripath  = str(uripath)        # get URI string from rdflib.URIRef
-        uriparts = urlparse.urlsplit(urlparse.urljoin(self._path,uripath))
-        if uriparts.scheme:
-            if self._scheme != uriparts.scheme:
+        # Construct request path
+        uriparts = urlparse.urlsplit(self.getpathuri(uripath))
+        path     = uriparts.path
+        if uriparts.query: path += ("?"+uriparts.query)
+        # Sort out HTTP connection to use: session or new
+        if ( (uriparts.scheme and uriparts.scheme != self._scheme) or
+             (uriparts.netloc and uriparts.netloc != self._host) ):
+            if exthost:
+                newhttpcon = httplib.HTTPConnection(uriparts.netloc)
+                usehttpcon = newhttpcon
+                usescheme  = uriparts.scheme
+                usekey     = None
+            elif (uriparts.scheme and uriparts.scheme != self._scheme):
                 raise HTTP_Error(
                     "URI scheme mismatch",
                     value=uriparts.scheme,
                     baseuri=self._baseuri)
-        if uriparts.netloc:
-            if self._host != uriparts.netloc:
+            elif (uriparts.netloc and uriparts.netloc != self._host):
                 raise HTTP_Error(
                     "URI host:port mismatch",
                     value=uriparts.netloc,
                     baseuri=self._baseuri)
-        path = uriparts.path
-        if uriparts.query: path += "?"+uriparts.query
+        else:
+            newhttpcon = None
+            usehttpcon = self._httpcon
+            usescheme  = self._scheme
+            usekey     = self._key
         # Assemble request headers
         if not reqheaders:
             reqheaders = {}
-        if self._key:
-            reqheaders["authorization"] = "Bearer "+self._key
+        if usekey:
+            reqheaders["authorization"] = "Bearer "+usekey
         if ctype:
             reqheaders["content-type"] = ctype
         if accept:
@@ -192,9 +238,9 @@ class HTTP_Session(object):
         log.debug("HTTP_Session.doRequest path:       "+path)
         log.debug("HTTP_Session.doRequest reqheaders: "+repr(reqheaders))
         log.debug("HTTP_Session.doRequest body:       "+repr(body))
-        self._httpcon.request(method, path, body, reqheaders)
+        usehttpcon.request(method, path, body, reqheaders)
         # Pick out elements of response
-        response = self._httpcon.getresponse()
+        response = usehttpcon.getresponse()
         status   = response.status
         reason   = response.reason
         headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
@@ -205,29 +251,140 @@ class HTTP_Session(object):
         log.debug("HTTP_Session.doRequest response: "+str(status)+" "+reason)
         log.debug("HTTP_Session.doRequest headers:  "+repr(headers))
         ###log.debug("HTTP_Session.doRequest data:     "+repr(data))
+        if newhttpcon:
+            newhttpcon.close()
         return (status, reason, headers, data)
 
-    def doRequestFollowRedirect(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
+    def doRequestFollowRedirect(self, uripath, 
+            method="GET", body=None, ctype=None, accept=None, reqheaders=None, exthost=False):
         """
-        Perform HTTP request, following any redirect returned
+        Perform HTTP request, following any redirect returned.
 
-        Return status, reason(text), response headers, final uri, response body
+        Parameters:
+            uripath     URI reference of resource to access, resolved against the base URI of
+                        the current HTTP_Session object.
+            method      HTTP method to use (default GET)
+            body        request body to use (default none)
+            ctype       content-type of request body (default none)
+            accept      string containing list of content types for HTTP accept header
+            reqheaders  dictionary of additional header fields to send with the HTTP request
+            exthost     True if a request to a URI with a scheme and/or host different than 
+                        the session base URI is to be respected (default False).
+
+        Return:
+             status, reason(text), response headers, final URI, response body
+
         """
         (status, reason, headers, data) = self.doRequest(uripath,
             method=method, accept=accept,
-            body=body, ctype=ctype, reqheaders=reqheaders)
+            body=body, ctype=ctype, reqheaders=reqheaders, 
+            exthost=exthost)
         if status in [302,303,307]:
             uripath = headers["location"]
             (status, reason, headers, data) = self.doRequest(uripath,
                 method=method, accept=accept,
-                body=body, ctype=ctype, reqheaders=reqheaders)
+                body=body, ctype=ctype, reqheaders=reqheaders,
+                exthost=exthost)
         if status in [302,307]:
             # Allow second temporary redirect
             uripath = headers["location"]
             (status, reason, headers, data) = self.doRequest(uripath,
                 method=method,
-                body=body, ctype=ctype, reqheaders=reqheaders)
+                body=body, ctype=ctype, reqheaders=reqheaders,
+                exthost=exthost)
+        return (status, reason, headers, rdflib.URIRef(uripath), data)
+
+    def doRequestRDF(self, uripath, 
+        method="GET", body=None, ctype=None, reqheaders=None, exthost=False, graph=None):
+        """
+        Perform HTTP request with RDF response.
+
+        If the request succeeds, return response as RDF graph,
+        or return fake 9xx status if RDF cannot be parsed.
+        Otherwise return response and content per request.
+        Thus, only 2xx responses include RDF data.
+
+        Parameters:
+            uripath     URI reference of resource to access, resolved against the base URI of
+                        the current HTTP_Session object.
+            method      HTTP method to use (default GET)
+            body        request body to use (default none)
+            ctype       content-type of request body (default none)
+            reqheaders  dictionary of additional header fields to send with the HTTP request
+            exthost     True if a request to a URI with a scheme and/or host different than 
+                        the session base URI is to be respected (default False).
+            graph       an rdflib.Graph object to which any RDF read is added.  If not
+                        provided, a new RDF graph is created and returmned.
+
+        Return:
+             status, reason(text), response headers, response graph or body
+
+        """
+        (status, reason, headers, data) = self.doRequest(uripath,
+            method=method, body=body,
+            ctype=ctype, accept=ACCEPT_RDF_CONTENT_TYPES, reqheaders=reqheaders, 
+            exthost=exthost)
+        if status >= 200 and status < 300:
+            content_type = headers["content-type"].split(";",1)[0].strip().lower()
+            if content_type in RDF_CONTENT_TYPES:
+                rdfgraph   = graph or rdflib.graph.Graph()
+                baseuri    = self.getpathuri(uripath)
+                bodyformat = RDF_CONTENT_TYPES[content_type]
+                try:
+                    rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
+                    data = rdfgraph
+                except Exception, e:
+                    status   = 902
+                    reason   = "RDF parse failure"
+            else:
+                status   = 901
+                reason   = "Non-RDF content-type returned"
+        return (status, reason, headers, data)
+
+    def doRequestRDFFollowRedirect(self, uripath, 
+            method="GET", body=None, ctype=None, reqheaders=None, exthost=False, graph=None):
+        """
+        Perform HTTP request with RDF response, following any redirect returned
+
+        If the request succeeds, return response as an RDF graph,
+        or return fake 9xx status if RDF cannot be parsed.
+        Otherwise return response and content per request.
+        Thus, only 2xx responses include RDF data.
+
+        Parameters:
+            uripath     URI reference of resource to access, resolved against the base URI of
+                        the current HTTP_Session object.
+            method      HTTP method to use (default GET)
+            body        request body to use (default none)
+            ctype       content-type of request body (default none)
+            reqheaders  dictionary of additional header fields to send with the HTTP request
+            exthost     True if a request to a URI with a scheme and/or host different than 
+                        the session base URI is to be respected (default False).
+            graph       an rdflib.Graph object to which any RDF read is added.  If not
+                        provided, a new RDF graph is created and returmned.
+
+        Return:
+             status, reason(text), response headers, final URI, response graph or body
+        """
+        (status, reason, headers, data) = self.doRequestRDF(uripath,
+            method=method,
+            body=body, ctype=ctype, reqheaders=reqheaders)
+        log.debug("%03d %s from request to %s"%(status, reason, uripath))
+        if status in [302,303,307]:
+            uripath = headers["location"]
+            (status, reason, headers, data) = self.doRequestRDF(uripath,
+                method=method,
+                body=body, ctype=ctype, reqheaders=reqheaders,
+                exthost=exthost, graph=graph)
+            log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
+        if status in [302,307]:
+            # Allow second temporary redirect
+            uripath = headers["location"]
+            (status, reason, headers, data) = self.doRequestRDF(uripath,
+                method=method,
+                body=body, ctype=ctype, reqheaders=reqheaders,
+                exthost=exthost, graph=graph)
+            log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
         return (status, reason, headers, rdflib.URIRef(uripath), data)
 
 # End.

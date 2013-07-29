@@ -4,19 +4,22 @@ RO SRS session client implementation
 
 import json # Used for service/resource info parsing
 import re   # Used for link header parsing
-import httplib
+#import httplib
 import urlparse
 import rdflib.graph
 import logging
+import time
+
+from xml.dom import minidom
+from urlparse import urljoin
+from httplib2 import Http
+from rdflib.term import URIRef
+
+from MiscUtils.HttpSession import HTTP_Session
 
 import ro_prefixes
 from ro_namespaces import RDF, ORE, RO, AO, ROEVO
-from rdflib.term import URIRef
 from ro_utils import EvoType
-from httplib2 import Http
-from xml.dom import minidom
-from urlparse import urljoin
-import time
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -158,7 +161,7 @@ def getResourceUri(rouri, resuriref):
 # Class for handling ROSRS access
 
 # @@TODO: refactor to use MiscUtils.HttpSession
-class ROSRS_Session(object):
+class ROSRS_Session(HTTP_Session):
     
     """
     Client access class for RO SRS - creates a session to access a single ROSRS endpoint,
@@ -174,13 +177,14 @@ class ROSRS_Session(object):
 
     def __init__(self, srsuri, accesskey = None):
         log.debug("ROSRS_Session.__init__: srsuri "+srsuri)
+        super(ROSRS_Session, self).__init__(srsuri, accesskey)
         self._srsuri    = srsuri
-        self._key       = accesskey
-        parseduri       = urlparse.urlsplit(srsuri)
-        self._srsscheme = parseduri.scheme
-        self._srshost   = parseduri.netloc
-        self._srspath   = parseduri.path
-        self._httpcon   = httplib.HTTPConnection(self._srshost)
+        # self._key       = accesskey
+        # parseduri       = urlparse.urlsplit(srsuri)
+        # self._srsscheme = parseduri.scheme
+        # self._srshost   = parseduri.netloc
+        # self._srspath   = parseduri.path
+        #self._httpcon   = httplib.HTTPConnection(self._srshost)
         return
 
     def close(self):
@@ -194,16 +198,16 @@ class ROSRS_Session(object):
     def error(self, msg, value=None):
         return ROSRS_Error(msg=msg, value=value, srsuri=self._srsuri)
 
-    def parseLinks(self, headers):
+    def _parseLinks(self, headers):
         """
         Parse link header(s), return dictionary of links keyed by link relation type
         """
         return parseLinks(headers["_headerlist"])
 
-    def getpathuri(self, uripath):
+    def _getpathuri(self, uripath):
         return urlparse.urljoin(self._srspath, str(uripath))
 
-    def doRequest(
+    def _doRequest(
         self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
         """
         Perform HTTP request to ROSRS
@@ -256,7 +260,7 @@ class ROSRS_Session(object):
         ###log.debug("ROSRS_Session.doRequest data:     "+repr(data))
         return (status, reason, headers, data)
 
-    def doRequestFollowRedirect(
+    def _doRequestFollowRedirect(
         self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
         """
         Perform HTTP request to ROSRS, following any redirect returned
@@ -278,7 +282,7 @@ class ROSRS_Session(object):
                 body=body, ctype=ctype, reqheaders=reqheaders)
         return (status, reason, headers, rdflib.URIRef(uripath), data)
 
-    def doRequestRDF(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
+    def _doRequestRDF(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
         """
         Perform HTTP request with RDF response.
         If requests succeeds, return response as RDF graph,
@@ -290,20 +294,32 @@ class ROSRS_Session(object):
             method=method, body=body,
             ctype=ctype, accept="application/rdf+xml", reqheaders=reqheaders)
         if status >= 200 and status < 300:
-            if headers["content-type"].lower() == "application/rdf+xml":
-                rdfgraph = rdflib.graph.Graph()
+            content_type = headers["content-type"].split(";",1)[0].strip().lower()
+            if content_type in ANNOTATION_CONTENT_TYPES:
+                rdfgraph   = rdflib.graph.Graph()
+                baseuri    = self.getpathuri(uripath)
+                bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
                 try:
-                    rdfgraph.parse(data=data, location=self.getpathuri(uripath), format="xml")
+                    rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
                     data = rdfgraph
                 except Exception, e:
                     status   = 902
                     reason   = "RDF parse failure"
+            #     agraph.parse(data=bodytext, format=bodyformat)
+            #     log.debug("- agraph len: %d"%(len(agraph)))
+            # if headers["content-type"].lower() == "application/rdf+xml":
+                # try:
+                #     rdfgraph.parse(data=data, location=baseuri, format="xml")
+                #     data = rdfgraph
+                # except Exception, e:
+                #     status   = 902
+                #     reason   = "RDF parse failure"
             else:
                 status   = 901
                 reason   = "Non-RDF content-type returned"
         return (status, reason, headers, data)
 
-    def doRequestRDFFollowRedirect(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
+    def _doRequestRDFFollowRedirect(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
         """
         Perform HTTP request to ROSRS, following any redirect returned
         Return status, reason(text), response headers, final uri, response body
@@ -694,21 +710,23 @@ class ROSRS_Session(object):
         for (prefix, uri) in ro_prefixes.prefixes:
             agraph.bind(prefix, rdflib.namespace.Namespace(uri))
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
-            log.debug("- body uri %s, content uri %s"%(buri, curi))
-            if status == 200:
-                content_type = headers['content-type'].split(";", 1)[0]
-                content_type = content_type.strip().lower()
-                if content_type in ANNOTATION_CONTENT_TYPES:
-                    bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
-                    agraph.parse(data=bodytext, format=bodyformat)
-                    log.debug("- agraph len: %d"%(len(agraph)))
-                else:
-                    log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
-                             (str(buri),content_type))
-            else:
-                log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
-                         (str(buri), status, reason))
+            (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
+                graph=agraph, exthost=True)
+            # (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
+            # log.debug("- body uri %s, content uri %s"%(buri, curi))
+            # if status == 200:
+            #     content_type = headers['content-type'].split(";", 1)[0]
+            #     content_type = content_type.strip().lower()
+            #     if content_type in ANNOTATION_CONTENT_TYPES:
+            #         bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
+            #         agraph.parse(data=bodytext, format=bodyformat)
+            #         log.debug("- agraph len: %d"%(len(agraph)))
+            #     else:
+            #         log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
+            #                  (str(buri),content_type))
+            # else:
+            #     log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
+            #              (str(buri), status, reason))
         return agraph
 
     def getROAnnotation(self, annuri):
