@@ -59,7 +59,7 @@ class ROSRS_Error(Exception):
 
     def __str__(self):
         txt = self._msg
-        if self._srsuri: txt += " for "+str(self._srsuri)
+        if self._srsuri: txt += " for srsuri "+str(self._srsuri)
         if self._value:  txt += ": "+repr(self._value)
         return txt
 
@@ -157,6 +157,7 @@ def getResourceUri(rouri, resuriref):
 
 # Class for handling ROSRS access
 
+# @@TODO: refactor to use MiscUtils.HttpSession
 class ROSRS_Session(object):
     
     """
@@ -199,6 +200,9 @@ class ROSRS_Session(object):
         """
         return parseLinks(headers["_headerlist"])
 
+    def getpathuri(self, uripath):
+        return urlparse.urljoin(self._srspath, str(uripath))
+
     def doRequest(
         self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
         """
@@ -206,8 +210,9 @@ class ROSRS_Session(object):
         Return status, reason(text), response headers, response body
         """
         # Sort out path to use in HTTP request: request may be path or full URI or rdflib.URIRef
-        uripath = str(uripath)        # get URI string from rdflib.URIRef
-        uriparts = urlparse.urlsplit(urlparse.urljoin(self._srspath,uripath))
+        # uripath = str(uripath)        # get URI string from rdflib.URIRef
+        # uriparts = urlparse.urlsplit(urlparse.urljoin(self._srspath,uripath))
+        uriparts = urlparse.urlsplit(self.getpathuri(uripath))
         if uriparts.scheme:
             if self._srsscheme != uriparts.scheme:
                 raise ROSRS_Error(
@@ -288,7 +293,7 @@ class ROSRS_Session(object):
             if headers["content-type"].lower() == "application/rdf+xml":
                 rdfgraph = rdflib.graph.Graph()
                 try:
-                    rdfgraph.parse(data=data, format="xml")
+                    rdfgraph.parse(data=data, location=self.getpathuri(uripath), format="xml")
                     data = rdfgraph
                 except Exception, e:
                     status   = 902
