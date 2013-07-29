@@ -376,14 +376,16 @@ class ROSRS_Session(HTTP_Session):
         #@@TODO: Create annotations for title, creator, date??
         raise self.error("Error creating RO", "%03d %s"%(status, reason))
 
-    def deleteRO(self, rouri):
+    def deleteRO(self, rouri, purge=False):
         """
         Delete an RO
         Return (status, reason), where status is 204 or 404
         """
+        reqheaders=None
+        if purge:
+            reqheaders={"Purge": "True"}
         (status, reason, headers, data) = self.doRequest(rouri,
-            method="DELETE",
-            accept="application/rdf+xml")
+            method="DELETE", reqheaders=reqheaders)
         if status in [204, 404]:
             return (status, reason)
         raise self.error("Error deleting RO", "%03d %s (%s)"%(status, reason, str(rouri)))

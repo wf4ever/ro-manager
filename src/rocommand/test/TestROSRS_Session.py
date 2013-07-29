@@ -55,7 +55,7 @@ class TestROSRS_Session(unittest.TestCase):
         self.rosrs = ROSRS_Session(Config.ROSRS_API_URI,
             accesskey=Config.AUTHORIZATION)
         # Clean up from previous runs
-        self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        self.rosrs.deleteRO(Config.TEST_RO_PATH, purge=True)
         self.createdTestRO = None
         return
 
@@ -64,7 +64,7 @@ class TestROSRS_Session(unittest.TestCase):
         # Clean up
         self.rosrs.deleteRO(Config.TEST_RO_PATH)
         if self.createdTestRO:
-            self.rosrs.deleteRO(self.createdTestRO)
+            self.rosrs.deleteRO(self.createdTestRO, purge=True)
         self.rosrs.close()
         return
 
