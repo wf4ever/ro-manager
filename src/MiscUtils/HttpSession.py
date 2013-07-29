@@ -213,12 +213,12 @@ class HTTP_Session(object):
                 raise HTTP_Error(
                     "URI scheme mismatch",
                     value=uriparts.scheme,
-                    baseuri=self._baseuri)
+                    uri=self._baseuri)
             elif (uriparts.netloc and uriparts.netloc != self._host):
                 raise HTTP_Error(
                     "URI host:port mismatch",
                     value=uriparts.netloc,
-                    baseuri=self._baseuri)
+                    uri=self._baseuri)
         else:
             newhttpcon = None
             usehttpcon = self._httpcon
@@ -368,7 +368,8 @@ class HTTP_Session(object):
         """
         (status, reason, headers, data) = self.doRequestRDF(uripath,
             method=method,
-            body=body, ctype=ctype, reqheaders=reqheaders)
+            body=body, ctype=ctype, reqheaders=reqheaders,
+            exthost=exthost)
         log.debug("%03d %s from request to %s"%(status, reason, uripath))
         if status in [302,303,307]:
             uripath = headers["location"]
