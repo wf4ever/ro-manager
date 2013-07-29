@@ -7,6 +7,7 @@ import rdflib
 from django.http import HttpResponse
 from django.template import RequestContext, loader
 from django.views import generic
+from django.views.decorators.csrf import csrf_exempt
 
 from MiscUtils.HttpSession   import HTTP_Error, HTTP_Session
 from rocommand.ro_namespaces import RDF, RO, ORE, AO
@@ -24,7 +25,6 @@ RDF_serialize_formats = (
     { "application/rdf+xml":    "xml"
     , "text/turtle":            "turtle"
     })
-
 
 class RovServerHomeView(ContentNegotiationView):
     """
@@ -96,7 +96,7 @@ class RovServerHomeView(ContentNegotiationView):
             # print "resource: uri %s, ro %s, rdf %s "%(r.uri, r.ro.uri, r.is_rdf)
         # Assemble and return response
         template = loader.get_template('rovserver_created.html')
-        context = RequestContext({ 'uri': ro_uri })
+        context = RequestContext(self.request, { 'uri': ro_uri })
         resp = HttpResponse(template.render(context), status=201)
         resp['Location'] = ro_uri
         return resp
@@ -122,12 +122,13 @@ class ResearchObjectView(ContentNegotiationView):
     @ContentNegotiationView.accept_types(RDF_serialize_formats.keys())
     def render_rdf(self, resultdata):
         ct = resultdata["accept_type"]
+        log.info("RO accept_type: %s"%(ct))
         sf = RDF_serialize_formats[ct]
         resp = HttpResponse(status=200, content_type=ct)
         resultdata['ro_manifest'].serialize(resp, format=sf, base=self.get_request_uri())
         return resp
 
-    @ContentNegotiationView.accept_types(["text/html", "application/html", "default_type"])
+    @ContentNegotiationView.accept_types(["text/html", "application/html", "*/*", "default_type"])
     def render_html(self, resultdata):
         template = loader.get_template('research_object_home.html')
         context  = RequestContext(self.request, resultdata)

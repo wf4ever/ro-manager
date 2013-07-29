@@ -327,7 +327,6 @@ class RovServerTest(TestCase):
             self.assertIn(ar.uri, uri_list)
         return
 
-    # @unittest.skip("RO GET HTML not yet implemented")
     def test_roverlay_ro_get_html(self):
         c = Client()
         base_uri = "http://example.org/resource/"
@@ -438,6 +437,55 @@ class RovServerTest(TestCase):
             self.assertIn((astub, RO.annotatesAggregatedResource, rosub), mg)
         return
 
+    @unittest.skip("Slow test")
+    def test_roverlay_home_post_github_aggregation(self):
+        """
+        Test logic for creating new RO by POST to service
+        """
+        self.assertEqual(len(ResearchObject.objects.all()), 0)
+        self.assertEqual(len(AggregatedResource.objects.all()), 0)
+        c = Client()
+        # Create new RO
+        base_uri = "http://wf4ever.github.io/ro-catalogue/v0.1/simple-requirements/"
+        uri_list = (
+            [ base_uri + "checklist-runnable.rdf"
+            , base_uri + "data/UserRequirements-astro.ods"
+            , base_uri + "data/UserRequirements-bio.ods"
+            , base_uri + "data/UserRequirements-gen.ods"
+            , base_uri + "docs/mkjson.sh"
+            , base_uri + "docs/UserRequirements-astro.csv"
+            , base_uri + "docs/UserRequirements-astro.json"
+            , base_uri + "docs/UserRequirements-bio.csv"
+            , base_uri + "docs/UserRequirements-bio.json"
+            , base_uri + "docs/UserRequirements-gen.csv"
+            , base_uri + "docs/UserRequirements-gen.json"
+            , base_uri + "make.sh"
+            , base_uri + "minim-checklist.sh"
+            , base_uri + "python"
+            , base_uri + "python/ReadCSV.py"
+            , base_uri + "README"
+            , base_uri + "simple-requirements-minim.rdf"
+            , base_uri + "simple-requirements-wfdesc.rdf"
+            , base_uri + "simple-requirements-wfprov.rdf"
+            , base_uri + "TODO"
+            ])
+        ro_uri = self.create_test_ro(base_uri, uri_list)
+        self.assertEqual(len(ResearchObject.objects.all()), 1)
+        self.assertEqual(len(AggregatedResource.objects.all()), 20)
+        # Read back RO list
+        r = c.get("/rovserver/", HTTP_ACCEPT="text/uri-list")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"].split(';')[0], "text/uri-list")
+        self.assertEqual(r.content, ro_uri+"\n")
+        # Check aggregated content
+        ros = ResearchObject.objects.filter(uri=ro_uri)
+        self.assertEqual(len(ros), 1)
+        ars = AggregatedResource.objects.filter(ro=ros[0])
+        self.assertEqual(len(ars), 20)
+        for ar in ars:
+            self.assertIn(ar.uri, uri_list)
+        return
+
     def test_roverlay_ro_delete(self):
         """
         Test logic for deleting RO aggregation by DELETE to service
@@ -468,7 +516,6 @@ class RovServerTest(TestCase):
         ars = AggregatedResource.objects.all()
         self.assertEqual(len(ars), 0)
         return
-
 
         # import inspect
         # print "ATTRIBUTES:"
