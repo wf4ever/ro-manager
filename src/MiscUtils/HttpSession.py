@@ -18,8 +18,8 @@ RDF_CONTENT_TYPES = (
     , "application/xhtml":      "rdfa"
     })
 
-# ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
-ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml"
+ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
+# ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml"
 
 def splitValues(txt, sep=",", lq='"<', rq='">'):
     """
@@ -101,7 +101,6 @@ def testParseLinks():
     assert str(parseLinks(links)['bat']) == 'http://example.org/bat'
     assert str(parseLinks(links)['http://example.org/rel/fum']) == 'http://example.org/fum'
     assert str(parseLinks(links)['http://example.org/rel/fas']) == 'http://example.org/fas;far'
-
 
 
 # Class for exceptions raised by HTTP session
@@ -204,7 +203,7 @@ class HTTP_Session(object):
         # Sort out HTTP connection to use: session or new
         if ( (uriparts.scheme and uriparts.scheme != self._scheme) or
              (uriparts.netloc and uriparts.netloc != self._host) ):
-            if exthost and False:
+            if exthost:
                 newhttpcon = httplib.HTTPConnection(uriparts.netloc)
                 usehttpcon = newhttpcon
                 usescheme  = uriparts.scheme
