@@ -122,7 +122,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
 
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
-        self.assertEquals(r, 85, "newrow (%d)"%(r))
+        self.assertEquals(r, 87, "newrow (%d)"%(r))
         self.assertEquals(c, 1,  "newcol (%d)"%(c))
         ### print repr(d)
         self.assertEquals(d["matchtemplate"],       'checklist',                        "matchtemplate")
@@ -182,7 +182,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         rouri     = ro_manifest.getRoUri(rodir)
         # Create minim graph from CSV file
         # NOTE: a base URI may be specoified when decoding the grid or when constructing the minim
-        #       graph.  The Minim graph uses its own relative referenbces, so for consistency it may 
+        #       graph.  The Minim graph uses its own relative references, so for consistency it may 
         #       be necessary to pass the grid base URI to mkminim.  The code below does this.
         gridname  = "TestMkMinim.csv"
         griduri   = ro_manifest.getComponentUri(rodir, gridname)
@@ -196,7 +196,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         graphname = os.path.join(rodir, "TestMkMinim.ttl")
         expectgr  = rdflib.Graph()
         with open(graphname) as expectfile:
-            expectgr.parse(file=expectfile, location=gridbase, format="turtle")
+            expectgr.parse(file=expectfile, publicID=gridbase, format="turtle")
         # Check content of minim graph
         ###minimgr.serialize(sys.stdout, format="turtle")
         self.checkTargetGraph(minimgr.graph(), expectgr, msg="Not found in constructed minim graph")
@@ -245,9 +245,6 @@ class TestMkMinim(TestROSupport.TestROSupport):
         outtxt = self.outstr.getvalue()
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
-        # print "@@@@@@@@"
-        # print outtxt
-        # print "@@@@@@@@"
         # Check response returned
         expect = (
             [ "Research Object file://%s/:"%(rodir)

@@ -4,18 +4,22 @@ RO SRS session client implementation
 
 import json # Used for service/resource info parsing
 import re   # Used for link header parsing
-import httplib
+#import httplib
 import urlparse
 import rdflib.graph
 import logging
+import time
 
-from ro_namespaces import RDF, ORE, RO, AO, ROEVO
-from rdflib.term import URIRef
-from ro_utils import EvoType
-from httplib2 import Http
 from xml.dom import minidom
 from urlparse import urljoin
-import time
+from httplib2 import Http
+from rdflib.term import URIRef
+
+from MiscUtils.HttpSession import HTTP_Session
+
+import ro_prefixes
+from ro_namespaces import RDF, ORE, RO, AO, ROEVO
+from ro_utils import EvoType
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -58,7 +62,7 @@ class ROSRS_Error(Exception):
 
     def __str__(self):
         txt = self._msg
-        if self._srsuri: txt += " for "+str(self._srsuri)
+        if self._srsuri: txt += " for srsuri "+str(self._srsuri)
         if self._value:  txt += ": "+repr(self._value)
         return txt
 
@@ -156,7 +160,7 @@ def getResourceUri(rouri, resuriref):
 
 # Class for handling ROSRS access
 
-class ROSRS_Session(object):
+class ROSRS_Session(HTTP_Session):
     
     """
     Client access class for RO SRS - creates a session to access a single ROSRS endpoint,
@@ -172,18 +176,14 @@ class ROSRS_Session(object):
 
     def __init__(self, srsuri, accesskey = None):
         log.debug("ROSRS_Session.__init__: srsuri "+srsuri)
+        super(ROSRS_Session, self).__init__(srsuri, accesskey)
         self._srsuri    = srsuri
-        self._key       = accesskey
-        parseduri       = urlparse.urlsplit(srsuri)
-        self._srsscheme = parseduri.scheme
-        self._srshost   = parseduri.netloc
-        self._srspath   = parseduri.path
-        self._httpcon   = httplib.HTTPConnection(self._srshost)
         return
 
     def close(self):
-        self._key = None
-        self._httpcon.close()
+        super(ROSRS_Session, self).close()
+        # self._key = None
+        # self._httpcon.close()
         return
 
     def baseuri(self):
@@ -191,128 +191,6 @@ class ROSRS_Session(object):
 
     def error(self, msg, value=None):
         return ROSRS_Error(msg=msg, value=value, srsuri=self._srsuri)
-
-    def parseLinks(self, headers):
-        """
-        Parse link header(s), return dictionary of links keyed by link relation type
-        """
-        return parseLinks(headers["_headerlist"])
-
-    def doRequest(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS
-        Return status, reason(text), response headers, response body
-        """
-        # Sort out path to use in HTTP request: request may be path or full URI or rdflib.URIRef
-        uripath = str(uripath)        # get URI string from rdflib.URIRef
-        uriparts = urlparse.urlsplit(urlparse.urljoin(self._srspath,uripath))
-        if uriparts.scheme:
-            if self._srsscheme != uriparts.scheme:
-                raise ROSRS_Error(
-                    "ROSRS URI scheme mismatch",
-                    value=uriparts.scheme,
-                    srsuri=self._srsuri)
-        if uriparts.netloc:
-            if self._srshost != uriparts.netloc:
-                raise ROSRS_Error(
-                    "ROSRS URI host:port mismatch",
-                    value=uriparts.netloc,
-                    srsuri=self._srsuri)
-        path = uriparts.path
-        if uriparts.query: path += "?"+uriparts.query
-        # Assemble request headers
-        if not reqheaders:
-            reqheaders = {}
-        if self._key:
-            reqheaders["authorization"] = "Bearer "+self._key
-        if ctype:
-            reqheaders["content-type"] = ctype
-        if accept:
-            reqheaders["accept"] = accept
-        # Execute request
-        log.debug("ROSRS_Session.doRequest method:     "+method)
-        log.debug("ROSRS_Session.doRequest path:       "+path)
-        log.debug("ROSRS_Session.doRequest reqheaders: "+repr(reqheaders))
-        log.debug("ROSRS_Session.doRequest body:       "+repr(body))
-        self._httpcon.request(method, path, body, reqheaders)
-        # Pick out elements of response
-        response = self._httpcon.getresponse()
-        status   = response.status
-        reason   = response.reason
-        headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
-        headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
-        headers["_headerlist"] = headerlist
-        data = response.read()
-        if status < 200 or status >= 300: data = None
-        log.debug("ROSRS_Session.doRequest response: "+str(status)+" "+reason)
-        log.debug("ROSRS_Session.doRequest headers:  "+repr(headers))
-        ###log.debug("ROSRS_Session.doRequest data:     "+repr(data))
-        return (status, reason, headers, data)
-
-    def doRequestFollowRedirect(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS, following any redirect returned
-        Return status, reason(text), response headers, final uri, response body
-        """
-        (status, reason, headers, data) = self.doRequest(uripath,
-            method=method, accept=accept,
-            body=body, ctype=ctype, reqheaders=reqheaders)
-        if status in [302,303,307]:
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequest(uripath,
-                method=method, accept=accept,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-        if status in [302,307]:
-            # Allow second temporary redirect
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequest(uripath,
-                method=method,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
-
-    def doRequestRDF(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
-        """
-        Perform HTTP request with RDF response.
-        If requests succeeds, return response as RDF graph,
-        or return fake 9xx status if RDF cannot be parsed
-        otherwise return response and content per request.
-        Thus, only 2xx responses include RDF data.
-        """
-        (status, reason, headers, data) = self.doRequest(uripath,
-            method=method, body=body,
-            ctype=ctype, accept="application/rdf+xml", reqheaders=reqheaders)
-        if status >= 200 and status < 300:
-            if headers["content-type"].lower() == "application/rdf+xml":
-                rdfgraph = rdflib.graph.Graph()
-                try:
-                    rdfgraph.parse(data=data, format="xml")
-                    data = rdfgraph
-                except Exception, e:
-                    status   = 902
-                    reason   = "RDF parse failure"
-            else:
-                status   = 901
-                reason   = "Non-RDF content-type returned"
-        return (status, reason, headers, data)
-
-    def doRequestRDFFollowRedirect(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS, following any redirect returned
-        Return status, reason(text), response headers, final uri, response body
-        """
-        (status, reason, headers, data) = self.doRequestRDF(uripath,
-            method=method,
-            body=body, ctype=ctype, reqheaders=reqheaders)
-        log.debug("%03d %s from request to %s"%(status, reason, uripath))
-        if status in [302,303,307]:
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequestRDF(uripath,
-                method=method,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-            log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
 
     def listROs(self):
         """
@@ -354,14 +232,16 @@ class ROSRS_Session(object):
         #@@TODO: Create annotations for title, creator, date??
         raise self.error("Error creating RO", "%03d %s"%(status, reason))
 
-    def deleteRO(self, rouri):
+    def deleteRO(self, rouri, purge=False):
         """
         Delete an RO
         Return (status, reason), where status is 204 or 404
         """
+        reqheaders=None
+        if purge:
+            reqheaders={"Purge": "True"}
         (status, reason, headers, data) = self.doRequest(rouri,
-            method="DELETE",
-            accept="application/rdf+xml")
+            method="DELETE", reqheaders=reqheaders)
         if status in [204, 404]:
             return (status, reason)
         raise self.error("Error deleting RO", "%03d %s (%s)"%(status, reason, str(rouri)))
@@ -685,21 +565,26 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
+        for (prefix, uri) in ro_prefixes.prefixes:
+            agraph.bind(prefix, rdflib.namespace.Namespace(uri))
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
-            log.debug("- body uri %s, content uri %s"%(buri, curi))
-            if status == 200:
-                content_type = headers['content-type'].split(";", 1)[0]
-                content_type = content_type.strip().lower()
-                if content_type in ANNOTATION_CONTENT_TYPES:
-                    bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
-                    agraph.parse(data=bodytext, format=bodyformat)
-                else:
-                    log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
-                             (str(buri),content_type))
-            else:
-                log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
-                         (str(buri), status, reason))
+            (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
+                graph=agraph, exthost=True)
+            # (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
+            # log.debug("- body uri %s, content uri %s"%(buri, curi))
+            # if status == 200:
+            #     content_type = headers['content-type'].split(";", 1)[0]
+            #     content_type = content_type.strip().lower()
+            #     if content_type in ANNOTATION_CONTENT_TYPES:
+            #         bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
+            #         agraph.parse(data=bodytext, format=bodyformat)
+            #         log.debug("- agraph len: %d"%(len(agraph)))
+            #     else:
+            #         log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
+            #                  (str(buri),content_type))
+            # else:
+            #     log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
+            #              (str(buri), status, reason))
         return agraph
 
     def getROAnnotation(self, annuri):

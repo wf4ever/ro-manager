@@ -21,6 +21,7 @@ import rdflib
 import rdflib.namespace
 
 import ro_settings
+import ro_prefixes
 from ro_namespaces import RDF, RO, ORE, AO, DCTERMS
 from ro_uriutils import isFileUri, resolveUri, resolveFileAsUri, getFilenameFromUri, isLiveUri, retrieveUri
 from ROSRS_Session import ROSRS_Error, ROSRS_Session
@@ -85,6 +86,8 @@ class ro_metadata(object):
         elif self._isLocal():
             # Read manifest graph
             self.manifestgraph = rdflib.Graph()
+            for (prefix, uri) in ro_prefixes.prefixes:
+                self.manifestgraph.bind(prefix, rdflib.namespace.Namespace(uri))
             self.manifestgraph.parse(self._getManifestUri())
         else:
             (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
@@ -93,6 +96,12 @@ class ro_metadata(object):
             self.manifestgraph = manifest 
         # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
+
+    def getManifestGraph(self):
+        """
+        Returns the manifest graph
+        """
+        return self._loadManifest()
 
     def _updateManifest(self):
         """
@@ -148,6 +157,8 @@ class ro_metadata(object):
         else:
             self.roannotations = self.rosrs.getROAnnotationGraph(self.rouri)
         # log.debug("roannotations graph:\n"+self.roannotations.serialize())
+        for (prefix, uri) in ro_prefixes.prefixes:
+            self.manifestgraph.bind(prefix, rdflib.namespace.Namespace(uri))
         return self.roannotations
 
     def isInternalResource(self, resuri):

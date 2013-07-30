@@ -35,9 +35,7 @@ testbase = os.path.dirname(__file__)
 # Test config details
 
 class Config:
-    #ROSRS_API_URI = "http://localhost:8082/ROs/"
     ROSRS_API_URI = ro_test_config.ROSRS_URI            # "http://sandbox.wf4ever-project.org/rodl/ROs/"
-    #AUTHORIZATION = "0522a6c6-7000-43df-8"
     AUTHORIZATION = ro_test_config.ROSRS_ACCESS_TOKEN   
     TEST_RO_NAME  = "TestSessionRO"
     TEST_RO_PATH  = TEST_RO_NAME+"/"
@@ -55,7 +53,7 @@ class TestROSRS_Session(unittest.TestCase):
         self.rosrs = ROSRS_Session(Config.ROSRS_API_URI,
             accesskey=Config.AUTHORIZATION)
         # Clean up from previous runs
-        self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        self.rosrs.deleteRO(Config.TEST_RO_PATH, purge=True)
         self.createdTestRO = None
         return
 
@@ -64,7 +62,7 @@ class TestROSRS_Session(unittest.TestCase):
         # Clean up
         self.rosrs.deleteRO(Config.TEST_RO_PATH)
         if self.createdTestRO:
-            self.rosrs.deleteRO(self.createdTestRO)
+            self.rosrs.deleteRO(self.createdTestRO, purge=True)
         self.rosrs.close()
         return
 

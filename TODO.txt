@@ -27,13 +27,15 @@ TODO:
 ** Error handling when target not found is poor
 
 * Mechanism to define new SPARQL prefixes in Minim file/model
-
+* Include means to include external resource in a query
+* Include means to handle RuleTest in minim creation
+* Complete validation of chembox data (with performance enhancements?)
 * ro users
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
   (done for eval checklist; annotations, list todo)
 * Options for RO logging of changes, etc.
-* ro list currently shows only files: want to show directories too?
+* ro annotations does not work for RO accessed by HTTP
 
 * RO folder support
 
