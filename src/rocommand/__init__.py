@@ -32,4 +32,10 @@
                              # Improve escaping of string values in JSON output
                              # Updated REST checklisrt service landing page
                              # Various bug fixes
-__version__ = "0.2.14"      # ro list supports URI argument as alternative to directory
+#__version__ = "0.2.14"      # ro list supports URI argument as alternative to directory
+                             # Added initial "Overlay RO" service
+                             # Added checklist spreadsheet -> Minim model converter
+                             # Refactored HTTP session handling
+                             # Code and test enhancements, including HTTP resource mocking
+                             # Documentation updates
+__version__ = "0.2.15"      # ...
