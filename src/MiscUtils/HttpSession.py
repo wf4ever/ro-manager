@@ -18,7 +18,8 @@ RDF_CONTENT_TYPES = (
     , "application/xhtml":      "rdfa"
     })
 
-ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
+# ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
+ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml"
 
 def splitValues(txt, sep=",", lq='"<', rq='">'):
     """
@@ -124,7 +125,6 @@ class HTTP_Error(Exception):
                  (repr(self._msg), repr(self._value), repr(self._uri)))
 
 
-
 # Class for handling Access in an HTTP session
 
 class HTTP_Session(object):
@@ -204,7 +204,7 @@ class HTTP_Session(object):
         # Sort out HTTP connection to use: session or new
         if ( (uriparts.scheme and uriparts.scheme != self._scheme) or
              (uriparts.netloc and uriparts.netloc != self._host) ):
-            if exthost:
+            if exthost and False:
                 newhttpcon = httplib.HTTPConnection(uriparts.netloc)
                 usehttpcon = newhttpcon
                 usescheme  = uriparts.scheme
@@ -248,8 +248,8 @@ class HTTP_Session(object):
         headers["_headerlist"] = headerlist
         data = response.read()
         if status < 200 or status >= 300: data = None
-        log.debug("HTTP_Session.doRequest response: "+str(status)+" "+reason)
-        log.debug("HTTP_Session.doRequest headers:  "+repr(headers))
+        log.debug("HTTP_Session.doRequest response:   "+str(status)+" "+reason)
+        log.debug("HTTP_Session.doRequest rspheaders: "+repr(headers))
         ###log.debug("HTTP_Session.doRequest data:     "+repr(data))
         if newhttpcon:
             newhttpcon.close()
@@ -295,7 +295,7 @@ class HTTP_Session(object):
         return (status, reason, headers, rdflib.URIRef(uripath), data)
 
     def doRequestRDF(self, uripath, 
-        method="GET", body=None, ctype=None, reqheaders=None, exthost=False, graph=None):
+            method="GET", body=None, ctype=None, reqheaders=None, exthost=False, graph=None):
         """
         Perform HTTP request with RDF response.
 
@@ -330,6 +330,7 @@ class HTTP_Session(object):
                 rdfgraph   = graph or rdflib.graph.Graph()
                 baseuri    = self.getpathuri(uripath)
                 bodyformat = RDF_CONTENT_TYPES[content_type]
+                # log.debug("HTTP_Session.doRequestRDF data:\n----\n"+data+"\n------------")
                 try:
                     rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
                     data = rdfgraph
@@ -369,7 +370,7 @@ class HTTP_Session(object):
         (status, reason, headers, data) = self.doRequestRDF(uripath,
             method=method,
             body=body, ctype=ctype, reqheaders=reqheaders,
-            exthost=exthost)
+            exthost=exthost, graph=graph)
         log.debug("%03d %s from request to %s"%(status, reason, uripath))
         if status in [302,303,307]:
             uripath = headers["location"]
