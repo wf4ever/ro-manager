@@ -19,7 +19,6 @@ RDF_CONTENT_TYPES = (
     })
 
 ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml, text/turtle"
-# ACCEPT_RDF_CONTENT_TYPES = "application/rdf+xml"
 
 def splitValues(txt, sep=",", lq='"<', rq='">'):
     """

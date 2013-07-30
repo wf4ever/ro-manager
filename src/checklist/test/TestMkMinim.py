@@ -196,8 +196,6 @@ class TestMkMinim(TestROSupport.TestROSupport):
         graphname = os.path.join(rodir, "TestMkMinim.ttl")
         expectgr  = rdflib.Graph()
         with open(graphname) as expectfile:
-            # data = expectfile.read()
-            # expectgr.parse(data=data, location=gridbase, format="turtle")
             expectgr.parse(file=expectfile, publicID=gridbase, format="turtle")
         # Check content of minim graph
         ###minimgr.serialize(sys.stdout, format="turtle")
@@ -247,9 +245,6 @@ class TestMkMinim(TestROSupport.TestROSupport):
         outtxt = self.outstr.getvalue()
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
-        # print "@@@@@@@@"
-        # print outtxt
-        # print "@@@@@@@@"
         # Check response returned
         expect = (
             [ "Research Object file://%s/:"%(rodir)
