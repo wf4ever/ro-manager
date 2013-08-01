@@ -33,6 +33,7 @@ from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
 
+from checklist.grid import (GridCSV)
 from checklist import gridmatch 
 from checklist import checklist_template 
 from checklist import mkminim
@@ -105,7 +106,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         griduri   = ro_manifest.getComponentUri(rodir, gridname)
         gridcsv   = os.path.join(rodir, gridname)
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=griduri, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=griduri, dialect=csv.excel)
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
         self.deleteTestRo(rodir)
         return
@@ -118,7 +119,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = ""
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
 
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
@@ -189,7 +190,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = "http://example.org/base/"
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
         (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
         self.assertEquals(status, 0)
         # Read expected graph
@@ -219,7 +220,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = "http://example.org/base/"
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
         (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
         self.assertEquals(status, 0)
         # Write Minim

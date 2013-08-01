@@ -23,6 +23,7 @@ if __name__ == "__main__":
 
 from MiscUtils import TestUtils
 
+from checklist.grid import (GridCSV)
 from checklist import gridmatch 
 from checklist import checklist_template 
 
@@ -41,7 +42,7 @@ class TestGridMatch(unittest.TestCase):
         log.debug("CSV file: %s"%csvname)
         self.base = ""
         with open(csvname, "rU") as csvfile:
-            self.grid = gridmatch.GridCSV(csvfile, baseuri=self.base, dialect=csv.excel)
+            self.grid = GridCSV(csvfile, baseuri=self.base, dialect=csv.excel)
         return
 
     def tearDown(self):
