@@ -24,7 +24,7 @@ from checklist import gridmatch
 from checklist import checklist_template 
 from checklist.minim_graph import Minim_graph
 
-VERSION = "0.1"
+VERSION = "0.2"
 
 def mkminim(grid, baseuri=None):
     """
