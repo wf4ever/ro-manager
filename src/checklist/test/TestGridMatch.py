@@ -23,7 +23,7 @@ if __name__ == "__main__":
 
 from MiscUtils import TestUtils
 
-from checklist.grid import (GridCSV)
+from checklist.grid import (GridCSV, GridExcel)
 from checklist import gridmatch 
 from checklist import checklist_template 
 
@@ -238,6 +238,19 @@ class TestGridMatch(unittest.TestCase):
 
         return
 
+    def testGridMatchChecklistExcel(self):
+        """
+        Test match of full checklist in an excel file, using the defined checklist template
+        """
+        # Override grid deined in setup()
+        xlsname = testbase+"/TestGridMatch.xls"
+        log.debug("Excel file: %s"%xlsname)
+        self.base = ""
+        self.grid = GridExcel(xlsname, baseuri=self.base)
+        # Now run the tests
+        self.testGridMatchChecklist()
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -278,6 +291,7 @@ def getTestSuite(select="unit"):
             , "testGridMatchOptValue"
             , "testGridMatchMinimModel"
             , "testGridMatchChecklist"
+            , "testGridMatchChecklistExcel"
             ],
         "component":
             [ "testComponents"

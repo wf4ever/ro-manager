@@ -4,10 +4,6 @@
 Module to define matching template for checklist spreadsheet
 """
 
-from grid import (
-    Grid
-    )
-
 from gridmatch import (
     GridMatchError, GridMatch,
     text, anyval, regexval, refval, intval, save, value, error
