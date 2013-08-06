@@ -45,7 +45,7 @@ class RovServerHomeView(ContentNegotiationView):
             resp.write(str(ro)+"\n")
         return resp
 
-    @ContentNegotiationView.accept_types(["text/html", "application/html", "default_type"])
+    @ContentNegotiationView.accept_types(["text/html", "application/html", "*/*"])
     def render_html(self, resultdata):
         template = loader.get_template('rovserver_home.html')
         context  = RequestContext(self.request, resultdata)
@@ -75,6 +75,7 @@ class RovServerHomeView(ContentNegotiationView):
                        (headers["content-type"] in RDF_serialize_formats.iterkeys())
                      )
         except Exception, e:
+            log.debug("- HTTPSession error (%s)"%(e))
             is_rdf = False
         return AggregatedResource(ro=ro, uri=uri, is_rdf=is_rdf)
 
@@ -128,7 +129,7 @@ class ResearchObjectView(ContentNegotiationView):
         resultdata['ro_manifest'].serialize(resp, format=sf, base=self.get_request_uri())
         return resp
 
-    @ContentNegotiationView.accept_types(["text/html", "application/html", "*/*", "default_type"])
+    @ContentNegotiationView.accept_types(["text/html", "application/html", "*/*"])
     def render_html(self, resultdata):
         template = loader.get_template('research_object_home.html')
         context  = RequestContext(self.request, resultdata)
