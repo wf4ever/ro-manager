@@ -67,6 +67,7 @@ setup(
                         , 'test/TestGridMatch.xls', 'test/TestGridMatch.csv'
                         ],
         'roverlay':     [ '*.txt', '*.png', '*.md'
+                        , 'rovweb/db/*.txt'
                         , 'rovweb/rovserver/templates/*.html'
                         , 'rovweb/rovserver/testdata/ro-test-1/subdir1/*'
                         , 'rovweb/rovserver/testdata/ro-test-1/subdir2/*'
