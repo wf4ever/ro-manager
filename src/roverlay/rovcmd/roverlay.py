@@ -21,6 +21,7 @@ if __name__ == "__main__":
 
 from MiscUtils.HttpSession import HTTP_Session
 from rocommand import ro_utils
+from rocommand import ro_uriutils
 
 VERSION = "0.1"
 
@@ -61,9 +62,11 @@ def run(configbase, filebase, options, progname):
                 print "Failed to delete RO %s (%03d %s)"%(options.delete, status, reason)
                 status = 2
         elif len(options.uris) > 0:
+            resolved_uris = [ ro_uriutils.resolveFileAsUri(u) for u in options.uris ]
+            ro_uri_list   = "\n".join(resolved_uris)
             (status, reason, respheaders, respbody) = rovsession.doRequest(
                 options.serviceuri,
-                method="POST", body="\n".join(options.uris), ctype="text/uri-list")
+                method="POST", body=ro_uri_list, ctype="text/uri-list")
             if status == 201:
                 # Created: write bare URI to standard output so it is easily used in other commands
                 print respheaders['location']

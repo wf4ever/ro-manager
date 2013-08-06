@@ -16,7 +16,7 @@
     uriN
 
     # List available overlay RO URIs at this service:
-    curl http://roverlay.example.org/
+    curl http://roverlay.example.org/ -l
      :
     http://roverlay.example.org/ROs/id1234/
      :
