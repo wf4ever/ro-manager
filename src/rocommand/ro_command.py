@@ -71,12 +71,14 @@ def getoptionvalue(val, prompt):
             if val[-1] == '\n': val = val[:-1]
     return val
 
-def getroconfig(configbase, options):
+def getroconfig(configbase, options, rouri=None):
     ro_config = ro_utils.readconfig(configbase)
     if options.rosrs_uri:
         ro_config['rosrs_uri'] = options.rosrs_uri
     if options.rosrs_access_token:
         ro_config['rosrs_access_token'] = options.rosrs_access_token
+    if rouri:
+        ro_config['rosrs_uri'] = rouri
     return ro_config
 
 def ro_root_directory(cmdname, ro_config, rodir):
@@ -372,7 +374,7 @@ def status(progname, configbase, options, args):
     return 0
 
 def remote_status(progname, configbase, options, args):
-    ro_config = getroconfig(configbase, options)
+    ro_config = getroconfig(configbase, options, args[2])
     ro_options = {
         "uri":                args[2],
         "rosrs_uri":          ro_config['rosrs_uri'],
@@ -536,9 +538,10 @@ def list(progname, configbase, options, args):
     ro ls   [ -a ] [ -h ] [ -d dir | uri ]
     """
     # Check command arguments
-    ro_config = getroconfig(configbase, options)
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
     ro_options = {
-        "rouri":   (args[2] if len(args) >= 3 else ""),
+        "rouri":   rouri,
         "rodir":   options.rodir or "",
         "all":     " -a" if options.all    else "",
         "hidden":  " -h" if options.hidden else "",
@@ -965,9 +968,10 @@ def dump(progname, configbase, options, args):
     """
     log.debug("dump: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
-    ro_config = getroconfig(configbase, options)
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
     ro_options = {
-        "rouri":        (args[2] if len(args) >= 3 else ""),
+        "rouri":        rouri,
         "rodir":        options.rodir or ""
         }
     cmdname = progname + " dump"
@@ -998,9 +1002,10 @@ def manifest(progname, configbase, options, args):
     """
     log.debug("manifest: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
-    ro_config = getroconfig(configbase, options)
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
     ro_options = {
-        "rouri":        (args[2] if len(args) >= 3 else ""),
+        "rouri":        rouri,
         "rodir":        options.rodir or ""
         }
     cmdname = progname + " manifest"
