@@ -279,6 +279,28 @@ The output should look something like this:
 ## Revision history
 
 
+### Changes for V0.2.15
+
+* Tuned "Overlay RO" service and added `roverlay` command line utility
+* Fixed some bugs in ROSRS URI handling, and tidied URI handling code
+* Updated documentation for Overlay RO installation
+* Fixed `ro-manager-test`
+* Improved user diagnostics when accessing an unavailable RO
+* Refactored spreadsheet grid access code
+* Added direct-from-Excel support to mkminim
+* Added context handler to `HTTP_Session` class
+
+
+### Changes for V0.2.14
+
+* `ro list` supports URI argument as alternative to directory
+* Added initial "Overlay RO" service
+* Added checklist spreadsheet -> Minim model converter
+* Refactored HTTP session handling
+* Code and test enhancements, including HTTP resource mocking
+* Documentation updates
+
+
 ### Changes for V0.2.13
 
 * Implement Minim file creator from spreadsheet description (mkminim command)

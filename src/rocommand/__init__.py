@@ -38,4 +38,11 @@
                              # Refactored HTTP session handling
                              # Code and test enhancements, including HTTP resource mocking
                              # Documentation updates
-__version__ = "0.2.15"      # ...
+__version__ = "0.2.15"      # Tuned "Overtlay RO" service and added command line utility
+                             # Fixed some bugs in ROSRS URI handling, and cleaned URI handling code
+                             # Updated documentation for Overlay RO installation
+                             # Fixed ro-manager-test
+                             # Improved user diagnostics when accessing unavailable RO
+                             # Refactored spreadsheet grid access code
+                             # Added direct-from-Excel support to mkminim
+                             # Added context handler to HTTP_Session class
