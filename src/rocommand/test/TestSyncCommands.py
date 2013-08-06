@@ -154,7 +154,11 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
             accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, urlparse.urljoin(httpsession.baseuri(), "RO_test_ro_push/"))
+        for line in self.outstr.getvalue().splitlines():
+            if "Created RO:" in line:
+                createdRO = line.split("Created RO:")[1].strip()
+                ro_remote_metadata.deleteRO(httpsession, createdRO)
+
         return
 
     def testCheckout(self):

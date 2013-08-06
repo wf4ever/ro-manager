@@ -9,7 +9,6 @@ import time
 log = logging.getLogger(__name__)
 
 def copy_operation(options, args, ro_type):
-    print options["rosrs_uri"]
     options["rosrs_access_token"]
     rosrs = ROSRS_Session(options["rosrs_uri"], options["rosrs_access_token"])
     service_uri = urljoin(options["rosrs_uri"], "../evo/copy/")
@@ -55,7 +54,7 @@ def handle_asynchronous_copy_operation(options, rosrs, response, type):
     print "Response Reason: %s" % reason
     print "Job Status: %s" % job_status
     print "Job URI: %s" % job_location
-    print "Target Name: %s" % target_id
+    print "Target Name: %s" % target_id.split(options["rosrs_uri"])[1][0:-1]
     print "Target URI: %s" % urljoin(options["rosrs_uri"],target_id)
     return 0
 
@@ -70,7 +69,11 @@ def handle_synchronous_copy_operation(options, rosrs, response, typ):
 
 def print_job_status(args, options, verbose, force = False):
     if (options["verbose"] and verbose) or force:
-        print "Target Name: %s" % args[1]
+        print "****"
+        print args[1]
+        print options["rosrs_uri"]
+        print "Target Name: %s" % args[1].split(options["rosrs_uri"])[1][0:-1]
+        print "****"
         print "Job Status: %s" % args[0]
     if args[0] != "RUNNING" or force:
         if not options["verbose"]:

@@ -19,6 +19,7 @@ class TestEvo(TestROEVOSupport.TestROEVOSupport):
     TEST_RO_ID = "ro-manager-evo-test-ro"
     TEST_SNAPHOT_RO_ID = "ro-manager-test-evo-snaphot-ro"
     TEST_SNAPHOT_ID = "ro-manager-test-evo-snaphot"
+    TEST_CREATED_RO_ID = ""
     
     def setUp(self):
         super(TestEvo, self).setUp()
@@ -26,36 +27,39 @@ class TestEvo(TestROEVOSupport.TestROEVOSupport):
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
+        self.TEST_CREATED_RO_ID = rouri
         return
 
     def tearDown(self):
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_CREATED_RO_ID)
         super(TestEvo, self).tearDown()
         return
-
     
     def testSnapshot(self):
         rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        assert self.createSnapshot(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, False) == "DONE"
-        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        (copy_status, snapshot_uri) = self.createSnapshot(self.TEST_CREATED_RO_ID, self.TEST_SNAPHOT_ID, False) 
+        assert copy_status == "DONE"
+        (status, reason, data, evo_type) = rosrs.getROEvolution(snapshot_uri)
         assert  evo_type == 3
-        self.freeze(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
-        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        self.freeze(snapshot_uri)
+        (status, reason, data, evo_type) = rosrs.getROEvolution(snapshot_uri)
         assert  evo_type == 1
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_CREATED_RO_ID)
+        (status, reason) = self.rosrs.deleteRO(snapshot_uri)
                 
     def testArchive(self):
         rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, ro_test_config.ROSRS_ACCESS_TOKEN)
-        assert self.createArchive(self.TEST_RO_ID + "/", self.TEST_SNAPHOT_ID, False) == "DONE"
-        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        (copy_status, archiveUri) = self.createArchive(self.TEST_CREATED_RO_ID, self.TEST_SNAPHOT_ID, False) 
+        assert copy_status == "DONE"
+        (status, reason, data, evo_type) = rosrs.getROEvolution(archiveUri)
         assert  evo_type == 3
-        self.freeze(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
-        (status, reason, data, evo_type) = rosrs.getROEvolution(ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID + "/" )
+        self.freeze(archiveUri)
+        (status, reason, data, evo_type) = rosrs.getROEvolution(archiveUri)
         assert  evo_type == 2
-        (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
-        (status, reason) = self.rosrs.deleteRO(self.TEST_SNAPHOT_ID+"/")
+        (status, reason) = self.rosrs.deleteRO(self.TEST_CREATED_RO_ID)
+        (status, reason) = self.rosrs.deleteRO(archiveUri)
     
 def getTestSuite(select="unit"):
     """
