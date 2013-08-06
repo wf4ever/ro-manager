@@ -43,6 +43,19 @@ To be implemented:
         "SELECT * WHERE {http://roverlay.example.org/RO/id1234/ ?p ?o}"
     ...
 
+
+## Installation
+
+1. Install RO-manager as described in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().
+This installs all the command line utilities (`ro`, `mkminim` and `roverlay`) and their dependencies,
+but does not install the web frameworks needed to run any servioces.
+2. Install Django, thus:
+
+        pip install django
+
+3. to activate an instance of the Overlay RO service, go to the directory `src/roverlay/roweb` within the installed 
+
+
 ## roverlay service interactions
 
 ![roverlay service interactions](roverlay-sequence-diagram.png "roverlay service interactions diagram")

@@ -40,6 +40,7 @@ setup(
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
                ,'checklist','checklist.test'
+               ,'roweb','roweb.test'
                ,'roverlay.rovweb','roverlay.rovcmd'
                ,'roverlay','roverlay.rovweb.rovweb','roverlay.rovweb.rovserver'
                ,'MiscUtils'
@@ -51,11 +52,16 @@ setup(
                         , 'test/data/ro-test-1/*.rdf','test/data/ro-test-1/README*','test/data/ro-test-1/file*'
                         ],
         'iaeval':       [ 'test/config/*','test/robase/README'
-                        , 'test/test-data-1/*.rdf'
-                        , 'test/test-data-1/data/*', 'test/test-data-1/docs/*'
+                        , 'test/test-data-1/*.rdf', 'test/test-data-1/data/*', 'test/test-data-1/docs/*'
+                        , 'test/test-data-2/*.rdf', 'test/test-data-2/data/*'
                         , 'test/test-simple-wf/TODO'
                         , 'test/test-simple-wf/*.rdf', 'test/test-simple-wf/*.sh'
                         , 'test/test-simple-wf/data/*', 'test/test-simple-wf/docs/*'
+                        , 'test/test-chembox/*'
+                        ],
+        'roweb':        [ 'test/data/*.rdf','test/data/*.json','test/data/*.html','test/data/*.sh'
+                        , 'test/data/css/*.css','test/data/css/images/*'
+                        , 'test/data/images/*' 
                         ],
         'checklist':    [ 'test/config/*','test/robase/README','test/testro/*'
                         , 'test/TestGridMatch.xls', 'test/TestGridMatch.csv'
