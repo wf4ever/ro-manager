@@ -33,6 +33,7 @@ from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
 
+from checklist.grid import (GridCSV, GridExcel)
 from checklist import gridmatch 
 from checklist import checklist_template 
 from checklist import mkminim
@@ -105,7 +106,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         griduri   = ro_manifest.getComponentUri(rodir, gridname)
         gridcsv   = os.path.join(rodir, gridname)
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=griduri, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=griduri, dialect=csv.excel)
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
         self.deleteTestRo(rodir)
         return
@@ -118,7 +119,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = ""
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
 
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
@@ -189,7 +190,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = "http://example.org/base/"
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
         (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
         self.assertEquals(status, 0)
         # Read expected graph
@@ -219,7 +220,68 @@ class TestMkMinim(TestROSupport.TestROSupport):
         gridcsv   = os.path.join(rodir, gridname)
         gridbase  = "http://example.org/base/"
         with open(gridcsv, "rU") as gridfile:
-            grid = gridmatch.GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+            grid = GridCSV(gridfile, baseuri=gridbase, dialect=csv.excel)
+        (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
+        self.assertEquals(status, 0)
+        # Write Minim
+        minimname = "TestMkMinim_minim.ttl"
+        with open(rodir+"/"+minimname, "w") as minimfile:
+            minimgr.serialize(minimfile, format="turtle")
+        # Evaluate checklist
+        minimuri = ro_manifest.getComponentUri(rodir, minimname)
+        minimpurpose = "test1"
+        args = [ "ro", "evaluate", "checklist"
+               , "-a"
+               , "-d", rodir+"/"
+               , minimname
+               , minimpurpose
+               , "."
+               ]
+        self.outstr.seek(0)
+        with StdoutContext.SwitchStdout(self.outstr):
+            status = ro.runCommand(
+                os.path.join(testbase, TestConfig.ro_test_config.CONFIGDIR),
+                os.path.join(testbase, TestConfig.ro_test_config.ROBASEDIR),
+                args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
+        log.debug("status %d, outtxt: %s"%(status, outtxt))
+        # Check response returned
+        expect = (
+            [ "Research Object file://%s/:"%(rodir)
+            , "Fully complete for test1 of resource ."
+            , "Satisfied requirements:"
+            , "  At least 3 file as part values are present"
+            , "  At most 3 file as part values are present"
+            , "  All file as part resources are accessible (live)"
+            , "  All file as part resources are aggregated in RO"
+            , "  Python 2.7.x present"
+            , "  Files as part are partOf some indicated whole"
+            , "  File exists as a part"
+            , "Research object URI:     %s"%(rouri)
+            , "Minimum information URI: %s"%(minimuri)
+            ])
+        self.outstr.seek(0)
+        for line in self.outstr:
+            self.assertIn(str(line)[:-1], expect)
+        self.deleteTestRo(rodir)
+        return
+
+    def testChecklistEvalExcel(self):
+        """
+        Test checklist evaluation with generated Minim file from Excel source
+        """
+        self.setupConfig()
+        rodir     = self.createTestRo(testbase, "testro", "RO for testMkMinim", "ro-testMkMinim")
+        self.populateTestRo(testbase, rodir)
+        self.annotateResource(testbase, rodir, "", "FileAnnotations.ttl")
+        rouri     = ro_manifest.getRoUri(rodir)
+        # Create minim graph from CSV file
+        gridname  = "TestMkMinim.xls"
+        griduri   = ro_manifest.getComponentUri(rodir, gridname)
+        gridxls   = os.path.join(rodir, gridname)
+        gridbase  = "http://example.org/base/"
+        grid = GridExcel(gridxls, baseuri=gridbase)
         (status, minimgr) = mkminim.mkminim(grid, baseuri=grid.resolveUri(""))
         self.assertEquals(status, 0)
         # Write Minim
@@ -302,6 +364,7 @@ def getTestSuite(select="unit"):
             , "testGridMatch"
             , "testMkMinim"
             , "testChecklistEval"
+            , "testChecklistEvalExcel"
             ],
         "component":
             [ "testComponents"

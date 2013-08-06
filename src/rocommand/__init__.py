@@ -32,4 +32,17 @@
                              # Improve escaping of string values in JSON output
                              # Updated REST checklisrt service landing page
                              # Various bug fixes
-__version__ = "0.2.14"      # ro list supports URI argument as alternative to directory
+#__version__ = "0.2.14"      # ro list supports URI argument as alternative to directory
+                             # Added initial "Overlay RO" service
+                             # Added checklist spreadsheet -> Minim model converter
+                             # Refactored HTTP session handling
+                             # Code and test enhancements, including HTTP resource mocking
+                             # Documentation updates
+__version__ = "0.2.15"      # Tuned "Overtlay RO" service and added command line utility
+                             # Fixed some bugs in ROSRS URI handling, and cleaned URI handling code
+                             # Updated documentation for Overlay RO installation
+                             # Fixed ro-manager-test
+                             # Improved user diagnostics when accessing unavailable RO
+                             # Refactored spreadsheet grid access code
+                             # Added direct-from-Excel support to mkminim
+                             # Added context handler to HTTP_Session class

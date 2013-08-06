@@ -170,7 +170,7 @@ LOGGING = {
 
 import logging
 log = logging.getLogger(__name__)
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.DEBUG)
 log.info("DJANGO_ROOT: "+DJANGO_ROOT)
 log.info("SITE_ROOT:   "+SITE_ROOT)
 log.info("DB PATH:     "+DATABASES['default']['NAME'])

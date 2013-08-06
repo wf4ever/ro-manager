@@ -570,21 +570,6 @@ class ROSRS_Session(HTTP_Session):
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
             (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
                 graph=agraph, exthost=True)
-            # (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
-            # log.debug("- body uri %s, content uri %s"%(buri, curi))
-            # if status == 200:
-            #     content_type = headers['content-type'].split(";", 1)[0]
-            #     content_type = content_type.strip().lower()
-            #     if content_type in ANNOTATION_CONTENT_TYPES:
-            #         bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
-            #         agraph.parse(data=bodytext, format=bodyformat)
-            #         log.debug("- agraph len: %d"%(len(agraph)))
-            #     else:
-            #         log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
-            #                  (str(buri),content_type))
-            # else:
-            #     log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
-            #              (str(buri), status, reason))
         return agraph
 
     def getROAnnotation(self, annuri):

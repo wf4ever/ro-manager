@@ -19,11 +19,12 @@ if __name__ == "__main__":
 
 from rocommand import ro_utils
 
+from checklist.grid import GridCSV, GridExcel
 from checklist import gridmatch 
 from checklist import checklist_template 
 from checklist.minim_graph import Minim_graph
 
-VERSION = "0.1"
+VERSION = "0.2"
 
 def mkminim(grid, baseuri=None):
     """
@@ -98,14 +99,24 @@ def run(configbase, filebase, options, progname):
     status = 0
     # open spreadsheet file as grid
     log.debug("%s: open grid %s"%(progname, options.checklist))
-    csvname = os.path.join(filebase,options.checklist)
-    log.debug("CSV file: %s"%csvname)
+    gridfilename = os.path.join(filebase,options.checklist)
+    log.debug("CSV file: %s"%gridfilename)
     base = ""
-    try:
-        with open(csvname, "rU") as csvfile:
-            grid = gridmatch.GridCSV(csvfile, baseuri="", dialect=csv.excel)
-    except IOError, e:
-        print "Failed to open table file %s"%(e)
+    if gridfilename.endswith(".csv"):
+        try:
+            with open(gridfilename, "rU") as csvfile:
+                grid = GridCSV(csvfile, baseuri="", dialect=csv.excel)
+        except IOError, e:
+            print "Failed to open grid CSV file %s"%(e)
+            return 2
+    elif gridfilename.endswith(".xls"):
+        try:
+            grid = GridExcel(gridfilename, baseuri="")
+        except IOError, e:
+            print "Failed to open grid XLS file %s"%(e)
+            return 2
+    else:
+        print "Unrecognized grid file type %s; must be CSV or XLS."%(gridfilename)
         return 2
     # Make minim file
     log.debug("mkminim %s"%(repr(options)))

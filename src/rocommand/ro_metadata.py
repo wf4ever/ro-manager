@@ -91,8 +91,9 @@ class ro_metadata(object):
             self.manifestgraph.parse(self._getManifestUri())
         else:
             (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
-            assert status == 200,  ("ro_metadata: Can't access manifest for %s (%03d %s)"%
-                                    (str(self.rouri), status, reason))
+            if status != 200:
+                msg = ("Can't access RO manifest (%03d %s)"%(status, reason))
+                raise ROSRS_Error(msg=msg, srsuri=self.rouri)
             self.manifestgraph = manifest 
         # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph

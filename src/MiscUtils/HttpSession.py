@@ -154,6 +154,13 @@ class HTTP_Session(object):
         self._httpcon = httplib.HTTPConnection(self._host)
         return
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+        return
+
     def close(self):
         self._key     = None
         self._httpcon.close()
