@@ -4,6 +4,8 @@
 
 ## roverlay command line client and related utilities
 
+Implemented
+
     # Create an RO
     roverlay -s http://roverlay.example.org/ uri1 uri2 ... uriN
     http://roverlay.example.org/ROs/id1234/
@@ -16,10 +18,17 @@
     uriN
 
     # List available overlay RO URIs at this service:
-    curl http://roverlay.example.org/ -l
+    roverlay http://roverlay.example.org/ -l
      :
     http://roverlay.example.org/ROs/id1234/
      :
+
+    # Remove Overlay RO
+    roverlay -d http://roverlay.example.org/ROs/id1234/
+    RO http://roverlay.example.org/ROs/id1234/ deleted.
+
+
+To be implemented:
 
     # Get URI for collected annotations
     roverlay -r http://roverlay.example.org/ROs/id1234/ -g
@@ -53,6 +62,8 @@ roverlay command line tool:
 > The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of theinitial implementation.
 
 ## roverlay deployment plans
+
+Update setup.py so the relevant modules get installed from PyPI, etc.
 
 Initial deployment on Andros.
 

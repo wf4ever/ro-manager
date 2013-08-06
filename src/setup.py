@@ -40,6 +40,8 @@ setup(
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
                ,'checklist','checklist.test'
+               ,'roverlay.rovweb','roverlay.rovcmd'
+               ,'roverlay','roverlay.rovweb.rovweb','roverlay.rovweb.rovserver'
                ,'MiscUtils'
                ,'samples'
                ],
@@ -54,6 +56,16 @@ setup(
                         , 'test/test-simple-wf/TODO'
                         , 'test/test-simple-wf/*.rdf', 'test/test-simple-wf/*.sh'
                         , 'test/test-simple-wf/data/*', 'test/test-simple-wf/docs/*'
+                        ],
+        'checklist':    [ 'test/config/*','test/robase/README','test/testro/*'
+                        , 'test/TestGridMatch.xls', 'test/TestGridMatch.csv'
+                        ],
+        'roverlay':     [ '*.txt', '*.png', '*.md'
+                        , 'rovweb/rovserver/templates/*.html'
+                        , 'rovweb/rovserver/testdata/ro-test-1/subdir1/*'
+                        , 'rovweb/rovserver/testdata/ro-test-1/subdir2/*'
+                        , 'rovweb/rovserver/testdata/ro-test-1/*.txt'
+                        , 'rovweb/rovserver/testdata/ro-test-1/*.rdf'
                         ],
         'samples':      [ '*.sh', '*.py', 'prefixes.*', 'README' ],
         },
@@ -70,11 +82,12 @@ setup(
         "Programming Language :: Python",
         ],
     zip_safe=False,
-    install_requires=["rdflib == 4.0.1", "rdflib-sparql == 0.2", "httplib2", "uritemplate"],
+    install_requires=["rdflib == 4.0.1", "rdflib-sparql == 0.2", "httplib2", "uritemplate", "xlrd"],
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
             'mkminim = checklist.mkminim:runMain',
+            'roverlay = roverlay.rovcmd.roverlay:runMain',
             'ro-manager-test = rocommand.test.RunRoManagerTests:runTestSuite'
             ],
         },
