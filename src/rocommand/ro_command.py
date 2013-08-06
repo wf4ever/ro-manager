@@ -578,7 +578,11 @@ def list(progname, configbase, options, args):
                 return re.match("\.|.*/\.", f) == None
             rofiles = filter(notHidden, rofiles)
     # Scan RO and collect aggregated resources
-    rometa = ro_metadata(ro_config, rouri)
+    try:
+        rometa = ro_metadata(ro_config, rouri)
+    except ROSRS_Error, e:
+        print str(e)
+        return 2
     roaggs = [ str(rometa.getComponentUriRel(a)) for a in rometa.getAggregatedResources() ]
     # Assemble and output listing
     print "\n".join(mapmerge(prepend_f(prep_a), roaggs, prepend_f(prep_f), rofiles))
