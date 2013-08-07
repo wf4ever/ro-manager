@@ -26,6 +26,11 @@ RDF_serialize_formats = (
     , "text/turtle":            "turtle"
     })
 
+# Used to optimize HTTP redirects.
+# In particular to avoid multiple hits on sites like purl.org.
+# This is not persistent, so restartingthe servoce will flush any saved URI mappings.
+HTTP_REDIRECTS = {}
+
 class RovServerHomeView(ContentNegotiationView):
     """
     View class to handle requests to the rovserver home URI
@@ -69,15 +74,20 @@ class RovServerHomeView(ContentNegotiationView):
 
     def make_resource(self, ro, uri):
         log.debug("RovServerHomeView.make_resource: res %s"%(uri))
+        if uri in HTTP_REDIRECTS:
+            uri = HTTP_REDIRECTS[uri]
+        finaluri = uri
+        is_rdf   = False
         try:
-            (status, reason, headers, body) = HTTP_Session(uri).doRequest("", method="HEAD")
-            is_rdf = ( (status == 200) and 
-                       (headers["content-type"] in RDF_serialize_formats.iterkeys())
-                     )
+            (status, reason, headers, finaluri, body) = HTTP_Session(uri).doRequestFollowRedirect(
+                "", method="HEAD", exthost=True)
+            if status == 200:
+                if finaluri != uri:
+                    HTTP_REDIRECTS[uri] = finaluri
+                is_rdf = headers["content-type"] in RDF_serialize_formats.iterkeys()
         except Exception, e:
             log.debug("- HTTPSession error (%s)"%(e))
-            is_rdf = False
-        return AggregatedResource(ro=ro, uri=uri, is_rdf=is_rdf)
+        return AggregatedResource(ro=ro, uri=finaluri, is_rdf=is_rdf)
 
     @ContentNegotiationView.content_types(["text/uri-list"])
     def post_uri_list(self, values):
