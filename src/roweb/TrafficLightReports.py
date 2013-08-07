@@ -197,17 +197,17 @@ EvalItemJson = (
             """
             SELECT * WHERE
             {
-              ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ]
+              ?target minim:satisfied [ minim:tryRequirement ?itemuri ]
             }
             """
         },
-        { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+        { 'query':  sparql_prefixes+"""ASK { ?target minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
         , 'output':     '''\n    , "itemclass":      ["pass"]'''
         , 'altreport':
-          { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+          { 'query':  sparql_prefixes+"""ASK { ?target minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
           , 'output':   '''\n    , "itemclass":      ["fail", "may"]'''
           , 'altreport':
-            { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+            { 'query':  sparql_prefixes+"""ASK { ?target minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
             , 'output': '''\n    , "itemclass":      ["fail", "should"]'''
             , 'alt':    '''\n    , "itemclass":      ["fail", "must"]'''
             }
@@ -360,7 +360,7 @@ EvalChecklistJson = (
 #           </tr>
 #
 # Assumed incoming bindings:
-#   rouri     URI of RO being evaluated
+#   target    URI of target resource being evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
 #   itemuri   URI or Minim model checklist item whose result is reported
 #   itemlevel URI of satisfaction level asspociated with this item:
@@ -374,13 +374,13 @@ EvalItemHtml = (
             '''\n            <td></td>'''+
             ''''''
         }
-      , { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+      , { 'query':  sparql_prefixes+"""ASK { ?target minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
         , 'output':     '''\n            <td class="trafficlight small pass"><div/></td>'''
         , 'altreport':
-          { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+          { 'query':  sparql_prefixes+"""ASK { ?target minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
           , 'output':   '''\n            <td class="trafficlight small fail may"><div/></td>'''
           , 'altreport':
-            { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+            { 'query':  sparql_prefixes+"""ASK { ?target minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
             , 'output': '''\n            <td class="trafficlight small fail should"><div/></td>'''
             , 'alt':    '''\n            <td class="trafficlight small fail must"><div/></td>'''
             }
