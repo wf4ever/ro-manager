@@ -79,7 +79,6 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 2. Test:
 
-        sudo ro-manager-test
         ro help
 
 
@@ -122,7 +121,6 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 3. Test:
 
-        ro-manager-test
         ro help
 
 
