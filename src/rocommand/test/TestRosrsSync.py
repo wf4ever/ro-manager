@@ -58,31 +58,14 @@ class TestRosrsSync(TestROSupport.TestROSupport):
 
     def testNull(self):
         assert True, 'Null test failed'
-
-    def testPushConflictedZip(self):
-        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
-        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        
-        self.assertEqual(status, 409)
-        self.assertEqual(reason, "Conflict")    
         
     def testPushZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
         (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        
+        deleteRO(httpsession,headers['location'])
         self.assertEqual(status, 201)
-        self.assertEqual(reason, "Created")    
-        self.assertTrue("ro1" in headers['location'])
-            
+        self.assertEqual(reason, "Created")                
     
     def testPush(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
@@ -175,6 +158,7 @@ def getTestSuite(select="unit"):
         "component":
             [ "testComponents"
             , "testPush"
+            , "testPushZip"
             ],
         "integration":
             [ "testIntegration"

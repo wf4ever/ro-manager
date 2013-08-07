@@ -791,8 +791,15 @@ class ROSRS_Session(object):
         cNodes = DOMTree.childNodes
         status =  cNodes[0].getElementsByTagName("status")[0].childNodes[0].toxml()
         target =  cNodes[0].getElementsByTagName("target")[0].childNodes[0].toxml()
-        finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
-        type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
-        return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("finalize")) == 1 and len(cNodes[0].getElementsByTagName("type")[0]) == 1:
+            finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
+            type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
+            return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("processed_resources")) == 1 and len(cNodes[0].getElementsByTagName("submitted_resources")) == 1 :
+            processed_resources = cNodes[0].getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+            submitted_resources = cNodes[0].getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+            return (status,target,processed_resources,submitted_resources,"ZIP_JOB")
+        return (status,target)
+
             
 # End.

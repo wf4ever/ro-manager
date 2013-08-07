@@ -138,7 +138,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "[ESC]")
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
-         if "Target URI:" in line:
+            if "Target URI:" in line:
                 id = line.split("Target URI:")[1].strip()
                 self.rosrs.deleteRO(id)
         return

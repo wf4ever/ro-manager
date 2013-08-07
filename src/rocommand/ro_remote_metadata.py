@@ -127,7 +127,7 @@ def sendZipRO(httpsession, uripath, roId, zip):
     reqheaders   = {
         "slug":     roId,
     }
-    return httpsession.doRequest(uripath, "POST", zip, "application/zip", "text/turtle", reqheaders);
+    return httpsession.doRequest(uripath.split("ROs/")[0]+"zip/upload", "POST", zip, "application/zip", "application/json", reqheaders);
     
 class ro_remote_metadata(object):
     """

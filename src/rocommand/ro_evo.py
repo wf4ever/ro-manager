@@ -69,17 +69,11 @@ def handle_synchronous_copy_operation(options, rosrs, response, typ):
 
 def print_job_status(args, options, verbose, force = False):
     if (options["verbose"] and verbose) or force:
-        print "****"
-        print args[1]
-        print options["rosrs_uri"]
         print "Target Name: %s" % args[1].split(options["rosrs_uri"])[1][0:-1]
-        print "****"
         print "Job Status: %s" % args[0]
     if args[0] != "RUNNING" or force:
-        if not options["verbose"]:
-            print "Job Status: %s" % args[0]    
         print "Target URI: %s" % urljoin(options["rosrs_uri"],args[1],)
-    return args[0] == "RUNNING"
+    return (args[0] == "RUNNING")
 
 def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, type):
     (status, reason, headers, data) = response
@@ -90,8 +84,8 @@ def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, 
         print "Archive is processed"
     print "If you don't want to wait until the operation is finished press [ENTER]"
     print "Job URI: %s" % job_location
-    i, o, e = select.select( [sys.stdin], [], [], 10 )
     while print_job_status(parse_job(rosrs, job_location), options, False):
+        i, o, e = select.select( [sys.stdin], [], [], 3 )
         if (i) and "" == sys.stdin.readline().strip():
             print "Job URI: %s" % job_location
             print_job_status(parse_job(rosrs, job_location), options, True, True)
