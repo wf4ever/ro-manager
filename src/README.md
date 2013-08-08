@@ -276,6 +276,14 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for 0.2.16
+
+* Fixed bug in traffic light display when target resource is not the RO
+* Add HTTP-redirect cache to roverlay server, to reduce use of redirectors
+* Modify HTTP doRequestr methiods top return URI as string, not rdflib.URIRef
+* Add retry logic to make Overlay ROs behave more consistently
+* Minor documentation and script tweaks
+
 
 ### Changes for V0.2.15
 
