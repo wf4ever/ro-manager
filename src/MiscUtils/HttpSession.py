@@ -82,7 +82,7 @@ def parseLinks(headerlist):
                     if linkmatch:
                         linkrel = linkmatch.group(1)
                         log.debug("parseLinks links[%s] = %s"%(linkrel, linkuri))
-                        links[linkrel] = rdflib.URIRef(linkuri)
+                        links[linkrel] = linkuri
     return links
 
 def testParseLinks():
@@ -297,7 +297,7 @@ class HTTP_Session(object):
                 method=method,
                 body=body, ctype=ctype, reqheaders=reqheaders,
                 exthost=exthost)
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
+        return (status, reason, headers, uripath, data)
 
     def doRequestRDF(self, uripath, 
             method="GET", body=None, ctype=None, reqheaders=None, exthost=False, graph=None):
@@ -392,6 +392,6 @@ class HTTP_Session(object):
                 body=body, ctype=ctype, reqheaders=reqheaders,
                 exthost=exthost, graph=graph)
             log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
+        return (status, reason, headers, uripath, data)
 
 # End.
