@@ -26,6 +26,11 @@ RDF_serialize_formats = (
     , "text/turtle":            "turtle"
     })
 
+# Used to optimize HTTP redirects.
+# In particular to avoid multiple hits on sites like purl.org.
+# This is not persistent, so restartingthe servoce will flush any saved URI mappings.
+HTTP_REDIRECTS = {}
+
 class RovServerHomeView(ContentNegotiationView):
     """
     View class to handle requests to the rovserver home URI
@@ -68,16 +73,32 @@ class RovServerHomeView(ContentNegotiationView):
         return self.get_request_uri() + "ROs/%08x/"%RO_generator 
 
     def make_resource(self, ro, uri):
-        log.debug("RovServerHomeView.make_resource: res %s"%(uri))
-        try:
-            (status, reason, headers, body) = HTTP_Session(uri).doRequest("", method="HEAD")
-            is_rdf = ( (status == 200) and 
-                       (headers["content-type"] in RDF_serialize_formats.iterkeys())
-                     )
-        except Exception, e:
-            log.debug("- HTTPSession error (%s)"%(e))
-            is_rdf = False
-        return AggregatedResource(ro=ro, uri=uri, is_rdf=is_rdf)
+        log.debug("RovServerHomeView.make_resource: uri '%s'"%(uri))
+        if uri in HTTP_REDIRECTS:
+            uri = HTTP_REDIRECTS[uri]
+        log.debug("- updated uri '%s'"%(uri))
+        finaluri = uri
+        is_rdf   = False
+        retry_count = 0
+        while retry_count < 5:
+            retry_count += 1
+            try:
+                httpsession = HTTP_Session(uri)
+                (status, reason, headers, finaluri, body) = httpsession.doRequestFollowRedirect(
+                    uri, method="HEAD", exthost=True)
+                if status == 200:
+                    if str(finaluri) != uri:
+                        log.info("- <%s> redirected to <%s>"%(uri, finaluri))
+                        HTTP_REDIRECTS[uri] = str(finaluri)
+                    is_rdf = headers["content-type"] in RDF_serialize_formats.iterkeys()
+                else:
+                    log.warning("HTTP resppnse %03d %s accessing %s, attempt %d"%
+                                (status, reason, uri, retry_count))
+                httpsession.close()
+                break
+            except Exception, e:
+                log.warning("HTTPSession exception (%s) accessing %s, attempt %d"%(e, uri, retry_count))
+        return AggregatedResource(ro=ro, uri=finaluri, is_rdf=is_rdf)
 
     @ContentNegotiationView.content_types(["text/uri-list"])
     def post_uri_list(self, values):
@@ -123,7 +144,7 @@ class ResearchObjectView(ContentNegotiationView):
     @ContentNegotiationView.accept_types(RDF_serialize_formats.keys())
     def render_rdf(self, resultdata):
         ct = resultdata["accept_type"]
-        log.info("RO accept_type: %s"%(ct))
+        log.debug("RO accept_type: %s"%(ct))
         sf = RDF_serialize_formats[ct]
         resp = HttpResponse(status=200, content_type=ct)
         resultdata['ro_manifest'].serialize(resp, format=sf, base=self.get_request_uri())

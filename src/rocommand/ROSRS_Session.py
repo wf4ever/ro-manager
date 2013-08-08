@@ -70,90 +70,7 @@ class ROSRS_Error(Exception):
         return ( "ROSRS_Error(%s, value=%s, srsuri=%s)"%
                  (repr(self._msg), repr(self._value), repr(self._srsuri)))
 
-def splitValues(txt, sep=",", lq='"<', rq='">'):
-    """
-    Helper function returns list of delimited values in a string,
-    where delimiters in quotes are protected.
-
-    sep is string of separator
-    lq is string of opening quotes for strings within which separators are not recognized
-    rq is string of corresponding closing quotes
-    
-    @@TODO Is there a better way?  I tried using regexp, but grouping doesn't
-    seem to offer a way to handle repeated elements.
-    """
-    result = []
-    cursor = 0
-    begseg = cursor
-    while cursor < len(txt):
-        if txt[cursor] in lq:
-            # Skip quoted or bracketed string
-            eq = rq[lq.index(txt[cursor])]  # End quote/bracket character
-            cursor += 1
-            while cursor < len(txt) and txt[cursor] != eq:
-                if txt[cursor] == '\\': cursor += 1 # skip '\' quoted-pair
-                cursor += 1
-            if cursor < len(txt):
-                cursor += 1 # Skip closing quote/bracket
-        elif txt[cursor] in sep:
-            result.append(txt[begseg:cursor])
-            cursor += 1
-            begseg = cursor
-        else:
-            cursor += 1
-    # append final segment
-    result.append(txt[begseg:cursor])
-    return result
-
-def testSplitValues():
-    assert splitValues("a,b,c") == ['a','b','c']
-    assert splitValues('a,"b,c",d') == ['a','"b,c"','d']
-    assert splitValues('a, "b, c\\", c1", d') == ['a',' "b, c\\", c1"',' d']
-    assert splitValues('a,"b,c",d', ";") == ['a,"b,c",d']
-    assert splitValues('a;"b;c";d', ";") == ['a','"b;c"','d']
-    assert splitValues('a;<b;c>;d', ";") == ['a','<b;c>','d']
-    assert splitValues('"a;b";(c;d);e', ";", lq='"(', rq='")') == ['"a;b"','(c;d)','e']
-
-def parseLinks(headerlist):
-    """
-    Helper function to parse 'link:' headers,
-    returning a dictionary of links keyed by link relation type
-    
-    headerlist is a list of header (name,value) pairs
-    """
-    linkheaders = [ v for (h,v) in headerlist if h.lower() == "link" ]
-    log.debug("parseLinks linkheaders %s"%(repr(linkheaders)))
-    links = {}
-    for linkheader in linkheaders:
-        for linkval in splitValues(linkheader, ","):
-            linkparts = splitValues(linkval, ";")
-            linkmatch = re.match(r'''\s*<([^>]*)>\s*''', linkparts[0])
-            if linkmatch:
-                linkuri   = linkmatch.group(1)
-                for linkparam in linkparts[1:]:
-                    linkmatch = re.match(r'''\s*rel\s*=\s*"?(.*?)"?\s*$''', linkparam)  # .*? is non-greedy
-                    if linkmatch:
-                        linkrel = linkmatch.group(1)
-                        log.debug("parseLinks links[%s] = %s"%(linkrel, linkuri))
-                        links[linkrel] = rdflib.URIRef(linkuri)
-    return links
-
-def testParseLinks():
-    links = (
-        ('Link', '<http://example.org/foo>; rel=foo'),
-        ('Link', ' <http://example.org/bar> ; rel = bar '),
-        ('Link', '<http://example.org/bas>; rel=bas; par = zzz , <http://example.org/bat>; rel = bat'),
-        ('Link', ' <http://example.org/fie> ; par = fie '),
-        ('Link', ' <http://example.org/fum> ; rel = "http://example.org/rel/fum" '),
-        ('Link', ' <http://example.org/fas;far> ; rel = "http://example.org/rel/fas" '),
-        )
-    assert str(parseLinks(links)['foo']) == 'http://example.org/foo'
-    assert str(parseLinks(links)['bar']) == 'http://example.org/bar'
-    assert str(parseLinks(links)['bas']) == 'http://example.org/bas'
-    assert str(parseLinks(links)['bat']) == 'http://example.org/bat'
-    assert str(parseLinks(links)['http://example.org/rel/fum']) == 'http://example.org/fum'
-    assert str(parseLinks(links)['http://example.org/rel/fas']) == 'http://example.org/fas;far'
-
+# Get URI for resource in RO, returned as rdflib.URIRef value
 
 def getResourceUri(rouri, resuriref):
     return URIRef(urlparse.urljoin(str(rouri), str(resuriref)))
@@ -257,7 +174,7 @@ class ROSRS_Session(HTTP_Session):
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(resuri,
             method="GET", accept=accept, reqheaders=reqheaders)
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
 
     def getROResourceRDF(self, resuri, rouri=None, reqheaders=None):
@@ -270,7 +187,7 @@ class ROSRS_Session(HTTP_Session):
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(resuri,
             method="GET", reqheaders=reqheaders)
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO RDF resource", "%03d %s (%s)"%(status, reason, resuri))
 
     def getROResourceProxy(self, resuriref, rouri):
@@ -299,7 +216,7 @@ class ROSRS_Session(HTTP_Session):
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(rouri,
             method="GET")
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         log.debug("Error %03d %s retrieving %s"%(status, reason, uri))
         log.debug("Headers %s"%(repr(headers)))
         raise self.error("Error retrieving RO manifest",
@@ -313,7 +230,7 @@ class ROSRS_Session(HTTP_Session):
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(rouri,
             method="GET", accept="text/html")
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO landing page",
             "%03d %s"%(status, reason))
 
@@ -325,7 +242,7 @@ class ROSRS_Session(HTTP_Session):
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(rouri,
             method="GET", accept="application/zip")
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO as ZIP file",
             "%03d %s"%(status, reason))
 

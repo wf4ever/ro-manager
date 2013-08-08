@@ -21,9 +21,10 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscUtils import TestUtils
+from MiscUtils.HttpSession import testSplitValues, testParseLinks
 
 from ro_namespaces import RDF, RDFS, ORE, RO, DCTERMS, AO
-from ROSRS_Session import ROSRS_Error, ROSRS_Session, testSplitValues, testParseLinks
+from ROSRS_Session import ROSRS_Error, ROSRS_Session
 from TestConfig import ro_test_config
 
 # Logging object

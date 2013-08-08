@@ -66,7 +66,12 @@ but does not install the web frameworks needed to run any servioces.
 
         $ python manage.py syncdb
 
-   If asked about creating an admin account, respond "No".
+   If asked about creating a superuser account, respond "No".
+
+   If this operation fails with the message "OperationalError: unable to open database file", issue the following command and try again:
+
+        $ mkdir db
+        $ python manage.py syncdb
 
 5. Now start the Overlay RO service:
 
@@ -104,6 +109,17 @@ These commands can be issued with the `-s` option to explicitly specify thje Ove
     http://localhost:8000/rovserver/ROs/127544b4/
 
 etc.  This `-s` option can be used to access an Overlay RO service running on another host.
+
+
+## Persistence of created Research Objects
+
+Research Objects created by the roverlay service are saved in a local on-disk database.  This means that they persist when the service is shut down and restarted.
+
+The database can be re-initialized using the `manage.py` utility used when installing the software to initialize the database and run the server:
+
+        $ python manage.py sqlclear rovserver
+        $ python manage.py syncdb
+        $ python manage.py runserver
 
 
 ## Python virtual environments
@@ -166,8 +182,6 @@ roverlay command line tool:
 > The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of theinitial implementation.
 
 ## roverlay deployment plans
-
-Update setup.py so the relevant modules get installed from PyPI, etc.
 
 Initial deployment on Andros.
 

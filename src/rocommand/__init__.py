@@ -38,7 +38,7 @@
                              # Refactored HTTP session handling
                              # Code and test enhancements, including HTTP resource mocking
                              # Documentation updates
-__version__ = "0.2.15"      # Tuned "Overtlay RO" service and added command line utility
+#__version__ = "0.2.15"      # Tuned "Overtlay RO" service and added command line utility
                              # Fixed some bugs in ROSRS URI handling, and cleaned URI handling code
                              # Updated documentation for Overlay RO installation
                              # Fixed ro-manager-test
@@ -46,3 +46,9 @@ __version__ = "0.2.15"      # Tuned "Overtlay RO" service and added command line
                              # Refactored spreadsheet grid access code
                              # Added direct-from-Excel support to mkminim
                              # Added context handler to HTTP_Session class
+__version__ = "0.2.16"      # Fixed bug in traffic light display when target resource is not the RO
+                             # Add HTTP-redirect cache to roverlay server, to reduce use of redirectors
+                             # Modify HTTP doRequestr methiods top return URI as string, not rdflib.URIRef
+                             # Add retry logic to make Overlay ROs behave more consistently
+                             # Minor documentation and script tweaks
+#__version__ = "0.2.17"      # ...
