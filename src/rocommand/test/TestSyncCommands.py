@@ -127,7 +127,6 @@ class TestSyncCommands(TestROSupport.TestROSupport):
             "ro", "push", "data/pushro.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
-            "--synchronous",
             "-v"
             ]
         

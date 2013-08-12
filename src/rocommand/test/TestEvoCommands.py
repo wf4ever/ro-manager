@@ -114,7 +114,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
             # simple check if the verbouse mode works well
-            self.assertEqual(self.outstr.getvalue().count("--synchronous"), 0, "shouldn't be synchronous")
             self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "shouldn't be asynchronous")
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
@@ -126,7 +125,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
     def testArchive(self):
         """
-        archive <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -t <token> ]
+        archive <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -t <token> ]
         """
         return
     
@@ -197,7 +196,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
             # simple check if the verbouse mode works well
-            self.assertEqual(self.outstr.getvalue().count("--synchronous"), 0, "shouldn't be synchronous")
             self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "shouldn't be asynchronous")
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:

@@ -786,8 +786,6 @@ def push_zip(progname, configbase, options, args):
     print "Job URI: %s" % jobUri
     if options.asynchronous:
         return  handle_asynchronous_zip_push(rosrs, headers["location"])
-    if options.synchronous:
-        return handle_synchronous_zip_push(rosrs, headers["location"])
     #with esc option
     print   "If you don't want to wait until the operation is finished press [ENTER]"
     while printZipJob(ro_utils.parse_job(rosrs, jobUri),jobUri):
