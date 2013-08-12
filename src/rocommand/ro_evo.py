@@ -24,12 +24,10 @@ def copy_operation(options, args, ro_type):
     response = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
     if response[0] != 201:
         return handle_copy_error(options, rosrs, response, ro_type)
-    if not options["asynchronous"] and not options["synchronous"]:
+    if not options["asynchronous"]:
         return handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, ro_type)
     if options["asynchronous"]:
         return handle_asynchronous_copy_operation(options, rosrs, response, ro_type)
-    if options["synchronous"]:
-        return handle_synchronous_copy_operation(options, rosrs, response, ro_type)
     return 0
     
 def handle_copy_error(options, rosrs, response, type):

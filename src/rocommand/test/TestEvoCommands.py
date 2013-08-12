@@ -42,7 +42,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
     def testSnapshot(self):
         """
-        snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -t <token> ]
+        snapshot <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -t <token> ]
         """
         return
     
@@ -81,7 +81,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     def testSnapshotSynchronous(self):
         args = [
             "ro", "snapshot", self.CREATED_RO, self.TEST_SNAPHOT_ID, 
-            "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
             "-v"
@@ -91,11 +90,9 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
             # simple check if the verbouse mode works well
-            for word in ("ro snaphot --synchronous "+ro_test_config.ROSRS_URI + self.TEST_RO_ID + " " + self.TEST_SNAPHOT_ID).split(" "):
+            for word in ("ro snaphot "+ro_test_config.ROSRS_URI + self.TEST_RO_ID + " " + self.TEST_SNAPHOT_ID).split(" "):
                     self.assertTrue(self.outstr.getvalue().count(word+ " ") or self.outstr.getvalue().count(" " + word), "snapshot command wasn't parse well")
             self.assertEqual(self.outstr.getvalue().count("Target URI: "), 1)
-            self.assertGreaterEqual(self.outstr.getvalue().count("Target Name: "), 1)
-            self.assertGreaterEqual(self.outstr.getvalue().count("Job Status: "), 1)
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
             if "Target URI:" in line:
@@ -103,23 +100,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
                 self.rosrs.deleteRO(id)
         return
     
-    def testSnapshotAmbiguous(self):
-        args = [
-            "ro", "snapshot", self.CREATED_RO, self.TEST_SNAPHOT_ID, 
-            "--asynchronous",
-            "--synchronous",
-            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
-            "-r", ro_test_config.ROSRS_URI,
-            "-v"
-        ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-            assert status == 1
-            # simple check if the verbouse mode works well
-            self.assertEqual(self.outstr.getvalue().count("ambiguous call --synchronous and --asynchronous, choose one"),1 , "snapshot command should be reported as ambiguous")
-        return
-    
-    
+
     def testSnapshotWithEscOption(self):
         
         args = [
@@ -135,7 +116,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             # simple check if the verbouse mode works well
             self.assertEqual(self.outstr.getvalue().count("--synchronous"), 0, "shouldn't be synchronous")
             self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "shouldn't be asynchronous")
-            self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "[ESC]")
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
             if "Target URI:" in line:
@@ -185,7 +165,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     def testArchiveSynchronous(self):
         args = [
             "ro", "archive", self.CREATED_RO, self.TEST_SNAPHOT_ID, 
-            "--synchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
             "-v"
@@ -195,31 +174,14 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
             # simple check if the verbouse mode works well
-            for word in ("ro archive --synchronous "+ self.CREATED_RO + " " + self.TEST_SNAPHOT_ID).split(" "):
+            for word in ("ro archive "+ self.CREATED_RO + " " + self.TEST_SNAPHOT_ID).split(" "):
                     self.assertTrue(self.outstr.getvalue().count(word+ " ") or self.outstr.getvalue().count(" " + word), "snapshot command wasn't parse well")
             self.assertEqual(self.outstr.getvalue().count("Target URI: "), 1)
-            self.assertGreaterEqual(self.outstr.getvalue().count("Target Name: "), 1)
-            self.assertGreaterEqual(self.outstr.getvalue().count("Job Status: "), 1)
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
             if "Target URI:" in line:
                 id = line.split("Target URI:")[1].strip()
                 self.rosrs.deleteRO(id)
-        return
-    
-    def testArchiveAmbiguous(self):
-        args = [
-            "ro", "archive", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
-            "--asynchronous",
-            "--synchronous",
-            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
-            "-r", ro_test_config.ROSRS_URI,
-            "-v"
-        ]
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-            assert status == 1
-            self.assertEqual(self.outstr.getvalue().count("ambiguous call --synchronous and --asynchronous, choose one"),1 , "archive command should be reported as ambiguous")
         return
     
     
@@ -237,7 +199,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             # simple check if the verbouse mode works well
             self.assertEqual(self.outstr.getvalue().count("--synchronous"), 0, "shouldn't be synchronous")
             self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "shouldn't be asynchronous")
-            self.assertEqual(self.outstr.getvalue().count("--asynchronous"), 0, "[ESC]")
             outLines = self.outstr.getvalue().split("\n")
         for line in outLines:
             if "Target URI:" in line:
@@ -424,11 +385,9 @@ def getTestSuite(select="unit"):
         "component":
             [ "testSnapshotAsynchronous"
             , "testSnapshotSynchronous"
-            , "testSnapshotAmbiguous"
             , "testSnapshotWithEscOption"
             , "testArchiveAsynchronous"
             , "testArchiveSynchronous"
-            , "testArchiveAmbiguous"
             , "testArchiveWithEscOption"
             , "testFreeze"
             , "testRemoteStatusSnapshotRO"

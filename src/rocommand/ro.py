@@ -156,11 +156,6 @@ def parseCommandArgs(argv):
                       dest="debug",
                       default=False,
                       help="display debug output")
-    parser.add_option("--synchronous",
-                      action="store_true",
-                      dest="synchronous",
-                      default=False,
-                      help="perform operation in synchronous mode")
     parser.add_option("--asynchronous",
                       action="store_true",
                       dest="asynchronous",
