@@ -171,6 +171,11 @@ def parseCommandArgs(argv):
                       dest="freeze",
                       default=False,
                       help="snaphot/archive and freeze in one step")
+    parser.add_option("--new",
+                      action="store_true",
+                      dest="new",
+                      default=False,
+                      help="force to create a new RO from zip")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")

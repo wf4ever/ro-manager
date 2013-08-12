@@ -70,7 +70,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/ro1.zip",
+            "ro", "push", "data/pushro.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -89,6 +89,33 @@ class TestSyncCommands(TestROSupport.TestROSupport):
                 id = line.split("RO URI:")[1].strip()
                 self.rosrs.deleteRO(id)
 
+    def testPushZipWithNewOption(self):
+        """
+        Push a Research Object in zip format to ROSRS.
+
+        ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
+        """
+        args = [
+            "ro", "push", "data/newro.zip", "--new",
+            "-r", ro_test_config.ROSRS_URI,
+            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
+            "-v"
+            ]
+        
+        #preparing
+        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
+        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)        
+        with SwitchStdout(self.outstr):
+            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
+        assert status == 0
+        self.assertEqual(self.outstr.getvalue().count("new"),1)
+        self.assertEqual(self.outstr.getvalue().count("Job URI"),1)
+        self.assertEqual(self.outstr.getvalue().count("ENTER"),1)
+        for line in self.outstr.getvalue().split("\n"):
+            if "RO URI:" in line:
+                id = line.split("RO URI:")[1].strip()
+                self.rosrs.deleteRO(id)
+
 
     def testPushZipSynchronous(self):
         """
@@ -97,7 +124,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/ro1.zip",
+            "ro", "push", "data/pushro.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "--synchronous",
@@ -127,7 +154,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/ro1.zip",
+            "ro", "push", "data/pushro.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "--asynchronous",
@@ -137,7 +164,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         #preparing
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
+        ro_remote_metadata.deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro/")
         
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)

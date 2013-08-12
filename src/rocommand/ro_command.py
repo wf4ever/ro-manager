@@ -765,7 +765,7 @@ def push_zip(progname, configbase, options, args):
     """
     push RO in zip format
     
-    ro push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> [ --synchronous | --asynchronous ] ]    
+    ro push <zip> | -d <dir> [ -f ] [-- new ] [ -r <rosrs_uri> ] [ -t <access_token> [ --synchronous | --asynchronous ] ]    
     """
     ro_config = getroconfig(configbase, options)
     ro_options = {
@@ -787,9 +787,14 @@ def push_zip(progname, configbase, options, args):
          echo+=" --synchronous"
         if options.asynchronous:
          echo+=" --asynchronous"
+        if options.new:
+            echo+=" --new"
         print echo
     rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
-    (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
+    if options.new:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read(),"zip/create")
+    else:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
     jobUri = headers["location"]
     (job_status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, headers["location"])
     print "Your Research Object %s is already processed" % target_id

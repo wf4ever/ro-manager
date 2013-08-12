@@ -119,7 +119,7 @@ def getAsZip(rouri):
     log.debug("Ro %s retrieved as zip" % rouri)
     return tmp
 
-def sendZipRO(httpsession, uripath, roId, zip):
+def sendZipRO(httpsession, uripath, roId, zip, service_path="zip/upload"):
     """
     Send a research object in the zip format. 
     Returns: status
@@ -127,7 +127,7 @@ def sendZipRO(httpsession, uripath, roId, zip):
     reqheaders   = {
         "slug":     roId,
     }
-    return httpsession.doRequest(uripath.split("ROs/")[0]+"zip/upload", "POST", zip, "application/zip", "application/json", reqheaders);
+    return httpsession.doRequest(uripath.split("ROs/")[0]+service_path, "POST", zip, "application/zip", "application/json", reqheaders);
     
 class ro_remote_metadata(object):
     """
