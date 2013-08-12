@@ -79,6 +79,14 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testCreateGraphRoUri2(self):
+        ro_config["rosrs_uri"] = "http://localhost:8000/rovserver/"
+        ro_uri = "http://localhost:8000/rovserver/ROs/0d8b454f/"
+        rosrs_uri = ro_config["rosrs_uri"]
+        romd  = ro_metadata.ro_metadata(ro_config, ro_uri)
+        self.assertEquals(romd.rouri, rdflib.URIRef(ro_uri))
+        return
+
     def testUpdateGraph(self):
         # No separate test - subsumed by other tests?
         return
@@ -829,6 +837,7 @@ def getTestSuite(select="unit"):
             ],
         "integration":
             [ "testIntegration"
+            , "testCreateGraphRoUri2"
             ],
         "pending":
             [ "testPending"

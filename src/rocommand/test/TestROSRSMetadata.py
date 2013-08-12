@@ -78,20 +78,24 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         super(TestROSRSMetadata, self).setUp()
         self.rosrs = ROSRS_Session(Config.ROSRS_API_URI,
             accesskey=Config.AUTHORIZATION)
+        self.roname = Config.TEST_RO_NAME
+        self.ropath = self.roname + "/"
         # Clean up from previous runs
-        self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        self.rosrs.deleteRO(self.ropath, purge=True)
         return
 
     def tearDown(self):
         super(TestROSRSMetadata, self).tearDown()
-        # Clean up
         if self.CREATED_RO != "":
             self.rosrs.deleteRO(self.CREATED_RO)
         self.rosrs.close()
         return
 
-    def createTestRO(self):
-        (status, reason, rouri, manifest) = self.rosrs.createRO(Config.TEST_RO_NAME,
+    def createTestRO(self, slug):
+        self.roname = Config.TEST_RO_NAME+"-"+slug
+        self.ropath = self.roname + "/"
+        self.rosrs.deleteRO(self.ropath, purge=True)
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.roname,
             "Test RO for ROSRSMetadata", "TestROSRSMetadata.py", "2012-09-11")
         self.CREATED_RO = rouri
         self.assertEqual(status, 201)
@@ -147,7 +151,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         """
         Test creation of ro_metadata object, and basic access to manifest content
         """
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testCreateRoMetadata")
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
         self.assertEqual(str(rouri)[:len(Config.TEST_RO_URI)-1]+"/", Config.TEST_RO_URI)
@@ -170,7 +174,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         """
         Test function to create & read a simple annotation body on an RO
         """
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testReadRoAnnotationBody")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
@@ -184,7 +188,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         return
 
     def testGetInitialRoAnnotations(self):
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testGetInitialRoAnnotations")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         # Retrieve the anotations
@@ -215,7 +219,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         return
 
     def testQueryAnnotations(self):
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testQueryAnnotations")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)

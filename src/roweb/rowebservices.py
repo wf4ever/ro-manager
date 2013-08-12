@@ -4,6 +4,7 @@ import logging
 import StringIO
 import json
 import urllib
+import urlparse
 
 import rdflib
 
@@ -145,15 +146,19 @@ def real_evaluate(request):
     log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     # create rometa object
     # @@TODO: use proper configuration and credentials
+    ROparse   = urlparse.urlparse(RO)
+    rosrs_uri = (ROparse.scheme or "http") + "://" + (ROparse.netloc or "localhost:8000") + "/"
     ro_config = {
         "annotationTypes":      annotationTypes,
         "annotationPrefixes":   annotationPrefixes,
+        "rosrs_uri":            rosrs_uri,
         #"rosrs_uri":            target,
-        "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
+        #"rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
         #"rosrs_access_token":   "ac14dd1a-ab59-40ec-b510-ffdb01a85473",
         "rosrs_access_token":   None,
         }
     rometa = ro_metadata(ro_config, RO)
+    log.info("rometa.rouri: %s"%(rometa.rouri) )
     # invoke evaluation service
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))

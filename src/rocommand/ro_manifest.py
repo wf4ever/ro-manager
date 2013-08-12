@@ -119,9 +119,6 @@ def getUriFile(uri):
         uri = uri[len(filebase):]
     return uri
 
-def old_getRoUri(ro_dir):
-    return getFileUri(os.path.abspath(ro_dir)+"/")
-
 def getRoUri(roref):
     uri = roref
     if urlparse.urlsplit(uri).scheme == "":

@@ -15,7 +15,7 @@ class ContentNegotiationView(generic.View):
         """
         def decorator(func):
             def guard(self, values):
-                accept_header = self.request.META.get('HTTP_ACCEPT',"default_type")
+                accept_header = self.request.META.get('HTTP_ACCEPT', "*/*")
                 accept_types  = [ a.split(';')[0].strip().lower() 
                                   for a in accept_header.split(',') ]
                 for t in types:
@@ -78,6 +78,11 @@ class ContentNegotiationView(generic.View):
                 , 'content_type':   self.request.META.get('CONTENT_TYPE', "application/octet-stream")
                 }
             })
+
+    def error404values(self):
+        return self.errorvalues(404, "Not found", 
+            "Resource %(request_uri)s not found"
+            )
 
     def error405values(self):
         return self.errorvalues(405, "Method not allowed", 

@@ -4,10 +4,13 @@
 #   http://www.morethanseven.net/2009/02/11/django-settings-tip-setting-relative-paths/
 import os
 import django
+import sys
 # calculated paths for django and the site
 # used as starting points for various other paths
 DJANGO_ROOT = os.path.dirname(os.path.realpath(django.__file__))
 SITE_ROOT = os.path.dirname(os.path.realpath(__file__))
+
+sys.path.insert(0, os.path.join(SITE_ROOT, "../../.."))
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -104,7 +107,7 @@ TEMPLATE_LOADERS = (
 MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
+    # 'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
@@ -171,3 +174,5 @@ logging.basicConfig(level=logging.INFO)
 log.info("DJANGO_ROOT: "+DJANGO_ROOT)
 log.info("SITE_ROOT:   "+SITE_ROOT)
 log.info("DB PATH:     "+DATABASES['default']['NAME'])
+log.debug("Python path: "+repr(sys.path))
+

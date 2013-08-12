@@ -15,6 +15,9 @@ def runTestSuite():
     sys.path.insert(0, os.path.normpath(base+"/../..") )
     sys.path.insert(0, os.path.normpath(base+"/../../iaeval/test") )
     sys.path.insert(0, os.path.normpath(base+"/../../sync/test") )
+    sys.path.insert(0, os.path.normpath(base+"/../../checklist/test") )
+    sys.path.insert(0, os.path.normpath(base+"/../../roweb") )
+    sys.path.insert(0, os.path.normpath(base+"/../../roweb/test") )
     #print "Path: "+repr(sys.path)
     import TestAll
     TestUtils.runTests("TestAll", TestAll.getTestSuite, sys.argv)

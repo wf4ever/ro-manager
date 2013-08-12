@@ -5,13 +5,74 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
+import os
 import random
 import unittest
+import rdflib
+from StringIO import StringIO
+
 
 from django.test import TestCase
 from django.test.client import Client
 
+from MiscUtils.HttpSession       import HTTP_Error, HTTP_Session
+from MiscUtils.MockHttpResources import MockHttpFileResources, MockHttpDictResources
+
+from rocommand.ro_namespaces import RDF, RO, ORE, AO
+
 from rovserver.models import ResearchObject, AggregatedResource
+
+TestBaseDir = os.path.join(os.path.dirname(os.path.realpath(__file__)), "testdata/")
+
+def test_resource_list(base_uri):
+    return (
+        [ base_uri+"res1"
+        , base_uri+"res2"
+        , base_uri+"res3"
+        ])
+
+def test_resource_dict(base_uri):
+    return (
+        { "res1":   "Resource %s\nLine 2\nLine 3"%(base_uri)
+        , "res2":   "Resource %s\nLine 2\nLine 3"%(base_uri)
+        , "res3":   "Resource %s\nLine 2\nLine 3"%(base_uri)
+        })
+
+
+class MockHttpResourcesTest(TestCase):
+
+    def test_MockHttpResources(self):
+        testbaseuri  = "http://testdomain.org/testdata/ro-test-1/"
+        testbasepath = os.path.join(TestBaseDir, "ro-test-1/")
+        with MockHttpFileResources(testbaseuri, testbasepath):
+            hs = HTTP_Session(testbaseuri)
+            (status, reason, headers, body) = hs.doRequest("README-ro-test-1.txt")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            self.assertRegexpMatches(body, "README-ro-test-1")
+            (status, reason, headers, body) = hs.doRequest("README-ro-test-1.txt", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            self.assertEquals(body, "")
+            (status, reason, headers, body) = hs.doRequest("subdir1/subdir1-file.txt")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            (status, reason, headers, body) = hs.doRequest("minim.rdf", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "application/rdf+xml")
+            (status, reason, headers, body) = hs.doRequest("filename%20with%20spaces.txt", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+            (status, reason, headers, body) = hs.doRequest("filename%23with%23hashes.txt", method="HEAD")
+            self.assertEquals(status, 200)
+            self.assertEquals(reason, "OK")
+            self.assertEquals(headers["content-type"], "text/plain")
+        return
 
 class ResearchObjectsTest(TestCase):
 
@@ -221,15 +282,10 @@ class RovServerTest(TestCase):
         self.assertRegexpMatches(r.content, urilisting(uri2))
         return
 
-    def create_test_ro(self, uri_list=None):
+    def create_test_ro(self, base_uri, uri_list=None):
         c = Client()
         base_uri = "http://example.org/resource/"
-        uri_list_default = (
-            [ base_uri+"res1"
-            , base_uri+"res2"
-            , base_uri+"res3"
-            ])
-        uri_list = uri_list or uri_list_default
+        uri_list = uri_list or test_resource_list(base_uri)
         uri_text = "\n".join(uri_list)
         r = c.post("/rovserver/", data=uri_text, content_type="text/uri-list")
         self.assertEqual(r.status_code, 201)
@@ -253,14 +309,15 @@ class RovServerTest(TestCase):
             , ""
             , base_uri+"res3"
             ])
-        ro_uri = self.create_test_ro(uri_list)
-        self.assertEqual(len(ResearchObject.objects.all()), 1)
-        self.assertEqual(len(AggregatedResource.objects.all()), 3)
-        # Read back RO list
-        r = c.get("/rovserver/", HTTP_ACCEPT="text/uri-list")
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["Content-Type"].split(';')[0], "text/uri-list")
-        self.assertEqual(r.content, ro_uri+"\n")
+        with MockHttpDictResources(base_uri, test_resource_dict(base_uri)):
+            ro_uri = self.create_test_ro(base_uri, uri_list)
+            self.assertEqual(len(ResearchObject.objects.all()), 1)
+            self.assertEqual(len(AggregatedResource.objects.all()), 3)
+            # Read back RO list
+            r = c.get("/rovserver/", HTTP_ACCEPT="text/uri-list")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r["Content-Type"].split(';')[0], "text/uri-list")
+            self.assertEqual(r.content, ro_uri+"\n")
         # Check aggregated content
         ros = ResearchObject.objects.filter(uri=ro_uri)
         self.assertEqual(len(ros), 1)
@@ -270,43 +327,165 @@ class RovServerTest(TestCase):
             self.assertIn(ar.uri, uri_list)
         return
 
-    # @unittest.skip("RO GET HTML not yet implemented")
     def test_roverlay_ro_get_html(self):
-        # print "********** test_roverlay_ro_get_html"
         c = Client()
         base_uri = "http://example.org/resource/"
-        uri_list = (
-            [ base_uri+"res1"
-            , base_uri+"res2"
-            , base_uri+"res3"
+        with MockHttpDictResources(base_uri, test_resource_dict(base_uri)):
+            ro_uri = self.create_test_ro(base_uri)
+            # Read HTML for created RO
+            r = c.get(ro_uri, HTTP_ACCEPT="text/html")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r["Content-Type"].split(';')[0], "text/html")
+            self.assertRegexpMatches(r.content, "<title>Research Object %s</title>"%(ro_uri))
+            # self.assertRegexpMatches(r.content, "<h1>roverlay service</h1>")
+            # self.assertRegexpMatches(r.content, "<h2>roverlay service interface</h2>")
+            def urilisting(uri):
+                return """<a href="%s">%s</a>"""%(uri, uri)
+            for uri in test_resource_list(base_uri):
+                self.assertRegexpMatches(r.content, urilisting(uri))
+        return
+
+    def test_roverlay_ro_get_404(self):
+        c = Client()
+        base_uri = "http://example.org/resource/"
+        with MockHttpDictResources(base_uri, test_resource_dict(base_uri)):
+            ro_uri = self.create_test_ro(base_uri)
+            # Read HTML for created RO
+            r = c.get(ro_uri, HTTP_ACCEPT="text/html")
+            self.assertEqual(r.status_code, 200)
+            no_uri = ro_uri[:-9]+"c01dca11/"
+            r = c.get(no_uri, HTTP_ACCEPT="text/html")
+            self.assertEqual(r.status_code, 404)
+            self.assertRegexpMatches(r.content, r"<title>Error 404: Not found .*</title>")
+            self.assertRegexpMatches(r.content, r"<h1>Error 404: Not found .*</h1>")
+            self.assertRegexpMatches(r.content, "<p>Research object %s not found</p>"%(no_uri))
+        return
+
+    def test_roverlay_ro_get_rdf(self):
+        c = Client()
+        testbaseuri  = "http://testdomain.org/testdata/ro-test-1/"
+        testbasepath = os.path.join(TestBaseDir, "ro-test-1/")
+        ro_uri_list = (
+            [ testbaseuri+"README-ro-test-1.txt"
+            , testbaseuri+"filename%20with%20spaces.txt"
+            , testbaseuri+"filename%23with%23hashes.txt"
+            , testbaseuri+"minim.rdf"
+            , testbaseuri+"subdir1/subdir1-file.txt"
+            , testbaseuri+"subdir2/subdir2-file.txt"
             ])
-        ro_uri = self.create_test_ro(uri_list)
-        # print "**** Created "+ro_uri
+        with MockHttpFileResources(testbaseuri, testbasepath):
+            ro_uri = self.create_test_ro(testbaseuri, ro_uri_list)
+            r = c.get(ro_uri, HTTP_ACCEPT="application/rdf+xml")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r["Content-Type"].split(';')[0], "application/rdf+xml")
+            mg = rdflib.Graph()
+            mg.parse(StringIO(r.content), format="xml", publicID=ro_uri)
+            rosub = rdflib.URIRef(ro_uri)
+            for ar in ro_uri_list:
+                self.assertIn((rosub, ORE.aggregates, rdflib.URIRef(ar)), mg)
+            # Check annotation
+            #
+            # <ore:aggregates>
+            #   <ro:AggregatedAnnotation>
+            #     <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
+            #     <ao:body rdf:resource=".ro/(annotation).rdf" />
+            #   </ro:AggregatedAnnotation>
+            # </ore:aggregates>
+            abody   = rdflib.URIRef(testbaseuri+"minim.rdf")
+            astub = mg.value(predicate=AO.body, object=abody)
+            self.assertIsNotNone(astub)
+            self.assertIn((rosub, ORE.aggregates, astub), mg)
+            self.assertIn((astub, RDF.type, RO.AggregatedAnnotation), mg)
+            self.assertIn((astub, RO.annotatesAggregatedResource, rosub), mg)
+        return
+
+    def test_roverlay_ro_get_turtle(self):
+        c = Client()
+        testbaseuri  = "http://testdomain.org/testdata/ro-test-1/"
+        testbasepath = os.path.join(TestBaseDir, "ro-test-1/")
+        ro_uri_list = (
+            [ testbaseuri+"README-ro-test-1.txt"
+            , testbaseuri+"filename%20with%20spaces.txt"
+            , testbaseuri+"filename%23with%23hashes.txt"
+            , testbaseuri+"minim.rdf"
+            , testbaseuri+"subdir1/subdir1-file.txt"
+            , testbaseuri+"subdir2/subdir2-file.txt"
+            ])
+        with MockHttpFileResources(testbaseuri, testbasepath):
+            ro_uri = self.create_test_ro(testbaseuri, ro_uri_list)
+            r = c.get(ro_uri, HTTP_ACCEPT="text/turtle;charset=UTF-8")
+            self.assertEqual(r.status_code, 200)
+            self.assertEqual(r["Content-Type"].split(';')[0], "text/turtle")
+            mg = rdflib.Graph()
+            mg.parse(StringIO(r.content), format="turtle", publicID=ro_uri)
+            rosub = rdflib.URIRef(ro_uri)
+            for ar in ro_uri_list:
+                self.assertIn((rosub, ORE.aggregates, rdflib.URIRef(ar)), mg)
+            # Check annotation
+            #
+            # <ore:aggregates>
+            #   <ro:AggregatedAnnotation>
+            #     <ro:annotatesAggregatedResource rdf:resource="data/UserRequirements-astro.ods" />
+            #     <ao:body rdf:resource=".ro/(annotation).rdf" />
+            #   </ro:AggregatedAnnotation>
+            # </ore:aggregates>
+            abody   = rdflib.URIRef(testbaseuri+"minim.rdf")
+            astub = mg.value(predicate=AO.body, object=abody)
+            self.assertIsNotNone(astub)
+            self.assertIn((rosub, ORE.aggregates, astub), mg)
+            self.assertIn((astub, RDF.type, RO.AggregatedAnnotation), mg)
+            self.assertIn((astub, RO.annotatesAggregatedResource, rosub), mg)
+        return
+
+    @unittest.skip("Slow test")
+    def test_roverlay_home_post_github_aggregation(self):
+        """
+        Test logic for creating new RO by POST to service
+        """
+        self.assertEqual(len(ResearchObject.objects.all()), 0)
+        self.assertEqual(len(AggregatedResource.objects.all()), 0)
+        c = Client()
+        # Create new RO
+        base_uri = "http://wf4ever.github.io/ro-catalogue/v0.1/simple-requirements/"
+        uri_list = (
+            [ base_uri + "checklist-runnable.rdf"
+            , base_uri + "data/UserRequirements-astro.ods"
+            , base_uri + "data/UserRequirements-bio.ods"
+            , base_uri + "data/UserRequirements-gen.ods"
+            , base_uri + "docs/mkjson.sh"
+            , base_uri + "docs/UserRequirements-astro.csv"
+            , base_uri + "docs/UserRequirements-astro.json"
+            , base_uri + "docs/UserRequirements-bio.csv"
+            , base_uri + "docs/UserRequirements-bio.json"
+            , base_uri + "docs/UserRequirements-gen.csv"
+            , base_uri + "docs/UserRequirements-gen.json"
+            , base_uri + "make.sh"
+            , base_uri + "minim-checklist.sh"
+            , base_uri + "python"
+            , base_uri + "python/ReadCSV.py"
+            , base_uri + "README"
+            , base_uri + "simple-requirements-minim.rdf"
+            , base_uri + "simple-requirements-wfdesc.rdf"
+            , base_uri + "simple-requirements-wfprov.rdf"
+            , base_uri + "TODO"
+            ])
+        ro_uri = self.create_test_ro(base_uri, uri_list)
+        self.assertEqual(len(ResearchObject.objects.all()), 1)
+        self.assertEqual(len(AggregatedResource.objects.all()), 20)
+        # Read back RO list
+        r = c.get("/rovserver/", HTTP_ACCEPT="text/uri-list")
+        self.assertEqual(r.status_code, 200)
+        self.assertEqual(r["Content-Type"].split(';')[0], "text/uri-list")
+        self.assertEqual(r.content, ro_uri+"\n")
+        # Check aggregated content
         ros = ResearchObject.objects.filter(uri=ro_uri)
         self.assertEqual(len(ros), 1)
         ars = AggregatedResource.objects.filter(ro=ros[0])
-        self.assertEqual(len(ars), 3)
+        self.assertEqual(len(ars), 20)
         for ar in ars:
             self.assertIn(ar.uri, uri_list)
-        # print "**** About to GET "+ro_uri
-        r = c.get(ro_uri, HTTP_ACCEPT="text/html")
-        self.assertEqual(r.status_code, 200)
-        self.assertEqual(r["Content-Type"].split(';')[0], "text/html")
-        self.assertRegexpMatches(r.content, "<title>Research Object %s</title>"%(ro_uri))
-        # self.assertRegexpMatches(r.content, "<h1>roverlay service</h1>")
-        # self.assertRegexpMatches(r.content, "<h2>roverlay service interface</h2>")
-        def urilisting(uri):
-            return """<a href="%s">%s</a>"""%(uri, uri)
-        for uri in uri_list:
-            self.assertRegexpMatches(r.content, urilisting(uri))
         return
 
-    @unittest.skip("RO GET RDF not yet implemented")
-    def test_roverlay_ro_get_rdf(self):
-        assert False, "@@TODO: test not implemented"
-        return
-
-    @unittest.skip("DELETE not yet implemented")
     def test_roverlay_ro_delete(self):
         """
         Test logic for deleting RO aggregation by DELETE to service
@@ -329,15 +508,14 @@ class RovServerTest(TestCase):
         self.assertEqual(len(ResearchObject.objects.all()), 1)
         self.assertEqual(len(AggregatedResource.objects.all()), 3)
         # Delete RO
-        r = c.delete("/rovserver/")
+        r = c.delete(ro_uri)
         self.assertEqual(r.status_code, 204)
-        # Check aggregated content
+        # Check RO and aggregated content are gone
         ros = ResearchObject.objects.filter(uri=ro_uri)
         self.assertEqual(len(ros), 0)
-        ars = AggregatedResource.objects.filter(ro=ros[0])
+        ars = AggregatedResource.objects.all()
         self.assertEqual(len(ars), 0)
         return
-
 
         # import inspect
         # print "ATTRIBUTES:"
