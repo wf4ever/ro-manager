@@ -407,8 +407,6 @@ def remote_ro_status(options, args, rosrs):
         if evo_type == None:
             status =  job_status(options, args, rosrs)
             if status == -1:
-                status = 0
-            if status == -1:
                 print "Wrong URI was given"
             return status
         elif evo_type == EvoType.LIVE:
