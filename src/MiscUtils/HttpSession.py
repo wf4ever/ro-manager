@@ -337,11 +337,12 @@ class HTTP_Session(object):
                 bodyformat = RDF_CONTENT_TYPES[content_type]
                 # log.debug("HTTP_Session.doRequestRDF data:\n----\n"+data+"\n------------")
                 try:
-                    rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
+                    # rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
+                    rdfgraph.parse(data=data, publicID=baseuri, format=bodyformat)
                     data = rdfgraph
                 except Exception, e:
-                    # log.debug("HTTP_Session.doRequestRDF: %s"%(e))
-                    log.debug("HTTP_Session.doRequestRDF parse failure: '%s', '%s'"%(content_type, bodyformat))
+                    log.info("HTTP_Session.doRequestRDF: %s"%(e))
+                    log.info("HTTP_Session.doRequestRDF parse failure: '%s', '%s'"%(content_type, bodyformat))
                     # log.debug("HTTP_Session.doRequestRDF data:\n----\n"+data[:200]+"\n------------")
                     status   = 902
                     reason   = "RDF (%s) parse failure"%bodyformat
