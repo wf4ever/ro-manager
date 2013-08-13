@@ -196,6 +196,8 @@ def runCommand(configbase, robase, argv):
             filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
             fileloghandler.setFormatter(filelogformatter)
             logging.getLogger('').addHandler(fileloghandler)
+    else:
+        logging.basicConfig(level=logging.INFO)
     log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     status = 1
     if options:

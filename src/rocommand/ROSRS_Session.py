@@ -485,8 +485,11 @@ class ROSRS_Session(HTTP_Session):
         for (prefix, uri) in ro_prefixes.prefixes:
             agraph.bind(prefix, rdflib.namespace.Namespace(uri))
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
+            (status, reason, headers, curi, data) = self.doRequestRDFFollowRedirect(buri, 
                 graph=agraph, exthost=True)
+            log.debug("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
+            if status != 200:
+                log.error("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
         return agraph
 
     def getROAnnotation(self, annuri):

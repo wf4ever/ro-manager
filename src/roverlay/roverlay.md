@@ -75,7 +75,7 @@ but does not install the web frameworks needed to run any servioces.
 
 5. Now start the Overlay RO service:
 
-        $ python manage.py runserver
+        $ python manage.py runserver 0.0.0.0:8000
 
 6. To confirm the service is running, point a browser to [http://localhost:8000/rovserver/]()
 
@@ -186,4 +186,21 @@ roverlay command line tool:
 Initial deployment on Andros.
 
 Subsequent deployment on Wf4Ever sandbox?  May need to arrange an alternate port number (or migrate checklist service to Django platform).
+
+
+### Note about reverse proxy deployment
+
+The roverlay service returns URIs in headers and response bodies that are needed to access the ROs created.  Because of this, the service cannot be run behind a reverse proxy gateway.  For this reason, we have not been able to deploy it in the Wf4Ever sandbox.
+
+For the service to function behind a reverse proxy, the following would need to be handled by the reverse proxy service:
+
+1. Proxy redirects to a public address, not the localhost interface (is this true if the rewrites are all performed as needed?)
+2. Location: headers in responses re-written (in principle, Apache's reverse proxy should do this, but in tests we undertook this was not happening)
+3. URIs in text/uri-list response bodies rewritten
+
+    and possibly, for the future:
+
+4. (Link: header URIs re-written - not currently needed, but may be for future developments)
+5. (URIs in RDF responses (all syntaxes) re-written - this might not be needed if the roiverlay server always returns relative URIs.
+5. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
 
