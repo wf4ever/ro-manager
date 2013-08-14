@@ -509,6 +509,8 @@ def formatRule(satisfied, rule, bindings):
     elif 'querytestrule' in rule:
         ruledict = rule['querytestrule']
         templatedefault = "Query test rule %(query)s"
+        if bindings['_count'] == 0 and ruledict["showmiss"]:
+            templateoverride = ruledict["showmiss"]
     else:
         ruledict = { 'rule': repr(rule), 'show': None, 'templateindex': None }
         templatedefault = "Unrecognized rule: %(rule)s"
@@ -519,7 +521,13 @@ def formatRule(satisfied, rule, bindings):
         template = ruledict.get("showfail", None)
     template = templateoverride or template or ruledict.get("show", None) or templatedefault
     bindings.update(ruledict)
-    return template%bindings
+    try:
+        result = template%bindings
+    except Exception, e:
+        log.error("Error formatting result: %s"%(e))
+        log.error("Template %s, bindings %r"%(template, bindings))
+        result = "(Formatting problem) Message: %s, values: %r"%(template, bindings)
+    return result
 
 def evalResultGraph(graph, evalresult):
     """
