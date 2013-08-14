@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 ANNOTATION_CONTENT_TYPES = (
     { "application/rdf+xml":    "xml"
-    , "text/turtle":            "n3"
+    , "text/turtle":            "turtle"
     , "text/n3":                "n3"
     , "text/nt":                "nt"
     , "application/json":       "jsonld"
