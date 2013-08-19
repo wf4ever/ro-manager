@@ -167,6 +167,7 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 ![roverlay service interactions](roverlay-sequence-diagram.png "roverlay service interactions diagram")
 
+
 ## roverlay software framework
 
 roverlay web service:
@@ -176,17 +177,18 @@ roverlay web service:
 * DELETE to delete RO
 * GET, HEAD to access RO using read-only elements of RO API
 
-roverlay command line tool:
-* use mkminim as initial template; command options as illustrated above.  Interacts with web service.
+roverlay command line tool:  a simple Python command line program that interacts with the roveray web service.  It uses mostly standard Python library facilities in its operation.
 
-> The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of theinitial implementation.
+> The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of the initial implementation.
+
+> Subsequent experience with roverlay has shown alternative, very effective ways to overcome the performance issues enountered previously.  At this stage, it is not clear that the additional features will be justified.  The graph facility can be partially provided using the `ro dump` command, and the additional value of a SPARQL endpoint is currently not clear.
+
 
 ## roverlay deployment plans
 
-Initial deployment on Andros.
+The service has been tempoirarily deployed at andros.zoo.ox.ac.uk for testing, but this is not a production service and may be taken down at any time.
 
-Subsequent deployment on Wf4Ever sandbox?  May need to arrange an alternate port number (or migrate checklist service to Django platform).
-
+Deployment on the Wf4Ever sandbox has been attempted, but a fulkly functional service does not exist here because the service does not work through a reverse proxy (see below).
 
 ### Note about reverse proxy deployment
 
@@ -203,4 +205,3 @@ For the service to function behind a reverse proxy, the following would need to 
 4. (Link: header URIs re-written - not currently needed, but may be for future developments)
 5. (URIs in RDF responses (all syntaxes) re-written - this might not be needed if the roiverlay server always returns relative URIs.
 5. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
-
