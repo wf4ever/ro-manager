@@ -186,9 +186,9 @@ roverlay command line tool:  a simple Python command line program that interacts
 
 ## roverlay deployment plans
 
-The service has been tempoirarily deployed at andros.zoo.ox.ac.uk for testing, but this is not a production service and may be taken down at any time.
+The service has been temporarily deployed at andros.zoo.ox.ac.uk for testing, but this is not a production service and may be taken down at any time.
 
-Deployment on the Wf4Ever sandbox has been attempted, but a fulkly functional service does not exist here because the service does not work through a reverse proxy (see below).
+Deployment on the Wf4Ever sandbox has been attempted, but a fully functional service does not exist here because the service does not work seamlessly through a reverse proxy (see below).
 
 ### Note about reverse proxy deployment
 
@@ -205,3 +205,5 @@ For the service to function behind a reverse proxy, the following would need to 
 4. (Link: header URIs re-written - not currently needed, but may be for future developments)
 5. (URIs in RDF responses (all syntaxes) re-written - this might not be needed if the roiverlay server always returns relative URIs.
 5. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
+
+An alternative possible approach would be to modify the service to work in conjunction with APacahe's `ProxyPreserveHost On` directive, and to use the incoming host as the root fort all generated URIs in data and headers.
