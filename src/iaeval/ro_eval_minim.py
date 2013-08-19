@@ -550,7 +550,7 @@ def evalResultGraph(graph, evalresult):
     graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
-    graph.add( (rouri, MINIM.testedConstraint, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedChecklist, rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )

@@ -27,7 +27,7 @@
     <dcterms:description>A simple RO used for testing traffic light display.</dcterms:description>
     <minim:testedPurpose>Runnable</minim:testedPurpose>
     <minim:testedTarget rdf:resource="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"/>
-    <minim:testedConstraint rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable"/>
+    <minim:testedChecklist rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable"/>
     <minim:modelUri>
       <minim:Model rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model">
         <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"/>

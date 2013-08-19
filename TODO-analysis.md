@@ -2,16 +2,6 @@
 
 ## Functionality
 
-### wf4ever-ro-manager/Minim/minim-results.omn:
-
-       21    # by the properties described below that are applied to the evaluated target resource.
-       22  
-       23:   # @@TODO: rename/synonym to match changes to Minim model?
-       24    ObjectProperty: minim:testedConstraint
-       25      Annotations:
-
-Points: 1
-
 
 ### wf4ever-ro-manager/src/checklist/gridmatch.py:
 
