@@ -149,27 +149,6 @@ Points: 3
 ## Refactoring
 
 
-### wf4ever-ro-manager/src/rocommand/ROSRS_Session.py:
-
-Need to change interface to supply information?
-
-      437                  "%03d %s (%s)"%(status, reason, str(rouri)))
-      438          for (a,p) in manifest.subject_predicates(object=resuri):
-      439:             # @@TODO: in due course, remove RO.annotatesAggregatedResource?
-      440              if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
-      441                  yield a
-    ...
-      457                  "%03d %s (%s)"%(status, reason, str(rouri)))
-      458          for (a,p) in manifest.subject_predicates(object=resuri):
-      459:             # @@TODO: in due course, remove RO.annotatesAggregatedResource?
-      460              if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
-      461                  yield manifest.value(subject=a, predicate=AO.body)
-
-Points 2: need to review usage.
-
-Points 1: or just leave it, remove @@TODO?
-
-
 ### wf4ever-ro-manager/src/roweb/TrafficLightReports.py:
 
        55  #   minim   URI of minim model for which evaluation has been performed
@@ -179,21 +158,6 @@ Points 1: or just leave it, remove @@TODO?
        59  # generating result label text
 
 Points:2
-
-
-      249  #   modeluri  URI of Minim model defining the evaluated checklist
-      250  #
-      251: # @@TODO: add sequence to minim model for output ordering of checklist items
-      252  #
-      253  EvalChecklistJson = (
-    ...
-      465  #   modeluri  URI of Minim model defining the evaluated checklist
-      466  #
-      467: # @@TODO: add sequence to minim model for output ordering of checklist items
-      468  #
-      469  EvalChecklistHtml = (
-
-Points: 1 (think is done,check)
 
 
 ### wf4ever-ro-manager/src/roverlay/rovweb/rovserver/ContentNegotiationView.py:
@@ -284,28 +248,6 @@ Points: 3
       307      log.debug("manifestfilename: " + manifestfilename)
 
 Points: 2
-
-
-### wf4ever-ro-manager/src/rocommand/ro_namespaces.py:
-
-       49  RO = makeNamespace(ro, 
-       50              [ "ResearchObject", "AggregatedAnnotation"
-       51:             , "annotatesAggregatedResource" # @@TODO: deprecated
-       52              ])
-       53  ROEVO = makeNamespace(roevo, 
-
-Points: 1 (see wf4ever-ro-manager/src/rocommand/ROSRS_Session.py options)
-
-
-### wf4ever-ro-manager/src/rocommand/ro_uriutils.py:
-
-       85          # Pick out elements of response
-       86          islive = (status >= 200) and (status <= 299)
-       87:     # Original logic @@TODO remove this
-       88      if 0:
-       89          hc = ROSRS_Session.ROSRS_Session(uriref)
-
-Points 1:
 
 
 ## Tests

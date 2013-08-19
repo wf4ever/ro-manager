@@ -436,7 +436,6 @@ class ROSRS_Session(HTTP_Session):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield a
         return
@@ -456,7 +455,6 @@ class ROSRS_Session(HTTP_Session):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield manifest.value(subject=a, predicate=AO.body)
         return
