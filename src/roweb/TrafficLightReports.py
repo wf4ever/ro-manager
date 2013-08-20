@@ -248,8 +248,6 @@ EvalItemJson = (
 #   rouri     URI of RO evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
 #
-# @@TODO: add sequence to minim model for output ordering of checklist items
-#
 EvalChecklistJson = (
     { 'report':
       [ { 'output':
@@ -463,8 +461,6 @@ EvalItemHtml = (
 # Optional incoming bindings:
 #   rouri     URI of RO evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
-#
-# @@TODO: add sequence to minim model for output ordering of checklist items
 #
 EvalChecklistHtml = (
     { 'report':

@@ -48,7 +48,7 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
             ])
 RO = makeNamespace(ro, 
             [ "ResearchObject", "AggregatedAnnotation"
-            , "annotatesAggregatedResource" # @@TODO: deprecated
+            , "annotatesAggregatedResource"
             ])
 ROEVO = makeNamespace(roevo, 
             [ "LiveRO","SnapshotRO","ArchivedRO","isFinalized"

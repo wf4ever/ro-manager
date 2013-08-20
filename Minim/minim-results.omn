@@ -21,12 +21,12 @@ Ontology:  <http://purl.org/minim/minim-results>
   # by the properties described below that are applied to the evaluated target resource.
 
   # @@TODO: rename/synonym to match changes to Minim model?
-  ObjectProperty: minim:testedConstraint
+  ObjectProperty: minim:testedChecklist
     Annotations:
       rdfs:label "Tested checklist",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a checklist
-        (constraint) against which it has been evaluated."
+        "This property is used in checklist results to relate a research object to a
+        checklist (constraint) against which it has been evaluated."
     Domain: ro:ResearchObject
     Range: minim:Checklist
 

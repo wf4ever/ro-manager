@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 ANNOTATION_CONTENT_TYPES = (
     { "application/rdf+xml":    "xml"
-    , "text/turtle":            "n3"
+    , "text/turtle":            "turtle"
     , "text/n3":                "n3"
     , "text/nt":                "nt"
     , "application/json":       "jsonld"
@@ -436,7 +436,6 @@ class ROSRS_Session(HTTP_Session):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield a
         return
@@ -456,7 +455,6 @@ class ROSRS_Session(HTTP_Session):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield manifest.value(subject=a, predicate=AO.body)
         return
@@ -485,8 +483,11 @@ class ROSRS_Session(HTTP_Session):
         for (prefix, uri) in ro_prefixes.prefixes:
             agraph.bind(prefix, rdflib.namespace.Namespace(uri))
         for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
+            (status, reason, headers, curi, data) = self.doRequestRDFFollowRedirect(buri, 
                 graph=agraph, exthost=True)
+            log.debug("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
+            if status != 200:
+                log.error("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
         return agraph
 
     def getROAnnotation(self, annuri):

@@ -52,7 +52,7 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             # Result properties
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             , "satisfied", "missingMay", "missingShould", "missingMust"
-            , "testedConstraint", "testedPurpose", "testedTarget"
+            , "testedChecklist", "testedPurpose", "testedTarget"
             , "minimUri", "modelUri"
             , "tryRequirement", "tryMessage"
             ])

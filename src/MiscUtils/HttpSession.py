@@ -332,16 +332,20 @@ class HTTP_Session(object):
         if status >= 200 and status < 300:
             content_type = headers["content-type"].split(";",1)[0].strip().lower()
             if content_type in RDF_CONTENT_TYPES:
-                rdfgraph   = graph or rdflib.graph.Graph()
+                rdfgraph   = graph if graph != None else rdflib.graph.Graph()
                 baseuri    = self.getpathuri(uripath)
                 bodyformat = RDF_CONTENT_TYPES[content_type]
                 # log.debug("HTTP_Session.doRequestRDF data:\n----\n"+data+"\n------------")
                 try:
-                    rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
+                    # rdfgraph.parse(data=data, location=baseuri, format=bodyformat)
+                    rdfgraph.parse(data=data, publicID=baseuri, format=bodyformat)
                     data = rdfgraph
                 except Exception, e:
+                    log.info("HTTP_Session.doRequestRDF: %s"%(e))
+                    log.info("HTTP_Session.doRequestRDF parse failure: '%s', '%s'"%(content_type, bodyformat))
+                    # log.debug("HTTP_Session.doRequestRDF data:\n----\n"+data[:200]+"\n------------")
                     status   = 902
-                    reason   = "RDF parse failure"
+                    reason   = "RDF (%s) parse failure"%bodyformat
             else:
                 status   = 901
                 reason   = "Non-RDF content-type returned"
