@@ -14,6 +14,7 @@ import ro_utils
 import logging
 import os.path
 import rdflib
+import time
 from MiscUtils import TestUtils
 from rocommand import ro_annotation
 from rocommand.test import TestROSupport
@@ -65,7 +66,8 @@ class TestRosrsSync(TestROSupport.TestROSupport):
         (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/pushro.zip", 'rb').read())
         status = "RUNNING"
         while (status == "RUNNING"):
-           (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(httpsession, headers['location'])
+            time.sleep(1)
+            (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(httpsession, headers['location'])
         self.assertEqual("DONE", status)
         deleteRO(httpsession,target_id)
         self.assertEqual(reason, "Created")                

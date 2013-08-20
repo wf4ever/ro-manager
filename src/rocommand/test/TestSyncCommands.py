@@ -12,6 +12,7 @@ import filecmp
 import logging
 import shutil
 import urlparse
+import time
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -26,7 +27,6 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from MiscUtils import TestUtils
-
 from rocommand import ro, ro_metadata, ro_remote_metadata, ro_annotation, ro_settings
 from rocommand.ROSRS_Session import ROSRS_Session
 from TestConfig import ro_test_config
@@ -175,6 +175,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
                 jobLocation = line.split("Job URI:")[1].strip()
                 status = "RUNNING"
                 while status == "RUNNING":
+                    time.sleep(1)
                     (status, id, processed_resources, submitted_resources) = parse_job(self.rosrs, jobLocation)
                 assert status == "DONE"
                 self.rosrs.deleteRO(id)
