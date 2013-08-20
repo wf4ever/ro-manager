@@ -152,7 +152,11 @@ class ro_remote_metadata(object):
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
-        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Nested URIs may be present; ours is the one described by the manifest URI,
+        # which is determined by the _loadManifest() method.
+        for s in self.manifestgraph.subjects(RDF.type, RO.ResearchObject):
+            if self.manifestgraph.value(s, ORE.isDescribedBy) == self.manifesturi:
+                self.rouri = s
         # Check that the manifest contained at least one RO URI
         assert self.rouri is not None
         return
