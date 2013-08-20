@@ -215,7 +215,7 @@ class ROSRS_Session(HTTP_Session):
         """
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(rouri,
             method="GET")
-        log.info("getROManifest %s, status %d, len %d"%(uri, status, len(data or [])))
+        log.debug("getROManifest %s, status %d, len %d"%(uri, status, len(data or [])))
         if status in [200, 404]:
             return (status, reason, headers, URIRef(uri), data)
         log.info("Error %03d %s retrieving %s"%(status, reason, uri))

@@ -164,14 +164,15 @@ def getRequirements(minimgraph, modeluri):
     def matchRequirement((s, p, o), reqp, reqval):
         req = None
         if p == reqp:
-            req = (
-                { 'uri':    o
-                , 'model':  s
-                , 'level':  reqval
-                , 'label':  minimgraph.value(subject=o, predicate=RDFS.label)
-                })
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
+            req = (
+                { 'uri':      o
+                , 'ruleuri':  ruleuri
+                , 'model':    s
+                , 'level':    reqval
+                , 'label':    minimgraph.value(subject=o, predicate=RDFS.label)
+                })
             rule = (
                 { 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
@@ -179,7 +180,8 @@ def getRequirements(minimgraph, modeluri):
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
                 })
             # Create field used for sorting checklist items
-            req['seq'] = str( minimgraph.value(subject=s, predicate=MINIM.seq) or
+            req['seq'] = str( minimgraph.value(subject=o, predicate=MINIM.seq) or
+                              minimgraph.value(subject=s, predicate=MINIM.seq) or
                               rule['show'] or
                               rule['showpass'] )
             ruletype = minimgraph.value(subject=ruleuri, predicate=RDF.type)
