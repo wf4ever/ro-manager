@@ -10,7 +10,7 @@ if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
-
+import ro_utils
 import logging
 import os.path
 import rdflib
@@ -62,9 +62,12 @@ class TestRosrsSync(TestROSupport.TestROSupport):
     def testPushZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession,headers['location'])
-        self.assertEqual(status, 201)
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/pushro.zip", 'rb').read())
+        status = "RUNNING"
+        while (status == "RUNNING"):
+           (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(httpsession, headers['location'])
+        self.assertEqual("DONE", status)
+        deleteRO(httpsession,target_id)
         self.assertEqual(reason, "Created")                
     
     def testPush(self):
