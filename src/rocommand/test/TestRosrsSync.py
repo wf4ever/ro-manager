@@ -63,7 +63,7 @@ class TestRosrsSync(TestROSupport.TestROSupport):
     def testPushZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/pushro.zip", 'rb').read())
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("zips/pushro-6.zip", 'rb').read())
         status = "RUNNING"
         while (status == "RUNNING"):
             time.sleep(1)

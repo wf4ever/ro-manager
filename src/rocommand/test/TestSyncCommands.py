@@ -70,7 +70,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/pushro.zip",
+            "ro", "push", "zips/pushro-6.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -124,7 +124,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/pushro.zip",
+            "ro", "push", "zips/pushro-6.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -153,7 +153,7 @@ class TestSyncCommands(TestROSupport.TestROSupport):
         ro push <zip> | -d <dir>  [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] 
         """
         args = [
-            "ro", "push", "data/pushro.zip",
+            "ro", "push", "zips/pushro-6.zip",
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "--asynchronous",
