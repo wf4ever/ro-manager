@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Module to test RO manager annotation commands
+Module to test RO manager link command
 
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils

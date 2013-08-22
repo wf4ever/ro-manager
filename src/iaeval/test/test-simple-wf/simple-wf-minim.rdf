@@ -55,10 +55,19 @@
       <minim:Constraint rdf:about="#runnable_RO">
         <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
         <minim:forPurpose>Runnable</minim:forPurpose>
-        <!-- <minim:onResourceTemplate>{+targetro}</minim:onResourceTemplate> -->
         <minim:toModel rdf:resource="#runnable_RO_model" />
         <rdfs:comment>
           Constraint to be satisfied if the RO is to be runnable
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#missing_RO">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>Missing</minim:forPurpose>
+        <minim:toModel rdf:resource="#missing_RO_model" />
+        <rdfs:comment>
+          Constraint to test failure when forall selection is not matched
         </rdfs:comment>
       </minim:Constraint>
     </minim:hasConstraint>
@@ -78,6 +87,13 @@
     <minim:hasMustRequirement rdf:resource="#isPresent/workflow-inputfiles" />
   </minim:Model>
 
+  <!-- Model to test 'forall' test with 'showmiss' label
+    -->
+  <minim:Model rdf:about="#missing_RO_model">
+    <rdfs:label>Missing</rdfs:label>
+    <minim:hasMustRequirement rdf:resource="#isPresent/forall-missing" />
+  </minim:Model>
+
   <!-- =================
        REQUIREMENT RULES
        =================
@@ -92,7 +108,6 @@
         </minim:exists>
         <minim:showpass>Workflow instance or template found</minim:showpass>
         <minim:showfail>No workflow instance or template found</minim:showfail>
-        <minim:derives rdf:resource="#isPresent/workflow-instance" />
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
   </minim:Requirement>
@@ -114,7 +129,24 @@
         <minim:aggregatesTemplate>{+if}</minim:aggregatesTemplate>
         <minim:showpass>All workflow inputs referenced or present</minim:showpass>
         <minim:showfail>Workflow %(wf)s input %(if)s not found</minim:showfail>
-        <minim:derives rdf:resource="#isPresent/workflow-inputfiles" />
+        <minim:showmiss>No workflow inputs defined</minim:showmiss>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <!-- Forall test not matched -->
+  <minim:Requirement rdf:about="#isPresent/forall-missing">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?target ore:aggregates ?wf .
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasHensTooth ?henstooth .
+        </minim:forall>
+        <minim:aggregatesTemplate>{+henstooth}</minim:aggregatesTemplate>
+        <minim:showmiss>No workflow present with hens tooth</minim:showmiss>
+        <minim:showpass>All workflows with hens teeth</minim:showpass>
+        <minim:showfail>Workflow %(wf)s hens tooth %(henstooth)s not found</minim:showfail>
       </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
   </minim:Requirement>

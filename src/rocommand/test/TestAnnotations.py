@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils
@@ -39,6 +39,7 @@ from rocommand.ro_namespaces import RDF, RDFS, DCTERMS, RO, AO, ORE
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
+from CurrentDirectoryContext import SwitchWorkingDirectory
 
 import TestROSupport
 
@@ -274,6 +275,34 @@ class TestAnnotations(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testAnnotationDisplayDefault(self):
+        # Construct annotated RO
+        rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
+        rofile = rodir+"/"+"subdir1/subdir1-file.txt"
+        annotations = (
+            [ {"atypename": "type",        "avalue":"atype",    "atypeuri":DCTERMS.type,        "aexpect":"atype" }
+            , {"atypename": "title",       "avalue":"atitle",   "atypeuri":DCTERMS.title,       "aexpect":"atitle" }
+            ])
+        self.annotateMultiple(rodir, rofile, annotations)
+        # Display annotations with RO in curremnt directory and target "."
+        args = [ "ro", "annotations", "."
+               , "-v"
+               ]
+        configdir = os.path.abspath(ro_test_config.CONFIGDIR)
+        robasedir = os.path.abspath(ro_test_config.ROBASEDIR)
+        with SwitchWorkingDirectory(rodir):
+            with SwitchStdout(self.outstr):
+                status = ro.runCommand(configdir, robasedir, args)
+        outtxt = self.outstr.getvalue()
+        assert status == 0, outtxt
+        log.debug("outtxt: %s"%(outtxt))
+        self.assertEqual(outtxt.count("ro annotations"), 1)
+        self.assertRegexpMatches(outtxt, "title.*RO test annotation")
+        self.assertRegexpMatches(outtxt, "rdf:type.*<%s>"%(RO.ResearchObject))
+        self.assertNotRegexpMatches(outtxt, "\n<subdir1/subdir1-file.txt>")
+        self.deleteTestRo(rodir)
+        return
+
     # Test annotate with graph
     def testAnnotateWithGraph(self):
         rodir  = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
@@ -492,6 +521,7 @@ def getTestSuite(select="unit"):
             , "testAnnotateFileWithEscapes"
             , "testAnnotationDisplayRo"
             , "testAnnotationDisplayFile"
+            , "testAnnotationDisplayDefault"
             , "testAnnotateWithGraph"
             , "testAnnotateWithNotExistentGraph"
             , "testAnnotateWildcardPattern1"

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 
 """
-Module to test RO manager manifest and aggregation commands
+Module to test RO manager minim access functions
 
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
@@ -28,16 +28,14 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
-from rocommand import ro
 from rocommand import ro_utils
 from rocommand import ro_manifest
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
-from rocommand.test import StdoutContext
 
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
@@ -99,7 +97,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                                          )
             , (constraint, MINIM.forPurpose,    rdflib.Literal('create UserRequirements-astro.csv') )
-            , (constraint, MINIM.onResource,    rouri                                               )
             , (constraint, MINIM.toModel,       model                                               )
             , (model,      RDF.type,            MINIM.Model                                         )
             ])
@@ -121,8 +118,7 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         for c in constraints:
             if ( c['target']   == ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv") and
                  c['purpose']  == rdflib.Literal("create UserRequirements-astro.csv")                   and
-                 c['resource'] == rouri                                                               and
-                 c['model']    == model                                                               and
+                 c['model']    == model                                                                 and
                  c['uri']      == constraint ) :
                 expected_found = True
                 break
@@ -142,7 +138,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             r"create.*UserRequirements-astro\.csv")
         self.assertEquals(c['target'],   ro_manifest.getComponentUri(rodir, "docs/UserRequirements-astro.csv"))
         self.assertEquals(c['purpose'],  rdflib.Literal("create UserRequirements-astro.csv"))
-        self.assertEquals(c['resource'], rouri)
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
         return
@@ -203,7 +198,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'softwarerule':
               { 'command':  rdflib.Literal("python -V")
               , 'response': rdflib.Literal("Python 2.7")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/python-27")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#environment-software/python-27") 
             })
@@ -212,7 +206,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
             , 'datarule':
               { 'aggregates': ro_manifest.getComponentUri(rodir, "data/UserRequirements-astro.ods")
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-astro.ods") 
             })
@@ -221,7 +214,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/reqs.css")
             , 'datarule':
               { 'aggregates': ro_manifest.getComponentUri(rodir, "docs/reqs.css") 
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/reqs.css") 
             })
@@ -251,7 +243,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         expected_minim = (
             [ (target,     MINIM.hasConstraint, constraint                 )
             , (constraint, MINIM.forPurpose,    rdflib.Literal('Runnable') )
-            , (constraint, MINIM.onResource,    rouri                      )
             , (constraint, MINIM.toModel,       model                      )
             , (model,      RDF.type,            MINIM.Model                )
             ])
@@ -270,7 +261,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
         for c in constraints:
             if ( c['target']   == rouri                      and
                  c['purpose']  == rdflib.Literal("Runnable") and
-                 c['resource'] == rouri                      and
                  c['model']    == model                      and
                  c['uri']      == constraint ) :
                 expected_found = True
@@ -289,7 +279,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             "Runnable")
         self.assertEquals(c['target'],   rouri)
         self.assertEquals(c['purpose'],  rdflib.Literal("Runnable"))
-        self.assertEquals(c['resource'], rouri)
         self.assertEquals(c['model'],    model)
         self.assertEquals(c['uri'],      constraint)
         return
@@ -346,7 +335,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
             , 'softwarerule':
               { 'command':  rdflib.Literal("python -V")
               , 'response': rdflib.Literal("Python 2.7")
-              , 'derives':  ro_minim.getElementUri(minimbase, "#environment-software/Python 2.7")
               , 'show': rdflib.term.Literal('python -V command %(command)s returns %(response)s')
               , 'showfail': None
               , 'showpass': None
@@ -362,7 +350,6 @@ class TestMinimAccess(TestROSupport.TestROSupport):
               , 'show':     None
               , 'template': None
               , 'forall':   None
-              , 'derives':  ro_minim.getElementUri(minimbase, "#isPresent/workflow-instance")
               , 'showfail': rdflib.term.Literal('No workflow instance or template found')
               , 'showpass': rdflib.term.Literal('Workflow instance or template found')
               }

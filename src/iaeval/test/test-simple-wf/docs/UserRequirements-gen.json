@@ -93,7 +93,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@CHECK: \u201crestricted\u201d?"
+                    "CHECK: \u201crestricted\u201d?"
                 ], 
                 "require": "to reference data stored elsewhere", 
                 "benefit": [
@@ -255,7 +255,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@TODO: reworded, check"
+                    "TODO: reworded, check"
                 ], 
                 "require": "to embed (links to?) other\u2019s publications in my working notes", 
                 "benefit": [
@@ -311,7 +311,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@TODO: What is meant here by \u201csemantic models\u201d?"
+                    "TODO: What is meant here by \u201csemantic models\u201d?"
                 ], 
                 "require": "to annotate experimental results using semantic models", 
                 "benefit": [
@@ -476,7 +476,7 @@
                 "comment": [
                     "", 
                     "", 
-                    "@@TODO: how does providing content help here?"
+                    "TODO: how does providing content help here?"
                 ], 
                 "require": "to provide content", 
                 "benefit": [
@@ -720,7 +720,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@TODO: or reputation of their creator?"
+                    "TODO: or reputation of their creator?"
                 ], 
                 "require": "to find workflows according to their reputation", 
                 "benefit": [
@@ -1181,7 +1181,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@CHECK: duplicate above?"
+                    "CHECK: duplicate above?"
                 ], 
                 "require": "to find workflows and their associated scientific material according to their reputation", 
                 "benefit": [
@@ -1233,7 +1233,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@CHECK: reworded"
+                    "CHECK: reworded"
                 ], 
                 "require": "to publish a scientific result with appropriate supporting materials", 
                 "benefit": [
@@ -1260,7 +1260,7 @@
                     ""
                 ], 
                 "comment": [
-                    "@@CHECK: reworded"
+                    "CHECK: reworded"
                 ], 
                 "require": "to provide references to existing scientific data/results and supporting materials", 
                 "benefit": [

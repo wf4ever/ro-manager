@@ -1,0 +1,61 @@
+1606nict	2007-03-20	Late Middle French (to 1606)	frm
+1694acad	2007-03-20	Early Modern French	fr
+1901	2005-10-16	Traditional German orthography	de
+1959acad	2008-09-30	"Academic" ("governmental") variant of Belarusian as  codified in 1959	be
+1994	2007-07-28	Standardized Resian orthography	sl-rozaj / sl-rozaj-biske / sl-rozaj-njiva / sl-rozaj-osojs / sl-rozaj-solba
+1996	2005-10-16	German orthography of 1996	de
+alalc97	2009-12-09	ALA-LC Romanization, 1997 edition	
+aluku	2009-09-05	Aluku dialect / Boni dialect	djk
+arevela	2006-09-18	Eastern Armenian	hy
+arevmda	2006-09-18	Western Armenian	hy
+baku1926	2007-04-18	Unified Turkic Latin Alphabet (Historical)	az / ba / crh / kk / krc / ky / sah / tk / tt / uz
+bauddha	2010-07-28	Buddhist Hybrid Sanskrit	sa
+biscayan	2010-04-13	Biscayan dialect of Basque	eu
+biske	2007-07-05	The San Giorgio dialect of Resian / The Bila dialect of Resian	sl-rozaj
+bohoric	2012-06-27	Slovene in Bohori&#x10d; alphabet	sl
+boont	2006-09-18	Boontling	en
+dajnko	2012-06-27	Slovene in Dajnko alphabet	sl
+emodeng	2012-02-05	Early Modern English (1500-1700)	en
+fonipa	2006-12-11	International Phonetic Alphabet	
+fonupa	2006-12-11	Uralic Phonetic Alphabet	
+fonxsamp	2010-10-23	X-SAMPA transcription	
+hepburn	2009-10-01	Hepburn romanization	ja-Latn
+heploc	2009-10-01	Hepburn romanization, Library of Congress method	ja-Latn-hepburn
+hognorsk	2010-01-02	Norwegian in H&#xf8;gnorsk (High Norwegian) orthography	nn
+itihasa	2010-07-28	Epic Sanskrit	sa
+jauer	2010-06-29	Jauer dialect of Romansh	rm
+jyutping	2010-10-23	Jyutping Cantonese Romanization	yue
+kkcor	2008-10-14	Common Cornish orthography of Revived Cornish	kw
+kscor	2012-06-27	Standard Cornish orthography of Revived Cornish / Kernowek Standard	kw
+laukika	2010-07-28	Classical Sanskrit	sa
+lipaw	2007-08-11	The Lipovaz dialect of Resian / The Lipovec dialect of Resian	sl-rozaj
+luna1918	2010-10-10	Post-1917 Russian orthography	ru
+metelko	2012-06-27	Slovene in Metelko alphabet	sl
+monoton	2006-12-11	Monotonic Greek	el
+ndyuka	2009-09-05	Ndyuka dialect / Aukan dialect	djk
+nedis	2005-10-16	Natisone dialect / Nadiza dialect	sl
+njiva	2007-07-05	The Gniva dialect of Resian / The Njiva dialect of Resian	sl-rozaj
+nulik	2012-01-28	Volap&#xfc;k nulik / Volap&#xfc;k perevid&#xf6;l / Volap&#xfc;k nul&#xe4;dik / de Jong's Volap&#xfc;k / New Volap&#xfc;k / Revised Volap&#xfc;k / Modern Volap&#xfc;k	vo
+osojs	2007-07-05	The Oseacco dialect of Resian / The Osojane dialect of Resian	sl-rozaj
+pamaka	2009-09-05	Pamaka dialect	djk
+petr1708	2010-10-10	Petrine orthography	ru
+pinyin	2008-10-14	Pinyin romanization	zh-Latn / bo-Latn
+polyton	2006-12-11	Polytonic Greek	el
+puter	2010-06-29	Puter idiom of Romansh	rm
+rigik	2012-01-28	Volap&#xfc;k rigik / Schleyer's Volap&#xfc;k / Original Volap&#xfc;k / Classic Volap&#xfc;k	vo
+rozaj	2005-10-16	Resian / Resianic / Rezijan	sl
+rumgr	2010-06-29	Rumantsch Grischun	rm
+scotland	2007-08-31	Scottish Standard English	en
+scouse	2006-09-18	Scouse	en
+solba	2007-07-05	The Stolvizza dialect of Resian / The Solbica dialect of Resian	sl-rozaj
+surmiran	2010-06-29	Surmiran idiom of Romansh	rm
+sursilv	2010-06-29	Sursilvan idiom of Romansh	rm
+sutsilv	2010-06-29	Sutsilvan idiom of Romansh	rm
+tarask	2007-04-27	Belarusian in Taraskievica orthography	be
+uccor	2008-10-14	Unified Cornish orthography of Revived Cornish	kw
+ucrcor	2008-10-14	Unified Cornish Revised orthography of Revived Cornish	kw
+ulster	2010-04-10	Ulster dialect of Scots	sco
+vaidika	2010-07-28	Vedic Sanskrit	sa
+valencia	2007-03-06	Valencian	ca
+vallader	2010-06-29	Vallader idiom of Romansh	rm
+wadegile	2008-10-03	Wade-Giles romanization	zh-Latn

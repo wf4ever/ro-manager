@@ -14,6 +14,8 @@ import unittest
 import logging
 import datetime
 import StringIO
+from urlparse import urljoin
+
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -25,7 +27,8 @@ if __name__ == "__main__":
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
 
-from MiscLib import TestUtils
+from rocommand.ROSRS_Session import ROSRS_Session
+from MiscUtils import TestUtils
 
 from rocommand import ro, ro_utils
 
@@ -33,7 +36,6 @@ from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
 
 import TestROSupport
-
 # Base directory for RO tests in this module
 testbase = os.path.dirname(os.path.realpath(__file__))
 
@@ -41,6 +43,10 @@ class TestBasicCommands(TestROSupport.TestROSupport):
     """
     Test basic ro commands
     """
+    TEST_RO_ID = "test-evo-ro"
+    TEST_SNAPHOT_ID = "test-evo-snaphot"
+    TEST_ARCHIVE_ID = "test-archive-id"
+    TEST_UNDEFINED_ID = "test-undefined-id"
     def setUp(self):
         super(TestBasicCommands, self).setUp()
         return
@@ -220,7 +226,8 @@ class TestBasicCommands(TestROSupport.TestROSupport):
         self.assertFalse(os.path.exists(manifestdir), msg="checking created RO manifest dir")
         self.deleteRoFixture(rodir)
         return
-
+    
+    
     def testStatus(self):
         """
         Display status of created RO

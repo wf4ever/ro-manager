@@ -27,12 +27,13 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_annotation
 from rocommand.ro_namespaces import RDF, RDFS, ORE, RO, ROEVO, AO, DCTERMS
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from ROSRS_Session import ROSRS_Error, ROSRS_Session
 
@@ -75,19 +76,24 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         super(TestROSRSMetadata, self).setUp()
         self.rosrs = ROSRS_Session(Config.ROSRS_API_URI,
             accesskey=Config.AUTHORIZATION)
+        self.roname = Config.TEST_RO_NAME
+        self.ropath = self.roname + "/"
         # Clean up from previous runs
-        self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        self.rosrs.deleteRO(self.ropath, purge=True)
         return
 
     def tearDown(self):
         super(TestROSRSMetadata, self).tearDown()
         # Clean up
-        self.rosrs.deleteRO(Config.TEST_RO_PATH)
+        # self.rosrs.deleteRO(self.ropath)
         self.rosrs.close()
         return
 
-    def createTestRO(self):
-        (status, reason, rouri, manifest) = self.rosrs.createRO(Config.TEST_RO_NAME,
+    def createTestRO(self, slug):
+        self.roname = Config.TEST_RO_NAME+"-"+slug
+        self.ropath = self.roname + "/"
+        self.rosrs.deleteRO(self.ropath, purge=True)
+        (status, reason, rouri, manifest) = self.rosrs.createRO(self.roname,
             "Test RO for ROSRSMetadata", "TestROSRSMetadata.py", "2012-09-11")
         self.assertEqual(status, 201)
         # Include manifest as annotation of RO
@@ -142,10 +148,10 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         """
         Test creation of ro_metadata object, and basic access to manifest content
         """
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testCreateRoMetadata")
         self.assertEqual(status, 201)
         self.assertEqual(reason, "Created")
-        self.assertEqual(str(rouri), Config.TEST_RO_URI)
+        self.assertEqual(str(rouri)[:len(Config.TEST_RO_URI)-1]+"/", Config.TEST_RO_URI)
         self.assertIn((rouri, RDF.type, RO.ResearchObject), manifest)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
@@ -165,7 +171,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         """
         Test function to create & read a simple annotation body on an RO
         """
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testReadRoAnnotationBody")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
@@ -179,7 +185,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         return
 
     def testGetInitialRoAnnotations(self):
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testGetInitialRoAnnotations")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         # Retrieve the anotations
@@ -187,6 +193,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         rouri = romd.getRoUri()
         expected_annotations = (
             [ (rouri, RDF.type,             RO.ResearchObject)
+            , (rouri, RDF.type,             ORE.Aggregation)
             , (rouri, RDF.type,             ROEVO.LiveRO)
             , (rouri, ORE.isDescribedBy,    romd.getComponentUriAbs(ro_test_config.ROMANIFESTPATH))
             #, (rouri, DCTERMS.description,  rdflib.Literal('Test init RO annotation'))
@@ -205,11 +212,11 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
                     count += 1
                 else:
                     self.assertTrue(False, "Not expected (%d) %s"%(count, repr(next)))
-        self.assertEqual(count,3)
+        self.assertEqual(count,len(expected_annotations))
         return
 
     def testQueryAnnotations(self):
-        (status, reason, rouri, manifest) = self.createTestRO()
+        (status, reason, rouri, manifest) = self.createTestRO("testQueryAnnotations")
         self.assertEqual(status, 201)
         romd   = ro_metadata.ro_metadata(ro_config, rouri)
         resuri = romd.getComponentUriAbs(Config.TEST_RESOURCE)
@@ -217,14 +224,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         (status, reason, bodyuri, agraph) = self.createTestAnnotation(rouri, resuri, resref)
         self.assertEqual(status, 201)
         # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
+        queryprefixes = make_sparql_prefixes()
         query = (queryprefixes +
             """
             ASK

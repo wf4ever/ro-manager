@@ -14,7 +14,7 @@ if __name__ == "__main__":
 import logging
 import os.path
 import rdflib
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 from rocommand import ro_annotation
 from rocommand.test import TestROSupport
 from rocommand.test.TestConfig import ro_test_config

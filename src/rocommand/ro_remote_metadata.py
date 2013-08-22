@@ -14,7 +14,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -152,7 +152,11 @@ class ro_remote_metadata(object):
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
-        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Nested URIs may be present; ours is the one described by the manifest URI,
+        # which is determined by the _loadManifest() method.
+        for s in self.manifestgraph.subjects(RDF.type, RO.ResearchObject):
+            if self.manifestgraph.value(s, ORE.isDescribedBy) == self.manifesturi:
+                self.rouri = s
         # Check that the manifest contained at least one RO URI
         assert self.rouri is not None
         return
@@ -217,7 +221,7 @@ class ro_remote_metadata(object):
 #        rofiles = [ro_file]
 #        if os.path.isdir(ro_file):
 #            rofiles = filter( notHidden,
-#                                MiscLib.ScanDirectories.CollectDirectoryContents(
+#                                MiscUtils.ScanDirectories.CollectDirectoryContents(
 #                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.roref),
 #                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
 #                            )
@@ -521,9 +525,15 @@ class ro_remote_metadata(object):
 
     def getResourceType(self, resource):
         """
-        Returns type of resource whose URI is supplied
+        Returns type of resource whose URI is supplied. If resource has more then one type, return any.
         """
         return self.getResourceValue(resource, RDF.type)
+
+    def hasResourceType(self, resource, rdfType):
+        """
+        Check if the resource whose URI is supplied has a provided RDF type.
+        """
+        return self.roManifestContains((resource, RDF.type, rdfType))
 
     def getRoMetadataDict(self):
         """

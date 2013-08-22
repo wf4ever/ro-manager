@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:xml="http://www.w3.org/XML/1998/namespace"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+   xmlns:xsd="http://www.w3.org/2001/XMLSchema#"
+   xmlns:dct="http://purl.org/dc/terms/"
+   xmlns:ex="http://example.org/terms/"
+>
+  <rdf:Description rdf:about="simple-test-data.rdf">
+    <dct:title>Simple test data</dct:title>
+    <dct:creator>Graham</dct:creator>
+    <dct:created>2012-11-29</dct:created>
+    <rdfs:label>simple-test-data</rdfs:label>
+    <ex:count rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">5</ex:count>
+    <ex:tag>tag1</ex:tag>
+    <ex:tag>tag2</ex:tag>
+    <ex:tag>tag3</ex:tag>
+    <ex:tag>tag4</ex:tag>
+  </rdf:Description>
+  <rdf:Description rdf:about="more-test-data.rdf">
+    <dct:title>More test data</dct:title>
+    <rdfs:label>more-test-data</rdfs:label>
+    <ex:count rdf:datatype="http://www.w3.org/2001/XMLSchema#integer">5</ex:count>
+    <ex:tag>more1</ex:tag>
+    <ex:tag>more2</ex:tag>
+    <ex:quoteme>&lt;"Graham"&gt;</ex:quoteme>
+  </rdf:Description>
+</rdf:RDF>

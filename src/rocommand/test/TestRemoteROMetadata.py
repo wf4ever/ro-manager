@@ -23,7 +23,7 @@ if __name__ == "__main__":
 import rdflib
 import uuid
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_remote_metadata
 from rocommand.ROSRS_Session import ROSRS_Session
@@ -90,34 +90,43 @@ class TestRemoteROMetadata(TestROSupport.TestROSupport):
         def verifyResources(resources):
             c = 0
             for r in self.remoteRo.getAggregatedResources():
-                if self.remoteRo.getResourceType(r) != RO.AggregatedAnnotation:
+                if not self.remoteRo.hasResourceType(r, RO.AggregatedAnnotation):
                     c += 1
                     self.assertIn(r, resources)
             self.assertEqual(c, len(resources))
             return
         self.remoteRo.aggregateResourceInt("internal/1", "text/plain", "ipsum lorem")
+        self.remoteRo.reloadManifest()
         self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.aggregateResourceExt("http://www.google.com")
+        self.remoteRo.reloadManifest()
         self.assertTrue(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("internal/1")
                          , URIRef("http://www.google.com")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.deaggregateResource(URIRef("internal/1"))
+        self.remoteRo.reloadManifest()
         self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertTrue(self.remoteRo.isAggregatedResource("http://www.google.com"))
         verifyResources([
                          URIRef("http://www.google.com")
+                         , URIRef(".ro/evo_info.ttl")
           ])
         self.remoteRo.deaggregateResource(URIRef("http://www.google.com"))
+        self.remoteRo.reloadManifest()
         self.assertFalse(self.remoteRo.isAggregatedResource("internal/1"))
         self.assertFalse(self.remoteRo.isAggregatedResource("http://www.google.com"))
-        verifyResources([])
+        verifyResources([
+                         URIRef(".ro/evo_info.ttl")
+         ])
         return
 
     def testClassifyAggregatedResources(self):
