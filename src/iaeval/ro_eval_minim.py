@@ -128,7 +128,6 @@ def evaluate(rometa, minim, target, purpose):
     # Evaluate the individual model requirements
     reqeval = []
     for r in requirements:
-        log.info("evaluate: %s %s %s"%(r['level'],str(r['uri']),r['seq']))
         if 'datarule' in r:
             # @@TODO: factor to separate function?
             #         (This is a deprecated form, as it locks the rule to a particular resource)
@@ -150,14 +149,17 @@ def evaluate(rometa, minim, target, purpose):
             (satisfied, bindings) = evalContentMatch(rometa, r['contentmatchrule'], cbindings)
             reqeval.append((r,satisfied,bindings))
             log.debug("- ContentMatch: rule %s, bindings %s, satisfied %s"%
-                      (repr(r['contentmatchrule']), repr(bindings), "OK" if satisfied else "Fail"))
+                        (repr(r['contentmatchrule']), repr(bindings), "OK" if satisfied else "Fail"))
         elif 'querytestrule' in r:
             (satisfied, bindings, msg) = evalQueryTest(rometa, r['querytestrule'], cbindings)
             reqeval.append((r,satisfied,bindings))
             log.debug("- QueryTest: rule %s, bindings %s, satisfied %s"%
-                      (repr(r['querytestrule']), repr(bindings), "OK" if satisfied else "Fail"))
+                        (repr(r['querytestrule']), repr(bindings), "OK" if satisfied else "Fail"))
         else:
             raise ValueError("Unrecognized requirement rule: %s"%repr(r.keys()))
+        log.info("evaluate: [%s] %s %s (%s)"%
+                     (r['seq'][:10], r['level'], str(r['ruleuri']), 
+                      "pass" if satisfied else "fail"))
     # Evaluate overall satisfaction of model
     targetlabel = getLabel(rometa, target)
     eval_result = (
