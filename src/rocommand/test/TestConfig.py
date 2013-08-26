@@ -19,5 +19,6 @@ class ro_test_config:
     ROMANIFESTPATH = ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE
 #    ROSRS_URI           = "http://localhost:8082/ROs/"
     ROSRS_URI           = "http://sandbox.wf4ever-project.org/rodl/ROs/"
+#    ROSRS_ACCESS_TOKEN  = "0522a6c6-7000-43df-8"
     ROSRS_ACCESS_TOKEN  = "3c7483ac-e157-4cb3-97d5-8cf6e129f8e9"
 # End.
