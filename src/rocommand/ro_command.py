@@ -808,7 +808,6 @@ def handle_asynchronous_zip_push(rosrs,location):
     status = "RUNNING"
     while (status == "RUNNING"):
         (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, location)
-        print "Job Status: %s" % job_status
         print "RO URI: % s" % target_id
         return 0
 
