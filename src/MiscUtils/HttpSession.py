@@ -257,7 +257,7 @@ class HTTP_Session(object):
             log.debug("HTTP_Session.doRequest response:   "+str(status)+" "+reason)
             log.debug("HTTP_Session.doRequest rspheaders: "+repr(headers))
         except Exception, e:
-            log.warn("HTTP_Session error %r accessing %s"%(e, uripath))
+            log.warn("HTTP_Session error %r accessing %s with request headers %r"%(e, uripath, reqheaders))
             status = 900
             reason = str(e)
             headers = {"_headerlist": []}
