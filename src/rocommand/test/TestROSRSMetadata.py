@@ -72,6 +72,8 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
     Test ro metadata access via ROSRS API
     """
 
+    CREATED_RO = ""
+
     def setUp(self):
         super(TestROSRSMetadata, self).setUp()
         self.rosrs = ROSRS_Session(Config.ROSRS_API_URI,
@@ -84,8 +86,8 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
 
     def tearDown(self):
         super(TestROSRSMetadata, self).tearDown()
-        # Clean up
-        # self.rosrs.deleteRO(self.ropath)
+        if self.CREATED_RO != "":
+            self.rosrs.deleteRO(self.CREATED_RO)
         self.rosrs.close()
         return
 
@@ -95,6 +97,7 @@ class TestROSRSMetadata(TestROSupport.TestROSupport):
         self.rosrs.deleteRO(self.ropath, purge=True)
         (status, reason, rouri, manifest) = self.rosrs.createRO(self.roname,
             "Test RO for ROSRSMetadata", "TestROSRSMetadata.py", "2012-09-11")
+        self.CREATED_RO = rouri
         self.assertEqual(status, 201)
         # Include manifest as annotation of RO
         (s1, r1, h1, manifesturi, manifest) = self.rosrs.getROManifest(rouri)

@@ -27,7 +27,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
     def createSnapshot(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
         body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
+                'copyfrom': live_name,
                 'target': sp_name,
                 'type': "SNAPSHOT",
                 'finalize': ( "%s" % freeze).lower()
@@ -50,7 +50,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
     def createArchive(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
         body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
+                'copyfrom': live_name,
                 'target': sp_name,
                 'type': "ARCHIVE",
                 'finalize': ( "%s" % freeze).lower()
