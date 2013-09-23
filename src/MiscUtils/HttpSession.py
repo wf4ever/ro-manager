@@ -245,16 +245,23 @@ class HTTP_Session(object):
         log.debug("HTTP_Session.doRequest body:       "+repr(body))
         usehttpcon.request(method, path, body, reqheaders)
         # Pick out elements of response
-        response = usehttpcon.getresponse()
-        status   = response.status
-        reason   = response.reason
-        headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
-        headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
-        headers["_headerlist"] = headerlist
-        data = response.read()
-        if status < 200 or status >= 300: data = None
-        log.debug("HTTP_Session.doRequest response:   "+str(status)+" "+reason)
-        log.debug("HTTP_Session.doRequest rspheaders: "+repr(headers))
+        try:
+            response = usehttpcon.getresponse()
+            status   = response.status
+            reason   = response.reason
+            headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
+            headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
+            headers["_headerlist"] = headerlist
+            data = response.read()
+            if status < 200 or status >= 300: data = None
+            log.debug("HTTP_Session.doRequest response:   "+str(status)+" "+reason)
+            log.debug("HTTP_Session.doRequest rspheaders: "+repr(headers))
+        except Exception, e:
+            log.warn("HTTP_Session error %r accessing %s with request headers %r"%(e, uripath, reqheaders))
+            status = 900
+            reason = str(e)
+            headers = {"_headerlist": []}
+            data = None
         ###log.debug("HTTP_Session.doRequest data:     "+repr(data))
         if newhttpcon:
             newhttpcon.close()
