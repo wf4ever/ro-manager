@@ -526,7 +526,7 @@ EvalChecklistHtml = (
             }
           , { 'output':
                 '''\n                <th colspan="2">Target <span class="target">'''+
-                '''\n                  <a href="%(target)s">%(roid)s</a></span> '''+
+                '''\n                  <a href="%(target)s">%(target)s</a></span> '''+
                 ''''''
             }
           , { 'output':

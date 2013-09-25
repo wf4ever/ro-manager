@@ -15,6 +15,12 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
+Priority for checklist:
+* Include Minim prefixes in query
+* Generate label for target resource; use in checklists
+* Check out SDPARQL filter problem (see chembox checklist for ChemSpider ID)
+
+Others:
 * When creating resource, try to guess or retain media type information
 * Update documentation to reflect new link command
 * ro show config
