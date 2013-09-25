@@ -131,5 +131,10 @@ def parse_job(rosrs,uri):
     nodes = minidom.parseString(rosrs.doRequest(uri)[-1])
     job_status = nodes.getElementsByTagName("status")[0].firstChild.nodeValue
     target_id = nodes.getElementsByTagName("target")[0].firstChild.nodeValue
+    if len(nodes.getElementsByTagName("processed_resources")) == 1 and len(nodes.getElementsByTagName("submitted_resources")) == 1 :
+        processed_resources = nodes.getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+        submitted_resources = nodes.getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+        return (job_status, target_id, processed_resources, submitted_resources)
     return (job_status, target_id)
+
 # End.
