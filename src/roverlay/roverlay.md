@@ -2,9 +2,66 @@
 
 # roverlay: Service to create RO overlays on generic linked data
 
-## roverlay command line client and related utilities
+Contents:
 
-Implemented
+* General description
+* Service API description
+* `roverlay` command line client and related utilities
+* Example: checklist evaluation of chembox data
+* Installation
+* Persistence of created Research Objects
+* Python virtual environments
+* Implementation notes
+
+
+## General description
+
+The Overlay RO service has been created to allow Research Object services, such as the checklist evaluation service, to be used with arbitrary linked data.  It provides a very lightweight mechanism for creating a Research Object structure over existing linked data on the web.
+
+The basic function of the service is very simple:
+
+![roverlay service overview](checklist-ld-roverlay-service.png "roverlay service overview diagram")
+
+The service is provided with a list of URIs of linked data resources, and returns the URI of an RO that aggregates those resources (i.e. a URI that, when dereferenced, returns a manifest for the created RO).
+
+## Overlay Research Objects
+
+The main body Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO into a repository, storing annotations in the same repository, and serving both from the reporitory.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized throufgh the interfaces provided.
+
+In contrast to this, an **Overlay RO** has all of its content stored separately on the web, and the function of the RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service veruy lightweight, and Researtch Objects can be created and/or destroyed very quickly, without having to read the entire content of resources from which is is comprised.
+
+The minimum Research Object structures that need to be created by the RO service are:
+* an ORE aggregation of the resources
+* annotation stubs for resources that contain machine readable descriptions of other resources.
+these descriptions are published in a new RO manifest resource that "represents" the Research Object; i.e,, this is what is returned when the RO URI is dereferenced.
+
+The resource aggregation is constructed very straightforwardly from a supplied list of URIs.
+
+The annotation stubs are a little more complicated.  To keep the service interface simple, the API makes no distinction between annotations and other resources.  Instead, the service probes each of the supplied resources, following any HTTP redirects, and determines the available content types.  Any resource that is available in a recognized serialization of RDF (RDF/XML, Turtle and others) is considered to be an annotation on the RO itself, and a corresponding annotation stubn is created.
+
+Suppose we have a collection of linked data describing some workflow-based experiment:
+
+![Experiment linked data](checklist-ld-linkeddata.png "Linked data description of an experiment")
+
+We could select a subset of thjese resources to create a Research Object that describes the workflow and its design, e.g. for evaluation against community best practices for the creation and publication of workflow methods:
+
+![Workflow Research Object](checklist-ld-workflow-manifest.png "Overlay Research Object containing description of a workflow")
+
+Simlarly, we might create a different Overlay RO that descrtibes the experiment, as supplemental material for a publication of the conclusions reached though its conduct.
+
+## Service API description
+
+@@@
+
+
+## `roverlay` command line client and related utilities
+
+The `roverlay` client provides command line access to the Overlay RO service, and canm be used in conjucntion with other utilities such as RO Manager, `curl`, `asqc`, etc.
+
+For information about `roverlay` options, use the command
+    roverlay --help
+
+Implemented features:
 
     # Create an RO
     roverlay -s http://roverlay.example.org/ uri1 uri2 ... uriN
@@ -28,7 +85,7 @@ Implemented
     RO http://roverlay.example.org/ROs/id1234/ deleted.
 
 
-To be implemented:
+Proposed features, not yet implemented:
 
     # Get URI for collected annotations
     roverlay -r http://roverlay.example.org/ROs/id1234/ -g
@@ -44,7 +101,14 @@ To be implemented:
     ...
 
 
+## Example: checklist evaluation of chembox data
+
+@@@
+
+
 ## Installation
+
+The Overlay RO service is packaged as part of the RO Manager, but some additional steps are needed after installing RO Manager to deploy and activate the Overlay RO web service.
 
 The installation assumes that a suitable Python virtual environment is being used for the RO Manager installation.  The same environment should be used for running the Overlay RO server and the command line utilities when both are run on a single machine.  See section below for more information.
 
@@ -163,28 +227,36 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
         rm -rf $RO_MANAGER/roenv
 
 
-## roverlay service interactions
+## Implementation notes
 
-![roverlay service interactions](roverlay-sequence-diagram.png "roverlay service interactions diagram")
+### `roverlay` software framework
+
+The `roverlay` source code is part of the RO Manager project in Github (https://github.com/wf4ever/ro-manager).  The main source code is in subdirectory `/src/roverlay` of that project, and also uses a few modules from `src/rocommand` and `/src/MiscUtils`.  Like RO Manager, the main programming labnguage used is Python.  There are two parts to the `roverlay` code:
+
+1. Directory `/src/roverlay/rovweb` contains a web server application based on Django (https://www.djangoproject.com), the code for which follows normal Django conventions.  The main logic of the Overlay RO web service is in file `/src/roverlay/rovweb/rovserver/views`
+
+2. Directory `/src/roverlay/rovweb` contains the command line client, `roverlay`, which can be used from shell scripts to invoke the Overlay RO service to create and delete Research Objects.  It uses mostly standard Python library facilities in its operation.  Run this with the `--help` option to see the command options available.
 
 
-## roverlay software framework
+#### Notes:
 
-roverlay web service:
-* Base on Django web framework
-* Have asked about SPARQL protocol server implementation in Django
+* roverlay web service based on Django web framework
+* have asked about SPARQL protocol server implementation in Django
 * POST to create RO
 * DELETE to delete RO
 * GET, HEAD to access RO using read-only elements of RO API
 
-roverlay command line tool:  a simple Python command line program that interacts with the roveray web service.  It uses mostly standard Python library facilities in its operation.
-
-> The examples above show graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of the initial implementation.
+> The examples above show ideas for graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of the initial implementation.
 
 > Subsequent experience with roverlay has shown alternative, very effective ways to overcome the performance issues enountered previously.  At this stage, it is not clear that the additional features will be justified.  The graph facility can be partially provided using the `ro dump` command, and the additional value of a SPARQL endpoint is currently not clear.
 
 
-## roverlay deployment plans
+### roverlay service interactions
+
+![roverlay service interactions](roverlay-sequence-diagram.png "roverlay service interactions diagram")
+
+
+### roverlay deployment plans
 
 The service has been temporarily deployed at andros.zoo.ox.ac.uk for testing, but this is not a production service and may be taken down at any time.
 

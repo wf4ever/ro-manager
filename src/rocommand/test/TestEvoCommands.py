@@ -48,7 +48,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
     def testSnapshotAsynchronous(self):
         args = [
-            "ro", "snapshot" , self.CREATED_RO, self.TEST_SNAPHOT_ID, 
+            "ro", "snapshot" , str(self.CREATED_RO), self.TEST_SNAPHOT_ID, 
             "--asynchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
@@ -58,8 +58,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         with SwitchStdout(self.outstr):
             status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
             assert status == 0
-            # simple check if the verbouse mode works well
-            for word in ("ro snaphot --asynchronous " + self.CREATED_RO + " " + self.TEST_SNAPHOT_ID).split(" "):
+            # simple check if the verbouse mode works well            
+            for word in ("ro snapshot --asynchronous "+ro_test_config.ROSRS_URI + self.TEST_RO_ID + " " + self.TEST_SNAPHOT_ID).split(" "):
                 self.assertTrue(self.outstr.getvalue().count(word+ " ") or self.outstr.getvalue().count(" " + word), "snapshot command wasn't parse well")
             self.assertEqual(self.outstr.getvalue().count("Job Status: "), 1)
             self.assertEqual(self.outstr.getvalue().count("Job URI: "), 1)
@@ -131,7 +131,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
     
     def testArchiveAsynchronous(self):
         args = [
-            "ro", "archive" , self.CREATED_RO, self.TEST_SNAPHOT_ID, 
+            "ro", "archive" , str(self.CREATED_RO), self.TEST_SNAPHOT_ID, 
             "--asynchronous",
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
@@ -161,30 +161,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
                 self.rosrs.deleteRO(id)
         return
     
+    
     def testArchiveSynchronous(self):
-        args = [
-            "ro", "archive", self.CREATED_RO, self.TEST_SNAPHOT_ID, 
-            "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
-            "-r", ro_test_config.ROSRS_URI,
-            "-v"
-        ]
-        outLines = ""
-        with SwitchStdout(self.outstr):
-            status = ro.runCommand(ro_test_config.CONFIGDIR, ro_test_config.ROBASEDIR, args)
-            assert status == 0
-            # simple check if the verbouse mode works well
-            for word in ("ro archive "+ self.CREATED_RO + " " + self.TEST_SNAPHOT_ID).split(" "):
-                    self.assertTrue(self.outstr.getvalue().count(word+ " ") or self.outstr.getvalue().count(" " + word), "snapshot command wasn't parse well")
-            self.assertEqual(self.outstr.getvalue().count("Target URI: "), 1)
-            outLines = self.outstr.getvalue().split("\n")
-        for line in outLines:
-            if "Target URI:" in line:
-                id = line.split("Target URI:")[1].strip()
-                self.rosrs.deleteRO(id)
-        return
-    
-    
-    def testArchiveWithEscOption(self):
         args = [
             "ro", "archive", ro_test_config.ROSRS_URI + self.TEST_RO_ID, ro_test_config.ROSRS_URI + self.TEST_SNAPHOT_ID, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
@@ -217,7 +195,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
             "Test RO for ROEVO", "Test Creator", "2012-09-06")        
         (createdSnapshotStatus, createdSnapshotId) =  self.createSnapshot(createdRoUri, self.TEST_SNAPHOT_ID, False)
         args = [
-            "ro", "freeze",createdSnapshotId , 
+            "ro", "freeze",str(createdSnapshotId), 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-r", ro_test_config.ROSRS_URI,
             "-v"
@@ -265,7 +243,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         (createdSnapshotStatus, createdSnapshotUri) = self.createSnapshot(createdRoUri, self.TEST_SNAPHOT_ID, True)
         
         args = [
-            "ro", "status", createdSnapshotUri,
+            "ro", "status", str(createdSnapshotUri),
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -288,7 +266,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         (createdArchiveStatus, createdArchiveUri) = self.createArchive(createdRoUri, self.TEST_ARCHIVE_ID, True)
         
         args = [
-            "ro", "status", createdArchiveUri,
+            "ro", "status", str(createdArchiveUri),
             "-r", ro_test_config.ROSRS_URI,
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -311,7 +289,7 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         (createdArchiveStatus, createdArchiveUri) = self.createArchive(createdRoUri, self.TEST_ARCHIVE_ID, False)
         
         args = [
-            "ro", "status", createdArchiveUri,
+            "ro", "status", str(createdArchiveUri),
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -330,9 +308,8 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         (status, reason) = self.rosrs.deleteRO(self.TEST_RO_ID+"/")
         (status, reason, rouri, manifest) = self.rosrs.createRO(self.TEST_RO_ID,
             "Test RO for ROEVO", "Test Creator", "2012-09-06")
-        
         args = [
-            "ro", "status", rouri,
+            "ro", "status", str(rouri),
             "-r", ro_test_config.ROSRS_URI, 
             "-t", ro_test_config.ROSRS_ACCESS_TOKEN,
             "-v"
@@ -350,7 +327,6 @@ class TestEvoCommands(TestROEVOSupport.TestROEVOSupport):
         self.rosrs = ROSRS_Session(ro_test_config.ROSRS_URI, accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
         self.rosrs.deleteRO(self.TEST_RO_ID + "/")
         self.rosrs.deleteRO("some-strange-uri/")
-    
         args = [
             "ro", "status", ro_test_config.ROSRS_URI + "some-strange-uri/",
             "-r", ro_test_config.ROSRS_URI, 
@@ -386,7 +362,6 @@ def getTestSuite(select="unit"):
             , "testSnapshotWithEscOption"
             , "testArchiveAsynchronous"
             , "testArchiveSynchronous"
-            , "testArchiveWithEscOption"
             , "testFreeze"
             , "testRemoteStatusSnapshotRO"
             , "testRemoteStatusArchiveRO"
