@@ -2,9 +2,10 @@
 
 # roverlay: Service to create RO overlays on generic linked data
 
-Contents:
+**Contents**
 
 * General description
+* Overlay Research Objects
 * Service API description
 * `roverlay` command line client and related utilities
 * Example: checklist evaluation of chembox data
@@ -43,15 +44,133 @@ Suppose we have a collection of linked data describing some workflow-based exper
 
 ![Experiment linked data](checklist-ld-linkeddata.png "Linked data description of an experiment")
 
-We could select a subset of thjese resources to create a Research Object that describes the workflow and its design, e.g. for evaluation against community best practices for the creation and publication of workflow methods:
+We can select a subset of these resources to create a Research Object that describes the workflow and its design, e.g. for evaluation against community best practices for the creation and publication of workflow methods:
 
 ![Workflow Research Object](checklist-ld-workflow-manifest.png "Overlay Research Object containing description of a workflow")
 
 Simlarly, we might create a different Overlay RO that descrtibes the experiment, as supplemental material for a publication of the conclusions reached though its conduct.
 
+
 ## Service API description
 
-@@@
+In the examples below, lines of data sent by an HTTP client are prefixed with `C:`. Responses sent by the Overlay RO service are prefixed with `S:`.  Long request/response lines may be split over several lines in the document, with added whitespace, for readability;  it shopud be understood that the corresponding wire protocol interactions do not include the newlines and whitespace.
+
+
+### Create an Overlay RO
+
+A list of URIs is POSTed, presented as a `text/uri-list` entity, to the Overlay RO service, which responds with status `201 CREATED` and a `Location` header field indicating a URI for the RO thus created:
+
+    C: POST /rovserver/ HTTP/1.1
+    C: Host: service.example.org
+    C: content-type: text/uri-list
+    C:
+    C: http://data.example.org/tom
+    C: http://data.example.org/dick
+    C: http://data.example.org/harry
+   
+    S: HTTP/1.1 201 CREATED
+    S: Location: http://service.example.org/rovserver/ROs/1234abcd/
+    S:
+    S: <html>
+    S: <head>
+    S:     <title>roverlay service</title>
+    S: </head>
+    S: <body>
+    S: <h1>roverlay service</h1>
+    S:     <h2>New research object created</h2>
+    S:     <p>
+    S:       URI: http://service.example.org/rovserver/ROs/1234abcd/
+    S:     </p>
+    S: </body>
+    S: </html>
+
+<!--
+curl -v -X POST -H "content-type: text/uri-list" \
+         -\-data-binary @- \
+         http://localhost:8000/rovserver/ <<EOF
+http://data.example.org/tom/
+http://data.example.org/dick
+http://data.example.org/harry
+EOF
+-->
+
+
+### Access an Overlay RO
+
+A previously created Overlay RO can be accessed according to the read-only elements of the RO API (http://www.wf4ever-project.org/wiki/display/docs/RO+API+6), using an HTTP GET or HEAD request:
+
+    C: GET /rovserver/ROs/1234abcd/ HTTP/1.1
+    C: Host: service.example.org
+    C: Accept: text/turtle
+ 
+    S: HTTP/1.0 200 OK
+    S: Content-Type: text/turtle
+    S: 
+    S: @prefix ns1: <http://www.openarchives.org/ore/terms/> .
+    S: @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+    S: @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+    S: @prefix xml: <http://www.w3.org/XML/1998/namespace> .
+    S: @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+    S: 
+    S: <> a <http://purl.org/wf4ever/ro#ResearchObject> ;
+    S:     ns1:aggregates <http://data.example.org/dick>,
+    S:         <http://data.example.org/harry>,
+    S:         <http://data.example.org/tom/> .
+
+<!--
+curl -v -H "Accept: text/turtle" http://localhost:8000/rovserver/ROs/????/
+
+curl -v -X HEAD -H "Accept: text/turtle" http://localhost:8000/rovserver/ROs/????/
+-->
+
+Note, only the manifest can be accessed via this service.  There is no support through the Overlay RO service for returning a zipped copy of the RO, or any other function that requires accessing the RO content.  Given a copy of the manifest, a client should be able to access aggregated content and annotations directly using the same logic that would be used to retrieve them from a Research Object repository.
+
+
+### Delete an Overlay RO
+
+The HTTP DELETE option can be used to delete a previously created Overlay RO.  The Overlay RO is removed from the service, but the aggregated resources are not affected.
+
+    C: DELETE /rovserver/ROs/1234abcd/ HTTP/1.1
+    C: Host: service.example.org
+    C: Accept: */*
+
+    S: HTTP/1.0 204 NO CONTENT
+
+After which, the RO is no longer available:
+
+    C: HEAD /rovserver/ROs/1234abcd/ HTTP/1.1
+    C: Host: service.example.org
+    C: Accept: text/turtle
+
+    S: HTTP/1.0 404 NOT FOUND
+    S: Content-Type: text/html; charset=utf-8
+
+<!--
+curl -v -X DELETE http://localhost:8000/rovserver/ROs/????/
+
+curl -v -X HEAD -H "Accept: text/turtle" http://localhost:8000/rovserver/ROs/????/
+-->
+
+
+### List currently available Overlay ROs
+
+A GET to the Overlay RO service URI, requesting a `text/uri-list` entity, returns a list of overlay RO URIs currently available at the service:
+
+    C: GET /rovserver/ HTTP/1.1
+    C: Host: service.example.org
+    C: accept: text/uri-list
+ 
+    S: HTTP/1.0 200 OK
+    S: Content-Type: text/uri-list
+    S: 
+    S: http://service.example.org/rovserver/ROs/294876ac/
+    S: http://service.example.org/rovserver/ROs/294876ad/
+    S: http://service.example.org/rovserver/ROs/294876ae/
+    S: http://service.example.org/rovserver/ROs/294876af/
+
+<!--
+curl -v -H "accept: text/uri-list" http://localhost:8000/rovserver/
+-->
 
 
 ## `roverlay` command line client and related utilities
@@ -84,7 +203,6 @@ Implemented features:
     roverlay -d http://roverlay.example.org/ROs/id1234/
     RO http://roverlay.example.org/ROs/id1234/ deleted.
 
-
 Proposed features, not yet implemented:
 
     # Get URI for collected annotations
@@ -103,7 +221,60 @@ Proposed features, not yet implemented:
 
 ## Example: checklist evaluation of chembox data
 
-@@@
+The Overlay RO service has been used to perform checklist evaluation of chembox data hosted by a server at Manchester University:
+
+* Create RO for chemical whose description is to be evaluated:
+
+    $ roverlay -s http://localhost:8000/rovserver/ http://purl.org/net/chembox/Tryptoline
+    http://localhost:8000/rovserver/ROs/294876b2/
+
+* Perform checklist evaluation:
+
+    $ curl "http://localhost:8080/evaluate/trafficlight_json\
+           ?RO=http://localhost:8000/rovserver/ROs/294876b2/\
+           &minim=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/minim-evaluation/chembox-minim-samples.ttl\
+           &purpose=complete\
+           &target=http://purl.org/net/chembox/Tryptoline"
+
+    { "rouri":                  "http://localhost:8000/rovserver/ROs/294876b2/"
+    , "roid":                   "294876b4"
+    , "title":                  "294876b4"
+    , "description":            "294876b4"
+    , "checklisturi":           "http://example.com/chembox-samples/minim_model"
+    , "checklistpurpose":       "complete"
+    , "checklisttarget":        "http://purl.org/net/chembox/Tryptoline"
+    , "checklisttargetlabel":   "http://purl.org/net/chembox/Tryptoline"
+    , "evalresult":             "http://purl.org/minim/minim#fullySatisfies"
+    , "evalresultlabel":        "fully satisfies"
+    , "evalresultclass":        ["pass"]
+    , "checklistitems":
+      [
+        { "itemuri":        "http://example.com/chembox-samples/ChemSpider"
+        , "itemlabel":      "ChemSpider is present"
+        , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement" 
+        , "itemsatisfied":  true
+        , "itemclass":      ["pass"]
+        },
+        { "itemuri":        "http://example.com/chembox-samples/InChI"
+        , "itemlabel":      "InChI is present"
+        , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+        , "itemsatisfied":  true
+        , "itemclass":      ["pass"]
+        },
+        { "itemuri":        "http://example.com/chembox-samples/Synonym"
+        , "itemlabel":      "Synonym is present"
+        , "itemlevel":      "http://purl.org/minim/minim#hasMayRequirement" 
+        , "itemsatisfied":  true
+        , "itemclass":      ["pass"]
+        }
+      ]
+    }
+
+* Delete RO used:
+
+    $ roverlay -s http://localhost:8000/rovserver/ \
+               -d http://localhost:8000/rovserver/ROs/294876b2/
+    RO http://localhost:8000/rovserver/ROs/294876b2/ deleted.
 
 
 ## Installation
