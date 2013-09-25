@@ -27,18 +27,18 @@ The service is provided with a list of URIs of linked data resources, and return
 
 ## Overlay Research Objects
 
-The main body Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO into a repository, storing annotations in the same repository, and serving both from the reporitory.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized throufgh the interfaces provided.
+The main body of Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO in a repository, storing annotations in the same repository, and serving both from the repository.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized throufgh the interfaces provided.
 
-In contrast to this, an **Overlay RO** has all of its content stored separately on the web, and the function of the RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service veruy lightweight, and Researtch Objects can be created and/or destroyed very quickly, without having to read the entire content of resources from which is is comprised.
+In contrast to this, an **Overlay RO** has all of its content stored separately on the web, and the function of the Overlay RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service very lightweight, and Researtch Objects can be created and/or destroyed very quickly, without having to read the entire content of resources from which they are comprised.
 
-The minimum Research Object structures that need to be created by the RO service are:
+The minimal Research Object structures that are created by the Overlay RO service are:
 * an ORE aggregation of the resources
 * annotation stubs for resources that contain machine readable descriptions of other resources.
-these descriptions are published in a new RO manifest resource that "represents" the Research Object; i.e,, this is what is returned when the RO URI is dereferenced.
+These descriptions are published in a new RO manifest resource that "represents" the Research Object; i.e., this is what is returned when the RO URI is dereferenced.
 
-The resource aggregation is constructed very straightforwardly from a supplied list of URIs.
+The resource aggregation is constructed very straightforwardly from the supplied list of URIs.
 
-The annotation stubs are a little more complicated.  To keep the service interface simple, the API makes no distinction between annotations and other resources.  Instead, the service probes each of the supplied resources, following any HTTP redirects, and determines the available content types.  Any resource that is available in a recognized serialization of RDF (RDF/XML, Turtle and others) is considered to be an annotation on the RO itself, and a corresponding annotation stubn is created.
+The annotation stubs are a little more complicated.  To keep the service interface simple, the API makes no distinction between annotations and other resources.  Instead, the service probes each of the supplied resources, following any HTTP redirects, and determines the available content types.  Any resource that is available in a recognized serialization of RDF (RDF/XML, Turtle and others) is considered to be an annotation on the RO itself, and a corresponding annotation stub is created.
 
 Suppose we have a collection of linked data describing some workflow-based experiment:
 
@@ -53,8 +53,9 @@ Simlarly, we might create a different Overlay RO that descrtibes the experiment,
 
 ## Service API description
 
-In the examples below, lines of data sent by an HTTP client are prefixed with `C:`. Responses sent by the Overlay RO service are prefixed with `S:`.  Long request/response lines may be split over several lines in the document, with added whitespace, for readability;  it shopud be understood that the corresponding wire protocol interactions do not include the newlines and whitespace.
+The Overlay RO service provides a simple REST-style API over HTTP, and should be accessible by any cl;iebnt cabable is issuing simple HTTP requests.
 
+In the examples below, lines of data sent by an HTTP client are prefixed with `C:`. Responses sent by the Overlay RO service are prefixed with `S:`.
 
 ### Create an Overlay RO
 
