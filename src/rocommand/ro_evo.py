@@ -53,7 +53,7 @@ def handle_asynchronous_copy_operation(options, rosrs, response, type):
     print "Job Status: %s" % job_status
     print "Job URI: %s" % job_location
     print "Target Name: %s" % target_id.split(options["rosrs_uri"])[1][0:-1]
-    print "Target URI: %s" % urljoin(options["rosrs_uri"],target_id)
+    print "Target URI: %s" % urljoin(options["rosrs_uri"],str(target_id))
     return 0
 
 def handle_synchronous_copy_operation(options, rosrs, response, typ):
@@ -81,8 +81,8 @@ def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, 
     else:
         print "Archive is processed"
     print "If you don't want to wait until the operation is finished press [ENTER]"
-    print "Job URI: %s" % job_location
-    while print_job_status(parse_job(rosrs, job_location), options, False):
+    print "Job URI: %s" % str(job_location)
+    while print_job_status(parse_job(rosrs, str(job_location)), options, False):
         i, o, e = select.select( [sys.stdin], [], [], 3 )
         if (i) and "" == sys.stdin.readline().strip():
             print "Job URI: %s" % job_location

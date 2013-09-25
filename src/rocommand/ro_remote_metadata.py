@@ -380,7 +380,7 @@ class ro_remote_metadata(object):
             log.debug("Could not find proxy for %s"%str(resuriref))
             (status, reason, headers, _) = self.httpsession.doRequest(
                 resuriref, method="DELETE")
-        if status == 307:
+        if status == 303:
             (status, reason, headers, _) = self.httpsession.doRequest(
                     headers["location"], method="DELETE")
         if status != 204:
