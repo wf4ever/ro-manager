@@ -156,11 +156,6 @@ def parseCommandArgs(argv):
                       dest="debug",
                       default=False,
                       help="display debug output")
-    parser.add_option("--synchronous",
-                      action="store_true",
-                      dest="synchronous",
-                      default=False,
-                      help="perform operation in synchronous mode")
     parser.add_option("--asynchronous",
                       action="store_true",
                       dest="asynchronous",
@@ -171,6 +166,11 @@ def parseCommandArgs(argv):
                       dest="freeze",
                       default=False,
                       help="snaphot/archive and freeze in one step")
+    parser.add_option("--new",
+                      action="store_true",
+                      dest="new",
+                      default=False,
+                      help="force to create a new RO from zip")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")

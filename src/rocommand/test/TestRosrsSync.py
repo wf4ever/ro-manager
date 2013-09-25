@@ -10,10 +10,11 @@ if __name__ == "__main__":
     # Add main project directory and ro manager directories at start of python path
     sys.path.insert(0, "../..")
     sys.path.insert(0, "..")
-
+import ro_utils
 import logging
 import os.path
 import rdflib
+import time
 from MiscUtils import TestUtils
 from rocommand import ro_annotation
 from rocommand.test import TestROSupport
@@ -58,31 +59,18 @@ class TestRosrsSync(TestROSupport.TestROSupport):
 
     def testNull(self):
         assert True, 'Null test failed'
-
-    def testPushConflictedZip(self):
-        httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
-        accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        
-        self.assertEqual(status, 409)
-        self.assertEqual(reason, "Conflict")    
         
     def testPushZip(self):
         httpsession = ROSRS_Session(ro_test_config.ROSRS_URI,
         accesskey=ro_test_config.ROSRS_ACCESS_TOKEN)
-        
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("data/ro1.zip", 'rb').read())
-        deleteRO(httpsession, ro_test_config.ROSRS_URI + "ro1/")
-        
-        self.assertEqual(status, 201)
-        self.assertEqual(reason, "Created")    
-        self.assertTrue("ro1" in headers['location'])
-            
+        (status, reason, headers, data) = sendZipRO(httpsession, ro_test_config.ROSRS_URI, "ro1", open("zips/pushro-6.zip", 'rb').read())
+        status = "RUNNING"
+        while (status == "RUNNING"):
+            time.sleep(1)
+            (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(httpsession, headers['location'])
+        self.assertEqual("DONE", status)
+        deleteRO(httpsession,target_id)
+        self.assertEqual(reason, "Created")                
     
     def testPush(self):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test push", "ro-testRoPush")
@@ -175,6 +163,7 @@ def getTestSuite(select="unit"):
         "component":
             [ "testComponents"
             , "testPush"
+            , "testPushZip"
             ],
         "integration":
             [ "testIntegration"

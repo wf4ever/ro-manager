@@ -4,21 +4,18 @@
 Basic command functions for ro, research object manager
 """
 
-import sys
+import sys, select
 import os
 import os.path
 import re
 import datetime
 import logging
-import rdflib
-import shutil
 import urlparse
 import urllib2
-import zipfile
 from ro_utils import EvoType
 from xml.parsers import expat
 from httplib2 import RelativeURIError
-
+import time
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -169,7 +166,7 @@ ro_command_usage = (
     , (["evaluate", "eval"], argminmax(5, 6),
           ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] [ -o <format> ] <minim> <purpose> [ <target> ]"])
     , (["push"], (lambda options, args: (argminmax(2, 3) if options.rodir else len(args) == 3)),
-          ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
+          ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] [ --asynchronous ]"])
     , (["checkout"], argminmax(2, 3),
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["dump"], argminmax(2, 3),
@@ -177,9 +174,9 @@ ro_command_usage = (
     , (["manifest"], argminmax(2, 3),
           ["manifest [ -d <dir> | <rouri> ] [ -o <format> ]"])
     , (["snapshot"],  argminmax(4, 4),
-          ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
+          ["snapshot <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
     , (["archive"],  argminmax(4, 4),
-          ["archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
+          ["archive <live-RO> <archive-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
     , (["freeze"],  argminmax(3, 3),
           ["freeze <RO-id>"])
     ])
@@ -388,19 +385,28 @@ def remote_status(progname, configbase, options, args):
     
 def job_status(options, args, rosrs):
     try:
-        (status,target,finalize,type) = rosrs.getJob(args[2])
+        if len(rosrs.getJob(args[2])) == 5:
+            (status,target,processed,submitted,opType) = rosrs.getJob(args[2])
+            print "Job Status: %s" %  status
+            print "Target Uri: %s" %  target
+            if submitted != "0":
+                print "Processed resources/Submitted resources: %s/%s" % (processed,submitted)
+            return 0
+        else:
+            (status,target,finalize,opType) = rosrs.getJob(args[2])
+            print "Job Status: %s" %  status
+            print "Target Uri: %s" %  target
+            print "Finalize: %s" %  finalize
+            print "Research Object Type: %s" % opType
+            return 0
     except expat.ExpatError as error:
         return -1
     except RelativeURIError as error:
         return -1
     except IndexError as error:
         return -1
-    print "Job Status: %s" %  status
-    print "Job Target: %s" %  target
-    print "Finalize: %s" %  finalize
-    print "Research Object Type: %s" % type
-    
-    
+
+
 def remote_ro_status(options, args, rosrs):
     try:
         result = rosrs.getROEvolution(args[2])
@@ -697,7 +703,7 @@ def annotations(progname, configbase, options, args):
 def snapshot(progname, configbase, options, args):
     """
     Prepare a snapshot of live research object
-    snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    snapshot <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <token> ]
     """
     ro_config = getroconfig(configbase, options)
     ro_options = {
@@ -705,13 +711,8 @@ def snapshot(progname, configbase, options, args):
         "rosrs_uri":          ro_config['rosrs_uri'],
         "rosrs_access_token": ro_config['rosrs_access_token'],
     }
-    if options.synchronous and options.asynchronous:
-        print "ambiguous call --synchronous and --asynchronous, choose one"
-        return 1;
     if options.verbose:
         to_print = "ro snapshot %(copy-from)s %(target)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
-        if options.synchronous:
-            to_print+=" --synchronous"
         if options.asynchronous:
             to_print+=" --asynchronous"
         if options.freeze:
@@ -722,20 +723,15 @@ def snapshot(progname, configbase, options, args):
 def archive(progname, configbase, options, args):
     """
     Prepare an archive of live research object
-    archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    archive <live-RO> <archive-id> [ --asynchronous ] [ --freeze ] [ -t <token> ]
     """
     ro_config = getroconfig(configbase, options)
     ro_options = {
         "rosrs_uri":          ro_config['rosrs_uri'],
         "rosrs_access_token": ro_config['rosrs_access_token'],
     }
-    if options.synchronous and options.asynchronous:
-        print "ambiguous call --synchronous and --asynchronous, choose one"
-        return 1;
     if options.verbose:
         to_print = "ro archive %(copy-from)s %(target)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
-        if options.synchronous:
-            to_print+=" --synchronous"
         if options.asynchronous:
             to_print+=" --asynchronous"
         if options.freeze:
@@ -759,7 +755,7 @@ def push_zip(progname, configbase, options, args):
     """
     push RO in zip format
     
-    ro push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]    
+    ro push <zip> | -d <dir> [ -f ] [-- new ] [ -r <rosrs_uri> ] [ -t <access_token> [ --asynchronous ] ]    
     """
     ro_config = getroconfig(configbase, options)
     ro_options = {
@@ -769,12 +765,34 @@ def push_zip(progname, configbase, options, args):
         "force":          options.force,
         "roId": args[2].replace(".zip", "").split("/")[-1]
         }
-    if options.verbose:
-        print "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'zip':args[2]}.items())
-    
-    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
 
-    (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
+    if options.roident:
+        ro_options["roId"] = options.roident
+    if options.verbose:
+        echo = "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s -i %(roId)s" % dict(ro_options.items() + {'zip':args[2], 'roId':ro_options["roId"]}.items())
+        if options.asynchronous:
+         echo+=" --asynchronous"
+        if options.new:
+            echo+=" --new"
+        print echo
+    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
+    if options.new:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read(),"zip/create")
+    else:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
+    jobUri = headers["location"]
+    (job_status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, headers["location"])
+    print "Your Research Object %s is already processed" % target_id
+    print "Job URI: %s" % jobUri
+    if options.asynchronous:
+        return  handle_asynchronous_zip_push(rosrs, headers["location"])
+    #with esc option
+    print   "If you don't want to wait until the operation is finished press [ENTER]"
+    while printZipJob(ro_utils.parse_job(rosrs, jobUri),jobUri):
+        i, o, e = select.select( [sys.stdin], [], [], 2 )
+        if (i) and "" == sys.stdin.readline().strip():
+            print "You can check the process status using job URI: %s" % jobUri
+            return
     if options.verbose:
         print "Status: %s" % status
         print "Reason: %s" % reason
@@ -785,6 +803,47 @@ def push_zip(progname, configbase, options, args):
     log.debug("Headers: %s" % headers)
     log.debug("Data: %s" % data)
     return 0
+
+def handle_asynchronous_zip_push(rosrs,location):
+    status = "RUNNING"
+    while (status == "RUNNING"):
+        (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, location)
+        print "RO URI: % s" % target_id
+        return 0
+
+def handle_synchronous_zip_push(rosrs,location):
+    status = "RUNNING"
+    first = True
+    while (status == "RUNNING"):
+        (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, location)
+        if(first):
+            #print "Job Status: %s" % status
+            print "RO URI: % s" % target_id
+            first = False
+        if submitted_resources != "0":
+            print "Prcessed resources/Submitted resources: %s/%s" %(processed_resources, submitted_resources)
+        time.sleep(2)
+    if (status == "DONE"):
+        print "Operation finised successfully"
+        return 0
+    else: 
+        print "Oparation failed, check details: %s" % location
+        return 0
+
+def hendle_asynchronous_zip_push():
+    None
+
+def printZipJob(parseJobResult, jobUri):
+    (job_status, target_id, processed_resources, submitted_resources) = parseJobResult
+    if submitted_resources != "0":
+        print "Prcessed resources/Submitted resources: %s/%s" %(processed_resources, submitted_resources)
+    if job_status != "RUNNING":
+        print "Job Status: %s" % job_status
+        print "RO URI: % s" % target_id
+        if job_status != "DONE":
+            print "You can check the process status using job URI: %s" % jobUri
+        return False
+    return True
 
 def push(progname, configbase, options, args):
     """
@@ -914,7 +973,7 @@ def evaluate(progname, configbase, options, args):
     """
     Evaluate RO
 
-    ro evaluate checklist [ -d <dir> ] <minim> <purpose> [ <target> ]"
+    ro evaluate checklist [ -d <dir> ] <minim>< <purpose> [ <target> ]"
     """
     log.debug("evaluate: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
