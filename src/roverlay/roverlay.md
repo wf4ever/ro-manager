@@ -1,6 +1,6 @@
 <!-- # roverlay.md -->
 
-# roverlay: Service to create RO overlays on generic linked data
+# `roverlay`: a service to create Research Object overlays on generic linked data
 
 **Contents**
 
