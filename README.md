@@ -12,7 +12,10 @@ This project contains a number of command line and web utilities for managing Re
 * `roweb` - a web service that performs checklist evaluation of ROs.
 * `roverlay` - a web service that creates "Overlay ROs" based on exsting linked data on the web.  The primary motivation for this has been to support checklist evaluation of linked open data on the web, but other RO-consuming facilities that might become available may also be supported.
 
-More information, including installation instructions can be found in the README file in the project `src` directory ([src/README.md]()).
+More information, including installation instructions can be found in the README file in the project `src` directory ([src/README.md])
+
+[src/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/README.md "README for RO Manager"
+
 
 ## ro-manager
 
@@ -26,22 +29,31 @@ The RO manager tool also includes the main source code and an instantiation of t
 
 This is a web server application that performs checklist evaluation of Research Objects accessible onthe Web.
 
-More information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roweb/README.md]()).
+More information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roweb/README.md]).
+
+[src/roweb/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roweb/README.md "README for RO Checklist service"
 
 <!-- , built using the [Pyramid](http://www.pylonsproject.org) framework, -->
 
+
 ## roverlay
 
-This is a web server application and associatred command line utilty, providing a fast, lighweight way to create Research Objects from existing linked data on the Web.  General user and developer documentation is at [https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/roverlay.md]().
+This is a web server application and associatred command line utilty, providing a fast, lighweight way to create Research Objects from existing linked data on the Web.  General user and developer documentation is at [src/roverlay/roverlay.md].
 
-Summary information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roverlay/README.md]()).
+Summary information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roverlay/README.md]).
+
+[src/roverlay/roverlay.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/roverlay.md "Documentation for Overlay RO service"
+
+[src/roverlay/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/README.md "README for RO Checklist service"
 
 
 # Git branch usage
 
 As a first step to using "gitflow" branching structures ([http://nvie.com/posts/a-successful-git-branching-model/]()) a "develop" branch has been created.  The "master" branch should only ever contain production code that has been published to [PyPI](https://pypi.python.org/pypi).
 
-Many developments may take place on a local branch and be pushed straight back to "develop".  Additional feature branches may be created and termined as required for longer-running developments.  The file [git-incantations.md]() in the project root dirtectory (same as this README file) summarizes `git` commands that may be used to operate this branching model.
+Many developments may take place on a local branch and be pushed straight back to "develop".  Additional feature branches may be created and termined as required for longer-running developments.  The file [git-incantations.md] in the project root dirtectory (same as this README file) summarizes `git` commands that may be used to operate this branching model.
+
+[git-incantations.md]: https://github.com/wf4ever/ro-manager/blob/master/git-incantations.md "Summary of GIT commands for various tasks"
 
 ----
 

@@ -579,6 +579,6 @@ For the service to function behind a reverse proxy, the following would need to 
 
 4. (Link: header URIs re-written - not currently needed, but may be for future developments)
 5. (URIs in RDF responses (all syntaxes) re-written - this might not be needed if the roiverlay server always returns relative URIs.
-5. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
+6. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
 
 An alternative possible approach would be to modify the service to work in conjunction with Apache's `ProxyPreserveHost On` directive, and to use the incoming host as the root for all generated URIs in data and headers.
