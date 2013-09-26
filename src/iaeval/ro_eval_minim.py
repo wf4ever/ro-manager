@@ -60,6 +60,18 @@ def getLabel(rometa, target):
     log.debug("getLabel %s"%(targetlabel))
     return targetlabel
 
+def getIdLabel(rometa, target):
+    targetid = rometa.getResourceValue(target, DCTERMS.identifier)
+    if targetid == None:
+        targetid = str(target)
+        if targetid.endswith('/'): targetid = targetid[0:-1]
+        targetid = targetid.rpartition('/')[2]
+    targetlabel = ( rometa.getAnnotationValue(target, DCTERMS.title) or 
+                    rometa.getAnnotationValue(target, RDFS.label) or
+                    targetid
+                  )
+    return (targetid, targetlabel)
+
 def evaluate(rometa, minim, target, purpose):
     """
     Evaluate a RO against a minimum information model for a particular
@@ -104,23 +116,27 @@ def evaluate(rometa, minim, target, purpose):
       }
     """
     # Locate the constraint model requirements
-    rouri        = rometa.getRoUri()
-    roid         = rometa.getResourceValue(rouri, DCTERMS.identifier)
-    if roid == None:
-        roid = str(rouri)
-        if roid.endswith('/'): roid = roid[0:-1]
-        roid = roid.rpartition('/')[2]
-    rotitle      = ( rometa.getAnnotationValue(rouri, DCTERMS.title) or 
-                     rometa.getAnnotationValue(rouri, RDFS.label) or
-                     roid
-                   )
+    rouri                   = rometa.getRoUri()
+    (roid, rotitle)         = getIdLabel(rometa, rouri)    
+    # roid         = rometa.getResourceValue(rouri, DCTERMS.identifier)
+    # if roid == None:
+    #     roid = str(rouri)
+    #     if roid.endswith('/'): roid = roid[0:-1]
+    #     roid = roid.rpartition('/')[2]
+    # rotitle      = ( rometa.getAnnotationValue(rouri, DCTERMS.title) or 
+    #                  rometa.getAnnotationValue(rouri, RDFS.label) or
+    #                  roid
+    #                )
     rodesc       = rometa.getAnnotationValue(rouri, DCTERMS.description) or rotitle
     minimuri     = rometa.getComponentUri(minim)
     minimgraph   = ro_minim.readMinimGraph(minimuri)
     constraint   = ro_minim.getConstraint(minimgraph, rouri, target, purpose)
     assert constraint != None, "Missing minim:Constraint for target %s, purpose %s"%(target, purpose)
-    cbindings    = { 'targetro':   constraint['targetro_actual']
-                   , 'targetres':  constraint['targetres_actual']
+    (targetid, targetlabel) = getIdLabel(rometa, constraint['targetres_actual'])
+    cbindings    = { 'targetro':    constraint['targetro_actual']
+                   , 'targetres':   constraint['targetres_actual']
+                   , 'targetid':    targetid
+                   , 'targetlabel': targetlabel
                    }
     model        = ro_minim.getModel(minimgraph, constraint['model'])
     assert model != None, "Missing minim:Model for target %s, purpose %s"%(target, purpose)
@@ -161,7 +177,6 @@ def evaluate(rometa, minim, target, purpose):
                      (r['seq'][:10], r['level'], str(r['ruleuri']), 
                       "pass" if satisfied else "fail"))
     # Evaluate overall satisfaction of model
-    targetlabel = getLabel(rometa, target)
     eval_result = (
         { 'summary':        []
         , 'missingMust':    []
@@ -174,6 +189,7 @@ def evaluate(rometa, minim, target, purpose):
         , 'description':    rodesc
         , 'minimuri':       minimuri
         , 'target':         target
+        , 'targetid':       targetid
         , 'targetlabel':    targetlabel
         , 'purpose':        purpose
         , 'constrainturi':  constraint['uri']
@@ -552,12 +568,13 @@ def evalResultGraph(graph, evalresult):
     graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
-    graph.add( (rouri, MINIM.testedChecklist, rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (rouri, MINIM.testedChecklist,  rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
     graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
-    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel'])) )
+    graph.add( (targeturi, DCTERMS.identifier, rdflib.Literal(evalresult['targetid']))     )
+    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel']))  )
     for level in evalresult['summary']:
         log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
         graph.add( (targeturi, level, rdflib.URIRef(evalresult['modeluri'])) )

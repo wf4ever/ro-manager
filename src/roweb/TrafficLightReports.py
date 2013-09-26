@@ -233,6 +233,7 @@ EvalItemJson = (
 #   , "roid":                   "simple-requirements"
 #   , "checklisturi":           "file:///runnable-wf-trafficlight/checklist.rdf#Runnable_model"
 #   , "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+#   , "checklisttargetid":      "simple-requirements"
 #   , "checklisttargetlabel":   "simple-requirements"
 #   , "checklistpurpose":       "Runnable"
 #   , "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"
@@ -258,6 +259,7 @@ EvalChecklistJson = (
             '''\n, "checklisturi":           "%(modeluri)s"'''+
             '''\n, "checklistpurpose":       "%(purpose)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
+            # '''\n, "checklisttargetid":      "%(targetid)s"'''+
             # '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
             ''''''
         , 'query':
@@ -289,6 +291,18 @@ EvalChecklistJson = (
               # }
         , 'report':
           [ { 'output':
+                '''\n, "checklisttargetid":      "%(targetid)s"'''
+            , 'query':
+              sparql_prefixes+
+              """
+              SELECT ?targetid WHERE
+              {
+                ?target 
+                  dcterms:identifier ?targetid
+              }
+              """
+            }
+          , { 'output':
                 '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''
             , 'query':
               sparql_prefixes+
@@ -526,7 +540,7 @@ EvalChecklistHtml = (
             }
           , { 'output':
                 '''\n                <th colspan="2">Target <span class="target">'''+
-                '''\n                  <a href="%(target)s">%(target)s</a></span> '''+
+                '''\n                  <a href="%(target)s">%(targetlabel_esc)s</a></span> '''+
                 ''''''
             }
           , { 'output':

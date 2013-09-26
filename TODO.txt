@@ -17,8 +17,7 @@ TODO:
 
 Priority for checklist:
 * Include Minim prefixes in query
-* Generate label for target resource; use in checklists
-* Check out SDPARQL filter problem (see chembox checklist for ChemSpider ID)
+* Check out SPARQL filter problem (see chembox checklist for ChemSpider ID)
 
 Others:
 * When creating resource, try to guess or retain media type information
@@ -50,6 +49,7 @@ Technical debt:
 - Mop up @@TODOs
 - web service return sensible error when RO or minim resource cannot be retrieved
 - checklist display should escape tag-brackets in RO title and description
+- checklist/constraint selection logic is a bit of a mess.  Tidy up and withdraw old logic.
 - refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to show this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
 - remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
 - Check out rdflib sparql query bnode bug - is it fixed?
@@ -75,6 +75,8 @@ Technical debt:
 
 
 DONE
+
+* Generate label for target resource; use in checklists
 
 Technical debt:
 - new test cases for evaluation
