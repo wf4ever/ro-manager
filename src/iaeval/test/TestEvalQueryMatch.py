@@ -407,8 +407,9 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         rodir = self.createTestRo(testbase, "test-chembox", "RO test minim", "ro-testMinim")
         rouri = ro_manifest.getRoUri(rodir)
         self.populateTestRo(testbase, rodir)
-        rometa = ro_metadata(ro_config, rodir)
-        resuri = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        rometa   = ro_metadata(ro_config, rodir)
+        resuri   = rometa.getComponentUriAbs("http://purl.org/net/chembox/Ethane")
+        reslabel = "Ethane"
         rometa.addGraphAnnotation(resuri, "Ethane.ttl")
         # Now run evaluation against test RO
         (minimgr, evalresult) = ro_eval_minim.evaluate(rometa,
@@ -437,7 +438,7 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
-              (resuri, str(resuri))
+              (resuri, reslabel)
             ])
         for q in probequeries:
             r = resultgr.query(prefixes+q)

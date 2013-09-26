@@ -173,7 +173,7 @@ def fake_evaluate(request):
         @prefix result:     <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .
         @prefix minim:      <http://purl.org/minim/minim#> .
         <http://sandbox.example.org/ROs/myro>
-          minim:testedConstraint   <http://another.example.com/minim/repeatable.rdf#runnable-RO-constraint> ;
+          minim:testedChecklist   <http://another.example.com/minim/repeatable.rdf#runnable-RO-constraint> ;
           minim:testedPurpose      "Runnable" ;
           minim:testedTarget       <http://sandbox.example.org/ROs/myro> ;
           minim:fullySatisfies     <http://another.example.com/minim/repeatable.rdf#runnable-RO-checklist> ;

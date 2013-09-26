@@ -24,6 +24,8 @@ prefixes = (
     , ("foaf",      "http://xmlns.com/foaf/0.1/")
     , ("minim",     "http://purl.org/minim/minim#")
     , ("result",    "http://www.w3.org/2001/sw/DataAccess/tests/result-set#")
+    # Workaround hack until Minim prefix handling is sorted out
+    , ("chembox",   "http://dbpedia.org/resource/Template:Chembox:")
     ])
 
 extra_prefixes =  (

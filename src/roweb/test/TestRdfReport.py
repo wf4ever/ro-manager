@@ -544,6 +544,7 @@ class TestRdfReport(unittest.TestCase):
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
           , ''', "checklistpurpose":       "Runnable"'''
           , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
+          , ''', "checklisttargetid":      "simple-requirements"'''
           , ''', "checklisttargetlabel":   "simple-requirements"'''
           , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
           , ''', "evalresultlabel":        "minimally satisfies"'''

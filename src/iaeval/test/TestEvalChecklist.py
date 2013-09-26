@@ -150,6 +150,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showmiss':   None
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
+            , 'ruleuri': evalresult['missingMust'][0][0]['ruleuri']
             , 'seq': "04 - aggregates data/UserRequirements-bio.ods"
             })
         self.maxDiff=None
@@ -165,11 +166,11 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri   = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
         (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.html",           # Target resource
@@ -186,6 +187,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showmiss':   None
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'ruleuri': evalresult['missingShould'][0][0]['ruleuri']
             , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
@@ -201,11 +203,11 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri   = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
         (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.pdf",            # Target resource
@@ -222,6 +224,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showmiss':   None
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'ruleuri': evalresult['missingMay'][0][0]['ruleuri']
             , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
@@ -242,10 +245,10 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
 
     def setupEvalFormat(self):
         self.setupConfig()
-        rodir       = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri    = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
         self.missing_must = (
             { 'level': "MUST"
             , 'model': modeluri 

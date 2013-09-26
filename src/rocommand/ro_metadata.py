@@ -65,7 +65,11 @@ class ro_metadata(object):
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
-        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Nested URIs may be present; ours is the one described by the manifest URI,
+        # which is determined by the _loadManifest() method.
+        for s in self.manifestgraph.subjects(RDF.type, RO.ResearchObject):
+            if self.manifestgraph.value(s, ORE.isDescribedBy) == self.manifesturi:
+                self.rouri = s
         # Check that the manifest contained at least one RO URI
         assert self.rouri is not None
         return
@@ -73,28 +77,30 @@ class ro_metadata(object):
     def _isLocal(self):
         return isFileUri(self.rouri)
 
-    def _getManifestUri(self):
-        assert self._isLocal()
+    def _getLocalManifestUri(self):
         return self.getComponentUri(ro_settings.MANIFEST_DIR+"/"+ro_settings.MANIFEST_FILE)
 
     def _loadManifest(self):
-        if self.manifestgraph: return self.manifestgraph
+        if self.manifestgraph != None: return self.manifestgraph
         if self.dummyfortest:
             # Fake minimal manifest graph for testing
             self.manifestgraph = rdflib.Graph()
             self.manifestgraph.add( (self.rouri, RDF.type, RO.ResearchObject) )
+            self.manifesturi   = self.rouri
         elif self._isLocal():
             # Read manifest graph
             self.manifestgraph = rdflib.Graph()
             for (prefix, uri) in ro_prefixes.prefixes:
                 self.manifestgraph.bind(prefix, rdflib.namespace.Namespace(uri))
-            self.manifestgraph.parse(self._getManifestUri())
+            self.manifesturi   = self._getLocalManifestUri()
+            self.manifestgraph.parse(self.manifesturi)
         else:
-            (status, reason, _h, _u, manifest) = self.rosrs.getROManifest(self.rouri)
+            (status, reason, _h, manifesturi, manifest) = self.rosrs.getROManifest(self.rouri)
             if status != 200:
                 msg = ("Can't access RO manifest (%03d %s)"%(status, reason))
                 raise ROSRS_Error(msg=msg, srsuri=self.rouri)
             self.manifestgraph = manifest 
+            self.manifesturi   = manifesturi
         # log.debug("romanifest graph:\n"+self.manifestgraph.serialize())
         return self.manifestgraph
 

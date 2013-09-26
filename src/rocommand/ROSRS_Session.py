@@ -28,7 +28,7 @@ log = logging.getLogger(__name__)
 
 ANNOTATION_CONTENT_TYPES = (
     { "application/rdf+xml":    "xml"
-    , "text/turtle":            "n3"
+    , "text/turtle":            "turtle"
     , "text/n3":                "n3"
     , "text/nt":                "nt"
     , "application/json":       "jsonld"
@@ -215,9 +215,10 @@ class ROSRS_Session(HTTP_Session):
         """
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(rouri,
             method="GET")
+        log.debug("getROManifest %s, status %d, len %d"%(uri, status, len(data or [])))
         if status in [200, 404]:
             return (status, reason, headers, URIRef(uri), data)
-        log.debug("Error %03d %s retrieving %s"%(status, reason, uri))
+        log.info("Error %03d %s retrieving %s"%(status, reason, uri))
         log.debug("Headers %s"%(repr(headers)))
         raise self.error("Error retrieving RO manifest",
             "%03d %s"%(status, reason))
@@ -436,7 +437,6 @@ class ROSRS_Session(HTTP_Session):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield a
         return
@@ -455,8 +455,8 @@ class ROSRS_Session(HTTP_Session):
         if status != 200:
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
+        ###log.info(manifest.serialize(format="xml"))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield manifest.value(subject=a, predicate=AO.body)
         return
@@ -484,9 +484,14 @@ class ROSRS_Session(HTTP_Session):
         agraph = rdflib.graph.Graph()
         for (prefix, uri) in ro_prefixes.prefixes:
             agraph.bind(prefix, rdflib.namespace.Namespace(uri))
-        for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, agraph) = self.doRequestRDFFollowRedirect(buri, 
+        buris = set(self.getROAnnotationBodyUris(rouri, resuri))
+        ###log.info("getROAnnotationGraph: %r"%([ str(b) for b in buris]))
+        for buri in buris:
+            (status, reason, headers, curi, data) = self.doRequestRDFFollowRedirect(buri, 
                 graph=agraph, exthost=True)
+            log.debug("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
+            if status != 200:
+                log.error("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
         return agraph
 
     def getROAnnotation(self, annuri):
@@ -574,8 +579,15 @@ class ROSRS_Session(HTTP_Session):
         cNodes = DOMTree.childNodes
         status =  cNodes[0].getElementsByTagName("status")[0].childNodes[0].toxml()
         target =  cNodes[0].getElementsByTagName("target")[0].childNodes[0].toxml()
-        finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
-        type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
-        return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("finalize")) == 1 and len(cNodes[0].getElementsByTagName("type")[0]) == 1:
+            finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
+            type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
+            return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("processed_resources")) == 1 and len(cNodes[0].getElementsByTagName("submitted_resources")) == 1 :
+            processed_resources = cNodes[0].getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+            submitted_resources = cNodes[0].getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+            return (status,target,processed_resources,submitted_resources,"ZIP_JOB")
+        return (status,target)
+
             
 # End.

@@ -276,6 +276,19 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for 0.2.17
+
+* Updates to RODL inbterface synchronization.  Includes option to push ZIP file bundle
+* Provide label for checklist target resource as well as the RO
+* Overlay RO service documentation updated
+* Refactoring of HTTP access to ROs (HTTP_Session), and logic to catch and log HTTP connection errors
+* Fix bug in RO metadata access when nested ROs are used
+* Rename minim:testedConstraint to minim:testedChecklist in checklist results vocabulary
+* Fix bug in handling of checklist "miss" option. 
+* Improve diagnostics/logging in several areas, especially the checklist service
+* Fix listening port error in Overlay RO service
+* Improve handling of errors when parsing RO annotations
+
 ### Changes for 0.2.16
 
 * Fixed bug in traffic light display when target resource is not the RO

@@ -188,9 +188,9 @@
     
 
 
-    <!-- http://purl.org/minim/minim#testedConstraint -->
+    <!-- http://purl.org/minim/minim#testedChecklist -->
 
-    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedConstraint">
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedChecklist">
         <rdfs:label>Tested checklist</rdfs:label>
         <rdfs:comment>This property is used in checklist results to relate a research object to a checklist
         (constraint) against which it has been evaluated.</rdfs:comment>
