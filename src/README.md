@@ -278,7 +278,7 @@ The output should look something like this:
 
 ### Changes for 0.2.17
 
-* Updates to RODL inbterface synchronization.  Includes option to push ZIP file bundle
+* Updates to RODL synchronization.  Includes option to push ZIP file bundle
 * Provide label for checklist target resource as well as the RO
 * Overlay RO service documentation updated
 * Refactoring of HTTP access to ROs (HTTP_Session), and logic to catch and log HTTP connection errors

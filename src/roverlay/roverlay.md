@@ -27,7 +27,7 @@ The service is provided with a list of URIs of linked data resources, and return
 
 ## Overlay Research Objects
 
-The main body of Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO in a repository, storing annotations in the same repository, and serving both from the repository.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized throufgh the interfaces provided.
+The main body of Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO in a repository, storing annotations in the same repository, and serving both from the repository.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized through the interfaces provided.
 
 In contrast to this, an **Overlay RO** has all of its content stored separately on the web, and the function of the Overlay RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service very lightweight, and Researtch Objects can be created and/or destroyed very quickly, without having to read the entire content of resources from which they are comprised.
 
