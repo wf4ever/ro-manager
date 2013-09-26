@@ -48,7 +48,7 @@
                              # Added context handler to HTTP_Session class
 #__version__ = "0.2.16"      # Fixed bug in traffic light display when target resource is not the RO
                              # Add HTTP-redirect cache to roverlay server, to reduce use of redirectors
-                             # Modify HTTP doRequestr methiods top return URI as string, not rdflib.URIRef
+                             # Modify HTTP doRequest methiods to return URI as string, not rdflib.URIRef
                              # Add retry logic to make Overlay ROs behave more consistently
                              # Minor documentation and script tweaks
 __version__ = "0.2.17"      # Updates to RODL inbterface synchronization.  Includes option to push ZIP file bundle
