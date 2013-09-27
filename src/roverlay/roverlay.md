@@ -226,56 +226,56 @@ The Overlay RO service has been used to perform checklist evaluation of chembox 
 
 * Create RO for chemical whose description is to be evaluated:
 
-    $ roverlay -s http://localhost:8000/rovserver/ http://purl.org/net/chembox/Tryptoline
-    http://localhost:8000/rovserver/ROs/294876b2/
+        $ roverlay -s http://localhost:8000/rovserver/ http://purl.org/net/chembox/Tryptoline
+        http://localhost:8000/rovserver/ROs/294876b2/
 
 * Perform checklist evaluation:
 
-    $ curl "http://localhost:8080/evaluate/trafficlight_json\
-           ?RO=http://localhost:8000/rovserver/ROs/294876b2/\
-           &minim=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/minim-evaluation/chembox-minim-samples.ttl\
-           &purpose=complete\
-           &target=http://purl.org/net/chembox/Tryptoline"
+        $ curl "http://localhost:8080/evaluate/trafficlight_json\
+               ?RO=http://localhost:8000/rovserver/ROs/294876b2/\
+               &minim=file:///usr/workspace/wf4ever-ro-catalogue/v0.1/minim-evaluation/chembox-minim-samples.ttl\
+               &purpose=complete\
+               &target=http://purl.org/net/chembox/Tryptoline"
 
-    { "rouri":                  "http://localhost:8000/rovserver/ROs/294876b2/"
-    , "roid":                   "294876b4"
-    , "title":                  "294876b4"
-    , "description":            "294876b4"
-    , "checklisturi":           "http://example.com/chembox-samples/minim_model"
-    , "checklistpurpose":       "complete"
-    , "checklisttarget":        "http://purl.org/net/chembox/Tryptoline"
-    , "checklisttargetlabel":   "http://purl.org/net/chembox/Tryptoline"
-    , "evalresult":             "http://purl.org/minim/minim#fullySatisfies"
-    , "evalresultlabel":        "fully satisfies"
-    , "evalresultclass":        ["pass"]
-    , "checklistitems":
-      [
-        { "itemuri":        "http://example.com/chembox-samples/ChemSpider"
-        , "itemlabel":      "ChemSpider is present"
-        , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement" 
-        , "itemsatisfied":  true
-        , "itemclass":      ["pass"]
-        },
-        { "itemuri":        "http://example.com/chembox-samples/InChI"
-        , "itemlabel":      "InChI is present"
-        , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
-        , "itemsatisfied":  true
-        , "itemclass":      ["pass"]
-        },
-        { "itemuri":        "http://example.com/chembox-samples/Synonym"
-        , "itemlabel":      "Synonym is present"
-        , "itemlevel":      "http://purl.org/minim/minim#hasMayRequirement" 
-        , "itemsatisfied":  true
-        , "itemclass":      ["pass"]
+        { "rouri":                  "http://localhost:8000/rovserver/ROs/294876b2/"
+        , "roid":                   "294876b4"
+        , "title":                  "294876b4"
+        , "description":            "294876b4"
+        , "checklisturi":           "http://example.com/chembox-samples/minim_model"
+        , "checklistpurpose":       "complete"
+        , "checklisttarget":        "http://purl.org/net/chembox/Tryptoline"
+        , "checklisttargetlabel":   "http://purl.org/net/chembox/Tryptoline"
+        , "evalresult":             "http://purl.org/minim/minim#fullySatisfies"
+        , "evalresultlabel":        "fully satisfies"
+        , "evalresultclass":        ["pass"]
+        , "checklistitems":
+          [
+            { "itemuri":        "http://example.com/chembox-samples/ChemSpider"
+            , "itemlabel":      "ChemSpider is present"
+            , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement" 
+            , "itemsatisfied":  true
+            , "itemclass":      ["pass"]
+            },
+            { "itemuri":        "http://example.com/chembox-samples/InChI"
+            , "itemlabel":      "InChI is present"
+            , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement" 
+            , "itemsatisfied":  true
+            , "itemclass":      ["pass"]
+            },
+            { "itemuri":        "http://example.com/chembox-samples/Synonym"
+            , "itemlabel":      "Synonym is present"
+            , "itemlevel":      "http://purl.org/minim/minim#hasMayRequirement" 
+            , "itemsatisfied":  true
+            , "itemclass":      ["pass"]
+            }
+          ]
         }
-      ]
-    }
 
 * Delete RO used:
 
-    $ roverlay -s http://localhost:8000/rovserver/ \
-               -d http://localhost:8000/rovserver/ROs/294876b2/
-    RO http://localhost:8000/rovserver/ROs/294876b2/ deleted.
+        $ roverlay -s http://localhost:8000/rovserver/ \
+                   -d http://localhost:8000/rovserver/ROs/294876b2/
+        RO http://localhost:8000/rovserver/ROs/294876b2/ deleted.
 
 
 ## Installation
@@ -353,9 +353,9 @@ Research Objects created by the roverlay service are saved in a local on-disk da
 
 The database can be re-initialized using the `manage.py` utility used when installing the software to initialize the database and run the server:
 
-        $ python manage.py sqlclear rovserver
-        $ python manage.py syncdb
-        $ python manage.py runserver
+    $ python manage.py sqlclear rovserver
+    $ python manage.py syncdb
+    $ python manage.py runserver
 
 
 ## Python virtual environments
@@ -450,4 +450,4 @@ For the service to function behind a reverse proxy, the following would need to 
 5. (URIs in RDF responses (all syntaxes) re-written - this might not be needed if the roiverlay server always returns relative URIs.
 5. (URIs in HTML responses re-written - see http://apache.webthing.com/mod_proxy_html/)
 
-An alternative possible approach would be to modify the service to work in conjunction with APacahe's `ProxyPreserveHost On` directive, and to use the incoming host as the root fort all generated URIs in data and headers.
+An alternative possible approach would be to modify the service to work in conjunction with Apache's `ProxyPreserveHost On` directive, and to use the incoming host as the root for all generated URIs in data and headers.
