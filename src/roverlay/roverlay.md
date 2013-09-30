@@ -6,6 +6,7 @@
 
 * General description
 * Overlay Research Objects
+* A simple example walk-through
 * Service API description
 * `roverlay` command line client and related utilities
 * Example: checklist evaluation of chembox data
@@ -25,20 +26,24 @@ The basic function of the service is very simple:
 
 The service is provided with a list of URIs of linked data resources, and returns the URI of an RO that aggregates those resources (i.e. a URI that, when dereferenced, returns a manifest for the created RO).
 
+
 ## Overlay Research Objects
 
-The main body of Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO in a repository, storing annotations in the same repository, and serving both from the repository.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not emphasized through the interfaces provided.
+**What are they, and why do we need them?**
 
-In contrast to this, an **Overlay RO** has all of its content stored separately on the web, and the function of the Overlay RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service very lightweight, and Researtch Objects can be created and/or destroyed very quickly, without having to read the entire content of resources from which they are comprised.
+The main body of Wf4Ever work on Research Objects operates primarily on the basis of collecting resources that constitute an RO in a repository, storing annotations in the same repository, and serving both from the repository.  While these ROs can contain references to aggregated external resources and annotations, this is a secondary feature and is not the primary mechanism offered through the interfaces provided.
 
-The minimal Research Object structures that are created by the Overlay RO service are:
+In contrast to this, an **Overlay RO** has _all_ of its content stored separately on the web, and the function of the Overlay RO service is to create a minimal RO structure that refers to this external content.  This makes the Overlay RO service very lightweight, and Research Objects can be created and/or destroyed very quickly, without copying or indexing the content of their aggregated resources in a repository or other store.
+
+The Research Object structures that are created by the Overlay RO service are:
 * an ORE aggregation of the resources
-* annotation stubs for resources that contain machine readable descriptions of other resources.
-These descriptions are published in a new RO manifest resource that "represents" the Research Object; i.e., this is what is returned when the RO URI is dereferenced.
+* RO annotation structures are created for resources that contain machine readable descriptions of other resources (i.e. these are also treated as RO annotations as well as aggregated resources).
+
+These descriptions are published in a new RO manifest resource that "represents" the Research Object; i.e., this manifest is returned when the RO URI is dereferenced.
 
 The resource aggregation is constructed very straightforwardly from the supplied list of URIs.
 
-The annotation stubs are a little more complicated.  To keep the service interface simple, the API makes no distinction between annotations and other resources.  Instead, the service probes each of the supplied resources, following any HTTP redirects, and determines the available content types.  Any resource that is available in a recognized serialization of RDF (RDF/XML, Turtle and others) is considered to be an annotation on the RO itself, and a corresponding annotation stub is created.
+Creating annotations is a little more complicated.  To keep the service interface simple, the API makes no distinction between annotations and other resources.  Instead, the service probes each of the supplied resources, following any HTTP redirects, and determines the available content types.  Any resource that is available in a recognized serialization of RDF (RDF/XML, Turtle and others) is considered to be an annotation on the RO itself, and a corresponding RO annotation structure is created.
 
 Suppose we have a collection of linked data describing some workflow-based experiment:
 
@@ -48,7 +53,133 @@ We can select a subset of these resources to create a Research Object that descr
 
 ![Workflow Research Object](checklist-ld-workflow-manifest.png "Overlay Research Object containing description of a workflow")
 
-Simlarly, we might create a different Overlay RO that descrtibes the experiment, as supplemental material for a publication of the conclusions reached though its conduct.
+Similarly, we might create a different Overlay RO that describes the experiment, as supplemental material for a publication of the conclusions reached though its conduct.  Thius, different ROs may easily be created for different purposes.
+
+
+## A simple example walk-through
+
+This example follows the use of the Overlay RO service to create an RO for performing "chembox" checklist evaluation of a chemical description.  The example here assumes an Overlay RO service deployed at [http://andros.zoo.ox.ac.uk:8000/rovserver/]().  The chemical whose description is to be analyzed is [Tryptoline](http://purl.org/net/chembox/Tryptoline).  The examples here assume that [RO Manager](https://github.com/wf4ever/ro-manager/blob/develop/src/README.md), which provides the `roverlay` command, has been installed on the local computer system.
+
+1. Show summary of `roverlay` command options:
+
+        $ roverlay --help
+        usage: 
+            roverlay [options] URI [URI ...]    # Create new RO
+            roverlay -d ROURI                   # Delete RO
+            roverlay -l                         # List available ROs
+
+        Create or display Overlay RO through web service.
+
+        positional arguments:
+          URI                   One or more URIs that are aggregated in a created RO
+
+        optional arguments:
+          -h, --help            show this help message and exit
+          --version             show program's version number and exit
+          -d ROURI, --delete ROURI
+                                Delete specified RO
+          -l, --list            List available ROs art specified service
+          -s SERVICEURI, --service-uri SERVICEURI
+                                Overlay RO web service to access. Default
+                                http://localhost:8000/rovserver/
+          --debug               Run with full debug output enabled
+
+        On successful creation of a new RO, its URI is written to standard output.
+
+2. Create a new RO aggregating a single resource, which is the RDF description of the chemical Tryptoline:
+
+        $ roverlay -s http://andros.zoo.ox.ac.uk:8000/rovserver/ http://purl.org/net/chembox/Tryptoline
+        http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+
+    This is a very simple example, with just one aggregated resource specified.  More resources can be specified by including their URIs in the command line.  (Once an RO has been created, further resources cannot be added.)
+
+    Note that the command responds with a URI for the RO created.  In all subsequent steps of this walkthrough, the actual URI returned must be used in place of `http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/` shown here.  When using in a Unix or Linux `bash` shell, the following command could be used:
+
+        $ RO=`roverlay -s http://andros.zoo.ox.ac.uk:8000/rovserver/ http://purl.org/net/chembox/Tryptoline`
+
+    Then use `$RO` for the URI of the created RO.
+
+3. Examine the created Research Object (subsitute the RO URI returned in the previous step above):
+
+        $ curl http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+        <html>
+        <head>
+            <title>Research Object http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/</title>
+        </head>
+        <body>
+        <h1>Research Object http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/</h1>
+            <h2>Research Object aggregated resources:</h2>
+            <p>
+              <ul>
+              <li><a href="http://sierra-nevada.cs.man.ac.uk/chembox/Tryptoline">http://sierra-nevada.cs.man.ac.uk/chembox/Tryptoline</a></li>
+              </ul>
+            </p>
+        </body>
+        </html>
+
+    Note that default response is an HTML summary of the RO created.  Thus, the RO URI can be used directly in a browser.
+
+4. Obtain a copy of the RO manifest for the created RO (using the RO URI returned):
+
+        $ curl -H "accept: text/turtle" http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+        @prefix ns1: <http://purl.org/ao/> .
+        @prefix ns2: <http://purl.org/wf4ever/ro#> .
+        @prefix ns3: <http://www.openarchives.org/ore/terms/> .
+        @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+        @prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+        @prefix xml: <http://www.w3.org/XML/1998/namespace> .
+        @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+        <> a ns2:ResearchObject ;
+            ns3:aggregates [ a ns2:AggregatedAnnotation ;
+                    ns1:body <http://sierra-nevada.cs.man.ac.uk/chembox/Tryptoline> ;
+                    ns2:annotatesAggregatedResource <> ],
+                <http://sierra-nevada.cs.man.ac.uk/chembox/Tryptoline> .
+
+    The manifest is obtained by content negotiation for a supported RDF format: at least `application/rdf+xml` and `text/turtle` are supported.  Other formats may be available.
+
+    Note that the manifest here aggregates two resources:
+    1. the resource specified in the original `roverlay` command, after following any HTTP redirects associated with the original URI.  (Try entering the command `curl http://purl.org/net/chembox/Tryptoline` to confirm this redirect.)
+    2. a blank node that denotes an annotation stub, indicating that the aggregated resource is the body of an annotation of the RO itself.  (The `<>` is a relative reference, based here on the RO URI itself, following the rules of RFC3986.)
+
+5. To show this behaves like an RO, the `ro list` command can be used to list the aggreated resources:
+
+        $ ro list http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+        http://sierra-nevada.cs.man.ac.uk/chembox/Tryptoline
+
+6. Similarly, `ro dump` can be used to show the content of the annotations:
+
+        $ ro dump http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+        <?xml version="1.0" encoding="utf-8"?>
+        <rdf:RDF
+          xmlns:chembox="http://dbpedia.org/resource/Template:Chembox:"
+          xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+          xmlns:ns1="http://dbpedia.org/property/"
+          xmlns:owl="http://www.w3.org/2002/07/owl#"
+        >
+          <rdf:Description rdf:about="http://purl.org/net/chembox/Tryptoline">
+            <chembox:ImageFile>Tryptoline structure.png</chembox:ImageFile>
+             :
+            <chembox:InChI>1/C11H12N2/c1-2-4-10-8(3-1)9-5-6-12-7-11(9)13-10/h1-4,12-13H,5-7H2</chembox:InChI>
+          </rdf:Description>
+        </rdf:RDF>
+
+7. Use the `roverlay -l` option to display a list of ROs available at the Overlay RO service:
+
+        $ roverlay -s http://andros.zoo.ox.ac.uk:8000/rovserver/ -l
+        http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+
+    The same information can be viewed by browsing to the Obverlay RO service URI [http://andros.zoo.ox.ac.uk:8000/rovserver/]()
+
+8. Finally, the RO can be deleted using the `roverlay -d` option:
+
+        $ roverlay -s http://andros.zoo.ox.ac.uk:8000/rovserver/ \
+                   -d http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/
+        RO http://andros.zoo.ox.ac.uk:8000/rovserver/ROs/44a31e54/ deleted.
+        $ roverlay -s http://andros.zoo.ox.ac.uk:8000/rovserver/ -l
+        $ 
+
+There is a further example below using a locally installed Overlay RO service in conjunction with the checklist service.
 
 
 ## Service API description
@@ -222,7 +353,7 @@ Proposed features, not yet implemented:
 
 ## Example: checklist evaluation of chembox data
 
-The Overlay RO service has been used to perform checklist evaluation of chembox data hosted by a server at Manchester University:
+The Overlay RO service has been used to perform checklist evaluation of chembox data hosted by a server at Manchester University.  The sequence here assumes an Overlay RO service running on the local computer.  The logic shown here is used in a script we used to evaluate all chembox chemicals, which can be viewed at [https://github.com/wf4ever/ro-catalogue/blob/master/v0.1/minim-evaluation/chembox_evaluate_rov.sh]().
 
 * Create RO for chemical whose description is to be evaluated:
 
