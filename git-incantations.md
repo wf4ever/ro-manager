@@ -125,3 +125,16 @@ cf. general form of push:
     git push [remotename] [localbranch]:[remotebranch]
 
 See: http://git-scm.com/book/en/Git-Branching-Remote-Branches
+
+
+## Selective transfer from one branch to another ##
+
+See also:
+* http://stackoverflow.com/questions/449541/how-do-you-merge-selective-files-with-git-merge
+* http://jasonrudolph.com/blog/2009/02/25/git-tip-how-to-merge-specific-files-from-another-branch/
+
+    git checkout newbranch
+    git checkout oldbranch path
+    git commit
+
+
