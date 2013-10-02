@@ -2,6 +2,8 @@
 
 **COPYRIGHT (2011-2013) University of Oxford**
 
+**Author: Graham Klyne**
+
 Software licence: MIT (http://opensource.org/licenses/MIT)
 
 Documentation licence: CC-BY (http://creativecommons.org/licenses/by/2.0/uk/deed.en_US)
