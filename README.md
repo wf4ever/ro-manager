@@ -51,7 +51,9 @@ Summary information, including installation and deployment instructions can be f
 
 As a first step to using "gitflow" branching structures ([http://nvie.com/posts/a-successful-git-branching-model/]()) a "develop" branch has been created.  The "master" branch should only ever contain production code that has been published to [PyPI](https://pypi.python.org/pypi).
 
-Many developments may take place on a local branch and be pushed straight back to "develop".  Additional feature branches may be created and termined as required for longer-running developments.  The file [git-incantations.md]() in the project root dirtectory (same as this README file) summarizes `git` commands that may be used to operate this branching model.
+Many developments may take place on a local branch and be pushed straight back to "develop".  Additional feature branches may be created and termined as required for longer-running developments.  The file [git-incantations.md] in the project root dirtectory (same as this README file) summarizes `git` commands that may be used to operate this branching model.
+
+[git-incantations.md]: https://github.com/wf4ever/ro-manager/blob/master/git-incantations.md "Summary of GIT commands for various tasks"
 
 ----
 
