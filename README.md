@@ -1,6 +1,6 @@
 # ro-manager project
 
-**Author: Graham Klyne**
+**Author: Graham Klyne (graham.klyne@zoo.ox.ac.uk)**
 
 Software licence: MIT (http://opensource.org/licenses/MIT)
 

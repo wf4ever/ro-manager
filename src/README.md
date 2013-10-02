@@ -1,6 +1,6 @@
 # Research Object manager command line tool
 
-**Author: Graham Klyne**
+**Author: Graham Klyne (graham.klyne@zoo.ox.ac.uk)**
 
 Research Objects are semantically rich aggregations of resources that bring
 together data, methods and people in scientific investigations.  For further
