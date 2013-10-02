@@ -30,7 +30,7 @@ In the instructions thatn follow:
 
 ### RO Mananger
 
-This is just a summary of the RO Manager installation.  More detailed explanations can be found in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().  The installation method suggested here uses `git` to pull the software from Github.  With this approach, it is easier to locater the shell scripts used to start the web service, the service log file, etc.
+This is just a summary of the RO Manager installation.  More detailed explanations can be found in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().  The installation method suggested here uses `git` to pull the software from Github rather than installation from PyPI usimng `pip`.  Either can be used, but with the suggested approach, it is easier to locate the shell scripts used to start the web service, the service log file, etc.
 
 It is recommended to create and activate a python virtual environment for running the checklist service, to avoid the possibility of creating problems in the default system installationof Python:
 
