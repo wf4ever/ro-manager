@@ -127,7 +127,7 @@ cf. general form of push:
 See: http://git-scm.com/book/en/Git-Branching-Remote-Branches
 
 
-## Selective transfer from one branch to another ##
+## Selective transfer files from one branch to another ##
 
 See also:
 * http://stackoverflow.com/questions/449541/how-do-you-merge-selective-files-with-git-merge
@@ -137,4 +137,27 @@ See also:
     git checkout oldbranch path
     git commit
 
+
+## Selective transfer commits from one branch to another
+
+See also:
+* https://help.github.com/articles/interactive-rebase
+
+    git checkout newbranch
+    git merge oldbranch
+    git rebase --interactive
+
+Lauches an editor with a list of commits which can be dropeed, merged or otherwise tweaked.  Follow instructions untilk a clean result is obtained.
+
+It is possible that a merge failure will prevent this process from being completely automatic. You will have to resolve any such merge failure and run:
+
+    git rebase --continue
+
+Another option is to bypass the commit that caused the merge failure with:
+
+    git rebase --skip.
+
+If you get lost in a tangle of conflicts, the whole operation can be abandoned by:
+
+    git rebase --abort
 
