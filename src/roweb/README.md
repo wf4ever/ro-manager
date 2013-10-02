@@ -5,6 +5,8 @@
 The Research Object checklist evaluation service is a web server that performs checklist evaluation of Research Objects.  See [http://www.wf4ever-project.org/wiki/display/docs/RO+checklist+evaluation+API]() and [http://www.wf4ever-project.org/wiki/display/docs/Checklist+traffic+light+API]() for more details.
 
 
+# Installation and deployment
+
 ## Dependencies
 
 * Python 2.7.x
@@ -28,9 +30,9 @@ In the instructions thatn follow:
 
 ### RO Mananger
 
-This is just a summary of the RO Manager installation.  More detailed explanations can be found in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().
+This is just a summary of the RO Manager installation.  More detailed explanations can be found in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().  The installation method suggested here uses `git` to pull the software from Github rather than installation from PyPI usimng `pip`.  Either can be used, but with the suggested approach, it is easier to locate the shell scripts used to start the web service, the service log file, etc.
 
-It is recommended to create and activate a new python virtual environment for running the checklist service, to avoid the possibility of creating problems in the default system installationof Python:
+It is recommended to create and activate a python virtual environment for running the checklist service, to avoid the possibility of creating problems in the default system installationof Python:
 
 If not already existing, create the new virtual environment:
 
@@ -88,6 +90,46 @@ The browser should display a page looking something like this:
 <!--
 ![Checklist demo display](https://github.com/wf4ever/ro-manager/blob/master/src/roweb/checklist-demo-display.png)
 -->
+
+# Checklist service source code overview
+
+    +- ro-manager  (top level of github project from https://github.com/wf4ever/ro-manager/)
+       |
+       +- src
+       |  |
+       |  +- MiscUtils (miscellaneous supporting utility functions code)
+       |  +- iaeval (main checklist evaluation code)
+       |  +- rocommand (main RO Mananger code, includes modukles for accessing Research Object)
+       |  +- rowebv (web application to service checklist API and invoke the checklist service)
+       |  |         (also has presentation logic for generating "traffic light" display)
+       |  |
+       |  +- checklist (mkminim utility to creare Minim models from spreadsheet description)
+       |  +- roverlay (Overlay RO service)
+       |  +- samples (sample code for developmenbt testing)
+       |  +- spike (exploratory code snippets)
+       |
+       +- doc (user documentation for RO Mananger)
+       |
+       +- Minim (contains ontology for Minim model used to describe checklists)
+       |
+       +- Checklists (sample checklists used for testing, etc.)
+
+The checklist web service main program is `src/roweb/rowebservices.py`, where function `evaluate_rdf` invokes the main checklist evaluation logic;  functions `evaluate_trafficlight_html` and `evaluate_trafficlight_json` invoke checklist evaluation, but return HTML and JSON for trespectiuvely for a traffic light display.  These functions all end up calling `real_evaluate` (via `evaluate`) to perform the actual checklist evaluation, which in turn calls checklist evaluation code from the `iaeval` package.
+
+
+# Creating checklist descriptions
+
+* `minim-revised`: Minim checklist description model [https://github.com/wf4ever/ro-manager/blob/master/Minim/minim-revised.md]()
+* `mkminim`: Minim checklist spreadsheet-to-RDF conversion tool [https://github.com/wf4ever/ro-manager/blob/master/src/checklist/mkminim.md]()
+* Sample checklist collection [https://github.com/wf4ever/ro-catalogue/tree/master/minim]().
+
+
+# Related Publications
+
+* Matthew Gamble, Jun Zhao, Graham Klyne, Carole Goble. _MIM: A Minimum Information Model Vocabulary and Framework for Scientific Linked Data_. IEEE eScience 2012 Chicago, USA October, 2012
+* Jun Zhao, Graham Klyne, Piotr Holubowicz, Raúl Palma, Stian Soiland-Reyes, Kristina Hettne, José Enrique Ruiz, Marco Roos, Kevin Page, José Manuel Gómez-Pérez, David De Roure, Carole Goble. _RO-Manager: A Tool for Creating and Manipulating Research Objects to Support Reproducibility and Reuse in Sciences_. The Second Linked Science Workshop at ISWC Boston, USA November, 2012
+* Kevin Page, Raúl Palma, Piotr Holubowicz, Graham Klyne, Stian Soiland-Reyes, Don Cruickshank, Rafael González Cabero, Esteban García, David De Roure Cuesta, Jun Zhao, José Manuel Gómez-Pérez. _From workflows to Research Objects: an architecture for preserving the semantics of science_. The Second Linked Science Workshop at ISWC Boston, USA November, 2012
+* Jun Zhao, Graham Klyne, Matthew Gamble and Carole Goble. _A Checklist-Based Approach for Quality Assessment of Scientific Information_.  LISC2013: 3rd International Workshop on Linked Science at ISWC 2013 in Sydney ([http://linkedscience.org/events/lisc2013/]())
 
 ----
 

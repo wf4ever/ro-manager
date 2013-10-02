@@ -18,6 +18,8 @@ TODO:
 Priority for checklist:
 * Include Minim prefixes in query
 * Check out SPARQL filter problem (see chembox checklist for ChemSpider ID)
+* Update MANIFGEST.in - I think that may be why some files aren't getting installed via PyPI
+
 
 Others:
 * When creating resource, try to guess or retain media type information
