@@ -1,6 +1,8 @@
 # Research Object manager command line tool
 
-Research Objects are semantically rich aggregations of resources [1] that bring
+**Author: Graham Klyne (graham.klyne@zoo.ox.ac.uk)**
+
+Research Objects are semantically rich aggregations of resources that bring
 together data, methods and people in scientific investigations.  For further
 information, see:
 * What is an RO?
@@ -13,6 +15,10 @@ manipulating Research Objects in a local file system, and for exchanging them wi
 Research Object Digital Library (RODL):
 * http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 * http://www.wf4ever-project.org/wiki/display/docs/RO+Manager+FAQ
+
+Additional installation and deployment information:
+* Checklist evaluaton service: [https://github.com/wf4ever/ro-manager/blob/master/src/roweb/README.md]()
+* Overlay Research Object creation service: [https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/README.md]()
 
 
 ## Dependencies
@@ -381,4 +387,9 @@ The output should look something like this:
 * ROSRS (v6) support
 * Support for checklist evaluation of ROs stored in RODL or some other ROSRS service (used primarily by the `roweb` service component)
 * Decouple MINIM constraints from target RO.  Allow creation of MINIM descriptions that can be applied to arbitrary ROs:  this paves the way for creating and using checklists that encode community norms for RO quality.
+
+
+----
+
+<a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.0/uk/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US">Creative Commons Attribution 2.0 UK: England &amp; Wales License</a>.
 

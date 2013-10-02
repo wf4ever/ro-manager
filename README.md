@@ -1,6 +1,6 @@
 # ro-manager project
 
-**COPYRIGHT (2011-2013) University of Oxford**
+**Author: Graham Klyne (graham.klyne@zoo.ox.ac.uk)**
 
 Software licence: MIT (http://opensource.org/licenses/MIT)
 
