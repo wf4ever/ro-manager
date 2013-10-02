@@ -5,6 +5,8 @@
 The Research Object checklist evaluation service is a web server that performs checklist evaluation of Research Objects.  See [http://www.wf4ever-project.org/wiki/display/docs/RO+checklist+evaluation+API]() and [http://www.wf4ever-project.org/wiki/display/docs/Checklist+traffic+light+API]() for more details.
 
 
+# Installation and deployment
+
 ## Dependencies
 
 * Python 2.7.x
@@ -89,7 +91,7 @@ The browser should display a page looking something like this:
 ![Checklist demo display](https://github.com/wf4ever/ro-manager/blob/master/src/roweb/checklist-demo-display.png)
 -->
 
-## Checklist service source code overview
+# Checklist service source code overview
 
     +- ro-manager  (top level of github project from https://github.com/wf4ever/ro-manager/)
        |
