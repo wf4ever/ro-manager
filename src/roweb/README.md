@@ -1,7 +1,5 @@
 # Research Object checklist evaluation service
 
-**COPYRIGHT (2011-2013) University of Oxford**
-
 **Author: Graham Klyne**
 
 The Research Object checklist evaluation service is a web server that performs checklist evaluation of Research Objects.  See [http://www.wf4ever-project.org/wiki/display/docs/RO+checklist+evaluation+API]() and [http://www.wf4ever-project.org/wiki/display/docs/Checklist+traffic+light+API]() for more details.
