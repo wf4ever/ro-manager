@@ -83,8 +83,9 @@ Using a browser on the local machione, browse to:
 
 [http://localhost:8080/evaluate/trafficlight_html?RO=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo/&minim=http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/workflow-experiment-checklist.rdf&purpose=ready-to-release]()
 
-![Checklist demo display](checklist-demo-display.png)
 The browser should display a page looking something like this:
+
+![Checklist demo display](checklist-demo-display.png)
 
 <!--
 ![Checklist demo display](https://github.com/wf4ever/ro-manager/blob/master/src/roweb/checklist-demo-display.png)
