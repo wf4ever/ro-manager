@@ -13,7 +13,10 @@ log = logging.getLogger(__name__)
 
 import rdflib
 import rdflib.namespace
-from uritemplate import uritemplate
+try:
+    from uritemplate import uritemplate
+except ImportError:
+    import uritemplate
 
 from rocommand import ro_manifest
 from rocommand import ro_namespaces
