@@ -14,4 +14,5 @@ PREFIX roterms: <http://purl.org/wf4ever/roterms#>
 PREFIX roevo:   <http://purl.org/wf4ever/roevo#>
 PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
 PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
+PREFIX wf4ever: <http://purl.org/wf4ever/wf4ever#>
 

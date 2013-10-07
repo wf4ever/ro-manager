@@ -31,7 +31,7 @@ echo "==== URI: $EVALURI"
 echo "==== Request evaluation result with parameters, as RDF/Turtle ===="
 curl -H "accept: text/turtle" $EVALURI
 
-echo "==== Request evaluation result with parameters, as RDF/XML ===="
-curl -H "accept: application/rdf+xml" $EVALURI
+# echo "==== Request evaluation result with parameters, as RDF/XML ===="
+# curl -H "accept: application/rdf+xml" $EVALURI
 
 # End.

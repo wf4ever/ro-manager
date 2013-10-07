@@ -48,7 +48,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-astro.csv">
         <minim:forPurpose>create UserRequirements-astro.csv</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#runnableRequirementRO" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -60,7 +59,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.csv">
         <minim:forPurpose>create UserRequirements-bio.csv</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingMustRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -72,7 +70,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.html">
         <minim:forPurpose>create UserRequirements-bio.html</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingShouldRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -84,7 +81,6 @@
     <minim:hasConstraint>
       <minim:Constraint rdf:about="#create/docs/UserRequirements-bio.pdf">
         <minim:forPurpose>create UserRequirements-bio.pdf</minim:forPurpose>
-        <minim:onResource rdf:resource="." />
         <minim:toModel rdf:resource="#missingMayRequirement" />
       </minim:Constraint>
     </minim:hasConstraint>
@@ -108,7 +104,7 @@
           <minim:SoftwareEnvironmentRule>
             <minim:command>python -V</minim:command>
             <minim:response>Python 2.7</minim:response>
-            <minim:derives rdf:resource="#environment-software/python-27" />
+            <minim:show>01 - python 2.7</minim:show>
           </minim:SoftwareEnvironmentRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -120,7 +116,7 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="data/UserRequirements-astro.ods" />
-            <minim:derives rdf:resource="#isPresent/data/UserRequirements-astro.ods" />
+            <minim:show>02 - aggregates data/UserRequirements-astro.ods</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -132,7 +128,7 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="docs/reqs.css" />
-            <minim:derives rdf:resource="#isPresent/docs/reqs.css" />
+            <minim:show>03 - aggregates docs/reqs.css</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -157,7 +153,7 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="data/UserRequirements-bio.ods" />
-            <minim:derives rdf:resource="#isPresent/data/UserRequirements-bio.ods" />
+            <minim:show>04 - aggregates data/UserRequirements-bio.ods</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>
@@ -185,7 +181,7 @@
         <minim:isDerivedBy>
           <minim:DataRequirementRule>
             <minim:aggregates rdf:resource="docs/missing.css" />
-            <minim:derives rdf:resource="#isPresent/docs/missing.css" />
+            <minim:show>05 - aggregates docs/missing.css</minim:show>
           </minim:DataRequirementRule>
         </minim:isDerivedBy>
       </minim:Requirement>

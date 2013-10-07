@@ -1,6 +1,8 @@
 # Research Object manager command line tool
 
-Research Objects are semantically rich aggregations of resources [1] that bring
+**Author: Graham Klyne (graham.klyne@zoo.ox.ac.uk)**
+
+Research Objects are semantically rich aggregations of resources that bring
 together data, methods and people in scientific investigations.  For further
 information, see:
 * What is an RO?
@@ -13,6 +15,10 @@ manipulating Research Objects in a local file system, and for exchanging them wi
 Research Object Digital Library (RODL):
 * http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 * http://www.wf4ever-project.org/wiki/display/docs/RO+Manager+FAQ
+
+Additional installation and deployment information:
+* Checklist evaluaton service: [https://github.com/wf4ever/ro-manager/blob/master/src/roweb/README.md]()
+* Overlay Research Object creation service: [https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/README.md]()
 
 
 ## Dependencies
@@ -79,7 +85,6 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 2. Test:
 
-        sudo ro-manager-test
         ro help
 
 
@@ -122,7 +127,6 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 3. Test:
 
-        ro-manager-test
         ro help
 
 
@@ -197,6 +201,11 @@ Prerequisites are python 2.7 (http://python.org/download/releases/2.7/) and git 
     
         OK
         $ 
+
+    Note that (on some systems, including MacOS), if RO Manager is installed under
+    the system Python environment (i.e. not using virtualenv) then a small number of
+    test cases that access test data files may fail.  If the majority of tests pass,
+    and the ro command appears to work, the installation is probably fine.
 
 7. To run RO manager to display a summary of commands and options:
 
@@ -273,13 +282,114 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for 0.2.17
+
+* Updates to RODL synchronization.  Includes option to push ZIP file bundle
+* Provide label for checklist target resource as well as the RO
+* Overlay RO service documentation updated
+* Refactoring of HTTP access to ROs (HTTP_Session), and logic to catch and log HTTP connection errors
+* Fix bug in RO metadata access when nested ROs are used
+* Rename minim:testedConstraint to minim:testedChecklist in checklist results vocabulary
+* Fix bug in handling of checklist "miss" option. 
+* Improve diagnostics/logging in several areas, especially the checklist service
+* Fix listening port error in Overlay RO service
+* Improve handling of errors when parsing RO annotations
+
+### Changes for 0.2.16
+
+* Fixed bug in traffic light display when target resource is not the RO
+* Add HTTP-redirect cache to roverlay server, to reduce use of redirectors
+* Modify HTTP doRequestr methiods top return URI as string, not rdflib.URIRef
+* Add retry logic to make Overlay ROs behave more consistently
+* Minor documentation and script tweaks
+
+
+### Changes for V0.2.15
+
+* Tuned "Overlay RO" service and added `roverlay` command line utility
+* Fixed some bugs in ROSRS URI handling, and tidied URI handling code
+* Updated documentation for Overlay RO installation
+* Fixed `ro-manager-test`
+* Improved user diagnostics when accessing an unavailable RO
+* Refactored spreadsheet grid access code
+* Added direct-from-Excel support to mkminim
+* Added context handler to `HTTP_Session` class
+
+
+### Changes for V0.2.14
+
+* `ro list` supports URI argument as alternative to directory
+* Added initial "Overlay RO" service
+* Added checklist spreadsheet -> Minim model converter
+* Refactored HTTP session handling
+* Code and test enhancements, including HTTP resource mocking
+* Documentation updates
+
+
+### Changes for V0.2.13
+
+* Implement Minim file creator from spreadsheet description (mkminim command)
+* Renamed library that was clashing with other installations
+* Fixed bugs in processing of refactored Minim model
+* Removed all references to minim:derives
+* Improve escaping of string values in JSON output
+* Updated REST checklisrt service landing page
+* Various bug fixes
+
+
+### Changes for V0.2.12
+
+* Refactor Minim model and extend checklist evaluation capabilities
+* Fix queries to work with rdflib 4.0.1 and rdflib-sparql
+* Fix some bugs in RODL synchronization and evolution
+* Fix rowebservices handling of URIs containing escaped characters and special characters
+* Fix problems with extended (non-ASCII) characters in checklist query results
+
+
+
+### Changes for V0.2.11
+
+* Add RO evolution commands; ro snapshot, ro archive, ro freeze
+
+
+### Changes for V0.2.10
+
+* Fix problem evaluating RO with space in URI
+* RDFReport add escaping support; escape quotes in JSON strings
+* Fix problem with URI liveness test
+* New RO must have ore:Aggregation class
+* Allow reporting of missing <forall> entries
+* Add ro dump command
+* Ordering of checklist display
+* Various display formatting enhancements
+
+
+### Changes for V0.2.9
+
+* Fix up experiment-workflow checklist
+
+
+### Changes for V0.2.8
+
+* Web services to return checklist result as HTML or JSON for rendering by Javascript
+* RDF output option from checklist evaluation function
+* Command line evaluation can run against RO accessed using ROSRS API
+* Various small bug fixes, refactoring and optimizations
+* Updated sample files and scripts
+
+
 ### Changes for V0.2.7
 
-* Add `ro remove` command, fix URI escaping problems that werer occurring when an RO was created from files containing space or '#' characters
+* Add `ro remove` command, fix URI escaping problems that were occurring when an RO was created from files containing space or '#' characters
 * Add `ro link` command; this works just like `ro annotate`, except that the default treatment of the target value (i.e. for unrecognized annotation types) is as a URI, this providing a mechanism to create arbitrary links between RO resources, or between an RO resource and an external resource.
 * Allow annotation and links  with CURIE (QName) properties.  A predefined set of recognized URI prefixes are defined (see `~/.ro-config`) which can be used to create annotations with CURIES; e.g. `ro link foo rdfs:seeAlso bar`.
 * Create multiple annotations and links with wildcard resource matching; e.g. `ro link -w "/workflow/.*t2flow$" rdf:type wfdesc:Workflow" will create an rdf:type wfdesc:Workflow link for all aggregated resources in a directory named "/Workflow" and with file extension ".t2flow".
 * ROSRS (v6) support
 * Support for checklist evaluation of ROs stored in RODL or some other ROSRS service (used primarily by the `roweb` service component)
 * Decouple MINIM constraints from target RO.  Allow creation of MINIM descriptions that can be applied to arbitrary ROs:  this paves the way for creating and using checklists that encode community norms for RO quality.
+
+
+----
+
+<a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.0/uk/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US">Creative Commons Attribution 2.0 UK: England &amp; Wales License</a>.
 

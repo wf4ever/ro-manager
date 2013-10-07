@@ -14,9 +14,18 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# Make sure MiscLib can be found on path
+# Make sure MiscUtils can be found on path
+# Set up logging
 if __name__ == "__main__":
     sys.path.append(os.path.join(sys.path[0],".."))
+    logging.basicConfig()
+    # Enable debug logging to a file
+    if False:
+        fileloghandler = logging.FileHandler("ro.log","w")
+        fileloghandler.setLevel(logging.DEBUG)
+        filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
+        fileloghandler.setFormatter(filelogformatter)
+        logging.getLogger('').addHandler(fileloghandler)
 
 import ro_settings
 import ro_command
@@ -57,6 +66,16 @@ def run(configbase, options, args):
         status = ro_command.checkout(progname, configbase, options, args)
     elif args[1] == "push":
         status = ro_command.push(progname, configbase, options, args)
+    elif args[1] == "dump":
+        status = ro_command.dump(progname, configbase, options, args)
+    elif args[1] == "manifest":
+        status = ro_command.manifest(progname, configbase, options, args)
+    elif args[1] == "snapshot":
+        status = ro_command.snapshot(progname, configbase, options, args)
+    elif args[1] == "archive":
+        status = ro_command.archive(progname, configbase, options, args)        
+    elif args[1] == "freeze":
+        status = ro_command.freeze(progname, configbase, options, args)
     else:
         print "%s: unrecognized command: %s"%(progname,args[1])
         status = 2
@@ -109,6 +128,9 @@ def parseCommandArgs(argv):
     parser.add_option("-n", "--user-name",
                       dest="username",
                       help="Full name of research objects owner")
+    parser.add_option("-o", "--output",
+                      dest="outformat",
+                      help="Output format to generate: TEXT, RDFXML, TURTLE, etc.")
     parser.add_option("-r", "--rosrs-uri",
                       dest="rosrs_uri",
                       help="URI of ROSRS service")
@@ -134,6 +156,21 @@ def parseCommandArgs(argv):
                       dest="debug",
                       default=False,
                       help="display debug output")
+    parser.add_option("--asynchronous",
+                      action="store_true",
+                      dest="asynchronous",
+                      default=False,
+                      help="perform operation in asynchronous mode")
+    parser.add_option("--freeze",
+                      action="store_true",
+                      dest="freeze",
+                      default=False,
+                      help="snaphot/archive and freeze in one step")
+    parser.add_option("--new",
+                      action="store_true",
+                      dest="new",
+                      default=False,
+                      help="force to create a new RO from zip")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
@@ -152,6 +189,15 @@ def runCommand(configbase, robase, argv):
     (options, args) = parseCommandArgs(argv)
     if not options or options.debug:
         logging.basicConfig(level=logging.DEBUG)
+        if True:
+            # Enable debug logging to a file
+            fileloghandler = logging.FileHandler("ro.log","w")
+            fileloghandler.setLevel(logging.DEBUG)
+            filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
+            fileloghandler.setFormatter(filelogformatter)
+            logging.getLogger('').addHandler(fileloghandler)
+    else:
+        logging.basicConfig(level=logging.INFO)
     log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     status = 1
     if options:

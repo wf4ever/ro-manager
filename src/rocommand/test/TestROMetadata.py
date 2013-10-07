@@ -27,12 +27,13 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_settings
 from rocommand import ro_metadata
 from rocommand import ro_annotation
 from rocommand.ro_namespaces import RDF, RO, AO, ORE, DCTERMS, ROTERMS
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from TestConfig import ro_test_config
 from StdoutContext import SwitchStdout
@@ -78,6 +79,14 @@ class TestROMetadata(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testCreateGraphRoUri2(self):
+        ro_config["rosrs_uri"] = "http://localhost:8000/rovserver/"
+        ro_uri = "http://localhost:8000/rovserver/ROs/0d8b454f/"
+        rosrs_uri = ro_config["rosrs_uri"]
+        romd  = ro_metadata.ro_metadata(ro_config, ro_uri)
+        self.assertEquals(romd.rouri, rdflib.URIRef(ro_uri))
+        return
+
     def testUpdateGraph(self):
         # No separate test - subsumed by other tests?
         return
@@ -90,13 +99,13 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "."
         attrdict = {
-            "type":         "Research Object",
+            "type":         rdflib.Literal("Research Object"),
             # @@TODO: handle lists "keywords":     ["test", "research", "object"],
-            "description":  "Test research object",
-            "format":       "application/vnd.wf4ever.ro",
-            "note":         "Research object created for annotation testing",
-            "title":        "Test research object",
-            "created":      "2011-12-07"
+            "description":  rdflib.Literal("Test research object"),
+            "format":       rdflib.Literal("application/vnd.wf4ever.ro"),
+            "note":         rdflib.Literal("Research object created for annotation testing"),
+            "title":        rdflib.Literal("Test research object"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfile = romd._createAnnotationBody(roresource, attrdict)
         # Ann-%04d%02d%02d-%04d-%s.rdf
@@ -134,11 +143,11 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd  = ro_metadata.ro_metadata(ro_config, rodir)
         roresource = "subdir1/subdir1-file.txt"
         attrdict = {
-            "type":         "Test file",
-            "description":  "File in test research object",
-            "note":         "File in research object created for annotation testing",
-            "title":        "Test file in RO",
-            "created":      "2011-12-07"
+            "type":         rdflib.Literal("Test file"),
+            "description":  rdflib.Literal("File in test research object"),
+            "note":         rdflib.Literal("File in research object created for annotation testing"),
+            "title":        rdflib.Literal("Test file in RO"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfile = romd._createAnnotationBody(roresource, attrdict)
         # Ann-%04d%02d%02d-%04d-%s.rdf
@@ -512,7 +521,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
           ])
         c = 0
         for r in romd.getAggregatedResources():
-            if romd.getResourceType(r) != RO.AggregatedAnnotation:
+            if not romd.hasResourceType(r, RO.AggregatedAnnotation):
                 c += 1
                 self.assertIn(r, resources)
         self.assertEqual(c, len(resources))
@@ -532,14 +541,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         romd.addSimpleAnnotation(roresource, "created",     "2011-12-07")
         romd.addSimpleAnnotation(roresource, "rdf:type",    ROTERMS.resource)
         # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
+        queryprefixes = make_sparql_prefixes()
         query = (queryprefixes +
             """
             ASK
@@ -603,15 +605,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
         annotation_graph_filename = os.path.join(os.path.abspath(rodir), "annotate-none.rdf")
         romd.addGraphAnnotation(roresource, annotation_graph_filename)
         # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
-        query = (queryprefixes +
+        query = (make_sparql_prefixes() +
             """
             ASK
             {
@@ -633,14 +627,7 @@ class TestROMetadata(TestROSupport.TestROSupport):
             "http://andros.zoo.ox.ac.uk/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
             )
         # Query the file anotations
-        queryprefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX roterms:    <http://ro.example.org/ro/terms/>
-            """
+        queryprefixes = make_sparql_prefixes()
         query = (queryprefixes +
             """
             ASK
@@ -850,6 +837,7 @@ def getTestSuite(select="unit"):
             ],
         "integration":
             [ "testIntegration"
+            , "testCreateGraphRoUri2"
             ],
         "pending":
             [ "testPending"

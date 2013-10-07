@@ -1,0 +1,101 @@
+# Present checklist ontology
+
+Prefix: : <http://purl.org/minim/minim#>
+Prefix: minim: <http://purl.org/minim/minim#>
+
+Ontology:  <http://purl.org/minim/minim>
+  # Import: ...
+  # Annotations: ...
+  
+  # Properties
+  # ----------
+    
+  ObjectProperty: hasRequirement
+    # Place holder for minim:hasMustRequirement or minim:hasShouldRequirement or minim:hasMayRequirement
+    Domain: minim:Model
+    Range: minim:Requirement
+  
+  ObjectProperty: minim:hasMustRequirement
+    SubPropertyOf: hasRequirement
+  
+  ObjectProperty: minim:hasShouldRequirement
+    SubPropertyOf: hasRequirement
+  
+  ObjectProperty: minim:hasMayRequirement
+    SubPropertyOf: hasRequirement
+    
+  ObjectProperty: minim:derives
+    Domain: minim:Rule
+    Range: minim:Requirement
+    InverseOf: minim:isDerivedBy
+    
+  ObjectProperty: minim:isDerivedBy
+    Domain: minim:Requirement
+    Range: minim:Rule
+    InverseOf: minim:derives
+    
+  DataProperty: minim:seq
+    Domain: minim:Requirement
+    Range: string
+
+  ObjectProperty: minim:aggregates
+    Domain: minim:DataRequirementRule
+
+  DataProperty: minim:command
+    Domain: minim:SoftwareEnvironmentRule
+    Range: string
+
+  DataProperty: minim:response
+    Domain: minim:SoftwareEnvironmentRule
+    Range: string
+
+  DataProperty: minim:forall
+    Domain: minim:ContentMatchRequirementRule
+    Range: string
+  
+  DataProperty: minim:orderby
+    Domain: minim:ContentMatchRequirementRule
+    Range: string
+  
+  DataProperty: minim:exists
+    Domain: minim:ContentMatchRequirementRule
+    Range: string
+  
+  DataProperty: minim:aggregatesTemplate
+    Domain: minim:ContentMatchRequirementRule
+    Range: string
+  
+  DataProperty: minim:isLiveTemplate
+    Domain: minim:ContentMatchRequirementRule
+    Range: string
+
+  # Classes
+  # -------
+  
+  Class: minim:Model
+    EquivalentTo: hasRequirement only minim:Requirement
+
+  Class: minim:Requirement
+    EquivalentTo: (minim:isDerivedBy exactly 1 minim:Rule) and (minim:seq only string)
+
+  Class: minim:Rule
+    SubClassOf: minim:derives only minim:Requirement
+    EquivalentTo: minim:DataRequirementRule or 
+                  minim:SoftwareEnvironmentRule or 
+                  minim:ContentMatchRequirementRule
+
+  Class: minim:DataRequirementRule
+    EquivalentTo: minim:aggregates exactly 1 owl:Thing
+
+  Class: minim:SoftwareEnvironmentRule
+    EquivalentTo:
+      (minim:command exactly 1 string) and (minim:response exactly 1 string)
+
+  Class: minim:ContentMatchRequirementRule
+    EquivalentTo:
+      (minim:exists exactly 1 string) or
+      ((minim:forall exactly 1 string) and (minim:orderby max 1 string) and
+        ( (minim:exists exactly 1 string) or
+          (minim:aggregatesTemplate exactly 1 string) or
+          (minim:isLiveTemplate exactly 1 string) ) )
+

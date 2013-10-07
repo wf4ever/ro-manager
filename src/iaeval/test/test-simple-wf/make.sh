@@ -2,6 +2,7 @@
 #
 # RO manager script
 #
+# This script is adapted to run from the robase directory used for iaeval testing.
 
 pushd ../robase
 ROBASE=`pwd -P`
@@ -9,7 +10,8 @@ popd
 
 RONAME="test-simple-wf"
 TESTRO="$ROBASE/$RONAME"
-RO="../../../ro"
+TESTRO="."
+RO="../../../../ro"
 
 echo "--------"
 
@@ -20,9 +22,12 @@ $RO config -v \
   -n "Test user" \
   -e "testuser@example.org"
 
-rm -rf $TESTRO
-mkdir $TESTRO
-cp -rv . $TESTRO
+#-- This causes a recursive copy - why is it here?
+#rm -rf $TESTRO
+#mkdir $TESTRO
+#cp -rv . $TESTRO
+
+rm -rf $TESTRO/.ro
 
 $RO create -v "Simple requirements RO" -d $TESTRO -i $RONAME
 

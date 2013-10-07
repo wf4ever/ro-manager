@@ -5,6 +5,7 @@ Research Object management supporting utility functions
 """
 
 import os.path
+from xml.dom import minidom
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -12,10 +13,15 @@ except ImportError:
     import json
 import re
 import logging
-
 log = logging.getLogger(__name__)
 
 CONFIGFILE = ".ro_config"
+
+class EvoType:
+    LIVE=0
+    SNAPSHOT=1
+    ARCHIVE=2
+    UNDEFINED=3
 
 def ronametoident(name):
     """
@@ -120,5 +126,15 @@ def testMap():
     l1 = ["d", "a"]
     l2 = ["f", "e", "c", "a"]
     assert mapmerge(prepend_f("1:"), l1, prepend_f("2:"), l2) == ["1:a", "2:c", "1:d", "2:e", "2:f"]
+
+def parse_job(rosrs,uri):
+    nodes = minidom.parseString(rosrs.doRequest(uri)[-1])
+    job_status = nodes.getElementsByTagName("status")[0].firstChild.nodeValue
+    target_id = nodes.getElementsByTagName("target")[0].firstChild.nodeValue
+    if len(nodes.getElementsByTagName("processed_resources")) == 1 and len(nodes.getElementsByTagName("submitted_resources")) == 1 :
+        processed_resources = nodes.getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+        submitted_resources = nodes.getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+        return (job_status, target_id, processed_resources, submitted_resources)
+    return (job_status, target_id)
 
 # End.

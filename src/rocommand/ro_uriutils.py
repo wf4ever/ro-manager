@@ -1,4 +1,4 @@
-# ro_metadata.py
+# ro_uriutils.py
 
 """
 Helper functions for manipulasting and testing URIs and URI-related file paths,
@@ -11,6 +11,7 @@ import os.path
 import re
 import urllib
 import urlparse
+import httplib
 import logging
 
 import ROSRS_Session
@@ -42,6 +43,7 @@ def resolveFileAsUri(path):
     """
     if urlparse.urlsplit(path).scheme == "":
         path = resolveUri("", fileuribase, os.path.abspath(path))
+        # path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
     return path
 
 def getFilenameFromUri(uri):
@@ -65,9 +67,23 @@ def isLiveUri(uriref):
     if isFileUri(fileuri):
         islive = os.path.exists(getFilenameFromUri(fileuri))
     else:
-        hs = ROSRS_Session(uriref)
-        (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
-        islive = (status == 200)
+        parseduri = urlparse.urlsplit(uriref)
+        scheme    = parseduri.scheme
+        host      = parseduri.netloc
+        path      = parseduri.path
+        if parseduri.query: path += "?"+parseduri.query
+        httpcon   = httplib.HTTPConnection(host, timeout=5)
+        # Extra request headers
+        # ... none for now
+        # Execute request
+        try:
+            httpcon.request("HEAD", path)
+            response = httpcon.getresponse()
+            status   = response.status
+        except:
+            status   = 900
+        # Pick out elements of response
+        islive = (status >= 200) and (status <= 299)
     return islive
 
 def retrieveUri(uriref):

@@ -2,219 +2,593 @@
 <rdf:RDF
   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
   xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:dcterms="http://purl.org/dc/terms/"
   xmlns:result="http://www.w3.org/2001/sw/DataAccess/tests/result-set#"
   xmlns:minim="http://purl.org/minim/minim#"
 >
-  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO">
-    <rdfs:comment>
-          Constraint to be satisfied if the RO is to be repeatable; 
-          i.e. a reviewer can rerun the execution and compare results 
-          with those obtained previously.
-        </rdfs:comment>
 
-    <minim:onResource>
-      <rdf:Description rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/">
-        <minim:testedPurpose>Runnable</minim:testedPurpose>
-        <minim:modelUri rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
-        <minim:minimallySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
-        <minim:satisfied>
-          <rdf:Description rdf:nodeID="_31dc4a62-d208-45b8-aa2a-303abfd259c1">
-            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
-          </rdf:Description>
-        </minim:satisfied>
-        <minim:satisfied>
-          <rdf:Description rdf:nodeID="_5c372831-03a6-4ea9-b5d9-e8e46a01b72b">
-            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
-          </rdf:Description>
-        </minim:satisfied>
-        <minim:satisfied>
-          <rdf:Description rdf:nodeID="_5c454bf3-6573-413f-abbf-7493d8594022">
-            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
-            <result:binding>
-              <rdf:Description rdf:nodeID="_4e49ce06-c848-450d-9261-33843e295927">
-                <result:value>_166b4022-b24b-4b03-afb4-62c3695139a7</result:value>
-                <result:variable>wi</result:variable>
-              </rdf:Description>
-            </result:binding>
-            <result:binding>
-              <rdf:Description rdf:nodeID="_ca8a541d-458c-48a3-903b-e8899644bf7e">
-                <result:value>http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/data/UserRequirements-gen.ods</result:value>
-                <result:variable>if</result:variable>
-              </rdf:Description>
-            </result:binding>
-            <result:binding>
-              <rdf:Description rdf:nodeID="_4541cb21-3e76-4351-bbb2-cc60a8df8eb3">
-                <result:value>http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/docs/mkjson.sh</result:value>
-                <result:variable>wf</result:variable>
-              </rdf:Description>
-            </result:binding>
-          </rdf:Description>
-        </minim:satisfied>
-        <minim:satisfied>
-          <rdf:Description rdf:nodeID="_606f37a9-3d11-41c2-85b0-ae6d94c3a54a">
-            <minim:tryRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
-          </rdf:Description>
-        </minim:satisfied>
-        <minim:testedTarget>.</minim:testedTarget>
-        <minim:fullySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
-        <minim:minimUri rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf"/>
-        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO"/>
-        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO"/>
-        <minim:hasConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO"/>
-        <minim:testedConstraint rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO"/>
-        <minim:nominallySatisfies rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
-      </rdf:Description>
-    </minim:onResource>
-
-    <minim:forPurpose>Repeatable</minim:forPurpose>
-
-    <minim:toModel>
-
-      <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#repeatable_RO_model">
-        <rdfs:label>Repeatable RO</rdfs:label>
-        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
-        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
-        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles"/>
-        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
-        <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
+  <rdf:Description rdf:about="http://purl.org/wf4ever/checklists//runnable-wf-trafficlight/checklist.rdf#constraints">
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable">
+        <minim:toModel rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"/>
         <rdfs:comment>
-      This model defines information that must be available for the 
-      requirements Research Object to be repeatable; i.e. to re-run it and
-      compare results with a previous run.
+          Constraint to be satisfied if the target is to be Runnable
         </rdfs:comment>
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>Runnable</minim:forPurpose>
+      </minim:Constraint>
+    </minim:hasConstraint>
+  </rdf:Description>
+
+  <rdf:Description rdf:about="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/">
+    <rdfs:label>simple-requirements</rdfs:label>
+    <dcterms:identifier>simple-requirements</dcterms:identifier>
+    <dcterms:title>A simple test RO</dcterms:title>
+    <dcterms:description>A simple RO used for testing traffic light display.</dcterms:description>
+    <minim:testedPurpose>Runnable</minim:testedPurpose>
+    <minim:testedTarget rdf:resource="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"/>
+    <minim:testedChecklist rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable"/>
+    <minim:modelUri>
+      <minim:Model rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model">
+        <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"/>
+        <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated"/>
+        <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow"/>
+        <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated"/>
+        <rdfs:comment>
+      This model defines information that must be satisfied by the target RO
+      for the target resource to be Runnable.
+    </rdfs:comment>
+        <minim:hasShouldRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible"/>
+        <minim:hasShouldRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible"/>
+        <rdfs:label>Runnable</rdfs:label>
       </minim:Model>
+    </minim:modelUri>
+    <minim:minimUri rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"/>
+    <minim:minimallySatisfies rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"/>
 
-    </minim:toModel>
+    <minim:satisfied>
+      <rdf:Description rdf:nodeID="N14f101e80fbf4e34a6857ccf8d8594d9">
+        <minim:tryMessage>All declared workflow descriptions are accessible</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Na415aacc8944430bb393b47e7b8eb3fd">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh</result:value>
+            <result:variable>wf</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nc3873afc10834dd5bcd2eed75de6f207">
+            <result:value>None</result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N357c8e90459744d096217990562dd3f8">
+            <result:value>
+          ?wf rdf:type wfdesc:Workflow .
+        </result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N64529c5083a7427296e960e361196911">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Ned84f6a744974cd59cc8ea5ddf5eb372">
+            <result:value>
+          {+wf}
+        </result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N34600c9be2fc4b9dafac405ad75707e5">
+            <result:value>Workflow description %(wf)s is not accessible</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N168638067cc945a598a9d24f6f5bcbec">
+            <result:value>All declared workflow descriptions are accessible</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nccf9c6a6d39b402c8b51600276acd51b">
+            <result:value>None</result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N455e2585cbe64a71afade65090eda9ff">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N409bb61c798f4fb3a71d0dab5d558db2">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N6f9b07ed74a4453193772ae9b6fc8b47">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:satisfied>
 
-  </minim:Constraint>
-
-  <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO_model">
-    <rdfs:label>Reviewable requirements RO</rdfs:label>
-    <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles">
-        <minim:isDerivedBy>
-          <minim:ContentMatchRequirementRule rdf:nodeID="_f055c80b-b29a-4f2c-9183-7d9e6bae1aa2">
-            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
-            <minim:aggregatesTemplate>{+if}</minim:aggregatesTemplate>
-            <minim:showfail>Workflow %(wf)s input %(if)s not found</minim:showfail>
-            <minim:forall>
-          
+    <minim:satisfied>
+      <rdf:Description rdf:nodeID="Ne16f44b4bd1147ae90cc5a911cf97f86">
+        <minim:tryMessage>All declared workflow inputs are aggregated</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N798db70f5f974b82af9aed07ea477bf1">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh</result:value>
+            <result:variable>wf</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nb788e970e00f4ad89bb09b34612461ba">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/data/UserRequirements-bio.ods</result:value>
+            <result:variable>if</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N4712a6043bbd404abf15ffaa624faeb1">
+            <result:value>Workflow %(wf)s input %(if)s is not aggregated</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N8a38c4c1f9a140a0acde2b7696691e20">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N77205ecaa3fa4cc4894b398ec67cc4d0">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N031d067cfc4e41b3a4e013c6955ce5f1">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N78b5246fc94249fcbc0d0e35545864d5">
+            <result:value>
           ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasInput ?wi .
-          ?wi wfdesc:hasArtifact ?if .
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nf3c9000ad7074e88933bd362e1d260eb">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N42e47566815e4452a3624fce9b0a9eae">
+            <result:value>None</result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Naa188129439b4edcb6e5576136446375">
+            <result:value>All declared workflow inputs are aggregated</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nb562460e3f0c4fc8b343fe444ea55384">
+            <result:value>
+          {+if}
+        </result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nc2c4e39e487a484e865b348d90d5c0ed">
+            <result:value>None</result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:satisfied>
+
+    <minim:satisfied>
+      <rdf:Description rdf:nodeID="N1a1d2a1a6caf4d6a85705a29a2c6d7d9">
+        <minim:tryMessage>Workflow input(s) found</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N7fdd868f6d0143c7b0a53be46067410b">
+            <result:value>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N63d79fe877a4499084443184b02dca21">
+            <result:value>None</result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nea955515661945cc9e43d6207741fbf0">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N278e11152b3549a78bd6e3702fc2dc4f">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N78da59603c8e47c890dcd6c470a6bdd3">
+            <result:value>No workflow inputs found</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N7929cd5534e84ce7927d308e18b3e219">
+            <result:value>None</result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nea8a0dbe4acf4bbcb3bb4c38fd8ee3ad">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N1e29de047373443cb077538ce834165b">
+            <result:value>None</result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nd8cbfbe86c6745c98c36cdb40f2e68e9">
+            <result:value>Workflow input(s) found</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N0566883192e742738958a2b2461bf9da">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:satisfied>
+
+    <minim:satisfied>
+      <rdf:Description rdf:nodeID="N94b659214fd5443f999e68a323531fa0">
+        <minim:tryMessage>Workflow description found</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N20f3d9314ca249689fab494fda514167">
+            <result:value>None</result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Ne6918d59f8654c3aa9bc2ab184756a79">
+            <result:value>None</result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nc443f973938e4ecca1a72f564548ceb1">
+            <result:value>Workflow description found</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nb131d2748d5c4440a965463d484eed17">
+            <result:value>No workflow description found</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N1b914784c5ec486280d0c2d4de83b29d">
+            <result:value>None</result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N82409278bddd4f2c84cfb1dd108721d8">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N4e89dc6e23db48dc87403c74c5c27523">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N2914a3a4b2fd4b589bedf1b4cfbbf598">
+            <result:value>
+          ?wf rdf:type wfdesc:Workflow .
+        </result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N0de68a6fbd7a4ae3a91622051ee51974">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N8f30ad493b694b1f9e23399b718f90d7">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:satisfied>
+
+    <minim:satisfied>
+      <rdf:Description rdf:nodeID="N15eeabcfe9164a0eaf1d2366095a0b45">
+        <minim:tryMessage>All declared workflow descriptions are aggregated</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N190f0194798e46489a00fe3b3d63efa4">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N5bb787d238ab43e285463de3fd00f9b9">
+            <result:value>
+          ?wf rdf:type wfdesc:Workflow .
+        </result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N4206deea12c948948db7830323364ed2">
+            <result:value>
+          {+wf}
+        </result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N2935347c588b4084a0d7460e3ca68efa">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N97755a44e1ce45ff8c6ca75398508a98">
+            <result:value>None</result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Na74b8c63c97a4e289e7043aa8e5e37e4">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N065c2f39107e4932b7500a01207b6fd4">
+            <result:value>None</result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N294511f5f9cf42b38d4c4575dd13f11c">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Neb9cb7a8c471478b93840749bb26842c">
+            <result:value>Workflow description %(wf)s is not aggregated</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N65cb150d89094f76aa6000f2c7edd7b4">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh</result:value>
+            <result:variable>wf</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N56f377c2b38f4e08a8a234cbdba5ed2a">
+            <result:value>All declared workflow descriptions are aggregated</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:satisfied>
+
+    <minim:missingShould>
+      <rdf:Description rdf:nodeID="N2c6f7a472ebc4822a54101a3d714bf4d">
+        <minim:tryMessage>Workflow file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh input file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/data/UserRequirements-astro.ods is not accessible</minim:tryMessage>
+        <minim:tryRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible"/>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N75e152bfea1d4222b370aa5869fb9d90">
+            <result:value>
+          {+if}-nothere
+        </result:value>
+            <result:variable>islive</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N7ae3bf8bf3c0436b921ea8ef93aea20f">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/docs/mkjson.sh</result:value>
+            <result:variable>wf</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N96827671d45446878fc0ec4275c9972e">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetro</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nb50bb499d5f04d28be3db87fc89e4581">
+            <result:value>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </result:value>
+            <result:variable>forall</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Nc29ef30f76ca4dc2ae5fb0bac0c0a7c4">
+            <result:value>None</result:value>
+            <result:variable>template</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N7be618ea8c2e44d59b53a43cfb320c2a">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/data/UserRequirements-astro.ods</result:value>
+            <result:variable>if</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N45164546cca542d5bc8f56ab2157ff41">
+            <result:value>None</result:value>
+            <result:variable>exists</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N6f47bf6833c84814aca983a0e8597d4e">
+            <result:value>None</result:value>
+            <result:variable>show</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N85e18091f77541c6a6e15b72838e4d20">
+            <result:value>file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/</result:value>
+            <result:variable>targetres</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="N55f37fb312764d22af8ada512219056b">
+            <result:value>Workflow %(wf)s input %(if)s is not accessible</result:value>
+            <result:variable>showfail</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Ndd585d6a6a1d4a9dbe39a00bf00ad1bc">
+            <result:value>None</result:value>
+            <result:variable>onresource</result:variable>
+          </rdf:Description>
+        </result:binding>
+        <result:binding>
+          <rdf:Description rdf:nodeID="Ndedf9c7e57a044d6bf25224e88a12ffb">
+            <result:value>All declared workflow inputs are accessible</result:value>
+            <result:variable>showpass</result:variable>
+          </rdf:Description>
+        </result:binding>
+      </rdf:Description>
+    </minim:missingShould>
+
+  </rdf:Description>
+
+
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule rdf:nodeID="N0157aa132d094765850a850d6dfcdfa6">
+        <minim:aggregatesTemplate>
+          {+wf}
+        </minim:aggregatesTemplate>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow .
         </minim:forall>
-            <minim:showpass>All workflow inputs referenced or present</minim:showpass>
-          </minim:ContentMatchRequirementRule>
-        </minim:isDerivedBy>
-      </minim:Requirement>
-    </minim:hasMustRequirement>
-    <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-run">
-        <minim:isDerivedBy>
-          <minim:ContentMatchRequirementRule rdf:nodeID="_d9bf372e-9e19-4503-9596-d72930c5d373">
-            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-run"/>
-            <minim:showfail>No workflow run found</minim:showfail>
-            <minim:exists>
-          ?wf rdf:type wfprov:WorkflowRun .
+        <minim:showpass>All declared workflow descriptions are aggregated</minim:showpass>
+        <minim:showfail>Workflow description %(wf)s is not aggregated</minim:showfail>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule rdf:nodeID="Nf204f480a24749e4ab67179b3a7fd1dd">
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow .
+        </minim:forall>
+        <minim:showpass>All declared workflow descriptions are accessible</minim:showpass>
+        <minim:showfail>Workflow description %(wf)s is not accessible</minim:showfail>
+        <minim:isLiveTemplate>
+          {+wf}
+        </minim:isLiveTemplate>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule rdf:nodeID="N18813926b4e64b42b677a6c064456e11">
+        <minim:showpass>Workflow input(s) found</minim:showpass>
+        <minim:showfail>No workflow inputs found</minim:showfail>
+        <minim:exists>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
         </minim:exists>
-            <minim:showpass>Workflow run found</minim:showpass>
-          </minim:ContentMatchRequirementRule>
-        </minim:isDerivedBy>
-      </minim:Requirement>
-    </minim:hasMustRequirement>
-    <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance">
-        <minim:isDerivedBy>
-          <minim:ContentMatchRequirementRule rdf:nodeID="_3df93ac4-7cad-46bd-9c17-c27593eeeda3">
-            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
-            <minim:showfail>No workflow instance or template found</minim:showfail>
-            <minim:exists>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule rdf:nodeID="Na335d32d5dd4449f8488f5540c3ac6e7">
+        <minim:showpass>Workflow description found</minim:showpass>
+        <minim:showfail>No workflow description found</minim:showfail>
+        <minim:exists>
           ?wf rdf:type wfdesc:Workflow .
         </minim:exists>
-            <minim:showpass>Workflow instance or template found</minim:showpass>
-          </minim:ContentMatchRequirementRule>
-        </minim:isDerivedBy>
-      </minim:Requirement>
-    </minim:hasMustRequirement>
-    <minim:hasMustRequirement>
-      <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles">
-        <minim:isDerivedBy>
-          <minim:ContentMatchRequirementRule rdf:nodeID="_4fa764ae-867b-4ccc-8a12-89167d4ef8ee">
-            <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-outputfiles"/>
-            <minim:aggregatesTemplate>{+of}</minim:aggregatesTemplate>
-            <minim:showfail>Workflow %(wf)s output %(of)s not found</minim:showfail>
-            <minim:forall>
-          
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_aggregated">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule rdf:nodeID="N98af81d1e2b440d78302c51cd6bcdc45">
+        <minim:aggregatesTemplate>
+          {+if}
+        </minim:aggregatesTemplate>
+        <minim:forall>
           ?wf rdf:type wfdesc:Workflow ;
-              wfdesc:hasOutput ?wo .
-          ?wo wfdesc:hasArtifact ?of .
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
         </minim:forall>
-            <minim:showpass>All workflow outputs referenced or present</minim:showpass>
-          </minim:ContentMatchRequirementRule>
-        </minim:isDerivedBy>
-      </minim:Requirement>
-    </minim:hasMustRequirement>
-    <rdfs:comment>
-      This model defines information that must be available for the 
-      requirements Research Object to be reviewable; i.e. so that a reviewer
-      can see all the workflow executions, with inputs and outputs generated.
-      
-      (This does not require visibility of intermediate steps within the WF.)
-    </rdfs:comment>
-  </minim:Model>
-
-  <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show">
-    <minim:isDerivedBy>
-      <minim:SoftwareEnvironmentRule rdf:nodeID="_e2198628-6bbb-49c0-9c3f-66269bdc5072">
-        <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
-        <minim:show>lpOD command %(command)s returns %(response)s</minim:show>
-        <minim:command>lpod-show.py --version</minim:command>
-        <minim:response>0.9.3</minim:response>
-      </minim:SoftwareEnvironmentRule>
+        <minim:showpass>All declared workflow inputs are aggregated</minim:showpass>
+        <minim:showfail>Workflow %(wf)s input %(if)s is not aggregated</minim:showfail>
+      </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
   </minim:Requirement>
-  <minim:Requirement rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python">
+  <minim:Requirement rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible">
     <minim:isDerivedBy>
-      <minim:SoftwareEnvironmentRule rdf:nodeID="_1db289c3-3900-409c-9d7a-af9a9b5830e8">
-        <minim:derives rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
-        <minim:show>Installed python version %(response)s</minim:show>
-        <minim:command>python --version</minim:command>
-        <minim:response>Python 2.7</minim:response>
-      </minim:SoftwareEnvironmentRule>
+      <minim:ContentMatchRequirementRule rdf:nodeID="N6dd04c15a94842668b7cef5997feb4b1">
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              wfdesc:hasInput [ wfdesc:hasArtifact ?if ] .
+        </minim:forall>
+        <minim:showpass>All declared workflow inputs are accessible</minim:showpass>
+        <minim:showfail>Workflow %(wf)s input %(if)s is not accessible</minim:showfail>
+        <minim:isLiveTemplate>
+          {+if}
+        </minim:isLiveTemplate>
+      </minim:ContentMatchRequirementRule>
     </minim:isDerivedBy>
   </minim:Requirement>
-
-  <minim:Model rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model">
-    <rdfs:label>Runnable RO</rdfs:label>
-    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/lpod-show"/>
-    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#environment-software/python"/>
-    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-instance"/>
-    <minim:hasMustRequirement rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#isPresent/workflow-inputfiles"/>
-    <rdfs:comment>
-      This model defines information that must be available for the 
-      requirements Research Object to be runnable.
-    </rdfs:comment>
-  </minim:Model>
-
-  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO">
-    <rdfs:comment>
-          Constraint to be satisfied if the RO is to be reviewable; 
-          i.e. a reviewer can retrace the execution steps, including inputs and outputs, 
-          and appropriate annotations, without actually running the RO.
-        </rdfs:comment>
-    <minim:onResource rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"/>
-    <minim:forPurpose>Reviewable</minim:forPurpose>
-    <minim:toModel rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#reviewable_RO_model"/>
-  </minim:Constraint>
-
-  <minim:Constraint rdf:about="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO">
-    <rdfs:comment>
-          Constraint to be satisfied if the RO is to be runnable
-        </rdfs:comment>
-    <minim:onResource rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"/>
-    <minim:forPurpose>Runnable</minim:forPurpose>
-    <minim:toModel rdf:resource="http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/simple-requirements-minim.rdf#runnable_RO_model"/>
-  </minim:Constraint>
-
 </rdf:RDF>
-

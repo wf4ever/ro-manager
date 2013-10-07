@@ -15,6 +15,13 @@ which corresponds very well with your proposal of which functions to tackle init
 
 TODO:
 
+Priority for checklist:
+* Include Minim prefixes in query
+* Check out SPARQL filter problem (see chembox checklist for ChemSpider ID)
+* Update MANIFGEST.in - I think that may be why some files aren't getting installed via PyPI
+
+
+Others:
 * When creating resource, try to guess or retain media type information
 * Update documentation to reflect new link command
 * ro show config
@@ -23,30 +30,75 @@ TODO:
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
 ** See: https://www.pivotaltracker.com/story/show/26123933
-** Test that aggregated files actually exist - part of liveness?
 ** Target specification is very error prone
 ** Error handling when target not found is poor
 
-* ro users
+* Mechanism to define new SPARQL prefixes in Minim file/model
+* Include means to include external resource in a query
+* Include means to handle RuleTest in minim creation
+* Complete validation of chembox data (with performance enhancements?)
 * ro create: create manifest file via rdflib serialization
 * Options to return JSON/RDF info for use by other apps?
-* Options for RO logging of changes, etc
-* ro list currently shows only files: want to show directories too?
+  (done for eval checklist; annotations, list todo)
+* Options for RO logging of changes, etc.
+* ro annotations does not work for RO accessed by HTTP
 
-Other functions:
-- display serialization of manifest graph
-- display serialization of annotation graph
+* RO folder support
+
+Bug in results model.  If the same target is evaluated using the same model in the context of two different ROs, with different results, the resulting combined graph is ambiguous.  An additional node is needed to create a 3-way satisfaction relation between RO, target, minim.  Fix, I think is to introduce a result node to replace ResearchObject, then have link from RO to the result node (or maybe the other way round).
 
 Technical debt:
 - Mop up @@TODOs
-- new test cases for evaluation
-- Check out rdflib sparql query bnode bug - is it fixed? (I think it is - test cases to revert?)
+- web service return sensible error when RO or minim resource cannot be retrieved
+- checklist display should escape tag-brackets in RO title and description
+- checklist/constraint selection logic is a bit of a mess.  Tidy up and withdraw old logic.
+- refactor minim:showmiss handling so that item result can be more than just satisfied T/F;  allow the renderer to decide whether to show this as OK, fail or something else.  E.g. return pass/fail/miss and select message template accordingly; add "miss" to style options returned.
+- remove RDF format parameter when parsing minim (cf. https://jira.man.poznan.pl/jira/browse/WFE-744)
+- Check out rdflib sparql query bnode bug - is it fixed?
+  (It was fixed, but a similar problem with query parameter ordering has been found.)
+  (Workaround: don't use SELECT *, but name variables explicitly.)
 - See also SC47 page - http://www.wf4ever-project.org/wiki/pages/viewpage.action?pageId=3506198
-- See also decay detection with checklist
+- See also decay detection with checklist ???
+- replace sparql prefixes in TrafficLightReports.py
+- format guessing: see http://rdflib.readthedocs.org/en/latest/apidocs/rdflib.html#rdflib.util.guess_format
+- Minim liveness follows redirection?
+- Fix bug in checklist evaluation service with wrong content negotiated type - wrong response if content negotiate for bad type
+- Namespace test in checklist eval (cf. qSKOS) - can do with SPARQL 1.1?
+
 
 ----
 
+WONTDO
+
+Technical debt:
+- add minim:query_select to minim model & ontology & diagram
+
+* ro users
+
+
 DONE
+
+* Generate label for target resource; use in checklists
+
+Technical debt:
+- new test cases for evaluation
+- ro-manager-test problem: https://jira.man.poznan.pl/jira/browse/WFE-1154 (partial: still doesn't work with PyPI installation.  Documentation updated.)
+- test with latest rdflib, update dependencies
+- try new rdflib SPARQL processor as drop-in for rdfextras 
+- role of onresource / onresourcetemplate in constraint is unclear (to me!)
+-- eliminate these from model as they seem to serve no purpose.
+-- Start by removing code in minim.py, then chase through test case failures.
+-- Finally, remove from all minim model files.
+- refactor minim so that checklist ordering is defined by model, not rules
+-- (sort-of done: Minim creator uses bklank node for Requirements, and labels the rules.)
+- Update home page of web service; esp links; also link to API description in wf4ever wiki
+
+Display serialization of manifest graph (ro manifest)
+
+* ro eval checklist
+** Test that aggregated files actually exist - part of liveness?
+
+/ display serialization of annotation graph
 
 * Refactor sync code to use ro_metadata/ROSRS_Session to access manifest?
 
@@ -116,7 +168,7 @@ Option table
   -l,  "--report-level",        help="Reporting level of detail to generate (summary, must, should, may or full)"
   -m
 ("-n", "--user-name",           help="Full name of research objects owner")
-  -o
+("-o", "--output",              help="Output format to generate: text, rdfxml, turtle")
 ("-p", "--rosrs-password",      help="ROSRS password")
   -q
 ("-r", "--rosrs-uri",           help="URI of ROSRS service")

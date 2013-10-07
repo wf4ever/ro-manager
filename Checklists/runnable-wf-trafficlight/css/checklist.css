@@ -3,6 +3,16 @@
     font-size: x-large;
 }
 
+th {
+    font-weight: bold;
+    text-align: left;
+}
+
+th p {
+    font-weight: normal;
+    text-align: left;
+}
+
 .trafficlight {
     text-align: center;
     background-repeat: no-repeat;

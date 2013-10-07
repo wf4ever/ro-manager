@@ -83,3 +83,4 @@ Thumbs.db
 /src/dist
 /src/samples/robase
 /src/ro_manager.egg-info
+.ro_config

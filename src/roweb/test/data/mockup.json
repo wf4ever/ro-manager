@@ -1,49 +1,51 @@
-{ 'rouri':                  "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"
-, 'roid':                   "simple-requirements"
-, 'checklisturi':           "http://example.org/checklist-runnable.rdf"
-, 'checklisttarget':        "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"
-, 'checklisttargetlabel':   "simple-requirements"
-, 'checklistpurpose':       "Runnability"
-, 'checklistresult':        "http://purl.org/minim/minim#nominallySatisfies"
-, 'checklistresultlabel':   "nominally satisfies"
-, 'checklistresultclass':   "amber"
-, 'checklistitems':
+{ "rouri":                  "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"
+, "roid":                   "simple-requirements"
+, "rotitle":                "simple-requirements"
+, "checklisturi":           "http://example.org/checklist-runnable.rdf"
+, "checklisttarget":        "http://sandbox.wf4ever-project.org/rodl/ROs/simple-requirements/"
+, "checklisttargetid":      "simple-requirements"
+, "checklisttargetlabel":   "simple-requirements"
+, "checklistpurpose":       "Runnability"
+, "checklistresult":        "http://purl.org/minim/minim#nominallySatisfies"
+, "checklistresultlabel":   "minimally satisfies"
+, "checklistresultclass":   ["fail","should"]
+, "checklistitems":
   [ 
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#has_workflow"
-    , 'itemlabel':      "Workflow is present"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-    , 'itemsatisfied':  True
-    , 'itemclass':      "green"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#has_workflow"
+    , "itemlabel":      "Workflow is present"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement"
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass","must"]
     },
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#workflows_aggregated"
-    , 'itemlabel':      "All declared workflow descriptions are aggregated"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-    , 'itemsatisfied':  True
-    , 'itemclass':      "green"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#workflows_aggregated"
+    , "itemlabel":      "All declared workflow descriptions are aggregated"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement"
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass","must"]
     },
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#workflows_accessible"
-    , 'itemlabel':      "All declared workflow descriptions are accessible"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-    , 'itemsatisfied':  True
-    , 'itemclass':      "green"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#workflows_accessible"
+    , "itemlabel":      "All declared workflow descriptions are accessible"
+    , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement"
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass","should"]
     },
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#has_workflow_inputs"
-    , 'itemlabel':      "Workflow inputs are present"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-    , 'itemsatisfied':  True
-    , 'itemclass':      "green"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#has_workflow_inputs"
+    , "itemlabel":      "Workflow inputs are present"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement"
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass","must"]
     },
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#workflow_inputs_aggregated"
-    , 'itemlabel':      "All declared workflow inputs are aggregated"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasMustRequirement"
-    , 'itemsatisfied':  True
-    , 'itemclass':      "green"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#workflow_inputs_aggregated"
+    , "itemlabel":      "All declared workflow inputs are aggregated"
+    , "itemlevel":      "http://purl.org/minim/minim#hasMustRequirement"
+    , "itemsatisfied":  true
+    , "itemclass":      ["pass","must"]
     },
-    { 'itemuri':        "http://example.org/checklist-runnable.rdf#workflow_inputs_accessible"
-    , 'itemlabel':      "Workflow %(wf)s input %(if)s is not accessible"
-    , 'itemlevel':      "http://purl.org/minim/minim#hasShouldRequirement"
-    , 'itemsatisfied':  False
-    , 'itemclass':      "amber"
+    { "itemuri":        "http://example.org/checklist-runnable.rdf#workflow_inputs_accessible"
+    , "itemlabel":      "Workflow %(wf)s input %(if)s is not accessible"
+    , "itemlevel":      "http://purl.org/minim/minim#hasShouldRequirement"
+    , "itemsatisfied":  false
+    , "itemclass":      ["fail","should"]
     },
   ]
 }

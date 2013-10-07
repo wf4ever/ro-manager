@@ -1,0 +1,11 @@
+RO:
+http://sandbox.wf4ever-project.org/rodl/ROs/Y2Demo-test/
+/usr/workspace/wf4ever-ro-catalogue/v0.1/Y2Demo-test/
+
+Checklist:
+/usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf
+
+[[[file://localhost/usr/workspace/wf4ever-ro-catalogue/v0.1/Y2Demo-test/]]]
+
+Trafficlight URI:
+http://localhost:8080/evaluate/trafficlight_html?RO=/usr/workspace/wf4ever-ro-catalogue/v0.1/Y2Demo-test/&minim=/usr/workspace/wf4ever-ro-manager/Checklists/workflow-experiment/checklist.rdf&purpose=Complete

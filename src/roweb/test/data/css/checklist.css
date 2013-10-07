@@ -9,6 +9,16 @@
     background-position: center;
 }
 
+th {
+    font-weight: bold;
+    text-align: left;
+}
+
+th p {
+    font-weight: normal;
+    text-align: left;
+}
+
 /*
 .trafficlight.large {
     width: 64px;
@@ -23,6 +33,14 @@
 }
 */
 
+span.testresult {
+    font-style: italic;
+}
+
+span.testpurpose {
+    font-style: italic;
+}
+
 .trafficlight.large div {
     width: 64px;
     height: 64px;
@@ -33,27 +51,27 @@
     height: 32px;
 }
 
-.trafficlight.large.green {
-    background-image: url(images/button_green_64.png);
+.trafficlight.large.pass {
+    background-image: url(images/green_check_64.png);
 }
 
-.trafficlight.small.green {
-    background-image: url(images/button_green_32.png);
+.trafficlight.small.pass {
+    background-image: url(images/green_check_32.png);
 }
 
-.trafficlight.large.amber {
-    background-image: url(images/button_yellow_64.png);
+.trafficlight.large.fail.should {
+    background-image: url(images/amber_circle_64.png);
 }
 
-.trafficlight.small.amber {
-    background-image: url(images/button_yellow_32.png);
+.trafficlight.small.fail.should {
+    background-image: url(images/amber_cross_32.png);
 }
 
-.trafficlight.large.red {
-    background-image: url(images/button_red_64.png);
+.trafficlight.large.fail.must {
+    background-image: url(images/red_cross_64.png);
 }
 
-.trafficlight.small.red {
-    background-image: url(images/button_red_32.png);
+.trafficlight.small.fail.must {
+    background-image: url(images/red_cross_32.png);
 }
 
