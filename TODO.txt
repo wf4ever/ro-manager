@@ -18,7 +18,7 @@ TODO:
 Priority for checklist:
 * Include Minim prefixes in query
 * Check out SPARQL filter problem (see chembox checklist for ChemSpider ID)
-* Update MANIFGEST.in - I think that may be why some files aren't getting installed via PyPI
+* Update MANIFEST.in - I think that may be why some files aren't getting installed via PyPI
 
 
 Others:
@@ -29,7 +29,6 @@ Others:
 
 * ro eval checklist
 ** See: http://www.wf4ever-project.org/wiki/display/docs/Integrity+and+Authenticity+component
-** See: https://www.pivotaltracker.com/story/show/26123933
 ** Target specification is very error prone
 ** Error handling when target not found is poor
 
@@ -41,7 +40,7 @@ Others:
 * Options to return JSON/RDF info for use by other apps?
   (done for eval checklist; annotations, list todo)
 * Options for RO logging of changes, etc.
-* ro annotations does not work for RO accessed by HTTP
+* ro annotations does not work for RO accessed by HTTP - login in ro_metadata uses ro_annotation module.
 
 * RO folder support
 

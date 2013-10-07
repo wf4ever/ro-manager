@@ -35,7 +35,30 @@ PREFIXES = (
     , ("foaf",    "http://xmlns.com/foaf/0.1/" )
     ])
 
-def mkannotation(key, size, baseuri=None):
+RESNAMETEMPLATE = "res%d"
+RESREFTEMPLATE  = "subject/res%d.txt"
+RESDIR          = "subject"
+ANNGROUPTEMPLATE   = """
+    @prefix ex: <http://example.org/> .
+
+    <%(base)ssubject/%(key)s.txt>
+        ex:key1 "simple literal" ;
+        ex:key2 <http://example.org/object/%(key)s/%(subkey)s> ;
+        ex:key3 [ a ex:blanknode ;
+            ex:key31 "another literal" ;
+            ex:key32 <http://example.org/object32/%(key)s/%(subkey)s> ;
+            ex:key33 33 ;
+            ex:key34 [ a ex:blanknode ;
+                ex:key341 "and yet another literal" ;
+                ex:key342 <http://example.org/object342/%(key)s/%(subkey)s> ;
+                ex:key343 333 ;
+                ]
+            ]
+        .
+    """
+
+
+def mkannotation(base, key, size, baseuri=None):
     """
     Generate annotation graph.
 
@@ -44,41 +67,28 @@ def mkannotation(key, size, baseuri=None):
 
     Returns RDF annotation graph
     """
-    grouptemplate = """
-        @prefix ex: <http://example.org/> .
-
-        <http://example.org/subject/%(key)s/%(subkey)s>
-            ex:key1 "simple literal" ;
-            ex:key2 <http://example.org/object/%(key)s/%(subkey)s> ;
-            ex:key3 [ a ex:blanknode ;
-                ex:key31 "another literal" ;
-                ex:key32 <http://example.org/object32/%(key)s/%(subkey)s> ;
-                ex:key33 33 ;
-                ex:key34 [ a ex:blanknode ;
-                    ex:key341 "and yet another literal" ;
-                    ex:key342 <http://example.org/object342/%(key)s/%(subkey)s> ;
-                    ex:key343 333 ;
-                    ]
-                ]
-            .
-        """
     # Create RDF graph and initialize Minim graph creation
     anngr = rdflib.Graph()
     for i in range(size):
-        d = { "key": key, "subkey": "sub"+str(i) }
-        anngr.parse(data=(grouptemplate%d), format="text/turtle")
+        d = { "base": base, "key": key, "subkey": "obj"+str(i) }
+        anngr.parse(data=(ANNGROUPTEMPLATE%d), format="text/turtle")
     return anngr
+
 
 def mkro(filebase, options):
     # Sort out RO directory, etc
+    roname  = options.roname or "benchmark_ro"
     robase  = os.path.realpath(filebase)
-    rodir   = os.path.abspath(os.path.join(robase, options.roname))
+    rodir   = os.path.abspath(os.path.join(robase, roname))
     baseuri = "file://" + rodir + "/"
     log.debug("rodir:        " + rodir)
     manifestdir = os.path.join(rodir, ro_settings.MANIFEST_DIR)
     log.debug("manifestdir:  " + manifestdir)
     manifestfile = os.path.join(manifestdir, ro_settings.MANIFEST_FILE)
     log.debug("manifestfile: " + manifestfile)
+    subjectdir = os.path.join(rodir, RESDIR)
+
+    # Create directory for manifest, etc.
     try:
         os.makedirs(manifestdir)
     except OSError:
@@ -90,6 +100,18 @@ def mkro(filebase, options):
         else:
             # There was an error on creation, so make sure we know about it
             raise
+
+    # Create directory for subject resources
+    try:
+        os.makedirs(subjectdir)
+    except OSError:
+        if os.path.isdir(subjectdir):
+            # Someone else created it...
+            pass
+        else:
+            # There was an error on creation, so make sure we know about it
+            raise
+
     # Create manifest graph
     mangr       = rdflib.Graph()
     rouri       = rdflib.URIRef(baseuri)
@@ -108,6 +130,15 @@ def mkro(filebase, options):
     mangr.add( (n,     RDF.type,            RO.AggregatedAnnotation)       )
     mangr.add( (n,     RO.annotatesAggregatedResource, rouri)              )
     mangr.add( (n,     AO.body,             manifesturi)                   )
+
+    # Create aggregated resources to annotate
+    annresref = [ RESREFTEMPLATE%(anum) for anum in range(options.num_annotations)]
+    for resref in annresref:
+        resstr  = open("%s/%s"%(roname,resref), "w")
+        resstr.write("Annotated resource %s\n"%(resref))
+        resstr.close()
+        mangr.add( (rouri, ORE.aggregates, rdflib.URIRef(rouri+resref)) )
+
     # Create annotations
     if options.outformat in ["turtle", "text/turtle"]:
         outext = ".ttl"
@@ -116,8 +147,8 @@ def mkro(filebase, options):
     elif options.outformat in ["xml", "rdfxml", "application/rdf+xml"]:
         outext = ".rdf"
     for anum in range(options.num_annotations):
-        key = "ann%d"%anum
-        anngr = mkannotation(key, options.size_annotations, baseuri=rouri)
+        key = RESNAMETEMPLATE%anum
+        anngr = mkannotation(baseuri, key, options.size_annotations, baseuri=rouri)
         annfile = os.path.join(manifestdir, key+outext)
         annuri  = rdflib.URIRef("file://"+annfile)
         annstr  = open(annfile, "w")
@@ -129,6 +160,7 @@ def mkro(filebase, options):
         mangr.add( (n,     RDF.type,            RO.AggregatedAnnotation) )
         mangr.add( (n,     RO.annotatesAggregatedResource, rouri)        )
         mangr.add( (n,     AO.body,             annuri)                  )
+
     # Serialize manifest graph
     manstr  = open(manifestfile, "w")
     mangr.serialize(manstr, format=ro_settings.MANIFEST_FORMAT)

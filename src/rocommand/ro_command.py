@@ -583,23 +583,6 @@ def list(progname, configbase, options, args):
             print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
         rouri  = ro_dir
 
-# @@@@@@@@@
-
-    # if not ro_options['rouri']:
-    #     rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
-    #     if not rouri: return 1
-    #     if options.verbose:
-    #         print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
-    # else:
-    #     if ro_options['rodir']:
-    #         print ("%s: specify either RO directory or URI, not both" % (cmdname))
-    #         return 1
-    #     rouri = ro_options['rouri']
-    #     if options.verbose:
-    #         print cmdname + (" \"%(rouri)s\" " % ro_options)
-
-# @@@@@@@@@
-
     # Prepare to display aggregated resources
     prep_f = ""
     prep_a = ""
@@ -705,6 +688,8 @@ def annotations(progname, configbase, options, args):
 
     ro annotations [ file | -d dir ]
     """
+    # @@TODO: although a URI is accepted on the command line, the actual display logic assumes
+    #         a local file when displaying annotations.
     log.debug("annotations: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
     ro_config = getroconfig(configbase, options)
