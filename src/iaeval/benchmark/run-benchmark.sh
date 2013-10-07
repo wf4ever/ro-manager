@@ -6,8 +6,10 @@
 
 BMLIST=""
 
-if True; then
-  BMLIST_10="1 1 5 10 20 50 100 200 500 1000"
+DEBUG="False"
+
+if [ "$DEBUG" == "False" ] ; then
+  BMLIST_10="1 2 5 10 20 50 100 200 500 1000"
   BMLIST_100="1 2 5 10 20 50 100 200 500"
   BMLIST_1000="1 2 5 10 20 50 100"
   BMLIST_10000="1 2 5 10 20"
