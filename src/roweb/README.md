@@ -131,6 +131,12 @@ The checklist web service main program is `src/roweb/rowebservices.py`, where fu
 * Kevin Page, Raúl Palma, Piotr Holubowicz, Graham Klyne, Stian Soiland-Reyes, Don Cruickshank, Rafael González Cabero, Esteban García, David De Roure Cuesta, Jun Zhao, José Manuel Gómez-Pérez. _From workflows to Research Objects: an architecture for preserving the semantics of science_. The Second Linked Science Workshop at ISWC Boston, USA November, 2012
 * Jun Zhao, Graham Klyne, Matthew Gamble and Carole Goble. _A Checklist-Based Approach for Quality Assessment of Scientific Information_.  LISC2013: 3rd International Workshop on Linked Science at ISWC 2013 in Sydney ([http://linkedscience.org/events/lisc2013/]())
 
+# Acknowledgement
+
+![Wf4Ever project](http://sandbox.wf4ever-project.org/portal/images/wf4ever_logo.png)
+
+This software has been developed by University of Oxford as part of the [Wf4Ever project](http://www.wf4ever-project.org).
+
 ----
 
 <a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by/2.0/uk/80x15.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/2.0/uk/deed.en_US">Creative Commons Attribution 2.0 UK: England &amp; Wales License</a>.
