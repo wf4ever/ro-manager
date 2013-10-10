@@ -19,7 +19,10 @@ import rdflib
 #import rdflib.namespace
 #from rdflib import URIRef, Namespace, BNode
 #from rdflib import Literal
-from uritemplate import uritemplate
+try:
+    from uritemplate import uritemplate
+except ImportError:
+    import uritemplate
 
 from rocommand.ro_uriutils   import isLiveUri, resolveUri
 from rocommand.ro_namespaces import RDF, RDFS, ORE, DCTERMS
@@ -143,6 +146,7 @@ def evaluate(rometa, minim, target, purpose):
     requirements = ro_minim.getRequirements(minimgraph, model['uri'])
     # Evaluate the individual model requirements
     reqeval = []
+    # requirements = [] # SHORT_CIRCUIT ACTUAL EVALUATION FOR BENCHMARKING
     for r in requirements:
         if 'datarule' in r:
             # @@TODO: factor to separate function?

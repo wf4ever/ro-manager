@@ -31,20 +31,18 @@ This is a web server application that performs checklist evaluation of Research 
 
 More information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roweb/README.md]).
 
-[src/roweb/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roweb/README.md "README for RO Checklist service"
-
-<!-- , built using the [Pyramid](http://www.pylonsproject.org) framework, -->
+[src/roweb/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roweb/README.md "README for RO Checklist evaluation service"
 
 
 ## roverlay
 
-This is a web server application and associatred command line utilty, providing a fast, lighweight way to create Research Objects from existing linked data on the Web.  General user and developer documentation is at [src/roverlay/roverlay.md].
+This is a web server application and associated command line utilty, providing a fast, lighweight way to create Research Objects from existing linked data on the Web.  General user and developer documentation is at [src/roverlay/roverlay.md].
 
 Summary information, including installation and deployment instructions can be found in the README file in the project `src/roweb` directory ([src/roverlay/README.md]).
 
 [src/roverlay/roverlay.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/roverlay.md "Documentation for Overlay RO service"
 
-[src/roverlay/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/README.md "README for RO Checklist service"
+[src/roverlay/README.md]: https://github.com/wf4ever/ro-manager/blob/master/src/roverlay/README.md "README for Overlay RO service"
 
 
 # Git branch usage

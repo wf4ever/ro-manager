@@ -78,7 +78,7 @@ def getroconfig(configbase, options, rouri=None):
         ro_config['rosrs_uri'] = rouri
     return ro_config
 
-def ro_root_directory(cmdname, ro_config, rodir):
+def ro_root_directory(cmdname, ro_config, rodir, restricted=True):
     """
     Find research object root directory
 
@@ -87,7 +87,10 @@ def ro_root_directory(cmdname, ro_config, rodir):
     """
     # log.debug("ro_root_directory: cmdname %s, rodir %s"%(cmdname, rodir))
     # log.debug("                   ro_config %s"%(repr(ro_config)))
-    ro_dir = ro_utils.ropath(ro_config, rodir)
+    if restricted:
+        ro_dir = ro_utils.ropath(ro_config, rodir)
+    else:
+        ro_dir = os.path.abspath(rodir)
     if not ro_dir:
         print ("%s: indicated directory not in configured research object directory tree: %s (%s)" % 
                (cmdname, rodir, ro_config['robase']))
@@ -111,18 +114,31 @@ def ro_root_directory(cmdname, ro_config, rodir):
            (cmdname, ro_dir))
     return None
 
-def ro_root_reference(cmdname, ro_config, rodir):
+def ro_root_reference(cmdname, ro_config, rodir, roref=None):
     """
     Find research object root directory.  If the supplied rodir is not a local file
     reference, it is returned as-is, otherwise ro_root_directory is used to locate
     the RO root directory containing the indicated file.
 
+    cmdname     name of ro command, used in diagnostic messages
+    ro_config   RO configuration details, used when resolving supplied directory
+    rodir       RO directory supplied via -d option.  Must be in configured work area.
+    roref       RO reference, supplied by other means, or None.  May be any URI reference,
+                resolved against base of file URI for current directory.
+
     Returns directory path string, or None if not found, in which
     case an error message is displayed.
     """
-    roref = ro_uriutils.resolveFileAsUri(rodir)
-    if ro_uriutils.isFileUri(roref):
-        roref = ro_root_directory(cmdname, ro_config, rodir)
+    if not roref:
+        # Process supplied directory option
+        roref = ro_uriutils.resolveFileAsUri(rodir)
+        if ro_uriutils.isFileUri(roref):
+            roref = ro_root_directory(cmdname, ro_config, rodir, restricted=False)
+    else:
+        if rodir:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        roref = ro_uriutils.resolveFileAsUri(roref)
     return roref
 
 # Argument count checking and usage summary
@@ -554,24 +570,25 @@ def list(progname, configbase, options, args):
         }
     log.debug("ro_options: " + repr(ro_options))
     cmdname = progname + " list"
-    if not ro_options['rouri']:
-        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
+    if rouri:
+        rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
         if not rouri: return 1
         if options.verbose:
-            print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
-    else:
-        if ro_options['rodir']:
-            print ("%s: specify either RO directory or URI, not both" % (cmdname))
-            return 1
-        rouri = ro_options['rouri']
-        if options.verbose:
             print cmdname + (" \"%(rouri)s\" " % ro_options)
+        ro_dir = ""
+    else:
+        ro_dir = ro_root_directory(cmdname, ro_config, ro_options['rodir'], restricted=False)
+        if not ro_dir: return 1
+        if options.verbose:
+            print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
+        rouri  = ro_dir
+
     # Prepare to display aggregated resources
     prep_f = ""
     prep_a = ""
     rofiles = []
     if options.all:
-        if ro_options['rodir']:
+        if not ro_dir:
             print ("%s: '--all' option is valid only with RO directory, not URI" % (cmdname))
             return 1
         prep_f = "f: "
@@ -671,6 +688,8 @@ def annotations(progname, configbase, options, args):
 
     ro annotations [ file | -d dir ]
     """
+    # @@TODO: although a URI is accepted on the command line, the actual display logic assumes
+    #         a local file when displaying annotations.
     log.debug("annotations: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
     ro_config = getroconfig(configbase, options)
@@ -680,12 +699,14 @@ def annotations(progname, configbase, options, args):
         "rodir":        options.rodir or os.path.dirname(ro_file)
         }
     log.debug("ro_options: " + repr(ro_options))
+    cmdname = progname + " annotations"
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'])
+    if not rouri: return 1
     if options.verbose:
-        print "ro annotations -d \"%(rodir)s\" %(rofile)s " % ro_options
-    ro_dir = ro_root_directory(progname + " annotations", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
+        print cmdname + " -d \"%(rodir)s\" %(rofile)s " % ro_options
     # Enumerate and display annotations
-    rometa = ro_metadata(ro_config, ro_dir)
+    log.debug("- displaying annotations for %s"%(rouri))
+    rometa = ro_metadata(ro_config, rouri)
     if ro_options['rofile']:
         rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])  # Relative to CWD
         log.debug("Annotations for %s" % str(rofile))
@@ -830,6 +851,8 @@ def handle_synchronous_zip_push(rosrs,location):
         print "Oparation failed, check details: %s" % location
         return 0
 
+# @@NOTE Fixing this typo introduces a bug.  I think the function should be removed.
+# "handle_asynchronous_zip_push" is defined prioperly later
 def hendle_asynchronous_zip_push():
     None
 
@@ -973,7 +996,7 @@ def evaluate(progname, configbase, options, args):
     """
     Evaluate RO
 
-    ro evaluate checklist [ -d <dir> ] <minim>< <purpose> [ <target> ]"
+    ro evaluate checklist [ -d <dir> ] <minim> <purpose> [ <target> ]"
     """
     log.debug("evaluate: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
@@ -983,7 +1006,7 @@ def evaluate(progname, configbase, options, args):
         , "function":     args[2]
         })
     log.debug("ro_options: " + repr(ro_options))
-    ro_ref = ro_root_reference(progname + " annotations", ro_config, ro_options['rodir'])
+    ro_ref = ro_root_reference(progname + " annotations", ro_config, None, ro_options['rodir'])
     if not ro_ref: return 1
     # Evaluate...
     if ro_options["function"] == "checklist":
@@ -1024,7 +1047,6 @@ def evaluate(progname, configbase, options, args):
         return 1
     return 0
 
-
 def dump(progname, configbase, options, args):
     """
     Dump RDF of annotations
@@ -1038,18 +1060,13 @@ def dump(progname, configbase, options, args):
         "rodir":        options.rodir or ""
         }
     cmdname = progname + " dump"
-    if not ro_options['rouri']:
-        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
-        if not rouri: return 1
-        if options.verbose:
-            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
-    else:
-        if ro_options['rodir']:
-            print ("%s: specify either RO directory or URI, not both" % (cmdname))
-            return 1
-        rouri = ro_options['rouri']
-        if options.verbose:
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
+    if not rouri: return 1
+    if options.verbose:
+        if ro_options['rouri']:
             print cmdname + (" \"%(rouri)s\" " % ro_options)
+        else:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"
@@ -1072,18 +1089,13 @@ def manifest(progname, configbase, options, args):
         "rodir":        options.rodir or ""
         }
     cmdname = progname + " manifest"
-    if not ro_options['rouri']:
-        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
-        if not rouri: return 1
-        if options.verbose:
-            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
-    else:
-        if ro_options['rodir']:
-            print ("%s: specify either RO directory or URI, not both" % (cmdname))
-            return 1
-        rouri = ro_options['rouri']
-        if options.verbose:
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
+    if not rouri: return 1
+    if options.verbose:
+        if ro_options['rouri']:
             print cmdname + (" \"%(rouri)s\" " % ro_options)
+        else:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+   xmlns:minim="http://purl.org/minim/minim#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+>
+  <rdf:Description rdf:about="#model_nothing">
+    <rdf:type rdf:resource="http://purl.org/minim/minim#Model"/>
+    <minim:hasMustRequirement rdf:nodeID="Nddc95fb6ec52400cb3c7a1d214a34a68"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nfea538d145c04a5d984c0fbd92ea7da6">
+    <minim:sparql_query>?res rdf:type ?type</minim:sparql_query>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nf00ddb7ad06b44b1a5c9c98266e4fbbe">
+    <minim:forPurpose>nothing</minim:forPurpose>
+    <rdf:type rdf:resource="http://purl.org/minim/minim#Checklist"/>
+    <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+    <minim:toModel rdf:resource="#model_nothing"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="#ChecklistConstraints">
+    <minim:hasChecklist rdf:nodeID="Nf00ddb7ad06b44b1a5c9c98266e4fbbe"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="Nddc95fb6ec52400cb3c7a1d214a34a68">
+    <minim:seq>010</minim:seq>
+    <minim:isDerivedBy rdf:resource="#req_type_annotation"/>
+    <rdf:type rdf:resource="http://purl.org/minim/minim#Requirement"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="#req_type_annotation">
+    <minim:exists rdf:nodeID="Nfea538d145c04a5d984c0fbd92ea7da6"/>
+    <minim:showfail>No type annotations found</minim:showfail>
+    <minim:showpass>Type annotation present</minim:showpass>
+    <rdf:type rdf:resource="http://purl.org/minim/minim#QueryTestRule"/>
+  </rdf:Description>
+</rdf:RDF>

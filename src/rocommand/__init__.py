@@ -51,7 +51,7 @@
                              # Modify HTTP doRequest methiods to return URI as string, not rdflib.URIRef
                              # Add retry logic to make Overlay ROs behave more consistently
                              # Minor documentation and script tweaks
-__version__ = "0.2.17"      # Updates to RODL inbterface synchronization.  Includes option to push ZIP file bundle
+#__version__ = "0.2.17"      # Updates to RODL synchronization.  Includes option to push ZIP file bundle
                              # Provide label for checklist target resource as well as the RO
                              # Overlay RO service documentation updated
                              # Refactoring of HTTP access to ROs (HTTP_Session), and logic to catch and log HTTP connection errors
@@ -61,3 +61,12 @@ __version__ = "0.2.17"      # Updates to RODL inbterface synchronization.  Inclu
                              # Improve diagnostics/logging in several areas, especially the checklist service
                              # Fix listening port error in Overlay RO service
                              # Improve handling of errors when parsing RO annotations
+__version__ = "0.2.18"      # Create benchmarking scrpts and result data
+                             # Add utility to create RO for benchmarking
+                             # Adjust iaeval package to work with PyPI copy of uritemplate
+                             # Revise RO access logic to allow 'ro' to display details of RO at arbitrary location
+                             # Add project copyright and licencing information.
+                             # Add README for Overlay RO service, and update other documentation files.
+
+
+

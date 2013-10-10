@@ -12,8 +12,12 @@ The Research Object checklist evaluation service is a web server that performs c
 * Python 2.7.x
 * Linux/Unix type system.
   This software has not been tested under Windows, but may work.
-* The sample scripts and example commands are written to run under `bash`
-* Python `pip` utility, or `git`, depending on the installation option used.
+* Python `pip` utility
+* `git` command line tool (depending on the installation option used).
+* Commands are tested to run in a `bash` shell environment.
+* The sample scripts and example commands are written to run in a `bash` shell environment.
+* Pyramid web application framework ([http://www.pylonsproject.org]()), installation of which is covered below.  Development and testing has ben done with Pyramid version 1.4.2, but will hopefully also work with later versions.
+* Various other Python packages that are located and installed by the `pip` and `setup.py` utilities.
 
 
 ## Installation overview
@@ -22,27 +26,25 @@ Installation instructions assume a terminal interface and a `bash` command shell
 
 The first step for installing the checklist service is to install RO Manager.  Then some additional supporting code needs to be installed, and the web service deployed and activated.
 
-In the instructions thatn follow:
+In the instructions that follow:
 * _software_ is the name of a directory where the Python virtual enviroment will be installed.
-* _roenv_ is the name of python virtual environmewnt used.  This is also used to name a subdirectory of _software_ that holds the virtual environment files.
-* _workspace_ is the name of a workspace directory where the RO Manager software is copied.
+* _pyenv_ is the name of python virtual environmewnt used.  This is also used to name a subdirectory of _software_ that holds the virtual environment files.
+* _workspace_ is the name of a workspace directory where the RO Manager software package is extracted (i.e., the ro_manager package is a subdirectory of this). 
 
 
 ### RO Mananger
 
 This is just a summary of the RO Manager installation.  More detailed explanations can be found in [https://github.com/wf4ever/ro-manager/blob/master/src/README.md]().  The installation method suggested here uses `git` to pull the software from Github rather than installation from PyPI usimng `pip`.  Either can be used, but with the suggested approach, it is easier to locate the shell scripts used to start the web service, the service log file, etc.
 
-It is recommended to create and activate a python virtual environment for running the checklist service, to avoid the possibility of creating problems in the default system installationof Python:
-
 If not already existing, create the new virtual environment:
 
     cd _software_
     pip install virtualenv
-    virtualenv _roenv_
+    virtualenv _pyenv_
 
 Once created, to activate this environment (using name of enviroment used in the original `virtualenv` command:
 
-    source _roenv_/bin/activate
+    source _pyenv_/bin/activate
 
 Install the RO Manager software package from github:
 
@@ -57,7 +59,7 @@ Install the RO Manager software package from github:
 
 First, ensure that the appropriate Python virtual environment is active; e.g.
 
-    source _roenv_/bin/activate
+    source _pyenv_/bin/activate
 
 The checklist evaluation service uses the Pyramid web application development framework ([http://www.pylonsproject.org]()), which is installed thus:
 
@@ -72,7 +74,7 @@ Wait for a couple of seconds, then:
 
     cat roweb/roweb.log
 
-The log file should be empty.  If it is not, it usually contains error messages about a failure to strart the web service.
+The log file should be empty.  If it is not, it usually contains error messages about a failure to start the web service.
 
 At this point, the checklist service should to ready to receive HTTP requests on port 8080.  Try starting a browser on the local machine, and displaying the page at `http://localhost:8080` to confirm this.
 

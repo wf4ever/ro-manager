@@ -426,8 +426,12 @@ but does not install the web frameworks needed to run any servioces.
 3. To activate an instance of the Overlay RO service, go to the directory `src/roverlay/roweb` within the installed Python environment.  In the following example, `(pyenv)` is the directory which hosts the Python virtual enviropnement where RO Manager has been installed; other elements of the path will vary with the particular version of python used:
 
         $ which python
-        (pyenv)/bin/python
-        $ cd (pyenv)/lib/python2.7/site-packages/ro_manager-0.2.15-py2.7.egg/roverlay/rovweb
+        _pyenv_/bin/python
+        $ cd _pyenv_/lib/python2.7/site-packages/ro_manager-0.2.15-py2.7.egg/roverlay/rovweb
+
+    Alternatively, if the RO Manager package has been extracted from github to directory `_workspace_`, then the corresponding source directory may be used; e.g.
+
+        $ cd _workspace_/ro-manager/src/roverlay/rovweb
 
 4. On the very first occasion of running the service, create an instance of the `roverlay` local database: 
 
@@ -468,7 +472,7 @@ At this point, the commands listed above are available.  If accessing a service 
     Can't access RO manifest (404 NOT FOUND) for srsuri http://localhost:8000/rovserver/ROs/127544b3/
     $ roverlay -l
 
-These commands can be issued with the `-s` option to explicitly specify thje Overlay RO service:
+These commands can be issued with the `-s` option to explicitly specify the Overlay RO service:
 
     $ roverlay -s http://localhost:8000/rovserver/ res1 res2 res3
     http://localhost:8000/rovserver/ROs/127544b4/
@@ -532,24 +536,59 @@ pip (http://pypi.python.org/pypi/pip, http://www.pip-installer.org/).
 
 ## Implementation notes
 
+### Overlay RO service source code overview
+
+The Overlay RO source code is contained within the RO Manager project source tree:
+
+    +- ro-manager  (top level of github project from https://github.com/wf4ever/ro-manager/)
+       |
+       +- src
+       |  |
+       |  +- MiscUtils (miscellaneous supporting utility functions code)
+       |  +- iaeval (main checklist evaluation code)
+       |  +- rocommand (main RO Mananger code, includes modukles for accessing Research Object)
+       |  +- roweb  (web application to service checklist API and invoke the checklist service)
+       |  +- checklist (mkminim utility to creare Minim models from spreadsheet description)
+       |  +- roverlay (Overlay RO service)
+       |  |  |         
+       |  |  +- rovcmd (roverlay command line tool)
+       |  |  |
+       |  |  +- rovweb (Overlay RO web service)
+       |  |     +- db (Django database files, including persistence for Overlay ROs)
+       |  |     +- rovserver (Overlay RO Django application) 
+       |  |     |  |         (in particular, see views.py)
+       |  |     |  +- templates (web page Django templates)
+       |  |     |  +- tesdata (data for testing)
+       |  |     |
+       |  |     +- rovweb (Django web server configuration)
+       |  |
+       |  +- samples (sample code for developmenbt testing)
+       |  +- spike (exploratory code snippets)
+       |
+       +- doc (user documentation for RO Mananger)
+       |
+       +- Minim (contains ontology for Minim model used to describe checklists)
+       |
+       +- Checklists (sample checklists used for testing, etc.)
+
+
 ### `roverlay` software framework
 
-The `roverlay` source code is part of the RO Manager project in Github (https://github.com/wf4ever/ro-manager).  The main source code is in subdirectory `/src/roverlay` of that project, and also uses a few modules from `src/rocommand` and `/src/MiscUtils`.  Like RO Manager, the main programming labnguage used is Python.  There are two parts to the `roverlay` code:
+The `roverlay` source code is part of the RO Manager project in Github (https://github.com/wf4ever/ro-manager).  The main source code is in subdirectory `/src/roverlay` of that project, and also uses a few modules from `src/rocommand` and `/src/MiscUtils`.  Like RO Manager, the main programming language used is Python.  There are two parts to the `roverlay` code:
 
 1. Directory `/src/roverlay/rovweb` contains a web server application based on Django (https://www.djangoproject.com), the code for which follows normal Django conventions.  The main logic of the Overlay RO web service is in file `/src/roverlay/rovweb/rovserver/views`
 
-2. Directory `/src/roverlay/rovweb` contains the command line client, `roverlay`, which can be used from shell scripts to invoke the Overlay RO service to create and delete Research Objects.  It uses mostly standard Python library facilities in its operation.  Run this with the `--help` option to see the command options available.
+2. Directory `/src/roverlay/rovcmd` contains the command line client, `roverlay`, which can be used from shell scripts to invoke the Overlay RO service to create and delete Research Objects.  It uses mostly standard Python library facilities in its operation.  Run this with the `--help` option to see the command options available.
 
 
 #### Notes:
 
 * roverlay web service based on Django web framework
-* have asked about SPARQL protocol server implementation in Django
 * POST to create RO
 * DELETE to delete RO
 * GET, HEAD to access RO using read-only elements of RO API
 
-> The examples above show ideas for graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of the initial implementation.
+> The examples above show ideas for graph and SPARQL endpoint options.  These are in anticipation of performance improvements for (say) chembox, and will not be part of the initial implementation.   I have made enquiries about a SPARQL protocol implementation for rdflib that can be used with Django, and responses have been encouragiong but, as yet, untested.
 
 > Subsequent experience with roverlay has shown alternative, very effective ways to overcome the performance issues enountered previously.  At this stage, it is not clear that the additional features will be justified.  The graph facility can be partially provided using the `ro dump` command, and the additional value of a SPARQL endpoint is currently not clear.
 
