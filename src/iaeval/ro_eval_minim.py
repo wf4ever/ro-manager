@@ -300,7 +300,7 @@ def evalContentMatch(rometa, rule, constraintbinding):
             if template:
                 # Construct URI for file from template
                 # Uses code copied from http://code.google.com/p/uri-templates
-                fileref = g.expand(template, simplebinding)
+                fileref = uritemplate.expand(template, simplebinding)
                 fileuri = rometa.getComponentUri(fileref)
                 # Test if URI is aggregated
                 log.debug("evalContentMatch RO aggregates %s (%s)"%(fileref, str(fileuri)))
