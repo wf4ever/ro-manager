@@ -851,7 +851,9 @@ def handle_synchronous_zip_push(rosrs,location):
         print "Oparation failed, check details: %s" % location
         return 0
 
-def handle_asynchronous_zip_push():
+# @@NOTE Fixing this typo introduces a bug.  I think the function should be removed.
+# "handle_asynchronous_zip_push" is defined prioperly later
+def hendle_asynchronous_zip_push():
     None
 
 def printZipJob(parseJobResult, jobUri):
