@@ -61,5 +61,12 @@
                              # Improve diagnostics/logging in several areas, especially the checklist service
                              # Fix listening port error in Overlay RO service
                              # Improve handling of errors when parsing RO annotations
-__version__ = "0.2.18"      # ...
+__version__ = "0.2.18"      # Create benchmarking scrpts and result data
+                             # Add utility to create RO for benchmarking
+                             # Adjust iaeval package to work with PyPI copy of uritemplate
+                             # Revise RO access logic to allow 'ro' to display details of RO at arbitrary location
+                             # Add project copyright and licencing information.
+                             # Add README for Overlay RO service, and update other documentation files.
+
+
 
