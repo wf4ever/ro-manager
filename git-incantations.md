@@ -1,11 +1,11 @@
 
-# Some git incantations #
+# Some git incantations
 
 See:
 * http://nvie.com/posts/a-successful-git-branching-model/
 
 
-## Create the develop branch ##
+## Create the develop branch
 
 See:
 * http://www.linux-pages.com/2011/05/how-to-create-a-brand-new-git-tracking-branch-from-scratch/
@@ -18,7 +18,20 @@ Also, to delete remote branch:
     git push origin --delete <branchName>
 
 
-## Creating a feature branch ##
+## Merge develop changes to master branch
+
+When all tests pass, we can creare a new release on the master branch.
+
+    $ git checkout master
+    Switched to branch 'master'
+    $ git merge --no-ff develop
+    (Summary of changes)
+    (Resolve conflicts as necessary, and rerun tests)
+
+The --no-ff flag causes the merge to always create a new commit object, even if the merge could be performed with a fast-forward.
+
+
+## Creating a feature branch
 
 When starting work on a new feature, branch off from the develop branch.
 
@@ -33,7 +46,7 @@ Also, to create tracking copy in github:
 Pushes to same-name branch at origin repo, and sets tracking status.
 
 
-## Incorporating a finished feature on develop ##
+## Incorporating a finished feature on develop
 
 Finished features may be merged into the develop branch definitely add them to the upcoming release:
 
@@ -49,7 +62,7 @@ Finished features may be merged into the develop branch definitely add them to t
 The --no-ff flag causes the merge to always create a new commit object, even if the merge could be performed with a fast-forward.
 
 
-## Release branches ##
+## Release branches
 
 May branch off from: develop Must merge back into: develop and master Branch naming convention: release-*
 
@@ -82,7 +95,7 @@ Finishing a release branch
     Deleted branch release-1.2 (was ff452fe).
 
 
-## Reconnecting upstream branch ##
+## Reconnecting upstream branch
 
 "So having done "git remote rm origin", how do I configure the git pull branches again?"
 
@@ -95,7 +108,7 @@ Looks like this does it:
 -- http://www.haskell.org/pipermail/ghc-devs/2013-February/000261.html
 
 
-## Force current branch to be a copy of another ##
+## Force current branch to be a copy of another
 
     git reset --hard <branch>
     git push --force
@@ -103,7 +116,7 @@ Looks like this does it:
 Note: this may lose history on the current branch.
 
 
-## Create local copy of remote branch ##
+## Create local copy of remote branch
 
     git checkout -b <branch> origin/<branch>
 
@@ -116,7 +129,7 @@ This automatically creates a tracking branch.
 (See also "Reconnecting upstream branch" above.)
 
 
-## Delete remote branch ##
+## Delete remote branch
 
     git push origin :<branch>
 
@@ -127,7 +140,7 @@ cf. general form of push:
 See: http://git-scm.com/book/en/Git-Branching-Remote-Branches
 
 
-## Selective transfer files from one branch to another ##
+## Selective transfer files from one branch to another
 
 See also:
 * http://stackoverflow.com/questions/449541/how-do-you-merge-selective-files-with-git-merge
