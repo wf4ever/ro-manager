@@ -4,6 +4,10 @@
 Module to test remote RO metadata handling class
 """
 
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os.path
 import sys
 import logging

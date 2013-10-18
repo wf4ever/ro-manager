@@ -4,6 +4,10 @@
 Configuration module for RO manager tests
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 from rocommand import ro_settings
 
 class ro_test_config:

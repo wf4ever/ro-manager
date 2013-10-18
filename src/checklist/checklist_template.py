@@ -4,6 +4,10 @@
 Module to define matching template for checklist spreadsheet
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 from gridmatch import (
     GridMatchError, GridMatch,
     text, anyval, regexval, refval, intval, save, value, error

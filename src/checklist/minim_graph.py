@@ -4,6 +4,10 @@
 Module to create RDF Minim graph throughn simple set of API calls
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import rdflib
 
 from rocommand.ro_namespaces import RDF

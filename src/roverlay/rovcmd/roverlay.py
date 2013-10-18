@@ -3,6 +3,10 @@
 # roverlay.py - command line tool to interact with roverlay web service.
 #
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import os.path

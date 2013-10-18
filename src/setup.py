@@ -3,6 +3,10 @@
 # Setup.py based on https://github.com/paltman/python-setup-template/blob/master/setup.py,
 # following http://www.ibm.com/developerworks/opensource/library/os-pythonpackaging/index.html
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import codecs
 import os
 import sys

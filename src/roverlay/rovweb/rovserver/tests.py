@@ -5,6 +5,10 @@ when you run "manage.py test".
 Replace this with more appropriate tests for your application.
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os
 import random
 import unittest

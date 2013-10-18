@@ -1,9 +1,14 @@
 # !/usr/bin/env python
-#
-# Combinator-based pattern matching for grid (e.g. spreadsheet) structures
-#
-# See: README.md in this directory
-#
+
+"""
+Combinator-based pattern matching for grid (e.g. spreadsheet) structures
+
+See: README.md in this directory
+"""
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
 
 import os, os.path
 import sys

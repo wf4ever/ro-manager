@@ -3,6 +3,11 @@ Created on 15-09-2011
 
 @author: piotrhol
 '''
+
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import urlparse
 from compiler.ast import Assert

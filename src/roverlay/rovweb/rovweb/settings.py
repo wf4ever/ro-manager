@@ -1,4 +1,8 @@
-# Django settings for rovweb project.
+# Django settings for roverlay service.
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
 
 # Using relative URIs:
 #   http://www.morethanseven.net/2009/02/11/django-settings-tip-setting-relative-paths/
