@@ -3,7 +3,7 @@ SANDBOX-README.TXT
 
 Notes for installing and running ro-manager / checklist evaluation service on sandbox.
 
-== Quick start for checklist service ==
+== Quick start for checklist service on wf4ever sandbox ==
 
 This guide assumes that RO-Manager and supporting software has been installed.
 
