@@ -3,6 +3,44 @@ SANDBOX-README.TXT
 
 Notes for installing and running ro-manager / checklist evaluation service on sandbox.
 
+== Quick start for checklist service on wf4ever sandbox ==
+
+This guide assumes that RO-Manager and supporting software has been installed.
+
+1.  Log in to checklist account on the sandbox
+
+2.  Switch to bash shell:
+
+        bash
+
+3.  Activate the Python virtual environment:
+
+        source ~/py27/bin/activate
+
+4.  Run the bstartup script:
+
+        cd ~/git/wf4ever/ro-manager/src/roweb/
+        ./runroweb.sh
+
+5.  Wait a few seconds and checvk the service log file:
+
+        cat roweb.log
+
+    The log file should be empty at this stage.  
+    If there any problems starying the service, they should be recorded here.
+
+If the service is already running, an error will be generated when trying to restart it.
+To stop the service, use the command:
+
+    ps x
+
+to locate the current running service (look for `python rowebservices.py`), then issue:
+
+    kill nnnnn
+
+where `nnnnn` is the PID value associated with the current running service.
+
+
 == Prerequisites ==
 
 Standard compile/link tools (cc, etc.)
