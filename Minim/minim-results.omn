@@ -20,59 +20,55 @@ Ontology:  <http://purl.org/minim/minim-results>
   # convenience when generating checklist reports.  The key result semantics are provided
   # by the properties described below that are applied to the evaluated target resource.
 
-  # @@TODO: rename/synonym to match changes to Minim model?
+  ObjectProperty: minim:testedRO
+    Annotations:
+      rdfs:label "Tested RO",
+      rdfs:comment
+        "This property relates a checklist result to a Research Object that provides the context for the evaluation performed."
+    Domain: minim:Result
+    Range: ro:ResearchObject
+
   ObjectProperty: minim:testedChecklist
     Annotations:
       rdfs:label "Tested checklist",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a
-        checklist (constraint) against which it has been evaluated."
-    Domain: ro:ResearchObject
+        "This property relates a checklist result to a checklist against which it has been evaluated."
+    Domain: minim:Result
     Range: minim:Checklist
 
   DataProperty: minim:testedPurpose
     Annotations:
       rdfs:label "Tested purpose",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a string
-        indicating a purpose for which evaluation has been performed.  (Note, this value is
-        technically redundant, being accessible from the tested checklist resource, and 
-        included for convenience of reporting.)"
-    Domain: ro:ResearchObject
+        "This property relates a checklist result to a string indicating a purpose for which evaluation has been performed.  (Note, this value is technically redundant, being accessible from the tested checklist resource, and included for convenience of reporting.)"
+    Domain: minim:Result
     Range: string
 
   ObjectProperty: minim:testedTarget
     Annotations:
       rdfs:label "Tested target resource",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a checklist
-        target resource for which checklist evaluation has been performed."
-    Domain: ro:ResearchObject
+        "This property relates a checklist result to a target resource for which checklist evaluation has been performed."
+    Domain: minim:Result
     Range: ro:Resource
 
   ObjectProperty: minim:minimUri
     Annotations:
       rdfs:label "Minim definition resource",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a resource
-        containing Minim definitions used to perform a checklist evaluation."
-    Domain: ro:ResearchObject
+        "This property relates a checklist result to a resource containing Minim definitions used to perform a checklist evaluation."
+    Domain: minim:Result
     Range: owl:Thing
 
-  ObjectProperty: minim:modelUri
+  ObjectProperty: minim:testedModel
     Annotations:
       rdfs:label "Tested Minim model",
       rdfs:comment
-        "This property is used in checklist results to relate a research object to a Minim
-        model defning an evaluated checklist.  (The Minim model definition is contained within 
-        the resource referenced by minim:minimUri, and MAY be the same URI.  More commonly,
-        the Minim model URI is the Minim resource URI with a fragment identifier, allowing a 
-        single Minim resource to contain multiple model (checklist) definitions.
+        "This property relates a checklist result to a Minim model defning an evaluated checklist.  (The Minim model definition is contained within the resource referenced by minim:minimUri, and MAY be the same URI.  More commonly, the Minim model URI is the Minim resource URI with a fragment identifier, allowing a single Minim resource to contain multiple model (checklist) definitions.
         
-        Note that the model definition is also included in the result graph returned, 
-        for ease of access."
-    Domain: ro:ResearchObject
-    Range: owl:Thing
+        Note that the model definition is also included in the result graph returned, for ease of access."
+    Domain: minim:Result
+    Range: minim:Model
 
   # Properties applied to an evaluated target resource.  These definitively convey the result
   # of a checklist evaluation.
@@ -196,6 +192,19 @@ Ontology:  <http://purl.org/minim/minim-results>
           
           In addition, a label property from the original data may be included to help with 
           reporting of results"
+
+  Class: minim:Result
+    Annotations:
+      rdfs:label "Checklist result",
+      rdfs:comment
+          "A resource the represents the result of a single checklist evaluation."
+    EquivalentTo: 
+      ( (minim:testedChecklist exactly 1 minim:Checklist)   and
+        (minim:testedModel     exactly 1 minim:Model)       and
+        (minim:minimUri        exactly 1 owl:Thing)         and
+        (minim:testedPurpose   exactly 1 string)            and
+        (minim:testedRO        exactly 1 ro:ResearchObject) and
+        (minim:testedTarget    exactly 1 ro:Resource)       )
 
   Class: :ChecklistItemReport
     Annotations:
