@@ -183,7 +183,7 @@ class TestGridMatch(unittest.TestCase):
         Test match of full checklist using the defined checklist template
         """
         (d,(r,c)) = checklist_template.checklist.match(self.grid, 0, 0)
-        self.assertEquals(r, 72, "newrow (%d)"%(r))
+        self.assertEquals(r, 74, "newrow (%d)"%(r))
         self.assertEquals(c, 1,  "newcol (%d)"%(c))
         base = self.base
         ### print repr(d)
@@ -219,7 +219,7 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["models"][1]["items"][0]["level"],  'MUST',             "Model[2] Item[1] level")
         self.assertEquals(d["models"][1]["items"][0]["reqid"],  '#WF_accessible',   "Model[2] Item[1] reqid")
 
-        self.assertEquals(len(d["requirements"]), 6, "Requirement count")
+        self.assertEquals(len(d["requirements"]), 6, "Requirement count %d"%(len(d["requirements"])))
         self.assertEquals(d["requirements"][0]["reqid"],        '#RO_has_hypothesis')
         self.assertEquals(d["requirements"][0]["exists"],       '?hypothesis rdf:type roterms:Hypothesis')
         self.assertEquals(d["requirements"][0]["pass"],         'Experiment hypothesis is present')
@@ -237,8 +237,14 @@ class TestGridMatch(unittest.TestCase):
         self.assertEquals(d["requirements"][3]["result_mod"],   'ORDER BY ?prlab')       
         self.assertEquals(d["requirements"][3]["islive"],       '{+pruri}')
         self.assertEquals(d["requirements"][3]["pass"],         'All web services used by workflows are accessible')
-        self.assertEquals(d["requirements"][3]["fail"],         'One or more web services used by a workflow are inaccessible, including <a href="%(pruri)s"><i>%(prlab)s</i></a>')
+        self.assertEquals(d["requirements"][3]["fail"],         'Web services %(pruri_list)s used by workflows %(prlab_list)s are inaccessible')
         self.assertEquals(d["requirements"][3]["miss"],         'No web services are referenced by any workflow')
+
+        self.assertEquals(len(d["requirements"][3]["collectfail"]), 2)
+        self.assertEquals(d["requirements"][3]["collectfail"][0]["collectvar"],  "?prlab")
+        self.assertEquals(d["requirements"][3]["collectfail"][0]["collectlist"], "?prlab_list")
+        self.assertEquals(d["requirements"][3]["collectfail"][1]["collectvar"],  "?pruri")
+        self.assertEquals(d["requirements"][3]["collectfail"][1]["collectlist"], "?pruri_list")
 
         return
 

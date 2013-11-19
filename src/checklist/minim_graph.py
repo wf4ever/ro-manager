@@ -113,6 +113,16 @@ class Minim_graph(object):
             self._minimgr.add( (rule, MINIM.showmiss, rdflib.Literal(NoMatch)) )
         return rule
 
+    def collectlist(self, rule, listprop, listvars):
+        for c in listvars:
+            listnode = rdflib.BNode()
+            self._minimgr.add( (rule, listprop,  listnode) )
+            self._minimgr.add( (listnode, RDF.type, MINIM.ValueCollector) )
+            # Note: strips off leading '?' from variable names
+            self._minimgr.add( (listnode, MINIM.collectVar,  rdflib.Literal(c["collectvar"][1:])) )
+            self._minimgr.add( (listnode, MINIM.collectList, rdflib.Literal(c["collectlist"][1:])) )
+        return
+
     def serialize(self, outstr, format="turtle"):
         self._minimgr.serialize(destination=outstr, format=format)
         return

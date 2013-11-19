@@ -178,6 +178,48 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         self.deleteTestRo(rodir)
         return
 
+    def testEvalQueryTestReportList(self):
+        """
+        Test QueryTestRules reporting list of failed query probes
+        """
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("data/NoSuchResource")
+        rometa.addSimpleAnnotation(resuri, "rdfs:label", "Test label")
+        # Now run evaluation against test RO
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-UserRequirements2.rdf",        # Minim file
+            "data/NoSuchResource",                # Target resource
+            "report list")                        # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(len(evalresult['missingShould']), 1)
+        self.assertEquals(evalresult['missingShould'][0][0]['seq'], '04 - aggregates data/NoSuchResource')
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2.rdf"))
+        self.assertEquals(evalresult['target'],         "data/NoSuchResource")
+        self.assertEquals(evalresult['purpose'],        "report list")
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#report/data/NoSuchResource"))
+        self.assertEquals(evalresult['modeluri'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#reportList"))
+        # Check result bindings returned
+        self.assertEquals(evalresult['missingShould'][0][1]['_count'], 1)
+        self.assertEquals(evalresult['missingShould'][0][1]['_fileuri'], rometa.getComponentUri("data/NoSuchResource"))
+        self.assertEquals(evalresult['missingShould'][0][1]['targetres'], rometa.getComponentUri("data/NoSuchResource"))
+        self.assertEquals(evalresult['missingShould'][0][1]['ro'], str(rometa.getRoUri()))
+        self.assertEquals(evalresult['missingShould'][0][1]['ro_list'], [str(rometa.getRoUri())])
+        # Clean up
+        self.deleteTestRo(rodir)
+        return
+
     def testEvalQueryTestChembox(self):
         """
         Evaluate Chembox data against Minim description using QueryTestRules
@@ -485,6 +527,7 @@ def getTestSuite(select="unit"):
             , "testEvalQueryTestModelMin"
             , "testEvalQueryTestModelExists"
             , "testEvalQueryTestModel"
+            , "testEvalQueryTestReportList"
             , "testEvalQueryTestChembox"
             , "testEvalQueryTestChemboxFail"
             , "testEvalFormatSummary"

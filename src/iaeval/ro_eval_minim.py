@@ -333,6 +333,19 @@ def evalContentMatch(rometa, rule, constraintbinding):
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)
 
+def addCollectedVariables(collectors, collectwhen, result_list, binding):
+    """
+    Helper function used to collect values from probe query results and add them to the resulting query binding.
+    """
+    for (cv, cl) in collectors:
+        vallist = []
+        for (satisfied, _, res) in result_list:
+            if satisfied in collectwhen:
+                if cv in res:
+                    vallist.append(res[cv])
+        binding[cl] = sorted(vallist)
+    return binding
+
 def evalQueryTest(rometa, rule, constraintbinding):
     """
     rometa      ro_metadata for RO to test
@@ -454,6 +467,10 @@ def evalQueryTest(rometa, rule, constraintbinding):
         satisfied = True
         binding   = simplebinding     # last result tested
         msg       = rule['showpass']
+    # Add collected values to binding returned
+    addCollectedVariables(rule['list'], [True, False], result_list, binding)
+    addCollectedVariables(rule['listfail'], [False], result_list, binding)
+    addCollectedVariables(rule['listpass'], [True], result_list, binding)
     return (satisfied, binding, msg)
 
 def format(eval_result, options, ostr):

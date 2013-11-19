@@ -152,6 +152,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
             , 'ruleuri': evalresult['missingMust'][0][0]['ruleuri']
@@ -189,6 +192,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'ruleuri': evalresult['missingShould'][0][0]['ruleuri']
@@ -226,6 +232,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'ruleuri': evalresult['missingMay'][0][0]['ruleuri']

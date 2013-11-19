@@ -37,7 +37,10 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             # Requirement and properties
             , "Requirement"
             , "isDerivedBy"
-            , "show", "showpass", "showfail", "showmiss", "seq"
+            # Reporting properties
+            , "seq", "show", "showpass", "showfail", "showmiss"
+            , "list", "listpass", "listfail"
+            , "ValueCollector", "collectVar", "collectList"
             # Rules and properties
             , "RequirementRule"
             , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
@@ -167,6 +170,12 @@ def getPrefixes(minimgraph):
 def litval(l):
     return l.value if l else None
 
+def getVariableCollector(minimgraph, collectnode):
+    if not collectnode: return None
+    cv = minimgraph.value(subject=collectnode, predicate=MINIM.collectVar) 
+    cl = minimgraph.value(subject=collectnode, predicate=MINIM.collectList) 
+    return (str(cv), str(cl))
+
 def getRequirements(minimgraph, modeluri):
     def matchRequirement((s, p, o), reqp, reqval):
         req = None
@@ -185,6 +194,15 @@ def getRequirements(minimgraph, modeluri):
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
+                , 'list':       [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.list)
+                                ]
+                , 'listpass':   [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.listpass)
+                                ]
+                , 'listfail':   [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.listfail)
+                                ]
                 })
             # Create field used for sorting checklist items
             req['seq'] = str( minimgraph.value(subject=o, predicate=MINIM.seq) or

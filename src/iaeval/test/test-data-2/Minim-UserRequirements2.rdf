@@ -54,6 +54,25 @@
     <minim:hasMustRequirement rdf:resource="#isLabeled/data/UserRequirements-astro.ods" />
   </minim:Model>
 
+  <rdf:Description rdf:about="data/NoSuchResource">
+    <rdfs:label>Label for data/NoSuchResource</rdfs:label>
+    <minim:hasChecklist>
+      <minim:Checklist rdf:about="#report/data/NoSuchResource">
+        <minim:forPurpose>report list</minim:forPurpose>
+        <minim:toModel rdf:resource="#reportList" />
+      </minim:Checklist>
+    </minim:hasChecklist>
+  </rdf:Description>
+
+  <minim:Model rdf:about="#reportList">
+    <rdfs:label>Report list</rdfs:label>
+    <rdfs:comment>
+      This model tests list reporting in a checklist
+    </rdfs:comment>
+    <minim:hasMustRequirement rdf:resource="#isAggregated/data/UserRequirements-astro.ods" />
+    <minim:hasShouldRequirement rdf:resource="#isAggregated/data/NoSuchResource" />
+  </minim:Model>
+
   <minim:Requirement rdf:about="#isAggregated/data/UserRequirements-astro.ods">
     <rdfs:label>aggregates data/UserRequirements-astro.ods</rdfs:label>
     <minim:isDerivedBy>
@@ -100,6 +119,28 @@
           </rdf:Description>
         </minim:exists>
         <minim:show>03 - labeled data/UserRequirements-astro.ods</minim:show>
+      </minim:QueryTestRule>
+    </minim:isDerivedBy>
+  </minim:Requirement>
+
+  <minim:Requirement rdf:about="#isAggregated/data/NoSuchResource">
+    <rdfs:label>aggregates data/NoSuchResource</rdfs:label>
+    <minim:isDerivedBy>
+      <minim:QueryTestRule>
+        <minim:query>
+          <rdf:Description>
+            <minim:sparql_query>?ro a ro:ResearchObject</minim:sparql_query>
+          </rdf:Description>
+        </minim:query>
+        <minim:aggregatesTemplate>data/NoSuchResource</minim:aggregatesTemplate>
+        <minim:show>04 - aggregates data/NoSuchResource</minim:show>
+        <minim:showfail>04 - RO %(ro_list)s does not aggregate data/NoSuchResource</minim:showfail>
+        <minim:listfail>
+          <minim:ValueCollector>
+            <minim:collectVar>ro</minim:collectVar>
+            <minim:collectList>ro_list</minim:collectList>
+          </minim:ValueCollector>
+        </minim:listfail>
       </minim:QueryTestRule>
     </minim:isDerivedBy>
   </minim:Requirement>

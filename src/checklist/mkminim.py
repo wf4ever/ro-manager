@@ -24,6 +24,8 @@ if __name__ == "__main__":
 
 from rocommand import ro_utils
 
+from iaeval.ro_minim import MINIM
+
 from checklist.grid import GridCSV, GridExcel
 from checklist import gridmatch 
 from checklist import checklist_template 
@@ -67,7 +69,7 @@ def mkminim(grid, baseuri=None):
                 print "Missing 'exists', 'aggregates', 'islive', 'min' or 'max' in 'foreach' rule:"
                 print "- "+repr(rq)
                 return (2, None)
-            mgr.rule(rq["reqid"], 
+            rule = mgr.rule(rq["reqid"], 
                 ForEach=rq["foreach"], 
                 ResultMod=rq.get("result_mod"),
                 Exists=rq.get("exists"),
@@ -79,6 +81,9 @@ def mkminim(grid, baseuri=None):
                 Pass=rq.get("pass"), 
                 Fail=rq.get("fail"), 
                 NoMatch=rq.get("miss"))
+            mgr.collectlist(rule, MINIM.list, rq.get("collectall", []))
+            mgr.collectlist(rule, MINIM.listpass, rq.get("collectpass", []))
+            mgr.collectlist(rule, MINIM.listfail, rq.get("collectfail", []))
         elif "exists" in rq:
             # Simple exists
             mgr.rule(rq["reqid"], 

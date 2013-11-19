@@ -189,7 +189,6 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
         model        = ro_minim.getElementUri(minimbase, "#runnableRO")
         minimgraph   = ro_minim.readMinimGraph(minimbase)
         requirements = ro_minim.getRequirements(minimgraph, model)
-        expected_found = False
         r1 = (
             { 'level': "MUST"
             , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
@@ -231,6 +230,55 @@ class TestMinimAccess2(TestROSupport.TestROSupport):
         self.assertTrue(r3_found, "Expected requirement(3) not found in minim")
         return
 
+    def testGetListRequirements(self):
+        def compare_reqs(req_expect, req_found):
+            for k in req_expect:
+                if not k in req_found:
+                    log.debug("- not found: %s"%(k))
+                    return False
+                elif isinstance(req_expect[k], dict) and isinstance(req_found[k], dict):
+                    if not compare_reqs(req_expect[k], req_found[k]): return False
+                elif req_found[k] != req_expect[k]:
+                    log.debug("- not found: %s: %s != %s "%(k,req_expect[k],req_found[k]))
+                    return False
+            return True
+        self.setupConfig()
+        rodir        = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri        = ro_manifest.getRoUri(rodir)
+        minimbase    = ro_manifest.getComponentUri(rodir, "Minim-UserRequirements2.rdf")
+        model        = ro_minim.getElementUri(minimbase, "#reportList")
+        minimgraph   = ro_minim.readMinimGraph(minimbase)
+        requirements = ro_minim.getRequirements(minimgraph, model)
+        r1 = (
+            { 'level': "MUST"
+            , 'label': rdflib.Literal("aggregates data/UserRequirements-astro.ods")
+            , 'querytestrule':
+              { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
+              , 'resultmod':    None
+              , 'aggregates_t': rdflib.Literal("data/UserRequirements-astro.ods")
+              }
+            , 'uri': ro_minim.getElementUri(minimbase, "#isAggregated/data/UserRequirements-astro.ods") 
+            })
+        r2 = (
+            { 'level': "SHOULD"
+            , 'label': rdflib.Literal("aggregates data/NoSuchResource")
+            , 'querytestrule':
+              { 'query':        rdflib.Literal("?ro a ro:ResearchObject")
+              , 'resultmod':    None
+              , 'aggregates_t': rdflib.Literal("data/NoSuchResource")
+              , 'listfail':     [('ro', 'ro_list')]
+              }
+            , 'uri': ro_minim.getElementUri(minimbase, "#isAggregated/data/NoSuchResource") 
+            })
+        r1_found = r2_found = False
+        for r in requirements:
+            log.debug("requirement: %s"%(repr(r)))
+            if compare_reqs(r1, r): r1_found = True
+            if compare_reqs(r2, r): r2_found = True
+        self.assertTrue(r1_found, "Expected requirement(1) not found in minim")
+        self.assertTrue(r2_found, "Expected requirement(2) not found in minim")
+        return
+
     # Sentinel/placeholder tests
 
     def testUnits(self):
@@ -269,6 +317,7 @@ def getTestSuite(select="unit"):
             , "testGetModels"
             , "testGetModel"
             , "testGetRequirements"
+            , "testGetListRequirements"
             ],
         "component":
             [ "testComponents"

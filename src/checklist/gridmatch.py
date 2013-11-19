@@ -22,11 +22,11 @@ log.setLevel(logging.INFO)
 
 # from rocommand import ro_uriutils
 
-class GridMatchError(Exception):
+class GridMatchReport(Exception):
     """
     Class for reporting match failures
     """
-    def __init__(self, msg="GridMatchError", row=0, col=0, value=None):
+    def __init__(self, msg="GridMatchReport", row=0, col=0, value=None):
         self._msg    = msg
         self._row    = row
         self._col    = col
@@ -37,6 +37,18 @@ class GridMatchError(Exception):
         txt = "%s @[%d,%d]"%(self._msg, self._row, self._col)
         if self._value:  txt += ": "+repr(self._value)
         return txt
+
+    def __repr__(self):
+        return ( "GridMatchReport(%s (%d,%d), value=%s)"%
+                 (repr(self._msg), self._row, self._col, repr(self._value)))
+
+class GridMatchError(GridMatchReport):
+    """
+    Class for signalling recoverable match failures
+    """
+    def __init__(self, msg="GridMatchError", row=0, col=0, value=None):
+        super(GridMatchError, self).__init__(msg=msg, row=row, col=col, value=value)        
+        return
 
     def __repr__(self):
         return ( "GridMatchError(%s (%d,%d), value=%s)"%
@@ -151,8 +163,8 @@ class GridMatchRepeatDown(GridMatch):
     @param dkey:    field for resulting dictionary key
     @param dval:    field for resulting dictionary value
 
-    If 'dkey' and 'dval' are defibned, they are keys that are used to select values
-    from the list of results, and comnstruct a dictionary from the list.
+    If 'dkey' and 'dval' are defined, they are keys that are used to select values
+    from the list of results, and construct a dictionary from the list.
     """
     def __init__(self, m, key="repeatdown", min=0, max=None, dkey=None, dval=None):
         self._m   = m
@@ -334,6 +346,17 @@ class error(GridMatch):
         return
     def match(self, grid, row, col):
         raise GridMatchError(self._msg, row, col, self._val)
+
+class trace(GridMatch):
+    """
+    Do not match; raise error with supplied message and value
+    """
+    def __init__(self, msg="gridmatch.trace", val=None):
+        self._msg = msg
+        self._val = val
+        return
+    def match(self, grid, row, col):
+        raise GridMatchReport(self._msg, row, col, self._val)
 
 # End.
 

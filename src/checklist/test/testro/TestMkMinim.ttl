@@ -62,9 +62,10 @@
     minim:query
         [ minim:sparql_query "?file rdf:type ex:Part" ] ;
     minim:aggregatesTemplate "{+file}" ;
-    minim:showpass "All file as part resources are aggregated in RO" ;
+    minim:showpass "All part resource files %(file_list)s are aggregated in RO" ;
     minim:showfail "File as part %(file)s is not aggregated in RO" ;
     minim:showmiss "No file as part definitions are present" ;
+    minim:list [ minim:collectVar "file" ; minim:collectList "file_list" ] ;
     .
 
 <#req_foreach_accessible> a minim:QueryTestRule ;
