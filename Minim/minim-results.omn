@@ -70,9 +70,6 @@ Ontology:  <http://purl.org/minim/minim-results>
     Domain: minim:Result
     Range: minim:Model
 
-  # Properties applied to an evaluated target resource.  These definitively convey the result
-  # of a checklist evaluation.
-
   ObjectProperty: minim:fullySatisfies
     Annotations:
       rdfs:label "Fully satisfied model",
@@ -80,7 +77,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist model that is fully satisfied by that resource (i.e. all MUST, SHOULD 
         and MAY requirements satisfied)."
-    Domain: ro:Resource
+    Domain: minim:Result
     Range: minim:Model
 
   ObjectProperty: minim:nominallySatisfies
@@ -90,7 +87,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist model that is nominally (adequately) satisfied by that resource 
         (i.e. all MUST and SHOULD requirements satisfied)."
-    Domain: ro:Resource
+    Domain: minim:Result
     Range: minim:Model
 
   ObjectProperty: minim:minimallySatisfies
@@ -100,7 +97,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist model that is minimally (adequately) satisfied by that resource 
         (i.e. all MUST requirements satisfied)."
-    Domain: ro:Resource
+    Domain: minim:Result
     Range: minim:Model
 
   ObjectProperty: minim:satisfied
@@ -109,8 +106,8 @@ Ontology:  <http://purl.org/minim/minim-results>
       rdfs:comment
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is satisfied by that resource."
-    Domain: ro:Resource
-    Range: :ChecklistItemReport    # See below
+    Domain: minim:Result
+    Range: minim:ChecklistItemReport
 
   ObjectProperty: minim:missingMust
     Annotations:
@@ -119,8 +116,8 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is not satisfied by the target resource, but which MUST
         be satisfied for the overall checklist to be satisfied."
-    Domain: ro:Resource
-    Range: :ChecklistItemReport    # See below
+    Domain: minim:Result
+    Range: minim:ChecklistItemReport
 
   ObjectProperty: minim:missingShould
     Annotations:
@@ -129,8 +126,8 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is not satisfied by the target resource, but which SHOULD
         be satisfied for the overall checklist to be fully satisfied."
-    Domain: ro:Resource
-    Range: :ChecklistItemReport    # See below
+    Domain: minim:Result
+    Range: minim:ChecklistItemReport
 
   ObjectProperty: minim:missingMay
     Annotations:
@@ -139,8 +136,8 @@ Ontology:  <http://purl.org/minim/minim-results>
         "This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is not satisfied by the target resource, but which is
         defined as an item whose satisfaction is optional."
-    Domain: ro:Resource
-    Range: :ChecklistItemReport    # See below
+    Domain: minim:Result
+    Range: minim:ChecklistItemReport
 
   # Properties used with a Checklist item report
 
@@ -149,7 +146,7 @@ Ontology:  <http://purl.org/minim/minim-results>
       rdfs:label "Tested requirement",
       rdfs:comment
         "This property indicates a minim requirement tested by a checklist item report"
-    Domain: :ChecklistItemReport
+    Domain: minim:ChecklistItemReport
     Range: minim:Requirement
 
   DataProperty: minim:tryMessage
@@ -157,7 +154,7 @@ Ontology:  <http://purl.org/minim/minim-results>
       rdfs:label "Tested requirement message",
       rdfs:comment
         "This property indicates a message that described the outcome of the tested requirement"
-    Domain: :ChecklistItemReport
+    Domain: minim:ChecklistItemReport
     Range: string
 
   # properties from <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>, used
@@ -206,7 +203,7 @@ Ontology:  <http://purl.org/minim/minim-results>
         (minim:testedRO        exactly 1 ro:ResearchObject) and
         (minim:testedTarget    exactly 1 ro:Resource)       )
 
-  Class: :ChecklistItemReport
+  Class: minim:ChecklistItemReport
     Annotations:
       rdfs:label "Checklist item report",
       rdfs:comment

@@ -60,10 +60,12 @@ MINIM      = ro_namespaces.makeNamespace(minimnsuri,
             , "AccessibilityTest", "isLiveTemplate"
             , "ExistsTest", "exists"            ### @@this is structly redundant - drop it?
             # Result properties
+            , "Result"
+            , "minimUri"
+            , "testedChecklist", "testedPurpose", "testedTarget", "testedModel", "testedRO"
             , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             , "satisfied", "missingMay", "missingShould", "missingMust"
-            , "testedChecklist", "testedPurpose", "testedTarget", "testedModel"
-            , "minimUri"
+            , "ChecklistItemReport"
             , "tryRequirement", "tryMessage"
             ])
 

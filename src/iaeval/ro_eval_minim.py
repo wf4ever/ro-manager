@@ -587,23 +587,27 @@ def evalResultGraph(graph, evalresult):
     graph.bind("dcterms", DCTERMS.baseUri)
     graph.bind("result",  RESULT.baseUri)
     graph.bind("minim",   MINIM.baseUri)
-    rouri     = rdflib.URIRef(evalresult['rouri'])
-    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    rouri      = rdflib.URIRef(evalresult['rouri'])
+    targeturi  = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    resultnode = rdflib.BNode()
     graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
     graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
+    graph.add( (targeturi, DCTERMS.identifier, rdflib.Literal(evalresult['targetid']))     )
+    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel']))  )
+    # @@TODO: associate with result, not RO;  add testedRO link
     graph.add( (rouri, MINIM.testedChecklist,  rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
     graph.add( (rouri, MINIM.testedModel,      rdflib.URIRef(evalresult['modeluri']))      )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (targeturi, DCTERMS.identifier, rdflib.Literal(evalresult['targetid']))     )
-    graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel']))  )
+    # @@TODO: associate with result, not target
     for level in evalresult['summary']:
         log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
         graph.add( (targeturi, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all items tested...
+    # @@TODO: associate with result, not target
     def addRequirementsDetail(satisfied, results, satlevel):
         for (req, binding) in results:
             b = rdflib.BNode()
