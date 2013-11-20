@@ -471,7 +471,7 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         probequeries = (
             [ '''ASK { <%s> minim:minimUri <%s> }'''%
               (rouri, rometa.getComponentUri("Minim-chembox.ttl"))
-            , '''ASK { <%s> minim:modelUri <%s> }'''%
+            , '''ASK { <%s> minim:testedModel <%s> }'''%
               (rouri, modeluri)
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (resuri, "InChI identifier is present")

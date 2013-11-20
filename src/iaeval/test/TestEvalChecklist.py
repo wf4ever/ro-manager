@@ -500,7 +500,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         probequeries = (
             [ '''ASK { <%s> minim:minimUri <%s> }'''%
               (rometa.getRoUri(), minimuri)
-            , '''ASK { <%s> minim:modelUri <%s> }'''%
+            , '''ASK { <%s> minim:testedModel <%s> }'''%
               (rometa.getRoUri(), modeluri)
             , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (rouri, "Workflow instance or template found")
@@ -602,7 +602,7 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         probequeries = (
             [ "ASK { <%s> minim:minimUri <%s> }"%
               (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:modelUri <%s> }"%
+            , "ASK { <%s> minim:testedModel <%s> }"%
               (rometa.getRoUri(), modeluri)
             , """ASK 
               { <%(rouri)s> 

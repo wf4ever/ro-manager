@@ -596,8 +596,8 @@ def evalResultGraph(graph, evalresult):
     graph.add( (rouri, MINIM.testedChecklist,  rdflib.URIRef(evalresult['constrainturi'])) )
     graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
     graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
+    graph.add( (rouri, MINIM.testedModel,      rdflib.URIRef(evalresult['modeluri']))      )
     graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     graph.add( (targeturi, DCTERMS.identifier, rdflib.Literal(evalresult['targetid']))     )
     graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel']))  )
     for level in evalresult['summary']:

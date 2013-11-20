@@ -28,7 +28,7 @@
     <minim:testedPurpose>Runnable</minim:testedPurpose>
     <minim:testedTarget rdf:resource="file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"/>
     <minim:testedChecklist rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable"/>
-    <minim:modelUri>
+    <minim:testedModel>
       <minim:Model rdf:about="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model">
         <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#has_workflow_inputs"/>
         <minim:hasMustRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflows_aggregated"/>
@@ -42,7 +42,7 @@
         <minim:hasShouldRequirement rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#workflow_inputs_accessible"/>
         <rdfs:label>Runnable</rdfs:label>
       </minim:Model>
-    </minim:modelUri>
+    </minim:testedModel>
     <minim:minimUri rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"/>
     <minim:minimallySatisfies rdf:resource="file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"/>
 

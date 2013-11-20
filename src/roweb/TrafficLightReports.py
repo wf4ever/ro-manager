@@ -275,7 +275,7 @@ EvalChecklistJson = (
                 dcterms:identifier ?roid ;
                 dcterms:title ?title ;
                 dcterms:description ?description ;
-                minim:modelUri ?modeluri ;
+                minim:testedModel ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
             }
@@ -502,7 +502,7 @@ EvalChecklistHtml = (
                 dcterms:identifier ?roid ;
                 dcterms:title ?title ;
                 dcterms:description ?description ;
-                minim:modelUri ?modeluri ;
+                minim:testedModel ?modeluri ;
                 minim:testedTarget ?target ;
                 minim:testedPurpose ?purpose .
               OPTIONAL { ?target rdfs:label ?targetlabel . }
