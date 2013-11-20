@@ -28,6 +28,7 @@ import rdflib
 from MiscUtils import TestUtils
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
+from iaeval.ro_minim         import MINIM
 
 import RdfReport
 import TrafficLightReports
@@ -497,21 +498,22 @@ class TestRdfReport(unittest.TestCase):
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
         initvars  = (
-            { 'rouri':      rdflib.URIRef(rouristr)
+            { 'result':     rdfgraph.value(predicate=RDF.type, object=MINIM.Result)
+            , 'rouri':      rdflib.URIRef(rouristr)
             , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
             , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
             , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
             })
         outstr   = StringIO.StringIO()
-        rdfgraph = rdflib.Graph()
-        rdfgraph.parse(trafficlight_test_data)
         RdfReport.generate_report(TrafficLightReports.EvalItemJson, rdfgraph, initvars, outstr)
         expected = (
             [ ''
             , '''{ "itemuri":        "%s#workflow_inputs_accessible"'''%(checklist)
             , ''', "itemlabel":      '''+
-              '''"Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible"'''%
+              '''"Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-bio.ods is not accessible"'''%
               (rouristr, rouristr)
             , ''', "itemlevel":      "http://purl.org/minim/minim#missingShould"'''
             , ''', "itemsatisfied":  false'''
@@ -567,22 +569,23 @@ class TestRdfReport(unittest.TestCase):
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
         initvars  = (
-            { 'rouri':      rdflib.URIRef(rouristr)
+            { 'result':     rdfgraph.value(predicate=RDF.type, object=MINIM.Result)
+            , 'rouri':      rdflib.URIRef(rouristr)
             , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
             , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
             , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
             })
         outstr   = StringIO.StringIO()
-        rdfgraph = rdflib.Graph()
-        rdfgraph.parse(trafficlight_test_data)
         RdfReport.generate_report(TrafficLightReports.EvalItemHtml, rdfgraph, initvars, outstr)
         expected = (
             [ ''
             , '''<tr class="sub_result">'''
             , '''<td></td>'''
             , '''<td class="trafficlight small fail should"><div/></td>'''
-            , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
+            , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-bio.ods is not accessible</td>'''%
               (rouristr, rouristr)
             , '''</tr>'''
             ])

@@ -73,7 +73,6 @@ __version__ = "0.2.20"      # More documentation improvements (including LISC 20
                              # Enhance Minim model to allow values to be collected from probe query 
                              #   (@@TODO formatting improvements required)
                              # Update Minim results model to create independent description for each evaluation
-                             #   (@@TODO still needs implementing)
                              # ...
 
 

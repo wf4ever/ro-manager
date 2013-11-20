@@ -469,19 +469,19 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         modeluri = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
         prefixes = make_sparql_prefixes()
         probequeries = (
-            [ '''ASK { <%s> minim:minimUri <%s> }'''%
+            [ '''ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }'''%
               (rouri, rometa.getComponentUri("Minim-chembox.ttl"))
-            , '''ASK { <%s> minim:testedModel <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (resuri, "InChI identifier is present")
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (resuri, "ChemSpider identifier is present")
-            , '''ASK { <%s> minim:missingMay [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:missingMay [ minim:tryMessage "%s" ] }'''%
               (resuri, "No synomym is present")
-            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:nominallySatisfies <%s> }'''%
               (resuri, modeluri)
-            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:minimallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (resuri, reslabel)

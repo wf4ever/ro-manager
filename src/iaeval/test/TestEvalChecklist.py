@@ -45,9 +45,6 @@ from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
 
-#from TestConfig import ro_test_config
-#from StdoutContext import SwitchStdout
-
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
 
@@ -498,19 +495,19 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rouri    = rometa.getRoUri()
         modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model")
         probequeries = (
-            [ '''ASK { <%s> minim:minimUri <%s> }'''%
-              (rometa.getRoUri(), minimuri)
-            , '''ASK { <%s> minim:testedModel <%s> }'''%
-              (rometa.getRoUri(), modeluri)
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            [ '''ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }'''%
+              (rouri, minimuri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (rouri, "Workflow instance or template found")
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (rouri, "All workflow inputs referenced or present")
-            , '''ASK { <%s> minim:fullySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:fullySatisfies <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:nominallySatisfies <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:minimallySatisfies <%s> }'''%
               (rouri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (rouri, rdflib.Literal("RO test minim"))
@@ -600,21 +597,21 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model")
         log.debug("------ outgraph:\n%s\n----"%(outgraph.serialize(format='turtle')))
         probequeries = (
-            [ "ASK { <%s> minim:minimUri <%s> }"%
-              (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:testedModel <%s> }"%
-              (rometa.getRoUri(), modeluri)
+            [ "ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }"%
+              (rouri, minimuri)
+            , "ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }"%
+              (rouri, modeluri)
             , """ASK 
-              { <%(rouri)s> 
+              { _:r minim:testedRO <%(rouri)s> ; 
                   minim:testedPurpose "Missing" ;
                   minim:missingMust 
                     [ minim:tryMessage "No workflow present with hens tooth" ;
                       result:binding [ result:variable "_count" ; result:value 0 ]
                     ]
               }"""% { 'rouri': rouri }
-            , '''ASK { <%s> minim:missingMust [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:missingMust [ minim:tryMessage "%s" ] }'''%
               (rouri, "No workflow present with hens tooth")
-            , '''ASK { <%s> minim:testedTarget <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedTarget <%s> }'''%
               (rouri, rouri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (rouri, rdflib.Literal("RO test minim"))

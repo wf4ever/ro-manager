@@ -287,7 +287,7 @@ The output should look something like this:
 * More documentation improvements (including LISC 2013 material added)
 * Metadata query diagnostic improvements (log query in event of failure)
 * Enhance Minim model to allow values to be collected from probe query (@@TODO formatting improvements required)
-* Update Minim results model to create independent description for each evaluation (@@TODO still needs implementing)
+* Update Minim results model to create independent description for each evaluation
 * ...
 
 
