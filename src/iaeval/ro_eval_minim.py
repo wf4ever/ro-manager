@@ -333,6 +333,12 @@ def evalContentMatch(rometa, rule, constraintbinding):
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)
 
+class ValueList(list):
+    def __str__(self):
+        if self:
+            return ", ".join([str(v) for v in self])
+        return "(no values)"
+
 def addCollectedVariables(collectors, collectwhen, result_list, binding):
     """
     Helper function used to collect values from probe query results and add them to the resulting query binding.
@@ -343,7 +349,7 @@ def addCollectedVariables(collectors, collectwhen, result_list, binding):
             if satisfied in collectwhen:
                 if cv in res:
                     vallist.append(res[cv])
-        binding[cl] = sorted(vallist)
+        binding[cl] = ValueList(sorted(vallist))
     return binding
 
 def evalQueryTest(rometa, rule, constraintbinding):

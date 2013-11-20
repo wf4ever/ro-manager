@@ -37,6 +37,8 @@ from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
 
+from iaeval.ro_eval_minim import ValueList
+
 from checklist.grid import (GridCSV, GridExcel)
 from checklist import gridmatch 
 from checklist import checklist_template 
@@ -254,8 +256,8 @@ class TestMkMinim(TestROSupport.TestROSupport):
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
-        filelist  = [ unicode(ro_manifest.getComponentUri(rodir, f)) 
-                      for f in ["File1.txt", "File2.txt", "File3.txt"] ]
+        filelist  = ValueList( [ str(ro_manifest.getComponentUri(rodir, f)) 
+                                 for f in ["File1.txt", "File2.txt", "File3.txt"] ] )
         expect = (
             [ "Research Object file://%s/:"%(rodir)
             , "Fully complete for test1 of resource ."
@@ -317,8 +319,10 @@ class TestMkMinim(TestROSupport.TestROSupport):
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
-        filelist  = [ unicode(ro_manifest.getComponentUri(rodir, f)) 
-                      for f in ["File1.txt", "File2.txt", "File3.txt"] ]
+        # filelist  = [ unicode(ro_manifest.getComponentUri(rodir, f)) 
+        #               for f in ["File1.txt", "File2.txt", "File3.txt"] ]
+        filelist  = ValueList( [ str(ro_manifest.getComponentUri(rodir, f)) 
+                                 for f in ["File1.txt", "File2.txt", "File3.txt"] ] )
         expect = (
             [ "Research Object file://%s/:"%(rodir)
             , "Fully complete for test1 of resource ."
