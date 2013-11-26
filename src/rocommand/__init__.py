@@ -68,10 +68,11 @@
                              # Add project copyright and licencing information.
                              # Add README for Overlay RO service, and update other documentation files.
 #__version__ = "0.2.19"      # Documentation tweaks
-__version__ = "0.2.20"      # More documentation improvements (including LISC 2013 material added)
+#__version__ = "0.2.20"      # More documentation improvements (including LISC 2013 material added)
                              # Metadata query diagnostic improvements (log query in event of failure)
                              # Enhance Minim model to allow values to be collected from probe query 
                              # Update Minim results model to create independent description for each evaluation
+__version__ = "0.2.20"      # More documentation improvements (including LISC 2013 material added)
 
 
 __author__      = "Graham Klyne (GK@ACM.ORG)"
