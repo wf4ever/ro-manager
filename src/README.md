@@ -288,8 +288,6 @@ The output should look something like this:
 * Metadata query diagnostic improvements (log query in event of failure)
 * Enhance Minim model to allow values to be collected from probe query
 * Update Minim results model to create independent description for each evaluation
-* ...
-
 
 ### Changes for 0.2.19
 
