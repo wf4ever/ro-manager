@@ -6,6 +6,10 @@ Module to test RO manager minim access functions
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -171,6 +175,48 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
             rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#create/data/UserRequirements-astro.ods"))
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#runnableRO"))
+        self.deleteTestRo(rodir)
+        return
+
+    def testEvalQueryTestReportList(self):
+        """
+        Test QueryTestRules reporting list of failed query probes
+        """
+        self.setupConfig()
+        rodir = self.createTestRo(testbase, "test-data-2", "RO test minim", "ro-testMinim")
+        rouri = ro_manifest.getRoUri(rodir)
+        self.populateTestRo(testbase, rodir)
+        rometa = ro_metadata(ro_config, rodir)
+        resuri = rometa.getComponentUriAbs("data/NoSuchResource")
+        rometa.addSimpleAnnotation(resuri, "rdfs:label", "Test label")
+        # Now run evaluation against test RO
+        (g, evalresult) = ro_eval_minim.evaluate(rometa,
+            "Minim-UserRequirements2.rdf",        # Minim file
+            "data/NoSuchResource",                # Target resource
+            "report list")                        # Purpose
+        log.debug("ro_eval_minim.evaluate result:\n----\n%s"%(repr(evalresult)))
+        self.assertNotIn(MINIM.fullySatisfies,     evalresult['summary'])
+        self.assertNotIn(MINIM.nominallySatisfies, evalresult['summary'])
+        self.assertIn(MINIM.minimallySatisfies, evalresult['summary'])
+        self.assertEquals(evalresult['missingMust'],    [])
+        self.assertEquals(len(evalresult['missingShould']), 1)
+        self.assertEquals(evalresult['missingShould'][0][0]['seq'], '04 - aggregates data/NoSuchResource')
+        self.assertEquals(evalresult['missingMay'],     [])
+        self.assertEquals(evalresult['rouri'],          rometa.getRoUri())
+        self.assertEquals(evalresult['minimuri'],       rometa.getComponentUri("Minim-UserRequirements2.rdf"))
+        self.assertEquals(evalresult['target'],         "data/NoSuchResource")
+        self.assertEquals(evalresult['purpose'],        "report list")
+        self.assertEquals(evalresult['constrainturi'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#report/data/NoSuchResource"))
+        self.assertEquals(evalresult['modeluri'],
+            rometa.getComponentUriAbs("Minim-UserRequirements2.rdf#reportList"))
+        # Check result bindings returned
+        self.assertEquals(evalresult['missingShould'][0][1]['_count'], 1)
+        self.assertEquals(evalresult['missingShould'][0][1]['_fileuri'], rometa.getComponentUri("data/NoSuchResource"))
+        self.assertEquals(evalresult['missingShould'][0][1]['targetres'], rometa.getComponentUri("data/NoSuchResource"))
+        self.assertEquals(evalresult['missingShould'][0][1]['ro'], str(rometa.getRoUri()))
+        self.assertEquals(evalresult['missingShould'][0][1]['ro_list'], [str(rometa.getRoUri())])
+        # Clean up
         self.deleteTestRo(rodir)
         return
 
@@ -423,19 +469,19 @@ class TestEvalQueryMatch(TestROSupport.TestROSupport):
         modeluri = rdflib.URIRef('http://example.com/chembox-samples/minim_model')
         prefixes = make_sparql_prefixes()
         probequeries = (
-            [ '''ASK { <%s> minim:minimUri <%s> }'''%
+            [ '''ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }'''%
               (rouri, rometa.getComponentUri("Minim-chembox.ttl"))
-            , '''ASK { <%s> minim:modelUri <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (resuri, "InChI identifier is present")
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (resuri, "ChemSpider identifier is present")
-            , '''ASK { <%s> minim:missingMay [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:missingMay [ minim:tryMessage "%s" ] }'''%
               (resuri, "No synomym is present")
-            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:nominallySatisfies <%s> }'''%
               (resuri, modeluri)
-            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedTarget <%s> ; minim:minimallySatisfies <%s> }'''%
               (resuri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (resuri, reslabel)
@@ -481,6 +527,7 @@ def getTestSuite(select="unit"):
             , "testEvalQueryTestModelMin"
             , "testEvalQueryTestModelExists"
             , "testEvalQueryTestModel"
+            , "testEvalQueryTestReportList"
             , "testEvalQueryTestChembox"
             , "testEvalQueryTestChemboxFail"
             , "testEvalFormatSummary"

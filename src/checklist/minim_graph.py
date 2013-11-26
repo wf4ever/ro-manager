@@ -4,6 +4,10 @@
 Module to create RDF Minim graph throughn simple set of API calls
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import rdflib
 
 from rocommand.ro_namespaces import RDF
@@ -108,6 +112,16 @@ class Minim_graph(object):
         if NoMatch:
             self._minimgr.add( (rule, MINIM.showmiss, rdflib.Literal(NoMatch)) )
         return rule
+
+    def collectlist(self, rule, listprop, listvars):
+        for c in listvars:
+            listnode = rdflib.BNode()
+            self._minimgr.add( (rule, listprop,  listnode) )
+            self._minimgr.add( (listnode, RDF.type, MINIM.ValueCollector) )
+            # Note: strips off leading '?' from variable names
+            self._minimgr.add( (listnode, MINIM.collectVar,  rdflib.Literal(c["collectvar"][1:])) )
+            self._minimgr.add( (listnode, MINIM.collectList, rdflib.Literal(c["collectlist"][1:])) )
+        return
 
     def serialize(self, outstr, format="turtle"):
         self._minimgr.serialize(destination=outstr, format=format)

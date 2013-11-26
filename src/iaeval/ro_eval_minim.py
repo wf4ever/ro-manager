@@ -4,6 +4,10 @@
 Research Object evaluation withj respoect to a MINIM description
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 #import os
 #import os.path
@@ -329,6 +333,25 @@ def evalContentMatch(rometa, rule, constraintbinding):
         raise ValueError("Unrecognized content match rule: %s"%repr(rule))
     return (satisfied,simplebinding)
 
+class ValueList(list):
+    def __str__(self):
+        if self:
+            return ", ".join([str(v) for v in self])
+        return "(no values)"
+
+def addCollectedVariables(collectors, collectwhen, result_list, binding):
+    """
+    Helper function used to collect values from probe query results and add them to the resulting query binding.
+    """
+    for (cv, cl) in collectors:
+        vallist = []
+        for (satisfied, _, res) in result_list:
+            if satisfied in collectwhen:
+                if cv in res:
+                    vallist.append(res[cv])
+        binding[cl] = ValueList(sorted(vallist))
+    return binding
+
 def evalQueryTest(rometa, rule, constraintbinding):
     """
     rometa      ro_metadata for RO to test
@@ -450,6 +473,10 @@ def evalQueryTest(rometa, rule, constraintbinding):
         satisfied = True
         binding   = simplebinding     # last result tested
         msg       = rule['showpass']
+    # Add collected values to binding returned
+    addCollectedVariables(rule['list'], [True, False], result_list, binding)
+    addCollectedVariables(rule['listfail'], [False], result_list, binding)
+    addCollectedVariables(rule['listpass'], [True], result_list, binding)
     return (satisfied, binding, msg)
 
 def format(eval_result, options, ostr):
@@ -566,28 +593,34 @@ def evalResultGraph(graph, evalresult):
     graph.bind("dcterms", DCTERMS.baseUri)
     graph.bind("result",  RESULT.baseUri)
     graph.bind("minim",   MINIM.baseUri)
-    rouri     = rdflib.URIRef(evalresult['rouri'])
-    targeturi = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    rouri      = rdflib.URIRef(evalresult['rouri'])
+    targeturi  = rdflib.URIRef(resolveUri(evalresult['target'], evalresult['rouri']))
+    resultnode = rdflib.BNode()
     graph.add( (rouri, DCTERMS.identifier,     rdflib.Literal(evalresult['roid']))         )
     graph.add( (rouri, RDFS.label,             rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.title,          rdflib.Literal(evalresult['title']))        )
     graph.add( (rouri, DCTERMS.description,    rdflib.Literal(evalresult['description']))  )
-    graph.add( (rouri, MINIM.testedChecklist,  rdflib.URIRef(evalresult['constrainturi'])) )
-    graph.add( (rouri, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
-    graph.add( (rouri, MINIM.testedTarget,     targeturi)                                  )
-    graph.add( (rouri, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
-    graph.add( (rouri, MINIM.modelUri,         rdflib.URIRef(evalresult['modeluri']))      )
     graph.add( (targeturi, DCTERMS.identifier, rdflib.Literal(evalresult['targetid']))     )
     graph.add( (targeturi, RDFS.label,         rdflib.Literal(evalresult['targetlabel']))  )
+    # Build up Minim result graph
+    graph.add( (resultnode, RDF.type, MINIM.Result) )
+    graph.add( (resultnode, MINIM.testedRO,         rouri) )
+    graph.add( (resultnode, MINIM.testedChecklist,  rdflib.URIRef(evalresult['constrainturi'])) )
+    graph.add( (resultnode, MINIM.testedPurpose,    rdflib.Literal(evalresult['purpose']))      )
+    graph.add( (resultnode, MINIM.testedTarget,     targeturi)                                  )
+    graph.add( (resultnode, MINIM.testedModel,      rdflib.URIRef(evalresult['modeluri']))      )
+    graph.add( (resultnode, MINIM.minimUri,         rdflib.URIRef(evalresult['minimuri']))      )
+    # Summary result of evaluation
     for level in evalresult['summary']:
         log.info("RO %s, level %s, model %s"%(rouri,level,evalresult['modeluri']))
-        graph.add( (targeturi, level, rdflib.URIRef(evalresult['modeluri'])) )
+        graph.add( (resultnode, level, rdflib.URIRef(evalresult['modeluri'])) )
     # Add details for all items tested...
     def addRequirementsDetail(satisfied, results, satlevel):
         for (req, binding) in results:
             b = rdflib.BNode()
             msg = formatRule(satisfied, req, binding)
-            graph.add( (targeturi, satlevel, b) )
+            graph.add( (resultnode, satlevel, b) )
+            graph.add( (b, RDF.type,             MINIM.ChecklistItemReport) )
             graph.add( (b, MINIM.tryRequirement, req['uri']) )
             graph.add( (b, MINIM.tryMessage, rdflib.Literal(msg)) )
             for k in binding:

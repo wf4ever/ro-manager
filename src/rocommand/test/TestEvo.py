@@ -1,3 +1,7 @@
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys 
 
 if __name__ == "__main__":

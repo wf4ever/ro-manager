@@ -4,6 +4,10 @@
 Research Object metadata (manifest and annotations) access class
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import os.path
@@ -556,7 +560,11 @@ class ro_metadata(object):
         log.debug("queryAnnotations: \n----\n%s\n--------\n"%(query))
         ann_gr = self._loadAnnotations()
         # log.debug("queryAnnotations graph: \n----\n%s\n--------\n"%(ann_gr.serialize(format='xml')))
-        resp = ann_gr.query(query,initBindings=initBindings)
+        try:
+            resp = ann_gr.query(query,initBindings=initBindings)
+        except:
+            log.info("queryAnnotations failed query: \n----\n%s\n--------\n"%(query))
+            raise
         if resp.type == 'ASK':
             return resp.askAnswer
         elif resp.type == 'SELECT':

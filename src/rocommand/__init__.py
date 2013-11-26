@@ -67,5 +67,15 @@
                              # Revise RO access logic to allow 'ro' to display details of RO at arbitrary location
                              # Add project copyright and licencing information.
                              # Add README for Overlay RO service, and update other documentation files.
-__version__ = "0.2.19"      # Next revision ...
+#__version__ = "0.2.19"      # Documentation tweaks
+__version__ = "0.2.20"      # More documentation improvements (including LISC 2013 material added)
+                             # Metadata query diagnostic improvements (log query in event of failure)
+                             # Enhance Minim model to allow values to be collected from probe query 
+                             # Update Minim results model to create independent description for each evaluation
+
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 

@@ -282,6 +282,17 @@ The output should look something like this:
 
 ## Revision history
 
+### Changes for 0.2.20
+
+* More documentation improvements (including LISC 2013 material added)
+* Metadata query diagnostic improvements (log query in event of failure)
+* Enhance Minim model to allow values to be collected from probe query
+* Update Minim results model to create independent description for each evaluation
+
+### Changes for 0.2.19
+
+* Documentation updates (not released)
+
 ### Changes for 0.2.18
 
 * Create benchmarking scrpts and result data

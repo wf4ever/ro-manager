@@ -1,3 +1,7 @@
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path, sys
 from rocommand.test.TestConfig import ro_test_config
 from urlparse import urljoin

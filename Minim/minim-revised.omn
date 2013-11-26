@@ -78,14 +78,6 @@ Note that a purpose is implicit in a checklist object itself, so the purpose is 
         "Indicates a rule that, when its test evaluates to True, indicates that a requirement is satisfied."
     Domain: minim:Requirement
     Range: minim:Rule
-    
-  DataProperty: minim:seq
-    Annotations:
-      rdfs:label "sequence",
-      rdfs:comment
-        "A value that is used to order the requirements in a checklist for reporting purpose.  It has no effect on the overall outcome of a checklist evaluation."
-    Domain: minim:Requirement
-    Range: string
 
   DataProperty: minim:command
     Annotations:
@@ -196,6 +188,91 @@ Note that minim:min and minim:max can be used together to define an exact cardin
         "Indicates a rule that is invoked with the current query result as predefined variable bindings.  The result returned is success if the rule invocation fails, otherwise failure if the rule succeeds."
     Domain: minim:RuleNegationTest
     Range: minim:Rule
+  
+  # Additional properties used for report generation
+  # ------------------------------------------------
+  # "seq", "show", "showpass", "showfail", "showmiss"
+  # "list", "listpass", "listfail"
+
+  DataProperty: minim:seq
+    Annotations:
+      rdfs:label "sequence",
+      rdfs:comment
+        "A value that is used to order the requirements in a checklist for reporting purpose.  It has no effect on the overall outcome of a checklist evaluation."
+    Domain: minim:Requirement
+    Range: string
+
+  DataProperty: minim:show
+    Annotations:
+      rdfs:label "show",
+      rdfs:comment
+        "A template string that is used to report the evaluation of a rule.  It has no effect on the overall outcome of a checklist evaluation.  Query results and other values are nterpolated into the resulting report string by embedded codes of the form '%(varname)s' (Python format string style)."
+    Domain: minim:Rule
+    Range: string
+
+  DataProperty: minim:showpass
+    Annotations:
+      rdfs:label "showpass",
+      rdfs:comment
+        "A template string that is used to report the success of a rule, overriding any minim:show value that may be present.  It has no effect on the overall outcome of a checklist evaluation.  Query results and other values are interpolated into the resulting report string by embedded codes of the form '%(varname)s' (Python format string style)."
+    Domain: minim:Rule
+    Range: string
+
+  DataProperty: minim:showfail
+    Annotations:
+      rdfs:label "showfail",
+      rdfs:comment
+        "A template string that is used to report the failure of a rule, overriding any minim:show value that may be present.  It has no effect on the overall outcome of a checklist evaluation.  Query results and other values are interpolated into the resulting report string by embedded codes of the form '%(varname)s' (Python format string style)."
+    Domain: minim:Rule
+    Range: string
+
+  DataProperty: minim:showmiss
+    Annotations:
+      rdfs:label "showmiss",
+      rdfs:comment
+        "A template string that is used to report a query rule whose probe query matches no values.  In such circumstances, it overrides any minim:show value that may be present Previous query results and other values are nterpolated into the resulting report string by embedded codes of the form '%(varname)s' (i.e. Python format string style)."
+    Domain: minim:Rule
+    Range: string
+
+  ObjectProperty: minim:list
+    Annotations:
+      rdfs:label "list",
+      rdfs:comment
+        "Used with minim:QueryTestRule to create an additional variable binding that is a list of values from every match of the probe query.  The list is available to report templates, but not in any sub-rules that may be invoked."
+    Domain: minim:QueryTestRule
+    Range: minim:ValueCollector
+
+  ObjectProperty: minim:listpass
+    Annotations:
+      rdfs:label "listpass",
+      rdfs:comment
+        "Like minim:list, but collects values from probe queries for which the corresponding query result test is passed."
+    Domain: minim:QueryTestRule
+    Range: minim:ValueCollector
+
+  ObjectProperty: minim:listfail
+    Annotations:
+      rdfs:label "listfail",
+      rdfs:comment
+        "Like minim:list, but collects values from probe queries for which the corresponding query result test is failed."
+    Domain: minim:QueryTestRule
+    Range: minim:ValueCollector
+
+  DataProperty: minim:collectVar
+    Annotations:
+      rdfs:label "collection variable",
+      rdfs:comment
+        "When collecting a list of query value results, indicates a variable whose various bindings are collected."
+    Domain: minim:ValueCollector
+    Range: string
+
+  DataProperty: minim:collectList
+    Annotations:
+      rdfs:label "collection list",
+      rdfs:comment
+        "When collecting a list of query value results, indicates a variable that is bound to the list of collected values."
+    Domain: minim:ValueCollector
+    Range: string
 
   # Classes
   # -------
@@ -357,4 +434,13 @@ The minim:result_mod value, if present, is added as a query result modifier, and
       minim:negateRule exactly 1 minim:Rule
     SubClassOf:
       minim:QueryResultTest
+
+  Class: minim:ValueCollector
+    Annotations:
+      rdfs:label "value collector",
+      rdfs:comment 
+        "A node that references a pair of variable names used when assembling a list of matched values from a probe query."
+    EquivalentTo:
+      ( ( minim:collectVar  exactly 1 string ) and 
+        ( minim:collectList exactly 1 string ) )
 

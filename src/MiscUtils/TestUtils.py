@@ -18,6 +18,10 @@
 #   name            a single named test to be run.
 #
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, Graham Klyne, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import unittest
 import logging
 

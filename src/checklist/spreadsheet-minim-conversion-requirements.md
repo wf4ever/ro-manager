@@ -177,6 +177,12 @@ This is promising as it makes the full expressive power of SPARQL available for 
 
 A veritable swiss-army-knife of a tool, that seems to be aimed primarily at cleaning of tabular data.  It does seem to support some flexible pattern-match-driven data transformation capabilities.  As with other tools for processing tabular data, it is very focused on the row/column structure, and I could find no facility for matching patterns that extend over multiple rows.  It's possible that such features could be added, but that would involve a significant learning curve for understanding how to extend the system.
 
+## TabLinker
+
+https://github.com/Data2Semantics/TabLinker
+
+(Added 2013-10-22. Evaluation TBD)
+
 ## Others
 
 I glanced briefly at a number of other spreadsheet/tabular data conversion tools, and as far as I could tell they were (maybe unsurporisingly) all very much focused on treating each row as an independent record to be converted.  The designed format for checklist-in-spreadsheets captures a structure that is somewhat deeper than tabular data, and as such uses multiple rows to encode a information about a common entity, such as a rule.

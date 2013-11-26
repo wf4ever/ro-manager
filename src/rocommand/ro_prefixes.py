@@ -4,6 +4,10 @@
 Central list of prefixes commonly used with ROs
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 prefixes = (
     [ ("rdf",       "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
     , ("rdfs",      "http://www.w3.org/2000/01/rdf-schema#")

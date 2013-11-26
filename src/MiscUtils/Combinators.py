@@ -8,10 +8,13 @@ Combinators for use with Python code, mostly based on Haskell library elements.
 Strictly speaking, the "curry..." functions are not currying, but partial
 application.  Currying is the partial application of a function of n 
 arguments to just one argument to yield a new function of (n-1) arguments.
+
 See: http://en.wikipedia.org/wiki/Currying
-
-
 """
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, Graham Klyne, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
 
 class compose:
     """

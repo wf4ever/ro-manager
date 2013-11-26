@@ -76,7 +76,7 @@
         with a checklist model that is fully satisfied by that resource (i.e. all MUST, SHOULD 
         and MAY requirements satisfied).</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -85,9 +85,8 @@
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#minimUri">
         <rdfs:label>Minim definition resource</rdfs:label>
-        <rdfs:comment>This property is used in checklist results to relate a research object to a resource
-        containing Minim definitions used to perform a checklist evaluation.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ro;ResearchObject"/>
+        <rdfs:comment>This property relates a checklist result to a resource containing Minim definitions used to perform a checklist evaluation.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
         <rdfs:range rdf:resource="&owl;Thing"/>
     </owl:ObjectProperty>
     
@@ -101,7 +100,7 @@
         with a checklist model that is minimally (adequately) satisfied by that resource 
         (i.e. all MUST requirements satisfied).</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -114,7 +113,7 @@
         with a checklist item that is not satisfied by the target resource, but which is
         defined as an item whose satisfaction is optional.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#ChecklistItemReport"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -127,7 +126,7 @@
         with a checklist item that is not satisfied by the target resource, but which MUST
         be satisfied for the overall checklist to be satisfied.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#ChecklistItemReport"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -140,25 +139,7 @@
         with a checklist item that is not satisfied by the target resource, but which SHOULD
         be satisfied for the overall checklist to be fully satisfied.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#ChecklistItemReport"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://purl.org/minim/minim#modelUri -->
-
-    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#modelUri">
-        <rdfs:label>Tested Minim model</rdfs:label>
-        <rdfs:comment>This property is used in checklist results to relate a research object to a Minim
-        model defning an evaluated checklist.  (The Minim model definition is contained within 
-        the resource referenced by minim:minimUri, and MAY be the same URI.  More commonly,
-        the Minim model URI is the Minim resource URI with a fragment identifier, allowing a 
-        single Minim resource to contain multiple model (checklist) definitions.
-        
-        Note that the model definition is also included in the result graph returned, 
-        for ease of access.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ro;ResearchObject"/>
-        <rdfs:range rdf:resource="&owl;Thing"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -171,7 +152,7 @@
         with a checklist model that is nominally (adequately) satisfied by that resource 
         (i.e. all MUST and SHOULD requirements satisfied).</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -183,7 +164,7 @@
         <rdfs:comment>This property is used in checklist results to relate an evaluated target resource
         with a checklist item that is satisfied by that resource.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#ChecklistItemReport"/>
-        <rdfs:domain rdf:resource="&ro;Resource"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
     </owl:ObjectProperty>
     
 
@@ -192,10 +173,33 @@
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedChecklist">
         <rdfs:label>Tested checklist</rdfs:label>
-        <rdfs:comment>This property is used in checklist results to relate a research object to a checklist
-        (constraint) against which it has been evaluated.</rdfs:comment>
+        <rdfs:comment>This property relates a checklist result to a checklist against which it has been evaluated.</rdfs:comment>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#Checklist"/>
-        <rdfs:domain rdf:resource="&ro;ResearchObject"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#testedModel -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedModel">
+        <rdfs:label>Tested Minim model</rdfs:label>
+        <rdfs:comment>This property relates a checklist result to a Minim model defning an evaluated checklist.  (The Minim model definition is contained within the resource referenced by minim:minimUri, and MAY be the same URI.  More commonly, the Minim model URI is the Minim resource URI with a fragment identifier, allowing a single Minim resource to contain multiple model (checklist) definitions.
+        
+        Note that the model definition is also included in the result graph returned, for ease of access.</rdfs:comment>
+        <rdfs:range rdf:resource="http://purl.org/minim/minim#Model"/>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
+    </owl:ObjectProperty>
+    
+
+
+    <!-- http://purl.org/minim/minim#testedRO -->
+
+    <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedRO">
+        <rdfs:label>Tested RO</rdfs:label>
+        <rdfs:comment>This property relates a checklist result to a Research Object that provides the context for the evaluation performed.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
+        <rdfs:range rdf:resource="&ro;ResearchObject"/>
     </owl:ObjectProperty>
     
 
@@ -204,9 +208,8 @@
 
     <owl:ObjectProperty rdf:about="http://purl.org/minim/minim#testedTarget">
         <rdfs:label>Tested target resource</rdfs:label>
-        <rdfs:comment>This property is used in checklist results to relate a research object to a checklist
-        target resource for which checklist evaluation has been performed.</rdfs:comment>
-        <rdfs:domain rdf:resource="&ro;ResearchObject"/>
+        <rdfs:comment>This property relates a checklist result to a target resource for which checklist evaluation has been performed.</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
         <rdfs:range rdf:resource="&ro;Resource"/>
     </owl:ObjectProperty>
     
@@ -244,12 +247,9 @@
 
     <owl:DatatypeProperty rdf:about="http://purl.org/minim/minim#testedPurpose">
         <rdfs:label>Tested purpose</rdfs:label>
-        <rdfs:comment>This property is used in checklist results to relate a research object to a string
-        indicating a purpose for which evaluation has been performed.  (Note, this value is
-        technically redundant, being accessible from the tested checklist resource, and 
-        included for convenience of reporting.)</rdfs:comment>
+        <rdfs:comment>This property relates a checklist result to a string indicating a purpose for which evaluation has been performed.  (Note, this value is technically redundant, being accessible from the tested checklist resource, and included for convenience of reporting.)</rdfs:comment>
+        <rdfs:domain rdf:resource="http://purl.org/minim/minim#Result"/>
         <rdfs:range rdf:resource="http://purl.org/minim/minim#string"/>
-        <rdfs:domain rdf:resource="&ro;ResearchObject"/>
     </owl:DatatypeProperty>
     
 
@@ -363,6 +363,50 @@ A Checklist may be associated directly with a target resource as the subject of 
        
          The minim:seq value is used to order the requirement results returned, 
          to allow more consistent reporting of results.</rdfs:comment>
+    </owl:Class>
+    
+
+
+    <!-- http://purl.org/minim/minim#Result -->
+
+    <owl:Class rdf:about="http://purl.org/minim/minim#Result">
+        <rdfs:label>Checklist result</rdfs:label>
+        <owl:equivalentClass>
+            <owl:Class>
+                <owl:intersectionOf rdf:parseType="Collection">
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#minimUri"/>
+                        <owl:cardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:cardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#testedChecklist"/>
+                        <owl:onClass rdf:resource="http://purl.org/minim/minim#Checklist"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#testedModel"/>
+                        <owl:onClass rdf:resource="http://purl.org/minim/minim#Model"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#testedRO"/>
+                        <owl:onClass rdf:resource="&ro;ResearchObject"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#testedTarget"/>
+                        <owl:onClass rdf:resource="&ro;Resource"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                    </owl:Restriction>
+                    <owl:Restriction>
+                        <owl:onProperty rdf:resource="http://purl.org/minim/minim#testedPurpose"/>
+                        <owl:qualifiedCardinality rdf:datatype="&xsd;nonNegativeInteger">1</owl:qualifiedCardinality>
+                        <owl:onDataRange rdf:resource="http://purl.org/minim/minim#string"/>
+                    </owl:Restriction>
+                </owl:intersectionOf>
+            </owl:Class>
+        </owl:equivalentClass>
+        <rdfs:comment>A resource the represents the result of a single checklist evaluation.</rdfs:comment>
     </owl:Class>
     
 

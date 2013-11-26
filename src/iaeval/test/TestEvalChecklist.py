@@ -6,6 +6,10 @@ Module to test RO manager manifest and aggregation commands
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -40,9 +44,6 @@ from rocommand.ro_prefixes   import make_sparql_prefixes
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
-
-#from TestConfig import ro_test_config
-#from StdoutContext import SwitchStdout
 
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
@@ -148,6 +149,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
             , 'ruleuri': evalresult['missingMust'][0][0]['ruleuri']
@@ -185,6 +189,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'ruleuri': evalresult['missingShould'][0][0]['ruleuri']
@@ -222,6 +229,9 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
             , 'ruleuri': evalresult['missingMay'][0][0]['ruleuri']
@@ -485,19 +495,19 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         rouri    = rometa.getRoUri()
         modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model")
         probequeries = (
-            [ '''ASK { <%s> minim:minimUri <%s> }'''%
-              (rometa.getRoUri(), minimuri)
-            , '''ASK { <%s> minim:modelUri <%s> }'''%
-              (rometa.getRoUri(), modeluri)
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            [ '''ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }'''%
+              (rouri, minimuri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (rouri, "Workflow instance or template found")
-            , '''ASK { <%s> minim:satisfied [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
               (rouri, "All workflow inputs referenced or present")
-            , '''ASK { <%s> minim:fullySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:fullySatisfies <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:nominallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:nominallySatisfies <%s> }'''%
               (rouri, modeluri)
-            , '''ASK { <%s> minim:minimallySatisfies <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:minimallySatisfies <%s> }'''%
               (rouri, modeluri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (rouri, rdflib.Literal("RO test minim"))
@@ -587,21 +597,21 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model")
         log.debug("------ outgraph:\n%s\n----"%(outgraph.serialize(format='turtle')))
         probequeries = (
-            [ "ASK { <%s> minim:minimUri <%s> }"%
-              (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:modelUri <%s> }"%
-              (rometa.getRoUri(), modeluri)
+            [ "ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }"%
+              (rouri, minimuri)
+            , "ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }"%
+              (rouri, modeluri)
             , """ASK 
-              { <%(rouri)s> 
+              { _:r minim:testedRO <%(rouri)s> ; 
                   minim:testedPurpose "Missing" ;
                   minim:missingMust 
                     [ minim:tryMessage "No workflow present with hens tooth" ;
                       result:binding [ result:variable "_count" ; result:value 0 ]
                     ]
               }"""% { 'rouri': rouri }
-            , '''ASK { <%s> minim:missingMust [ minim:tryMessage "%s" ] }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:missingMust [ minim:tryMessage "%s" ] }'''%
               (rouri, "No workflow present with hens tooth")
-            , '''ASK { <%s> minim:testedTarget <%s> }'''%
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedTarget <%s> }'''%
               (rouri, rouri)
             , '''ASK { <%s> rdfs:label "%s" }'''%
               (rouri, rdflib.Literal("RO test minim"))

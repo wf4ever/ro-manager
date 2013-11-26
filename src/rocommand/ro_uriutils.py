@@ -5,6 +5,10 @@ Helper functions for manipulasting and testing URIs and URI-related file paths,
 and for accessing or testing data at a URI reference.
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import os.path

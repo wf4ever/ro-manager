@@ -2,6 +2,10 @@
 RO SRS session client implementation 
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import json # Used for service/resource info parsing
 import re   # Used for link header parsing
 #import httplib

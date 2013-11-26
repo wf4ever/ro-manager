@@ -4,9 +4,13 @@
 Module to define matching template for checklist spreadsheet
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 from gridmatch import (
-    GridMatchError, GridMatch,
-    text, anyval, regexval, refval, intval, save, value, error
+    GridMatchReport, GridMatchError, GridMatch,
+    text, anyval, regexval, refval, intval, save, value, error, trace
     )
 
 checklist_start = value("matchtemplate", "checklist")
@@ -58,6 +62,21 @@ rulebody = ( matchforeach
     | error("No rule body found")
     )
 
+collectvarlist = ( ( regexval("\?\w+", "collectvar") + text("as:") + regexval("\?\w+", "collectlist") )
+                 | trace("collectvarlist not matched")
+                 )
+
+collectall = ( text("Collect:") + collectvarlist )
+
+collectpass = ( text("CollectPass:") + collectvarlist )
+
+collectfail = ( text("CollectFail:") + collectvarlist )
+
+collectvars = ( collectall.repeatdown("collectall")
+    // collectpass.repeatdown("collectpass")
+    // collectfail.repeatdown("collectfail")
+    )
+
 rulediag = ( (text("Pass:") + anyval("pass"))
     // (text("Fail:") + anyval("fail"))
     // (text("None:") + anyval("miss")).optional()
@@ -65,7 +84,7 @@ rulediag = ( (text("Pass:") + anyval("pass"))
 
 requirement = ( text("Rule:").skipdownto() 
     // (text("Rule:") + refval("reqid"))
-    // (text("") + (rulebody // rulediag))
+    // (text("") + (rulebody // collectvars // rulediag))
     )
 
 requirements = requirement.repeatdown("requirements", min=1)

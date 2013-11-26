@@ -4,6 +4,10 @@
 Research Object management supporting utility functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os.path
 from xml.dom import minidom
 try:

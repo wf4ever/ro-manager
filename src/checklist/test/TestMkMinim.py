@@ -4,6 +4,10 @@
 Module to test combinator-based grid match functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -32,6 +36,8 @@ from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
+
+from iaeval.ro_eval_minim import ValueList
 
 from checklist.grid import (GridCSV, GridExcel)
 from checklist import gridmatch 
@@ -123,7 +129,7 @@ class TestMkMinim(TestROSupport.TestROSupport):
         self.assertEqual(grid[0][0], "Minim definition for MkMinim testing")
 
         (d,(r,c)) = checklist_template.checklist.match(grid, 0, 0)
-        self.assertEquals(r, 87, "newrow (%d)"%(r))
+        self.assertEquals(r, 86, "newrow (%d)"%(r))
         self.assertEquals(c, 1,  "newcol (%d)"%(c))
         ### print repr(d)
         self.assertEquals(d["matchtemplate"],       'checklist',                        "matchtemplate")
@@ -164,9 +170,12 @@ class TestMkMinim(TestROSupport.TestROSupport):
         self.assertEquals(d["requirements"][2]["reqid"],            '#req_foreach_aggregated')
         self.assertEquals(d["requirements"][2]["foreach"],          '?file rdf:type ex:Part')
         self.assertEquals(d["requirements"][2]["aggregates"],       '{+file}')
-        self.assertEquals(d["requirements"][2]["pass"],             'All file as part resources are aggregated in RO')
+        self.assertEquals(d["requirements"][2]["pass"],             'All part resource files %(file_list)s are aggregated in RO')
         self.assertEquals(d["requirements"][2]["fail"],             'File as part %(file)s is not aggregated in RO')
         self.assertEquals(d["requirements"][2]["miss"],             'No file as part definitions are present')
+        self.assertEquals(len(d["requirements"][2]["collectall"]),              1)
+        self.assertEquals(d["requirements"][2]["collectall"][0]["collectvar"],  "?file")
+        self.assertEquals(d["requirements"][2]["collectall"][0]["collectlist"], "?file_list")
 
         self.assertEquals(d["requirements"][6]["reqid"],            '#req_python')
         self.assertEquals(d["requirements"][6]["command"],          'python --version')
@@ -247,14 +256,16 @@ class TestMkMinim(TestROSupport.TestROSupport):
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
+        filelist  = ValueList( [ str(ro_manifest.getComponentUri(rodir, f)) 
+                                 for f in ["File1.txt", "File2.txt", "File3.txt"] ] )
         expect = (
             [ "Research Object file://%s/:"%(rodir)
             , "Fully complete for test1 of resource ."
             , "Satisfied requirements:"
             , "  At least 3 file as part values are present"
             , "  At most 3 file as part values are present"
+            , "  All part resource files %s are aggregated in RO"%(filelist)
             , "  All file as part resources are accessible (live)"
-            , "  All file as part resources are aggregated in RO"
             , "  Python 2.7.x present"
             , "  Files as part are partOf some indicated whole"
             , "  File exists as a part"
@@ -308,14 +319,18 @@ class TestMkMinim(TestROSupport.TestROSupport):
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
         log.debug("status %d, outtxt: %s"%(status, outtxt))
         # Check response returned
+        # filelist  = [ unicode(ro_manifest.getComponentUri(rodir, f)) 
+        #               for f in ["File1.txt", "File2.txt", "File3.txt"] ]
+        filelist  = ValueList( [ str(ro_manifest.getComponentUri(rodir, f)) 
+                                 for f in ["File1.txt", "File2.txt", "File3.txt"] ] )
         expect = (
             [ "Research Object file://%s/:"%(rodir)
             , "Fully complete for test1 of resource ."
             , "Satisfied requirements:"
             , "  At least 3 file as part values are present"
             , "  At most 3 file as part values are present"
+            , "  All part resource files %s are aggregated in RO"%(filelist)
             , "  All file as part resources are accessible (live)"
-            , "  All file as part resources are aggregated in RO"
             , "  Python 2.7.x present"
             , "  Files as part are partOf some indicated whole"
             , "  File exists as a part"

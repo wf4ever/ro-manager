@@ -6,6 +6,10 @@ Module to test ROSRS synchronization RO manager commands
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os.path
 import filecmp

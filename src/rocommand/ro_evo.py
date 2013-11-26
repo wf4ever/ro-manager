@@ -1,3 +1,8 @@
+
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 from urlparse import urljoin
 from ROSRS_Session import ROSRS_Session
 import logging

@@ -1,5 +1,9 @@
 # $Id: SuperGlobal.py 1047 2009-01-15 14:48:58Z graham $
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, Graham Klyne, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import __main__
 
 class SuperGlobal:
