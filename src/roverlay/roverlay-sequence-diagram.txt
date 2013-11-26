@@ -1,0 +1,79 @@
+# http://www.websequencediagrams.com (free level)
+
+title Create and Access Overlay RO
+
+participant User
+participant ROClient
+note over ROClient: e.g. Command line client\nor Checklist service
+participant Server
+participant ROStore
+participant ROGraph
+participant Web
+
+# Create
+
+User->+ROClient: roverlay uri1,uri2,...uriN
+ROClient->+Server: POST http://roverlay.example.org/\nContent-type: text/uri-list
+note right of ROClient
+  uri1
+  uri2
+   :
+  uriN
+end note
+
+Server->ROStore: Create RO
+activate ROStore
+
+Server->ROGraph: create graph
+activate ROGraph
+
+loop for each uri
+  Server->Web: HEAD uri
+  Web->Server: Response
+  opt if response OK
+  Server->ROStore: Save URI
+  opt if content-type is RDF
+    Server->Web: GET uri
+    Web->Server: Data
+    Server->ROStore: Save data
+    Server->ROGraph: add data to graph
+  end
+end
+Server->-ROClient: 201 Created\nLocation: roURI\n Link: <roGraphURI>;rel=rometadata
+ROClient->-User: display roURI
+
+# Get RIO manifest
+
+User-->>ROClient:
+activate ROClient 
+ROClient->Server: GET roURI
+alt RO exists
+  Server->ROStore: fetch RO details
+  ROStore->Server: RO content
+  Server->ROClient: 200 OK
+  note right of ROClient
+    Manifest data
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+ROClient-->>User:
+deactivate ROClient
+
+# Get RO graph
+
+User-->>ROClient:
+activate ROClient 
+ROClient->Server: GET roGraphURI
+alt RO exists
+  Server->ROGraph: fetch RO graph
+  ROGraph->Server:> RO graph
+  Server->ROClient: 200 OK
+  note right of ROClient
+    RO metadata graph
+  end note
+else RO does not exist
+  Server->ROClient: 404 Not Found
+end
+ROClient-->>User:
+deactivate ROClient 

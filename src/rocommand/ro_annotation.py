@@ -4,6 +4,10 @@
 Research Object annotation read, write, decode functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import os.path
@@ -23,6 +27,7 @@ import ro_settings
 import ro_manifest
 from ro_namespaces import RDF, RDFS, RO, AO, ORE, DCTERMS, ROTERMS
 from ro_uriutils   import resolveUri, resolveFileAsUri
+from ro_prefixes   import prefix_dict
 
 #   Default list of annotation types
 annotationTypes = (
@@ -75,26 +80,8 @@ annotationTypes = (
     ])
 
 # Default list of annotation prefixes
-annotationPrefixes = (
-    { "rdf":       "http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-    , "rdfs":      "http://www.w3.org/2000/01/rdf-schema#"
-    , "owl":       "http://www.w3.org/2002/07/owl#"
-    , "xsd":       "http://www.w3.org/2001/XMLSchema#"
-    , "rdfg":      "http://www.w3.org/2004/03/trix/trix-1/"
-    , "skos":      "http://www.w3.org/2004/02/skos/core#"
-    , "foaf":      "http://xmlns.com/foaf/0.1/"
-    , "dc":        "http://purl.org/dc/elements/1.1/"
-    , "dcterms":   "http://purl.org/dc/terms/"
-    , "ore":       "http://www.openarchives.org/ore/terms/"
-    , "ao":        "http://purl.org/ao/"
-    , "ro":        "http://purl.org/wf4ever/ro#"
-    , "roterms":   "http://purl.org/wf4ever/roterms#"
-    , "roevo":     "http://purl.org/wf4ever/roevo#"
-    , "wfdesc":    "http://purl.org/wf4ever/wfdesc#"
-    , "wfprov":    "http://purl.org/wf4ever/wfprov#"
-    , "wf4ever":   "http://purl.org/wf4ever/wf4ever#"
-    , "ex":        "http://example.org/ro/annotation#"
-    })
+annotationPrefixes = prefix_dict.copy()
+annotationPrefixes.update({'ex': "http://example.org/ro/annotation#"})
 
 # Annotation support functions
 def getResourceNameString(ro_config, rname, base=None):
@@ -483,7 +470,7 @@ def showAnnotations(ro_config, ro_dir, annotations, outstr):
             if sname == "":
                 sname = ro_manifest.getRoUri(ro_dir)
             if sname != sname_prev:
-                print "\n<"+sname+">"
+                print "\n<"+str(sname)+">"
                 sname_prev = sname
             outstr.write("  %s %s\n"%(aname, formatAnnotationValue(aval, atype)))
     return

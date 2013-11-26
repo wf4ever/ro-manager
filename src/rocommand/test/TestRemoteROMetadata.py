@@ -4,6 +4,10 @@
 Module to test remote RO metadata handling class
 """
 
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os.path
 import sys
 import logging
@@ -23,7 +27,7 @@ if __name__ == "__main__":
 import rdflib
 import uuid
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_remote_metadata
 from rocommand.ROSRS_Session import ROSRS_Session

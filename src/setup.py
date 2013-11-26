@@ -3,6 +3,10 @@
 # Setup.py based on https://github.com/paltman/python-setup-template/blob/master/setup.py,
 # following http://www.ibm.com/developerworks/opensource/library/os-pythonpackaging/index.html
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import codecs
 import os
 import sys
@@ -39,20 +43,40 @@ setup(
     url=URL,
     packages = ['rocommand','rocommand.test'
                ,'iaeval','iaeval.test'
-               ,'MiscLib'
+               ,'checklist','checklist.test'
+               ,'roweb','roweb.test'
+               ,'roverlay.rovweb','roverlay.rovcmd'
+               ,'roverlay','roverlay.rovweb.rovweb','roverlay.rovweb.rovserver'
+               ,'MiscUtils'
                ,'samples'
-               ,'uritemplate'], #@@TODO: uritemplate already in PyPI?
+               ],
     package_data = {
         'rocommand':    [ 'test/config/*','test/robase/README','test/nobase/README'
                         , 'test/data/ro-test-1/subdir1/*','test/data/ro-test-1/subdir2/*'
                         , 'test/data/ro-test-1/*.rdf','test/data/ro-test-1/README*','test/data/ro-test-1/file*'
                         ],
         'iaeval':       [ 'test/config/*','test/robase/README'
-                        , 'test/test-data-1/*.rdf'
-                        , 'test/test-data-1/data/*', 'test/test-data-1/docs/*'
+                        , 'test/test-data-1/*.rdf', 'test/test-data-1/data/*', 'test/test-data-1/docs/*'
+                        , 'test/test-data-2/*.rdf', 'test/test-data-2/data/*'
                         , 'test/test-simple-wf/TODO'
                         , 'test/test-simple-wf/*.rdf', 'test/test-simple-wf/*.sh'
                         , 'test/test-simple-wf/data/*', 'test/test-simple-wf/docs/*'
+                        , 'test/test-chembox/*'
+                        ],
+        'roweb':        [ 'test/data/*.rdf','test/data/*.json','test/data/*.html','test/data/*.sh'
+                        , 'test/data/css/*.css','test/data/css/images/*'
+                        , 'test/data/images/*' 
+                        ],
+        'checklist':    [ 'test/config/*','test/robase/README','test/testro/*'
+                        , 'test/TestGridMatch.xls', 'test/TestGridMatch.csv'
+                        ],
+        'roverlay':     [ '*.txt', '*.png', '*.md'
+                        , 'rovweb/db/*.txt'
+                        , 'rovweb/rovserver/templates/*.html'
+                        , 'rovweb/rovserver/testdata/ro-test-1/subdir1/*'
+                        , 'rovweb/rovserver/testdata/ro-test-1/subdir2/*'
+                        , 'rovweb/rovserver/testdata/ro-test-1/*.txt'
+                        , 'rovweb/rovserver/testdata/ro-test-1/*.rdf'
                         ],
         'samples':      [ '*.sh', '*.py', 'prefixes.*', 'README' ],
         },
@@ -69,10 +93,12 @@ setup(
         "Programming Language :: Python",
         ],
     zip_safe=False,
-    install_requires=["rdflib >= 3.2.1", "rdfextras >=0.2", "httplib2"],
+    install_requires=["rdflib == 4.0.1", "rdflib-sparql == 0.2", "httplib2", "uritemplate", "xlrd"],
     entry_points = {
         'console_scripts': [
             'ro = rocommand.ro:runMain',
+            'mkminim = checklist.mkminim:runMain',
+            'roverlay = roverlay.rovcmd.roverlay:runMain',
             'ro-manager-test = rocommand.test.RunRoManagerTests:runTestSuite'
             ],
         },

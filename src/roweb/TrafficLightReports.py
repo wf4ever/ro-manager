@@ -24,6 +24,10 @@ Report definition structure:
 
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import logging
@@ -32,27 +36,14 @@ import json
 import rdflib
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
+from rocommand.ro_prefixes   import make_sparql_prefixes
+
+sparql_prefixes = make_sparql_prefixes()
 
 log = logging.getLogger(__name__)
 
 def LIT(l): return rdflib.Literal(l)
 def REF(u): return rdflib.URIRef(u)
-
-sparql_prefixes = """
-    PREFIX rdf:     <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-    PREFIX rdfs:    <http://www.w3.org/2000/01/rdf-schema#>
-    PREFIX xsd:     <http://www.w3.org/2001/XMLSchema#>
-    PREFIX xml:     <http://www.w3.org/XML/1998/namespace>
-    PREFIX ao:      <http://purl.org/ao/>
-    PREFIX dcterms: <http://purl.org/dc/terms/>
-    PREFIX foaf:    <http://xmlns.com/foaf/0.1/>
-    PREFIX ro:      <http://purl.org/wf4ever/ro#>
-    PREFIX wfprov:  <http://purl.org/wf4ever/wfprov#>
-    PREFIX wfdesc:  <http://purl.org/wf4ever/wfdesc#>
-    PREFIX wf4ever: <http://purl.org/wf4ever/wf4ever#>
-    PREFIX minim:   <http://purl.org/minim/minim#>
-    PREFIX result:  <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
-    """
 
 # Report structure used to get evaluation result URI from result graph
 # Query idiom adapted from http://lists.w3.org/Archives/Public/public-sparql-dev/2006JulSep/0000.html
@@ -64,7 +55,7 @@ sparql_prefixes = """
 #   http://purl.org/minim/minim#potentiallySatisfies  (actually: did not satisfy)
 #
 # Assumed incoming bindings:
-#   target  URI of target resource of evaluation
+#   result  result node being reproted
 #   minim   URI of minim model for which evaluation has been performed
 #
 # @@TODO:
@@ -73,40 +64,17 @@ sparql_prefixes = """
 #
 EvalTargetResultUri = (
     { 'report':
-      { 'output': "%(satisfaction)s"
-      , 'alt':    "http://purl.org/minim/minim#potentiallySatisfies"
-      , 'query':
-        """
-        SELECT ?target ?satisfaction ?minim WHERE
-        {
-          {
-            ?target ?satisfaction ?minim .
-            FILTER ( ?satisfaction = <http://purl.org/minim/minim#fullySatisfies> )
-          }
-          UNION
-          {
-            ?target ?satisfaction ?minim .
-            FILTER ( ?satisfaction = <http://purl.org/minim/minim#nominallySatisfies> )
-            OPTIONAL
-            {
-              ?target ?altsat ?minim .
-              FILTER ( ?altsat = <http://purl.org/minim/minim#fullySatisfies> )
-            }
-            FILTER ( ! bound(?altsat) )
-          }
-          UNION
-          {
-            ?target ?satisfaction ?minim .
-            FILTER ( ?satisfaction = <http://purl.org/minim/minim#minimallySatisfies> )
-            OPTIONAL
-            {
-              ?target ?altsat ?minim .
-              FILTER ( ?altsat = <http://purl.org/minim/minim#nominallySatisfies> )
-            }
-            FILTER ( ! bound(?altsat) )
+      { 'output': "http://purl.org/minim/minim#fullySatisfies"
+      , 'query':  """ASK { ?result <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+      , 'altreport':
+        { 'output': "http://purl.org/minim/minim#nominallySatisfies"
+        , 'query':  """ASK { ?result <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+        , 'altreport':
+          { 'output': "http://purl.org/minim/minim#minimallySatisfies"
+          , 'query':  """ASK { ?result <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+          , 'alt': "http://purl.org/minim/minim#potentiallySatisfies"
           }
         }
-        """
       }
     })
 
@@ -119,19 +87,19 @@ EvalTargetResultUri = (
 #   "does not satisfy"      (failed MUST items)
 #
 # Assumed incoming bindings:
-#   target  URI of target resource of evaluation
+#   result  result node being reproted
 #   minim   URI of minim model for which evaluation has been performed
 #
 EvalTargetResultLabel = (
     { 'report':
       { 'output': "fully satisfies"
-      , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+      , 'query':  """ASK { ?result <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
       , 'altreport':
         { 'output': "nominally satisfies"
-        , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+        , 'query':  """ASK { ?result <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
         , 'altreport':
           { 'output': "minimally satisfies"
-          , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+          , 'query':  """ASK { ?result <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
           , 'alt': "does not satisfy"
           }
         }
@@ -149,19 +117,19 @@ EvalTargetResultLabel = (
 #   ["fail", "must"]        (failed MUST items)
 #
 # Assumed incoming bindings:
-#   target  URI of target resource of evaluation
+#   result  result node being reproted
 #   minim   URI of minim model for which evaluation has been performed
 #
 EvalTargetResultClass = (
     { 'report':
       { 'output': '"pass"'
-      , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+      , 'query':  """ASK { ?result <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
       , 'altreport':
         { 'output': '"fail", "may"'
-        , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+        , 'query':  """ASK { ?result <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
         , 'altreport':
           { 'output': '"fail", "should"'
-          , 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+          , 'query':  """ASK { ?result <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
           , 'alt': '"fail", "must"'
           }
         }
@@ -180,6 +148,7 @@ EvalTargetResultClass = (
 #     }
 #
 # Assumed incoming bindings:
+#   result    result node being reproted
 #   rouri     URI of RO being evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
 #   itemuri   URI or Minim model checklist item whose result is reported
@@ -210,17 +179,17 @@ EvalItemJson = (
             """
             SELECT * WHERE
             {
-              ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ]
+              ?result minim:satisfied [ minim:tryRequirement ?itemuri ]
             }
             """
         },
-        { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+        { 'query':  sparql_prefixes+"""ASK { ?result minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
         , 'output':     '''\n    , "itemclass":      ["pass"]'''
         , 'altreport':
-          { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+          { 'query':  sparql_prefixes+"""ASK { ?result minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
           , 'output':   '''\n    , "itemclass":      ["fail", "may"]'''
           , 'altreport':
-            { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+            { 'query':  sparql_prefixes+"""ASK { ?result minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
             , 'output': '''\n    , "itemclass":      ["fail", "should"]'''
             , 'alt':    '''\n    , "itemclass":      ["fail", "must"]'''
             }
@@ -246,6 +215,7 @@ EvalItemJson = (
 #   , "roid":                   "simple-requirements"
 #   , "checklisturi":           "file:///runnable-wf-trafficlight/checklist.rdf#Runnable_model"
 #   , "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
+#   , "checklisttargetid":      "simple-requirements"
 #   , "checklisttargetlabel":   "simple-requirements"
 #   , "checklistpurpose":       "Runnable"
 #   , "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"
@@ -261,8 +231,6 @@ EvalItemJson = (
 #   rouri     URI of RO evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
 #
-# @@TODO: add sequence to minim model for output ordering of checklist items
-#
 EvalChecklistJson = (
     { 'report':
       [ { 'output':
@@ -271,27 +239,67 @@ EvalChecklistJson = (
             '''\n, "title":                  "%(title_esc)s"'''+
             '''\n, "description":            "%(description_esc)s"'''+
             '''\n, "checklisturi":           "%(modeluri)s"'''+
+            '''\n, "checklistpurpose":       "%(purpose)s"'''+
             '''\n, "checklisttarget":        "%(target)s"'''+
-            '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
-            '''\n, "checklistpurpose":       "%(purpose)s"'''
+            # '''\n, "checklisttargetid":      "%(targetid)s"'''+
+            # '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''+
+            ''''''
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?result ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose
+            WHERE
             {
+              ?result minim:testedRO ?rouri ;
+                minim:testedModel ?modeluri ;
+                minim:testedTarget ?target ;
+                minim:testedPurpose ?purpose .
               ?rouri
                 dcterms:identifier ?roid ;
                 dcterms:title ?title ;
-                dcterms:description ?description ;
-                minim:modelUri ?modeluri ;
-                minim:testedTarget ?target ;
-                minim:testedPurpose ?purpose .
-              ?target rdfs:label ?targetlabel .
+                dcterms:description ?description .
+              OPTIONAL { ?target rdfs:label ?targetlabel . }
             }
             LIMIT 1
             """
+              # OPTIONAL { ?target rdfs:label ?targetlabel }
+              # OPTIONAL { FILTER( !bound(?targetlabel) ) BIND(str(?target) as ?targetlabel) }
+
+              # { 
+              #   ?target rdfs:label ?targetlabel
+              # }
+              # UNION
+              # {
+              #   OPTIONAL { ?target rdfs:label ?targethaslabel }
+              #   FILTER(!bound(?targethaslabel))
+              #   BIND(str(?target) as ?targetlabel)
+              # }
         , 'report':
           [ { 'output':
+                '''\n, "checklisttargetid":      "%(targetid)s"'''
+            , 'query':
+              sparql_prefixes+
+              """
+              SELECT ?targetid WHERE
+              {
+                ?target 
+                  dcterms:identifier ?targetid
+              }
+              """
+            }
+          , { 'output':
+                '''\n, "checklisttargetlabel":   "%(targetlabel_esc)s"'''
+            , 'query':
+              sparql_prefixes+
+              """
+              SELECT ?targetlabel WHERE
+              {
+                ?target 
+                  rdfs:label ?targetlabel
+              }
+              """
+            }
+          , { 'output':
                 '''\n, "evalresult":             "'''
             }
           , { 'report': EvalTargetResultUri
@@ -349,7 +357,7 @@ EvalChecklistJson = (
 #           </tr>
 #
 # Assumed incoming bindings:
-#   rouri     URI of RO being evaluated
+#   result    Checklist minim:Result node being displayed
 #   modeluri  URI of Minim model defining the evaluated checklist
 #   itemuri   URI or Minim model checklist item whose result is reported
 #   itemlevel URI of satisfaction level asspociated with this item:
@@ -363,13 +371,13 @@ EvalItemHtml = (
             '''\n            <td></td>'''+
             ''''''
         }
-      , { 'query':  sparql_prefixes+"""ASK { ?rouri minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
+      , { 'query':  sparql_prefixes+"""ASK { ?result minim:satisfied [ minim:tryRequirement ?itemuri ] }"""
         , 'output':     '''\n            <td class="trafficlight small pass"><div/></td>'''
         , 'altreport':
-          { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
+          { 'query':  sparql_prefixes+"""ASK { ?result minim:missingMay [ minim:tryRequirement ?itemuri ] }"""
           , 'output':   '''\n            <td class="trafficlight small fail may"><div/></td>'''
           , 'altreport':
-            { 'query':  sparql_prefixes+"""ASK { ?rouri minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
+            { 'query':  sparql_prefixes+"""ASK { ?result minim:missingShould [ minim:tryRequirement ?itemuri ] }"""
             , 'output': '''\n            <td class="trafficlight small fail should"><div/></td>'''
             , 'alt':    '''\n            <td class="trafficlight small fail must"><div/></td>'''
             }
@@ -453,8 +461,6 @@ EvalItemHtml = (
 #   rouri     URI of RO evaluated
 #   modeluri  URI of Minim model defining the evaluated checklist
 #
-# @@TODO: add sequence to minim model for output ordering of checklist items
-#
 EvalChecklistHtml = (
     { 'report':
       [ { 'output':
@@ -471,16 +477,18 @@ EvalChecklistHtml = (
         , 'query':
             sparql_prefixes+
             """
-            SELECT ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose WHERE
+            SELECT ?result ?rouri ?roid ?title ?description ?modeluri ?target ?targetlabel ?purpose
+            WHERE
             {
+              ?result minim:testedRO ?rouri ;
+                minim:testedModel ?modeluri ;
+                minim:testedTarget ?target ;
+                minim:testedPurpose ?purpose .
               ?rouri
                 dcterms:identifier ?roid ;
                 dcterms:title ?title ;
-                dcterms:description ?description ;
-                minim:modelUri ?modeluri ;
-                minim:testedTarget ?target ;
-                minim:testedPurpose ?purpose .
-              ?target rdfs:label ?targetlabel .
+                dcterms:description ?description .
+              OPTIONAL { ?target rdfs:label ?targetlabel . }
             }
             LIMIT 1
             """
@@ -502,13 +510,13 @@ EvalChecklistHtml = (
           , { 'report':
               { 'output':
                   '''\n                <th class="trafficlight large pass"><div/></th>'''
-              , 'query':  """ASK { ?target <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
+              , 'query':  """ASK { ?result <http://purl.org/minim/minim#fullySatisfies> ?minim }"""
               , 'altreport':
                 { 'output':
                     '''\n                <th class="trafficlight large fail may"><div/></th>'''
-              , 'query':  """ASK { ?target <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
+              , 'query':  """ASK { ?result <http://purl.org/minim/minim#nominallySatisfies> ?minim }"""
                 , 'altreport':
-                  { 'query':  """ASK { ?target <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
+                  { 'query':  """ASK { ?result <http://purl.org/minim/minim#minimallySatisfies> ?minim }"""
                   , 'output':
                       '''\n                <th class="trafficlight large fail should"><div/></th>'''
                   , 'alt':
@@ -519,7 +527,7 @@ EvalChecklistHtml = (
             }
           , { 'output':
                 '''\n                <th colspan="2">Target <span class="target">'''+
-                '''\n                  <a href="%(target)s">%(roid)s</a></span> '''+
+                '''\n                  <a href="%(target)s">%(targetlabel_esc)s</a></span> '''+
                 ''''''
             }
           , { 'output':

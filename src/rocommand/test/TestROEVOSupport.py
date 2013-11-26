@@ -1,3 +1,7 @@
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path, sys
 from rocommand.test.TestConfig import ro_test_config
 from urlparse import urljoin
@@ -18,7 +22,7 @@ if __name__ == "__main__":
     sys.path.append("..")
 
 import rdflib
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 from rocommand import ro, ro_utils, ro_manifest
 
 
@@ -27,7 +31,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
     def createSnapshot(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
         body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
+                'copyfrom': live_name,
                 'target': sp_name,
                 'type': "SNAPSHOT",
                 'finalize': ( "%s" % freeze).lower()
@@ -45,12 +49,12 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
         while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
         assert  status == "DONE"
-        return status
+        return (status,id)
     
     def createArchive(self, live_name,sp_name,freeze = True):
         service_uri = urljoin(ro_test_config.ROSRS_URI, "../evo/copy/")
         body = {
-                'copyfrom': urljoin(ro_test_config.ROSRS_URI,live_name),
+                'copyfrom': live_name,
                 'target': sp_name,
                 'type': "ARCHIVE",
                 'finalize': ( "%s" % freeze).lower()
@@ -67,7 +71,7 @@ class TestROEVOSupport(TestROSupport.TestROSupport):
         status = "RUNNING"
         while status == "RUNNING":
             (status, id) = parse_job(rosrs, job_location)
-        return status
+        return (status, id)
     
     # Sentinel/placeholder tests
     def freeze(self, ro_uri):

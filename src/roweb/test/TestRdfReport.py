@@ -25,9 +25,10 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
+from iaeval.ro_minim         import MINIM
 
 import RdfReport
 import TrafficLightReports
@@ -91,6 +92,26 @@ class TestRdfReport(unittest.TestCase):
 
     def testNull(self):
         assert True, 'Null test failed'
+
+    def testEscapeJSON(self):
+        s = []
+        for i in range(0,128):
+            s.append(unichr(i))
+        s = "".join(s)
+        s_esc = RdfReport.escape_json(s)
+        e_esc = ( u'\\u0000\\u0001\\u0002\\u0003\\u0004\\u0005\\u0006\\u0007'+
+                  u'\\b\\t\\n\\u000b\\f\\r\\u000e\\u000f'+
+                  u'\\u0010\\u0011\\u0012\\u0013\\u0014\\u0015\\u0016\\u0017'+
+                  u'\\u0018\\u0019\\u001a\\u001b\\u001c\\u001d\\u001e\\u001f'+
+                  u' !\\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\\\]^_`'+
+                  u'abcdefghijklmnopqrstuvwxyz{|}~\\u007f')
+        # print "----"
+        # print repr(s_esc)
+        # print repr(e_esc)
+        self.assertEqual(s_esc, e_esc)
+        s_loads = json.loads('"'+s_esc+'"')
+        self.assertEqual(s_loads, s)
+        return
 
     def testHelloWorld(self):
         """
@@ -188,7 +209,7 @@ class TestRdfReport(unittest.TestCase):
         RdfReport.generate_report(report, rdfgraph, {}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         outstr   = StringIO.StringIO()
-        RdfReport.generate_report(report, rdfgraph, {'label': 'simple-test-data'}, outstr)
+        RdfReport.generate_report(report, rdfgraph, {'label': rdflib.Literal('simple-test-data')}, outstr)
         self.assertEqual("Hello Graham", outstr.getvalue())
         return
 
@@ -477,21 +498,22 @@ class TestRdfReport(unittest.TestCase):
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
         initvars  = (
-            { 'rouri':      rdflib.URIRef(rouristr)
+            { 'result':     rdfgraph.value(predicate=RDF.type, object=MINIM.Result)
+            , 'rouri':      rdflib.URIRef(rouristr)
             , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
             , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
             , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
             })
         outstr   = StringIO.StringIO()
-        rdfgraph = rdflib.Graph()
-        rdfgraph.parse(trafficlight_test_data)
         RdfReport.generate_report(TrafficLightReports.EvalItemJson, rdfgraph, initvars, outstr)
         expected = (
             [ ''
             , '''{ "itemuri":        "%s#workflow_inputs_accessible"'''%(checklist)
             , ''', "itemlabel":      '''+
-              '''"Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible"'''%
+              '''"Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-bio.ods is not accessible"'''%
               (rouristr, rouristr)
             , ''', "itemlevel":      "http://purl.org/minim/minim#missingShould"'''
             , ''', "itemsatisfied":  false'''
@@ -522,17 +544,16 @@ class TestRdfReport(unittest.TestCase):
           , ''', "title":                  "A simple test RO"'''
           , ''', "description":            "A simple RO used for testing traffic light display."'''
           , ''', "checklisturi":           "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf#Runnable_model"'''
-          , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
-          , ''', "checklisttargetlabel":   "simple-requirements"'''
           , ''', "checklistpurpose":       "Runnable"'''
+          , ''', "checklisttarget":        "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"'''
+          , ''', "checklisttargetid":      "simple-requirements"'''
+          , ''', "checklisttargetlabel":   "simple-requirements"'''
           , ''', "evalresult":             "http://purl.org/minim/minim#minimallySatisfies"'''
           , ''', "evalresultlabel":        "minimally satisfies"'''
           , ''', "evalresultclass":        ["fail", "should"]'''
           ])
         result = outstr.getvalue()
-        #print "\n-----"
-        #print result
-        #print "-----"
+        log.debug("---- JSON result\n%s\n----"%(result))
         resultlines = result.split('\n')
         for i in range(len(expected)):
             self.assertEqual(expected[i], resultlines[i].strip())
@@ -548,22 +569,23 @@ class TestRdfReport(unittest.TestCase):
         """
         rouristr  = "file:///usr/workspace/wf4ever-ro-catalogue/v0.1/simple-requirements/"
         checklist = "file:///usr/workspace/wf4ever-ro-manager/Checklists/runnable-wf-trafficlight/checklist.rdf"
+        rdfgraph = rdflib.Graph()
+        rdfgraph.parse(trafficlight_test_data)
         initvars  = (
-            { 'rouri':      rdflib.URIRef(rouristr)
+            { 'result':     rdfgraph.value(predicate=RDF.type, object=MINIM.Result)
+            , 'rouri':      rdflib.URIRef(rouristr)
             , 'modeluri':   rdflib.URIRef(checklist+"#Runnable_model") 
             , 'itemuri':    rdflib.URIRef(checklist+"#workflow_inputs_accessible")
             , 'itemlevel':  rdflib.URIRef("http://purl.org/minim/minim#missingShould")
             })
         outstr   = StringIO.StringIO()
-        rdfgraph = rdflib.Graph()
-        rdfgraph.parse(trafficlight_test_data)
         RdfReport.generate_report(TrafficLightReports.EvalItemHtml, rdfgraph, initvars, outstr)
         expected = (
             [ ''
             , '''<tr class="sub_result">'''
             , '''<td></td>'''
             , '''<td class="trafficlight small fail should"><div/></td>'''
-            , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-astro.ods is not accessible</td>'''%
+            , '''<td>Workflow %sdocs/mkjson.sh input %sdata/UserRequirements-bio.ods is not accessible</td>'''%
               (rouristr, rouristr)
             , '''</tr>'''
             ])
@@ -650,6 +672,7 @@ def getTestSuite(select="unit"):
         "unit":
             [ "testUnits"
             , "testNull"
+            , "testEscapeJSON"
             , "testHelloWorld"
             , "testSimpleQuery"
             , "testSimpleQuotedJson"

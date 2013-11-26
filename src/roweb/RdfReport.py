@@ -25,11 +25,16 @@ Report definition structure:
                       }
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import collections
 import re
 import logging
 import rdflib
+import json
 
 log = logging.getLogger(__file__)
 
@@ -37,7 +42,20 @@ def escape_json(val):
     """
     Applies appropriate escaping to the supplied value to allow it to be included in a JSON string result.
     """
-    return val.replace('"', '\\"')
+    vnew = []
+    #print "val: "+repr(val)
+    for c in val:
+        if   c == u'"':  c = u'\\"'
+        elif c == u'\\': c = u'\\\\'
+        elif c == u'\b': c = u'\\b'
+        elif c == u'\f': c = u'\\f'
+        elif c == u'\n': c = u'\\n'
+        elif c == u'\r': c = u'\\r'
+        elif c == u'\t': c = u'\\t'
+        elif ord(c) in range(0,32)+[127]:
+            c = '\\u'+"%04x"%(ord(c))
+        vnew.append(c)
+    return "".join(vnew)
 
 def escape_html(val):
     """

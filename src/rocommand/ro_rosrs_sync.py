@@ -4,6 +4,10 @@ Created on 22-08-2012
 @author: piotrhol
 '''
 
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import logging
 import rdflib
 import mimetypes

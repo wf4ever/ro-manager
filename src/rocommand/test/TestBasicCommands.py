@@ -6,6 +6,10 @@ Module to test basic RO manager commands
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -28,7 +32,7 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
 
 from rocommand.ROSRS_Session import ROSRS_Session
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro, ro_utils
 

@@ -1,0 +1,7 @@
+This ro-manager software package is
+
+  COPYRIGHT (2011-2013) University of Oxford
+
+Individual compoenents are copyright of their respective contributors, as indicated.
+
+The software is MIT-licenced (http://opensource.org/licenses/MIT).

@@ -49,7 +49,7 @@ an RO in RODL, even when it has the same content.)</P>
 <P>The root directory of a RO contains a special “hidden” file
 named <CODE>.ro/</CODE>. This directory contains:</P>
 <UL>
-	<LI><P>a manifest file, <CODE>manifest.rd</CODE>f, which it turn
+	<LI><P>a manifest file, <CODE>manifest.rdf</CODE>, which in turn
 	contains RDF data describing the content of the RO according to the
 	ORE specification [5].</P>
 	<LI><P>zero or more annotation files. These are part of the
@@ -157,7 +157,7 @@ provided</H1>
 			<P><CODE>ro snapshot</CODE></P>
 		</TD>
 		<TD WIDTH=77%>
-			<P>prepare a snapshot of existing RO</P>
+			<P>prepare a snapshot of an existing RO</P>
 		</TD>
 	</TR>
 	<TR VALIGN=TOP>
@@ -165,7 +165,7 @@ provided</H1>
 			<P><CODE>ro archive</CODE></P>
 		</TD>
 		<TD WIDTH=77%>
-			<P>prepare an archive of existing RO</P>
+			<P>prepare an archive of an existing RO</P>
 		</TD>
 	</TR>
 	<TR VALIGN=TOP>
@@ -173,7 +173,7 @@ provided</H1>
 			<P><CODE>ro freeze</CODE></P>
 		</TD>
 		<TD WIDTH=77%>
-			<P>freeze earlier prepared snapshot or archive</P>
+			<P>freeze a previously prepared snapshot or archive making it immutable</P>
 		</TD>
 	</TR>
 	<TR VALIGN=TOP>
@@ -412,13 +412,12 @@ displayed. Default is the current directory.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__929_375509825"></A><A NAME="__RefHeading__350_375509825"></A>
 ro archive</H2>
 Prepare an archive of existing RO.
-<PRE STYLE="margin-bottom: 0.5cm"> ro archive <I>RO-uri</I> <I>archive-id</I> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
-<P><CODE><I>RO-uri</I></CODE> is an uri of achived RO.
-<P><CODE><I>achive-id</I></CODE> is a am identifier od crating archive.
-<P><CODE><I>synchronous</I></CODE> is used for performing operation in the synchronous mode.
+<PRE STYLE="margin-bottom: 0.5cm"> ro archive <I>RO-uri</I> <I>archive-id</I> [ --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
+<P><CODE><I>RO-uri</I></CODE> is a URI of the mutable RO that will be archived.
+<P><CODE><I>achive-id</I></CODE> is the suggested identifier of the immutable copy
 <P><CODE><I>asynchronous</I></CODE>  is used for performing operation in the asynchronous mode.
-<P><CODE><I>freeze</I></CODE> is used for freezing the archive immediately after copying.
-<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to RO DL. It can by generate from the RO Portal. Default is the value specified previously using the ro config command. 
+<P><CODE><I>freeze</I></CODE> is used for freezing the archive immediately after copying. If not set, the snapshot or archive is considered temporal and is still mutable.
+<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to the RO repository. For RODL, it can be generated from the RO Portal. Default is the value specified previously using the ro config command. 
 <H2 CLASS="western"><A NAME="__RefHeading__931_375509825"></A><A NAME="__RefHeading__352_375509825"></A>
 ro checkout</H2>
 <PRE>  ro checkout <I>RO-identifier</I> [ -d <I>dir</I> ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
@@ -492,8 +491,8 @@ generated. Otherwise, just a summary report is generated. @@check.
 <H2 CLASS="western"><A NAME="__RefHeading__937_375509825"></A><A NAME="__RefHeading__358_375509825"></A>
 ro freeze</H2>
 <PRE STYLE="margin-bottom: 0.5cm"> ro freeze <I>RO-uri</I></PRE><P>
-Freeze earlier prepared snapshot or archive.
-<P><CODE><I>RO-uri</I></CODE> is an uri of freezing archive or snaphot.
+Freeze a previously prepared snapshot or archive making it immutable.
+<P><CODE><I>RO-uri</I></CODE> URI of the snapshot or release.
 <H2 CLASS="western"><A NAME="__RefHeading__941_375509825"></A><A NAME="__RefHeading__362_375509825"></A>
 ro list</H2>
 Freeze earlier prepared snapshot or archive.
@@ -507,11 +506,13 @@ listed</P>
 <P>@@probably should have options to display files, manifest or both.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__943_375509825"></A><A NAME="__RefHeading__364_375509825"></A>
 ro push</H2>
-<PRE STYLE="margin-bottom: 0.5cm">  ro push <I>zip</I> | -d <I>dir</I> [ -f ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ]</PRE><P>
+<PRE STYLE="margin-bottom: 0.5cm">  ro push <I>zip</I> | -d <I>dir</I> [ -f ] [ --new ] [ -r <I>rosrs_uri</I> ] [ -t <I>access_token</I> ] [ --asynchronous ]</PRE><P>
 Saves an RO from the local host file system to an RO repository,
 creating or updating an RO stored there.</P>
 <P><CODE><I>zip</I></CODE> is the path to the zip file which contains RO which will be saved.</P>
 <P><CODE><I>dir</I></CODE> is the directory from which the RO will be
+<P><CODE><I>new</I></CODE> is used to create completely new Research Object in RO repository from given files(resources) and folders structure. 
+<P><CODE><I>asynchronous</I></CODE>  is used for performing operation in the asynchronous mode.
 saved.</P>
 <P><CODE><I>rosrs-uri</I></CODE> is the URI of the RO Storage and
 Retrieval Service (RO SRS) to be used, example: http://sandbox.wf4ever-project.org/rodl/ROs/. 
@@ -526,13 +527,12 @@ specified previously using the <CODE>ro config</CODE> command.</P>
 <H2 CLASS="western"><A NAME="__RefHeading__929_375509825"></A><A NAME="__RefHeading__350_375509825"></A>
 ro snapshot</H2>
 Prepare a snapshot of existing RO.
-<PRE STYLE="margin-bottom: 0.5cm"> ro snapshot <I>RO-uri</I> <I>shapshot-id</I> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
-<P><CODE><I>RO-uri</I></CODE> is an uri of snapshotted RO.
-<P><CODE><I>achive-id</I></CODE> is a am identifier od crating archive.
-<P><CODE><I>synchronous</I></CODE> is used for performing operation in the synchronous mode.
+<PRE STYLE="margin-bottom: 0.5cm"> ro snapshot <I>RO-uri</I> <I>shapshot-id</I> [ --asynchronous ] [ --freeze ] [ -t <I>access_token</I> ]</PRE><P>
+<P><CODE><I>RO-uri</I></CODE> is a URI of the mutable RO that will be snapshotted.
+<P><CODE><I>achive-id</I></CODE> is the suggested identifier of the immutable copy
 <P><CODE><I>asynchronous</I></CODE>  is used for performing operation in the asynchronous mode.
-<P><CODE><I>freeze</I></CODE> is used for freezing the snapshot immediately after copying.
-<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to RO DL. It can by generate from the RO Portal. Default is the value specified previously using the ro config command. 
+<P><CODE><I>freeze</I></CODE> is used for freezing the snapshot immediately after copying. If not set, the snapshot or archive is considered temporal and is still mutable.
+<P><CODE><I>acces_token</I></CODE> is used to identify the user and authorize access to the RO repository. For RODL, it can be generated from the RO Portal. Default is the value specified previously using the ro config command.
 
 <H2 CLASS="western"><A NAME="__RefHeading__945_375509825"></A><A NAME="__RefHeading__366_375509825"></A>
 ro status</H2>

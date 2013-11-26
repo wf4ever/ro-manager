@@ -6,6 +6,10 @@ Module to test RO manager manifest and aggregation commands
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -28,20 +32,18 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro
 from rocommand import ro_utils
 from rocommand.ro_namespaces import RDF, DCTERMS, RO, AO, ORE
 from rocommand.ro_annotation import annotationTypes
 from rocommand.ro_metadata   import ro_metadata
+from rocommand.ro_prefixes   import make_sparql_prefixes
 
 from rocommand.test import TestROSupport
 from rocommand.test import TestConfig
 from rocommand.test import StdoutContext
-
-#from TestConfig import ro_test_config
-#from StdoutContext import SwitchStdout
 
 from iaeval import ro_minim
 from iaeval.ro_minim import MINIM
@@ -143,13 +145,16 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates data/UserRequirements-bio.ods")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("data/UserRequirements-bio.ods")
-              , 'show':       "04 - aggregates data/UserRequirements-bio.ods"
+              , 'show':       rdflib.Literal("04 - aggregates data/UserRequirements-bio.ods")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
+            , 'ruleuri': evalresult['missingMust'][0][0]['ruleuri']
             , 'seq': "04 - aggregates data/UserRequirements-bio.ods"
             })
         self.maxDiff=None
@@ -165,11 +170,11 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri   = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#missingShouldRequirement")
         (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.html",           # Target resource
@@ -180,13 +185,16 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       "05 - aggregates docs/missing.css"
+              , 'show':       rdflib.Literal("05 - aggregates docs/missing.css")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'ruleuri': evalresult['missingShould'][0][0]['ruleuri']
             , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
@@ -202,11 +210,11 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         Evaluate complete RO against Minim description 
         """
         self.setupConfig()
-        rodir      = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
         self.populateTestRo(testbase, rodir)
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri   = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#missingMayRequirement")
         (g,evalresult) = ro_eval_minim.evaluate(rometa,
             "Minim-UserRequirements.rdf",               # Minim file
             "docs/UserRequirements-bio.pdf",            # Target resource
@@ -217,13 +225,16 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
             , 'label': rdflib.Literal("aggregates docs/missing.css")
             , 'datarule':
               { 'aggregates': rometa.getComponentUri("docs/missing.css")
-              , 'show':       "05 - aggregates docs/missing.css"
+              , 'show':       rdflib.Literal("05 - aggregates docs/missing.css")
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+              , 'list':       []
+              , 'listpass':   []
+              , 'listfail':   []
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
+            , 'ruleuri': evalresult['missingMay'][0][0]['ruleuri']
             , 'seq': "05 - aggregates docs/missing.css"
             })
         self.maxDiff=None
@@ -240,15 +251,14 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.assertEquals(evalresult['modeluri'],
             rometa.getComponentUriAbs("Minim-UserRequirements.rdf#missingMayRequirement"))
         self.deleteTestRo(rodir)
-        self.deleteTestRo(rodir)
         return
 
     def setupEvalFormat(self):
         self.setupConfig()
-        rodir       = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
-        rometa = ro_metadata(ro_config, rodir)
-        minimbase  = rometa.getComponentUri("Minim-UserRequirements.rdf")
-        modeluri    = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
+        rodir     = self.createTestRo(testbase, "test-data-1", "RO test minim", "ro-testMinim")
+        rometa    = ro_metadata(ro_config, rodir)
+        minimbase = rometa.getComponentUri("Minim-UserRequirements.rdf")
+        modeluri  = ro_minim.getElementUri(minimbase, "#test-formatting-constraint")
         self.missing_must = (
             { 'level': "MUST"
             , 'model': modeluri 
@@ -259,7 +269,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/data/UserRequirements-bio.ods") 
             })
@@ -273,7 +282,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
             })
@@ -287,7 +295,6 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
               , 'showpass':   None
               , 'showfail':   None
               , 'showmiss':   None
-              , 'derives':    ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css")
               }
             , 'uri': ro_minim.getElementUri(minimbase, "#isPresent/docs/missing.css") 
             })
@@ -484,31 +491,29 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
         self.outstr.seek(0)
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
-        prefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
-            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
-            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
-            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
-            PREFIX minim:      <http://purl.org/minim/minim#>
-            """
-        # @@TODO: add more probe queries here?
+        prefixes = make_sparql_prefixes()
+        rouri    = rometa.getRoUri()
+        modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model")
         probequeries = (
-            [ "ASK { <%s> minim:minimUri <%s> }"%
-              (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:modelUri <%s> }"%
-              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#runnable_RO_model"))
+            [ '''ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }'''%
+              (rouri, minimuri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "Workflow instance or template found")
+            , '''ASK { _:r minim:testedRO <%s> ; minim:satisfied [ minim:tryMessage "%s" ] }'''%
+              (rouri, "All workflow inputs referenced or present")
+            , '''ASK { _:r minim:testedRO <%s> ; minim:fullySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:nominallySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { _:r minim:testedRO <%s> ; minim:minimallySatisfies <%s> }'''%
+              (rouri, modeluri)
+            , '''ASK { <%s> rdfs:label "%s" }'''%
+              (rouri, rdflib.Literal("RO test minim"))
             ])
         for q in probequeries:
+            log.debug("- query %s"%(q))
             r = outgraph.query(prefixes+q)
             self.assertEqual(r.type, 'ASK', "Result type %s for: %s"%(r.type, q))
             self.assertTrue(r.askAnswer, "Failed query: %s"%(q))
@@ -582,43 +587,34 @@ class TestEvalChecklist(TestROSupport.TestROSupport):
                 args)
         outtxt = self.outstr.getvalue()
         assert status == 0, "Status %d, outtxt: %s"%(status,outtxt)
-        log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
+        # log.debug("status %d, outtxt: \n--------\n%s----"%(status, outtxt))
         # Check response returned
         self.outstr.seek(0)
         outgraph = rdflib.Graph()
         outgraph.parse(self.outstr)
-        prefixes = """
-            PREFIX rdf:        <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-            PREFIX rdfs:       <http://www.w3.org/2000/01/rdf-schema#>
-            PREFIX owl:        <http://www.w3.org/2002/07/owl#>
-            PREFIX xsd:        <http://www.w3.org/2001/XMLSchema#>
-            PREFIX xml:        <http://www.w3.org/XML/1998/namespace>
-            PREFIX ro:         <http://purl.org/wf4ever/ro#>
-            PREFIX wfprov:     <http://purl.org/wf4ever/wfprov#>
-            PREFIX wfdesc:     <http://purl.org/wf4ever/wfdesc#>
-            PREFIX wf4ever:    <http://purl.org/wf4ever/wf4ever#>
-            PREFIX rdfg:       <http://www.w3.org/2004/03/trix/rdfg-1/>
-            PREFIX ore:        <http://www.openarchives.org/ore/terms/>
-            PREFIX ao:         <http://purl.org/ao/>
-            PREFIX dcterms:    <http://purl.org/dc/terms/>
-            PREFIX foaf:       <http://xmlns.com/foaf/0.1/>
-            PREFIX minim:      <http://purl.org/minim/minim#>
-            PREFIX result:     <http://www.w3.org/2001/sw/DataAccess/tests/result-set#>
-            """
-        # @@TODO: add more probe queries here?
+        prefixes = make_sparql_prefixes()
+        rouri    = rometa.getRoUri()
+        modeluri = rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model")
+        log.debug("------ outgraph:\n%s\n----"%(outgraph.serialize(format='turtle')))
         probequeries = (
-            [ "ASK { <%s> minim:minimUri <%s> }"%
-              (rometa.getRoUri(), minimuri)
-            , "ASK { <%s> minim:modelUri <%s> }"%
-              (rometa.getRoUri(), rometa.getComponentUriAbs("simple-wf-minim.rdf#missing_RO_model"))
+            [ "ASK { _:r minim:testedRO <%s> ; minim:minimUri <%s> }"%
+              (rouri, minimuri)
+            , "ASK { _:r minim:testedRO <%s> ; minim:testedModel <%s> }"%
+              (rouri, modeluri)
             , """ASK 
-              { <%(rouri)s> 
+              { _:r minim:testedRO <%(rouri)s> ; 
                   minim:testedPurpose "Missing" ;
                   minim:missingMust 
                     [ minim:tryMessage "No workflow present with hens tooth" ;
                       result:binding [ result:variable "_count" ; result:value 0 ]
                     ]
-              }"""% { 'rouri': rometa.getRoUri() }
+              }"""% { 'rouri': rouri }
+            , '''ASK { _:r minim:testedRO <%s> ; minim:missingMust [ minim:tryMessage "%s" ] }'''%
+              (rouri, "No workflow present with hens tooth")
+            , '''ASK { _:r minim:testedRO <%s> ; minim:testedTarget <%s> }'''%
+              (rouri, rouri)
+            , '''ASK { <%s> rdfs:label "%s" }'''%
+              (rouri, rdflib.Literal("RO test minim"))
           ])
         for q in probequeries:
             r = outgraph.query(prefixes+q)

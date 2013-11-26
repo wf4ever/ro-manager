@@ -4,6 +4,10 @@
 Research Object management supporting utility functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os.path
 from xml.dom import minidom
 try:
@@ -131,5 +135,10 @@ def parse_job(rosrs,uri):
     nodes = minidom.parseString(rosrs.doRequest(uri)[-1])
     job_status = nodes.getElementsByTagName("status")[0].firstChild.nodeValue
     target_id = nodes.getElementsByTagName("target")[0].firstChild.nodeValue
+    if len(nodes.getElementsByTagName("processed_resources")) == 1 and len(nodes.getElementsByTagName("submitted_resources")) == 1 :
+        processed_resources = nodes.getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+        submitted_resources = nodes.getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+        return (job_status, target_id, processed_resources, submitted_resources)
     return (job_status, target_id)
+
 # End.

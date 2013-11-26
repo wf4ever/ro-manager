@@ -4,6 +4,10 @@
 Research Object manager tests support module:  provides common functions used by multiple test suites.
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -12,16 +16,19 @@ import unittest
 import logging
 import datetime
 import StringIO
-from rocommand.test.TestConfig import ro_test_config
 from urlparse import urljoin
-from ROSRS_Session import ROSRS_Session
-from ro_evo import get_location
-from ro_utils import parse_job
+
+from rocommand.test.TestConfig import ro_test_config
+from rocommand.ROSRS_Session import ROSRS_Session
+from rocommand.ro_evo import get_location
+from rocommand.ro_utils import parse_job
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
 except ImportError:
     import json
+
+log = logging.getLogger(__name__)
 
 if __name__ == "__main__":
     # Add main project directory and ro manager directories to python path
@@ -30,7 +37,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro, ro_utils, ro_manifest
 
@@ -97,8 +104,10 @@ class TestROSupport(unittest.TestCase):
         shutil.rmtree(rodir, ignore_errors=True)
         shutil.copytree(testbase+src, rodir)
         # Confirm non-existence of manifest directory
-        self.assertTrue(os.path.exists(rodir), msg="checking copied RO directory")
-        self.assertFalse(os.path.exists(manifestdir), msg="checking copied RO manifest dir")
+        self.assertTrue(os.path.exists(rodir),
+            msg="checking copied RO directory (%s)"%(rodir))
+        self.assertFalse(os.path.exists(manifestdir), 
+            msg="checking copied RO manifest dir (%s)"%(manifestdir))
         return rodir
 
     def checkRoFixtureManifest(self, rodir):
@@ -113,9 +122,10 @@ class TestROSupport(unittest.TestCase):
 
     def checkManifestContent(self, rodir, roname, roident):
         manifest = ro_manifest.readManifest(rodir)
-        self.assertEqual(manifest['roident'],       roident, "RO identifier")
-        self.assertEqual(manifest['rotitle'],       roname,  "RO title")
-        self.assertEqual(manifest['rocreator'],     ro_test_config.ROBOXUSERNAME, "RO creator")
+        log.debug("checkManifestContent: roident %s, manifest['roident'] %s"%(repr(roident),repr(manifest['roident'])) )
+        self.assertEqual(manifest['roident'],       rdflib.Literal(roident), "RO identifier")
+        self.assertEqual(manifest['rotitle'],       rdflib.Literal(roname),  "RO title")
+        self.assertEqual(manifest['rocreator'],     rdflib.Literal(ro_test_config.ROBOXUSERNAME), "RO creator")
         # See: http://stackoverflow.com/questions/969285/
         #      how-do-i-translate-a-iso-8601-datetime-string-into-a-python-datetime-object
         rocreated = datetime.datetime.strptime(manifest['rocreated'], "%Y-%m-%dT%H:%M:%S")
@@ -124,7 +134,7 @@ class TestROSupport(unittest.TestCase):
         self.assertTrue(rodelta.seconds<=1, 
             "Unexpected created datetime: %s, expected about %s"%
                 (manifest['rocreated'],timenow.isoformat()))
-        self.assertEqual(manifest['rodescription'], roname,  "RO name")
+        self.assertEqual(manifest['rodescription'], rdflib.Literal(roname),  "RO name")
         return
 
     def checkManifestGraph(self, rodir, rograph):

@@ -4,26 +4,22 @@
 Basic command functions for ro, research object manager
 """
 
-import sys
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
+import sys, select
 import os
 import os.path
-### import readline  # enable input editing for raw_input
 import re
 import datetime
 import logging
-import rdflib
-import shutil
 import urlparse
 import urllib2
-import zipfile
 from ro_utils import EvoType
 from xml.parsers import expat
 from httplib2 import RelativeURIError
-
-###@@TODO:
-###Where did this come from???
-###from _pyio import BytesIO
-
+import time
 try:
     # Running Python 2.5 with simplejson?
     import simplejson as json
@@ -32,7 +28,7 @@ except ImportError:
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import ro_settings
 import ro_utils
@@ -76,7 +72,17 @@ def getoptionvalue(val, prompt):
             if val[-1] == '\n': val = val[:-1]
     return val
 
-def ro_root_directory(cmdname, ro_config, rodir):
+def getroconfig(configbase, options, rouri=None):
+    ro_config = ro_utils.readconfig(configbase)
+    if options.rosrs_uri:
+        ro_config['rosrs_uri'] = options.rosrs_uri
+    if options.rosrs_access_token:
+        ro_config['rosrs_access_token'] = options.rosrs_access_token
+    if rouri:
+        ro_config['rosrs_uri'] = rouri
+    return ro_config
+
+def ro_root_directory(cmdname, ro_config, rodir, restricted=True):
     """
     Find research object root directory
 
@@ -85,7 +91,10 @@ def ro_root_directory(cmdname, ro_config, rodir):
     """
     # log.debug("ro_root_directory: cmdname %s, rodir %s"%(cmdname, rodir))
     # log.debug("                   ro_config %s"%(repr(ro_config)))
-    ro_dir = ro_utils.ropath(ro_config, rodir)
+    if restricted:
+        ro_dir = ro_utils.ropath(ro_config, rodir)
+    else:
+        ro_dir = os.path.abspath(rodir)
     if not ro_dir:
         print ("%s: indicated directory not in configured research object directory tree: %s (%s)" % 
                (cmdname, rodir, ro_config['robase']))
@@ -109,18 +118,31 @@ def ro_root_directory(cmdname, ro_config, rodir):
            (cmdname, ro_dir))
     return None
 
-def ro_root_reference(cmdname, ro_config, rodir):
+def ro_root_reference(cmdname, ro_config, rodir, roref=None):
     """
     Find research object root directory.  If the supplied rodir is not a local file
     reference, it is returned as-is, otherwise ro_root_directory is used to locate
     the RO root directory containing the indicated file.
 
+    cmdname     name of ro command, used in diagnostic messages
+    ro_config   RO configuration details, used when resolving supplied directory
+    rodir       RO directory supplied via -d option.  Must be in configured work area.
+    roref       RO reference, supplied by other means, or None.  May be any URI reference,
+                resolved against base of file URI for current directory.
+
     Returns directory path string, or None if not found, in which
     case an error message is displayed.
     """
-    roref = ro_uriutils.resolveFileAsUri(rodir)
-    if ro_uriutils.isFileUri(roref):
-        roref = ro_root_directory(cmdname, ro_config, rodir)
+    if not roref:
+        # Process supplied directory option
+        roref = ro_uriutils.resolveFileAsUri(rodir)
+        if ro_uriutils.isFileUri(roref):
+            roref = ro_root_directory(cmdname, ro_config, rodir, restricted=False)
+    else:
+        if rodir:
+            print ("%s: specify either RO directory or URI, not both" % (cmdname))
+            return 1
+        roref = ro_uriutils.resolveFileAsUri(roref)
     return roref
 
 # Argument count checking and usage summary
@@ -143,9 +165,9 @@ ro_command_usage = (
           ["remove [ -d <dir> ] <file-or-uri>"
           , "remove -d <dir> -w <pattern>"
           ])
-    , (["list", "ls"], argminmax(2, 2),
-          ["list [ -a ] [ -s ] [ -d <dir> ]"
-          , "ls   [ -a ] [ -s ] [ -d <dir> ]"
+    , (["list", "ls"], argminmax(2, 3),
+          ["list [ -a ] [ -s ] [ -d <dir> | <uri> ]"
+          , "ls   [ -a ] [ -s ] [ -d <dir> | <uri> ]"
           ])
     , (["annotate"], (lambda options, args: (len(args) == 3 if options.graph else len(args) in [4, 5])),
           ["annotate [ -d <dir> ] <file-or-uri> <attribute-name> <attribute-value>"
@@ -164,15 +186,17 @@ ro_command_usage = (
     , (["evaluate", "eval"], argminmax(5, 6),
           ["evaluate checklist [ -d <dir> ] [ -a | -l <level> ] [ -o <format> ] <minim> <purpose> [ <target> ]"])
     , (["push"], (lambda options, args: (argminmax(2, 3) if options.rodir else len(args) == 3)),
-          ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
+          ["push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ] [ --asynchronous ]"])
     , (["checkout"], argminmax(2, 3),
           ["checkout <RO-name> [ -d <dir>] [ -r <rosrs_uri> ] [ -t <access_token> ]"])
     , (["dump"], argminmax(2, 3),
           ["dump [ -d <dir> | <rouri> ] [ -o <format> ]"])
+    , (["manifest"], argminmax(2, 3),
+          ["manifest [ -d <dir> | <rouri> ] [ -o <format> ]"])
     , (["snapshot"],  argminmax(4, 4),
-          ["snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
+          ["snapshot <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ] [ -r <rosrs_uri> ]"])
     , (["archive"],  argminmax(4, 4),
-          ["archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
+          ["archive <live-RO> <archive-id> [ --asynchronous ] [ --freeze ] [ -t <access_token> ]"])
     , (["freeze"],  argminmax(3, 3),
           ["freeze <RO-id>"])
     ])
@@ -269,7 +293,7 @@ def create(progname, configbase, options, args):
     log.debug("ro_options: " + repr(ro_options))
     ro_options['roident'] = ro_options['roident'] or ro_utils.ronametoident(ro_options['roname'])
     # Read local ro configuration and extract creator
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     timestamp = datetime.datetime.now().replace(microsecond=0)
     ro_options['rocreator'] = ro_config['username']
     ro_options['rocreated'] = timestamp.isoformat()
@@ -338,7 +362,7 @@ def status(progname, configbase, options, args):
     ro status <uri> [ -d dir ]
     """
     # Check command arguments
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "rodir":   options.rodir or "",
         }
@@ -367,12 +391,11 @@ def status(progname, configbase, options, args):
     return 0
 
 def remote_status(progname, configbase, options, args):
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options, args[2])
     ro_options = {
-        "uri": args[2],
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "uri":                args[2],
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
     }
     if options.verbose:
         print "ro status %(uri)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % ro_options
@@ -382,19 +405,28 @@ def remote_status(progname, configbase, options, args):
     
 def job_status(options, args, rosrs):
     try:
-        (status,target,finalize,type) = rosrs.getJob(args[2])
+        if len(rosrs.getJob(args[2])) == 5:
+            (status,target,processed,submitted,opType) = rosrs.getJob(args[2])
+            print "Job Status: %s" %  status
+            print "Target Uri: %s" %  target
+            if submitted != "0":
+                print "Processed resources/Submitted resources: %s/%s" % (processed,submitted)
+            return 0
+        else:
+            (status,target,finalize,opType) = rosrs.getJob(args[2])
+            print "Job Status: %s" %  status
+            print "Target Uri: %s" %  target
+            print "Finalize: %s" %  finalize
+            print "Research Object Type: %s" % opType
+            return 0
     except expat.ExpatError as error:
         return -1
     except RelativeURIError as error:
         return -1
     except IndexError as error:
         return -1
-    print "Job Status: %s" %  status
-    print "Job Target: %s" %  target
-    print "Finalize: %s" %  finalize
-    print "Research Object Type: %s" % type
-    
-    
+
+
 def remote_ro_status(options, args, rosrs):
     try:
         result = rosrs.getROEvolution(args[2])
@@ -429,7 +461,7 @@ def add(progname, configbase, options, args):
 
     If no file or directory specified, defaults to current directory.
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "rodir":        options.rodir or "",
         "rofile":       args[2] if len(args) == 3 else ".",
@@ -455,7 +487,7 @@ def remove(progname, configbase, options, args):
     remove [ -d <dir> ] <file-or-uri>
     remove -d <dir> -w <pattern>
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     rodir = options.rodir or (not options.wildcard and os.path.dirname(args[2]))
     ro_options = {
         # Usding graph annotation form
@@ -525,33 +557,47 @@ def list(progname, configbase, options, args):
     """
     List contents of a designated research object
     
-    -a displays files present as well as aggregated resources
+    -a displays files present in directory as well as aggregated resources
     -h includes hidden files in display
 
-    ro list [ -a ] [ -h ] [ -d dir ]
-    ro ls   [ -a ] [ -h ] [ -d dir ]
+    ro list [ -a ] [ -h ] [ -d dir | uri ]
+    ro ls   [ -a ] [ -h ] [ -d dir | uri ]
     """
     # Check command arguments
-    ro_config = ro_utils.readconfig(configbase)
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
     ro_options = {
+        "rouri":   rouri,
         "rodir":   options.rodir or "",
         "all":     " -a" if options.all    else "",
         "hidden":  " -h" if options.hidden else "",
         }
     log.debug("ro_options: " + repr(ro_options))
-    # Find RO root directory
-    ro_dir = ro_root_directory(progname + " list", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
-    # Scan directory tree and collect filenames
-    if options.verbose:
-        print "ro list%(all)s%(hidden)s -d \"%(rodir)s\"" % ro_options
+    cmdname = progname + " list"
+    if rouri:
+        rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
+        if not rouri: return 1
+        if options.verbose:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+        ro_dir = ""
+    else:
+        ro_dir = ro_root_directory(cmdname, ro_config, ro_options['rodir'], restricted=False)
+        if not ro_dir: return 1
+        if options.verbose:
+            print cmdname + ("%(all)s%(hidden)s -d \"%(rodir)s\" " % ro_options)
+        rouri  = ro_dir
+
+    # Prepare to display aggregated resources
     prep_f = ""
     prep_a = ""
     rofiles = []
     if options.all:
+        if not ro_dir:
+            print ("%s: '--all' option is valid only with RO directory, not URI" % (cmdname))
+            return 1
         prep_f = "f: "
         prep_a = "a: "
-        rofiles = MiscLib.ScanDirectories.CollectDirectoryContents(
+        rofiles = MiscUtils.ScanDirectories.CollectDirectoryContents(
                     ro_dir, baseDir=os.path.abspath(ro_dir),
                     listDirs=False, listFiles=True, recursive=True, appendSep=False)
         if not options.hidden:
@@ -559,7 +605,11 @@ def list(progname, configbase, options, args):
                 return re.match("\.|.*/\.", f) == None
             rofiles = filter(notHidden, rofiles)
     # Scan RO and collect aggregated resources
-    rometa = ro_metadata(ro_config, ro_dir)
+    try:
+        rometa = ro_metadata(ro_config, rouri)
+    except ROSRS_Error, e:
+        print str(e)
+        return 2
     roaggs = [ str(rometa.getComponentUriRel(a)) for a in rometa.getAggregatedResources() ]
     # Assemble and output listing
     print "\n".join(mapmerge(prepend_f(prep_a), roaggs, prepend_f(prep_f), rofiles))
@@ -572,7 +622,7 @@ def annotate(progname, configbase, options, args):
     ro annotate file attribute-name [ attribute-value ]
     ro link file attribute-name [ attribute-value ]
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     rodir = options.rodir or (not options.wildcard and os.path.dirname(args[2]))
     if len(args) == 3:
         # Using graph form
@@ -642,21 +692,25 @@ def annotations(progname, configbase, options, args):
 
     ro annotations [ file | -d dir ]
     """
+    # @@TODO: although a URI is accepted on the command line, the actual display logic assumes
+    #         a local file when displaying annotations.
     log.debug("annotations: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_file = (args[2] if len(args) >= 3 else "")
     ro_options = {
         "rofile":       ro_file,
         "rodir":        options.rodir or os.path.dirname(ro_file)
         }
     log.debug("ro_options: " + repr(ro_options))
+    cmdname = progname + " annotations"
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'])
+    if not rouri: return 1
     if options.verbose:
-        print "ro annotations -d \"%(rodir)s\" %(rofile)s " % ro_options
-    ro_dir = ro_root_directory(progname + " annotations", ro_config, ro_options['rodir'])
-    if not ro_dir: return 1
+        print cmdname + " -d \"%(rodir)s\" %(rofile)s " % ro_options
     # Enumerate and display annotations
-    rometa = ro_metadata(ro_config, ro_dir)
+    log.debug("- displaying annotations for %s"%(rouri))
+    rometa = ro_metadata(ro_config, rouri)
     if ro_options['rofile']:
         rofile = ro_uriutils.resolveFileAsUri(ro_options['rofile'])  # Relative to CWD
         log.debug("Annotations for %s" % str(rofile))
@@ -674,22 +728,16 @@ def annotations(progname, configbase, options, args):
 def snapshot(progname, configbase, options, args):
     """
     Prepare a snapshot of live research object
-    snapshot <live-RO> <snapshot-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    snapshot <live-RO> <snapshot-id> [ --asynchronous ] [ --freeze ] [ -t <token> ]
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "rodir":          options.rodir or "",
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
     }
-    if options.synchronous and options.asynchronous:
-        print "ambiguous call --synchronous and --asynchronous, choose one"
-        return 1;
     if options.verbose:
         to_print = "ro snapshot %(copy-from)s %(target)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
-        if options.synchronous:
-            to_print+=" --synchronous"
         if options.asynchronous:
             to_print+=" --asynchronous"
         if options.freeze:
@@ -700,21 +748,15 @@ def snapshot(progname, configbase, options, args):
 def archive(progname, configbase, options, args):
     """
     Prepare an archive of live research object
-    archive <live-RO> <archive-id> [ --synchronous | --asynchronous ] [ --freeze ] [ -t <token> ]
+    archive <live-RO> <archive-id> [ --asynchronous ] [ --freeze ] [ -t <token> ]
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
     }
-    if options.synchronous and options.asynchronous:
-        print "ambiguous call --synchronous and --asynchronous, choose one"
-        return 1;
     if options.verbose:
         to_print = "ro archive %(copy-from)s %(target)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'copy-from':args[2], 'target':args[3]}.items())
-        if options.synchronous:
-            to_print+=" --synchronous"
         if options.asynchronous:
             to_print+=" --asynchronous"
         if options.freeze:
@@ -727,11 +769,10 @@ def freeze(progname, configbase, options, args):
     Freeze snapshot or archive
     freeze <RO-id>
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
     }
     return ro_evo.freeze(dict(vars(options).items() + ro_options.items()), args)
     
@@ -739,23 +780,44 @@ def push_zip(progname, configbase, options, args):
     """
     push RO in zip format
     
-    ro push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]    
+    ro push <zip> | -d <dir> [ -f ] [-- new ] [ -r <rosrs_uri> ] [ -t <access_token> [ --asynchronous ] ]    
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "zip": args[2],
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
         "force":          options.force,
         "roId": args[2].replace(".zip", "").split("/")[-1]
         }
-    if options.verbose:
-        print "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s" % dict(ro_options.items() + {'zip':args[2]}.items())
-    
-    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
 
-    (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
+    if options.roident:
+        ro_options["roId"] = options.roident
+    if options.verbose:
+        echo = "ro push %(zip)s -r %(rosrs_uri)s -t %(rosrs_access_token)s -i %(roId)s" % dict(ro_options.items() + {'zip':args[2], 'roId':ro_options["roId"]}.items())
+        if options.asynchronous:
+         echo+=" --asynchronous"
+        if options.new:
+            echo+=" --new"
+        print echo
+    rosrs = ROSRS_Session(ro_options["rosrs_uri"], ro_options["rosrs_access_token"])
+    if options.new:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read(),"zip/create")
+    else:
+        (status, reason, headers, data) = ro_remote_metadata.sendZipRO(rosrs, ro_options["rosrs_uri"], ro_options["roId"], open(args[2], 'rb').read())
+    jobUri = headers["location"]
+    (job_status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, headers["location"])
+    print "Your Research Object %s is already processed" % target_id
+    print "Job URI: %s" % jobUri
+    if options.asynchronous:
+        return  handle_asynchronous_zip_push(rosrs, headers["location"])
+    #with esc option
+    print   "If you don't want to wait until the operation is finished press [ENTER]"
+    while printZipJob(ro_utils.parse_job(rosrs, jobUri),jobUri):
+        i, o, e = select.select( [sys.stdin], [], [], 2 )
+        if (i) and "" == sys.stdin.readline().strip():
+            print "You can check the process status using job URI: %s" % jobUri
+            return
     if options.verbose:
         print "Status: %s" % status
         print "Reason: %s" % reason
@@ -767,18 +829,60 @@ def push_zip(progname, configbase, options, args):
     log.debug("Data: %s" % data)
     return 0
 
+def handle_asynchronous_zip_push(rosrs,location):
+    status = "RUNNING"
+    while (status == "RUNNING"):
+        (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, location)
+        print "RO URI: % s" % target_id
+        return 0
+
+def handle_synchronous_zip_push(rosrs,location):
+    status = "RUNNING"
+    first = True
+    while (status == "RUNNING"):
+        (status, target_id, processed_resources, submitted_resources) = ro_utils.parse_job(rosrs, location)
+        if(first):
+            #print "Job Status: %s" % status
+            print "RO URI: % s" % target_id
+            first = False
+        if submitted_resources != "0":
+            print "Prcessed resources/Submitted resources: %s/%s" %(processed_resources, submitted_resources)
+        time.sleep(2)
+    if (status == "DONE"):
+        print "Operation finised successfully"
+        return 0
+    else: 
+        print "Oparation failed, check details: %s" % location
+        return 0
+
+# @@NOTE Fixing this typo introduces a bug.  I think the function should be removed.
+# "handle_asynchronous_zip_push" is defined prioperly later
+def hendle_asynchronous_zip_push():
+    None
+
+def printZipJob(parseJobResult, jobUri):
+    (job_status, target_id, processed_resources, submitted_resources) = parseJobResult
+    if submitted_resources != "0":
+        print "Prcessed resources/Submitted resources: %s/%s" %(processed_resources, submitted_resources)
+    if job_status != "RUNNING":
+        print "Job Status: %s" % job_status
+        print "RO URI: % s" % target_id
+        if job_status != "DONE":
+            print "You can check the process status using job URI: %s" % jobUri
+        return False
+    return True
+
 def push(progname, configbase, options, args):
     """
     Push all or selected ROs and their resources to ROSRS
 
     ro push <zip> | -d <dir> [ -f ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "rodir":          options.rodir,
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
         "force":          options.force
         }
     log.debug("ro_options: " + repr(ro_options))
@@ -858,13 +962,12 @@ def checkout(progname, configbase, options, args):
 
     ro checkout <RO-identifier> [-d <dir> ] [ -r <rosrs_uri> ] [ -t <access_token> ]
     """
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = {
         "roident":        args[2],
         "rodir":          options.rodir or "",
-        "rosrs_uri":      options.rosrs_uri or getoptionvalue(ro_config['rosrs_uri'], "URI for ROSRS service:          "),
-        "rosrs_access_token": options.rosrs_access_token or getoptionvalue(ro_config['rosrs_access_token'],
-                                                                                      "Access token for ROSRS service: "),
+        "rosrs_uri":          ro_config['rosrs_uri'],
+        "rosrs_access_token": ro_config['rosrs_access_token'],
         }
     log.debug("ro_options: " + repr(ro_options))
     if options.verbose:
@@ -901,13 +1004,13 @@ def evaluate(progname, configbase, options, args):
     """
     log.debug("evaluate: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
-    ro_config = ro_utils.readconfig(configbase)
+    ro_config = getroconfig(configbase, options)
     ro_options = (
         { "rodir":        options.rodir or ""
         , "function":     args[2]
         })
     log.debug("ro_options: " + repr(ro_options))
-    ro_ref = ro_root_reference(progname + " annotations", ro_config, ro_options['rodir'])
+    ro_ref = ro_root_reference(progname + " annotations", ro_config, None, ro_options['rodir'])
     if not ro_ref: return 1
     # Evaluate...
     if ro_options["function"] == "checklist":
@@ -948,39 +1051,61 @@ def evaluate(progname, configbase, options, args):
         return 1
     return 0
 
-
 def dump(progname, configbase, options, args):
     """
-    Sump RDF of manifest+annotations
-
-    ro dump [ -d dir ] [ -o format ]
+    Dump RDF of annotations
     """
     log.debug("dump: progname %s, configbase %s, args %s" % 
               (progname, configbase, repr(args)))
-    ro_config = ro_utils.readconfig(configbase)
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
     ro_options = {
-        "rouri":        (args[2] if len(args) >= 3 else ""),
+        "rouri":        rouri,
         "rodir":        options.rodir or ""
         }
     cmdname = progname + " dump"
-    if not ro_options['rouri']:
-        rouri = ro_root_directory(cmdname, ro_config, ro_options['rodir'])
-        if not rouri: return 1
-        if options.verbose:
-            print "ro dump -d \"%(rodir)s\" " % ro_options
-    else:
-        if ro_options['rodir']:
-            print ("%s: specify either RO directory or URI, not both" % (cmdname))
-            return 1
-        rouri = ro_options['rouri']
-        if options.verbose:
-            print "ro dump \"%(rouri)s\" " % ro_options
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
+    if not rouri: return 1
+    if options.verbose:
+        if ro_options['rouri']:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+        else:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
     # Enumerate and display annotations
     rometa = ro_metadata(ro_config, rouri)
     format = "RDFXML"
     if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
         format = options.outformat.upper()
     graph = rometa.getAnnotationGraph()
+    graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
+    return 0
+
+def manifest(progname, configbase, options, args):
+    """
+    Dump RDF of manifest
+    """
+    log.debug("manifest: progname %s, configbase %s, args %s" % 
+              (progname, configbase, repr(args)))
+    rouri      = (args[2] if len(args) >= 3 else "")
+    ro_config  = getroconfig(configbase, options, rouri)
+    ro_options = {
+        "rouri":        rouri,
+        "rodir":        options.rodir or ""
+        }
+    cmdname = progname + " manifest"
+    rouri = ro_root_reference(cmdname, ro_config, ro_options['rodir'], rouri)
+    if not rouri: return 1
+    if options.verbose:
+        if ro_options['rouri']:
+            print cmdname + (" \"%(rouri)s\" " % ro_options)
+        else:
+            print cmdname + (" -d \"%(rodir)s\" " % ro_options)
+    # Enumerate and display annotations
+    rometa = ro_metadata(ro_config, rouri)
+    format = "RDFXML"
+    if options.outformat and options.outformat.upper() in RDFTYPSERIALIZERMAP:
+        format = options.outformat.upper()
+    graph = rometa.getManifestGraph()
     graph.serialize(destination=sys.stdout, format=RDFTYPSERIALIZERMAP[format])
     return 0
 

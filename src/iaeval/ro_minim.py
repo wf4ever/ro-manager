@@ -4,6 +4,10 @@
 Research Object minimum information model access functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import re
 import urllib
 import urlparse
@@ -13,7 +17,10 @@ log = logging.getLogger(__name__)
 
 import rdflib
 import rdflib.namespace
-from uritemplate import uritemplate
+try:
+    from uritemplate import uritemplate
+except ImportError:
+    import uritemplate
 
 from rocommand import ro_manifest
 from rocommand import ro_namespaces
@@ -21,21 +28,44 @@ from rocommand.ro_namespaces import RDF, RDFS
 
 minimnsuri = rdflib.URIRef("http://purl.org/minim/minim#")
 MINIM      = ro_namespaces.makeNamespace(minimnsuri,
-            [ "Constraint", "Model", "Requirement", "RequirementRule"
-            , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
-            , "hasConstraint" 
-            , "forTarget", "forTargetTemplate", "forPurpose", "onResource", "onResourceTemplate", "toModel"
+            [ "Constraint", "Checklist"             # synonyms
+            , "hasConstraint", "hasChecklist"       # synonyms
+            , "hasPrefix"
+            # Model and properties
+            , "Model"
             , "hasMustRequirement", "hasShouldRequirement", "hasMayRequirement", "hasRequirement"
-            , "derives", "reports", "isDerivedBy"
-            , "show", "showpass", "showfail", "showmiss", "seq"
+            # Requirement and properties
+            , "Requirement"
+            , "isDerivedBy"
+            # Reporting properties
+            , "seq", "show", "showpass", "showfail", "showmiss"
+            , "list", "listpass", "listfail"
+            , "ValueCollector", "collectVar", "collectList"
+            # Rules and properties
+            , "RequirementRule"
+            , "SoftwareEnvironmentRule", "DataRequirementRule", "ContentMatchRequirementRule"
+            , "forTarget", "forTargetTemplate", "forPurpose", "toModel"
             , "aggregates"
             , "command", "response"
             , "forall", "orderby", "exists", "aggregatesTemplate", "isLiveTemplate"
-            , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
+            # Refactored rule and properties
+            , "QueryTestRule", "graph", "query"
+            , "Query"
+            , "SparqlQuery", "sparql_query", "result_mod"
+            , "QueryResultTest"
+            , "CardinalityTest", "min", "max"   ### @@use min, max, all as qualifiers for other tests?
+            , "RuleTest", "affirmRule"
+            , "RuleNegationTest", "negateRule"  ### @@use max cardinality constraint instead?
+            , "AggregationTest", "aggregatesTemplate"
+            , "AccessibilityTest", "isLiveTemplate"
+            , "ExistsTest", "exists"            ### @@this is structly redundant - drop it?
             # Result properties
+            , "Result"
+            , "minimUri"
+            , "testedChecklist", "testedPurpose", "testedTarget", "testedModel", "testedRO"
+            , "minimallySatisfies", "nominallySatisfies", "fullySatisfies"
             , "satisfied", "missingMay", "missingShould", "missingMust"
-            , "testedConstraint", "testedPurpose", "testedTarget"
-            , "minimUri", "modelUri"
+            , "ChecklistItemReport"
             , "tryRequirement", "tryMessage"
             ])
 
@@ -57,18 +87,26 @@ def readMinimGraph(minimuri):
     """
     Read Minim file, return RDF Graph.
     """
+    log.debug("minimuri %s"%(repr(minimuri)))
+    minimformat   = "xml"
+    if re.search("\.(ttl|n3)$", str(minimuri)): minimformat="n3"
     minimgraph = rdflib.Graph()
-    minimgraph.parse(minimuri, format="xml")
+    minimgraph.parse(minimuri, format=minimformat)
     return minimgraph
 
+def iter2(iter1, iter2):
+    for item in iter1: yield item
+    for item in iter2: yield item
+    return
+
 def getConstraints(minimgraph):
-    for (target, constraint) in minimgraph.subject_objects(predicate=MINIM.hasConstraint):
-        # @@TODO: use property of constraint for this, one day
+    constraint_or_checklist = iter2(
+        minimgraph.subject_objects(predicate=MINIM.hasConstraint),
+        minimgraph.subject_objects(predicate=MINIM.hasChecklist ) )
+    for (target, constraint) in constraint_or_checklist:
         c = {'target': target, 'uri': constraint}
         c['target_t']   = minimgraph.value(subject=constraint, predicate=MINIM.forTargetTemplate)
         c['purpose']    = minimgraph.value(subject=constraint, predicate=MINIM.forPurpose)
-        c['resource']   = minimgraph.value(subject=constraint, predicate=MINIM.onResource)
-        c['resource_t'] = minimgraph.value(subject=constraint, predicate=MINIM.onResourceTemplate)
         c['model']      = minimgraph.value(subject=constraint, predicate=MINIM.toModel)
         yield c
     return
@@ -80,7 +118,6 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     Constraint is returned with:
     targetro_actual  -> URI of resource
     targetres_actual -> URI of target if supplied, else subject of minium:hasConstraint
-    resource_actual  -> explicit onResource URI, or expansion of onResourceTemplate with RO URI
     """
     def mkstr(u):
         return u and str(u)
@@ -89,22 +126,25 @@ def getConstraint(minimgraph, rouri, target_ref, purpose_regex_string):
     log.debug("               target_uri %s"%(target))
     purpose      = purpose_regex_string and re.compile(purpose_regex_string)
     templatedict = {'targetro': urllib.unquote(str(rouri))}
+    if target:
+        # Allow use of {+targetres} in checklist target template:
+        templatedict['targetres'] = urllib.unquote(str(target))
     for c in getConstraints(minimgraph):
         log.debug("- test: target %s purpose %s"%(c['target'],c['purpose']))
         log.debug("- purpose %s, c['purpose'] %s"%(purpose_regex_string, c['purpose']))
         if not purpose or purpose.match(c['purpose']):
-            c['targetro_actual']   = mkstr(rouri)
-            c['targetres_actual']  = mkstr(target or c['target'])
-            c['onresource_actual'] = ( mkstr(c['resource']) or 
-                                      (c['resource_t'] and uritemplate.expand(c['resource_t'], templatedict))
-                                     )
+            c['targetro_actual']   = rouri
+            c['targetres_actual']  = target or c['target']
             if not target:
                 # No target specified in request, match any (first) constraint
                 return c
-            if target == c['target']:
+            if c['target'] == target:
                 # Match explicit target specification (subject of minim:hasConstraint)
                 return c
-            log.debug("- target %s, c['target_t'] %s"%(target, c['target_t']))
+            log.debug("- target: %s, c['target_t']: %s"%(target, repr(c['target_t'])))
+            if c['target_t'] and c['target_t'].value == "*":
+                # Special case: wilcard ("*") template matches any target
+                return c
             if target and c['target_t']:
                 log.debug("- expand %s"%(uritemplate.expand(c['target_t'], templatedict)))
                 if str(target) == uritemplate.expand(c['target_t'], templatedict):
@@ -125,27 +165,50 @@ def getModel(minimgraph, modeluri):
         return m
     return None
 
+def getPrefixes(minimgraph):
+    for (uri, p, prefix) in minimgraph.triples((None, MINIM.hasPrefix, None)):
+        yield (str(prefix), str(uri))
+
+def litval(l):
+    return l.value if l else None
+
+def getVariableCollector(minimgraph, collectnode):
+    if not collectnode: return None
+    cv = minimgraph.value(subject=collectnode, predicate=MINIM.collectVar) 
+    cl = minimgraph.value(subject=collectnode, predicate=MINIM.collectList) 
+    return (str(cv), str(cl))
+
 def getRequirements(minimgraph, modeluri):
     def matchRequirement((s, p, o), reqp, reqval):
         req = None
         if p == reqp:
-            req = (
-                { 'uri':    o
-                , 'model':  s
-                , 'level':  reqval
-                , 'label':  minimgraph.value(subject=o, predicate=RDFS.label)
-                })
             ruleuri = minimgraph.value(subject=o, predicate=MINIM.isDerivedBy)
             assert ruleuri, "Requirement %s has no minim:isDerivedBy rule"%(str(o))
+            req = (
+                { 'uri':      o
+                , 'ruleuri':  ruleuri
+                , 'model':    s
+                , 'level':    reqval
+                , 'label':    minimgraph.value(subject=o, predicate=RDFS.label)
+                })
             rule = (
-                { 'derives':    minimgraph.value(subject=ruleuri, predicate=MINIM.derives) 
-                , 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
+                { 'show':       minimgraph.value(subject=ruleuri, predicate=MINIM.show) 
                 , 'showpass':   minimgraph.value(subject=ruleuri, predicate=MINIM.showpass)
                 , 'showfail':   minimgraph.value(subject=ruleuri, predicate=MINIM.showfail)
                 , 'showmiss':   minimgraph.value(subject=ruleuri, predicate=MINIM.showmiss)
+                , 'list':       [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.list)
+                                ]
+                , 'listpass':   [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.listpass)
+                                ]
+                , 'listfail':   [ getVariableCollector(minimgraph,  vc)
+                                  for vc in minimgraph.objects(subject=ruleuri, predicate=MINIM.listfail)
+                                ]
                 })
             # Create field used for sorting checklist items
-            req['seq'] = str( minimgraph.value(subject=s, predicate=MINIM.seq) or
+            req['seq'] = str( minimgraph.value(subject=o, predicate=MINIM.seq) or
+                              minimgraph.value(subject=s, predicate=MINIM.seq) or
                               rule['show'] or
                               rule['showpass'] )
             ruletype = minimgraph.value(subject=ruleuri, predicate=RDF.type)
@@ -163,8 +226,29 @@ def getRequirements(minimgraph, modeluri):
                 rule['template'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
                 rule['islive']   = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
                 req['contentmatchrule'] = rule
+            elif ruletype == MINIM.QueryTestRule:
+                query  = minimgraph.value(subject=ruleuri, predicate=MINIM.query)
+                exists = minimgraph.value(subject=ruleuri, predicate=MINIM.exists)
+                assert query or exists, "QueryTestRule for requirement %s/rule %s has no query"%(o, ruleuri)
+                rule['prefixes']     = list(getPrefixes(minimgraph))
+                if query:
+                    rule['query']        = minimgraph.value(subject=query, predicate=MINIM.sparql_query)
+                    rule['resultmod']    = minimgraph.value(subject=query, predicate=MINIM.result_mod)
+                else:
+                    rule['query']        = None
+                    rule['resultmod']    = None
+                if exists:
+                    rule['exists']   = minimgraph.value(subject=exists, predicate=MINIM.sparql_query)
+                else:
+                    rule['exists']   = None
+                rule['min']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.min))
+                rule['max']          = litval(minimgraph.value(subject=ruleuri, predicate=MINIM.max))
+                rule['aggregates_t'] = minimgraph.value(subject=ruleuri, predicate=MINIM.aggregatesTemplate)
+                rule['islive_t']     = minimgraph.value(subject=ruleuri, predicate=MINIM.isLiveTemplate)
+                req['querytestrule'] = rule
             else:
-                assert False, "Unrecognized rule type %s for requirement %s"%(str(ruletype), str(o))
+                assert False, ("Unrecognized rule type %s for requirement %s, rule %s"%
+                               (str(ruletype), str(o), ruleuri))
         return req
     for stmt in minimgraph.triples( (modeluri, None, None) ):
         pred_level_list = (

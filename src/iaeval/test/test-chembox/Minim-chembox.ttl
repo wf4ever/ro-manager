@@ -1,0 +1,156 @@
+@prefix rdf:      <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs:     <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl:      <http://www.w3.org/2002/07/owl#> .
+@prefix xsd:      <http://www.w3.org/2001/XMLSchema#> .
+@prefix xml:      <http://www.w3.org/XML/1998/namespace> .
+@prefix rdfg:     <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix ore:      <http://www.openarchives.org/ore/terms/> .
+@prefix ao:       <http://purl.org/ao/> .
+@prefix dcterms:  <http://purl.org/dc/terms/> .
+@prefix foaf:     <http://xmlns.com/foaf/0.1/> .
+@prefix ro:       <http://purl.org/wf4ever/ro#> .
+@prefix wfprov:   <http://purl.org/wf4ever/wfprov#> .
+@prefix wfdesc:   <http://purl.org/wf4ever/wfdesc#> .
+@prefix wf4ever:  <http://purl.org/wf4ever/wf4ever#> .
+@prefix minim:    <http://purl.org/minim/minim#> .
+@prefix chembox:      <http://dbpedia.org/resource/Template:Chembox:> .
+@prefix chembox-mim:  <http://sierra-nevada.cs.man.ac.uk/mim/chembox/chemmim#> .
+@prefix :             <http://example.com/chembox-samples/> .
+
+chembox: minim:hasPrefix "chembox" .
+:        minim:hasPrefix "default" .
+
+:minim_constraints
+  minim:hasConstraint :minim_pass_constraint, :minim_fail_constraint .
+
+:minim_pass_constraint a minim:Constraint ;
+  minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
+  minim:forPurpose "complete" ;
+  minim:toModel :minim_model ;
+  rdfs:comment
+      """
+      Checklist to be satisfied if the chemical description is adequate.
+      """
+  .
+
+:minim_fail_constraint a minim:Constraint ;
+  minim:forTargetTemplate "http://purl.org/net/chembox/Ethane" ;
+  minim:forPurpose "fail" ;
+  minim:toModel :minim_fail ;
+  rdfs:comment
+      """
+      Failing checklist included for testing.
+      """
+  .
+
+:minim_model a minim:Model ;
+  rdfs:label "A Minim checklist" ;
+  rdfs:comment
+    """
+    This checklist describes a representative sample of chemmim requirements using the Minim model.
+    """ ;
+  minim:hasMustRequirement   :InChI ;
+  minim:hasShouldRequirement :ChemSpider ;
+  minim:hasMayRequirement    :Synonym ;
+  .
+
+:minim_fail a minim:Model ;
+  rdfs:label "A failing Minim checklist" ;
+  rdfs:comment
+    """
+    This checklist is used to test failure of a minim test
+    """ ;
+  minim:hasMustRequirement   :failreq ;
+  .
+
+:InChI a minim:Requirement ;
+  rdfs:comment
+    """
+    This requirement ensures exactly one chembox:StdInChI value is defined on the target 
+    resource, and that its value is a string literal.  A SPARQL filter is used to check 
+    the type of the defined value.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?targetres chembox:StdInChI ?value .
+            FILTER ( datatype(?value) = xsd:string )
+            """ ;
+        ] ;
+      minim:min 1 ;
+      minim:max 1 ;
+      minim:showpass "InChI identifier is present" ;
+      minim:showfail "No InChI identifier is present" ;
+    ] .
+
+:ChemSpider a minim:Requirement ;
+  rdfs:comment
+    """
+    This requirement ensures that a chembox:ChemSpiderID value is defined on the 
+    target resource, and that its value is an integer literal.  A SPARQL filter is used 
+    to check the type of the defined value.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?targetres chembox:ChemSpiderID ?value .
+            FILTER(regex(?value, "^\\\\d+$"))
+            # FILTER ( str(xsd:integer(?value)) )
+            """ ;
+            # Note:
+            # "FILTERs eliminate any solutions that, when substituted into the expression, 
+            # either result in an effective boolean value of false or produce an error" 
+            # -- http://www.w3.org/TR/rdf-sparql-query/#tests.
+            #
+            # Further, the str() of any valid integer is a non-blank string, which in SPARQL
+            # yields an equivalent boolean value (EBV) of True.
+            # Thus, only valid integer literals will be accepted.
+        ] ;
+      minim:min 1 ;
+      minim:showpass "ChemSpider identifier is present" ;
+      minim:showfail "No ChemSpider identifier is present" ;
+    ] .
+
+:Synonym a minim:Requirement ;
+  rdfs:comment
+    """
+    This requirement tests for the presence of a chembox:OtherNames value.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?targetres chembox:OtherNames ?value .
+            """ ;
+        ] ;
+      minim:min 1 ;
+      minim:showpass "Synonym is present" ;
+      minim:showfail "No synomym is present" ;
+    ] .
+
+:failreq a minim:Requirement ;
+  rdfs:comment
+    """
+    This requirement should be failed.
+    """ ;
+  minim:isDerivedBy
+    [ a minim:QueryTestRule ;
+      minim:query
+        [ a minim:SparqlQuery ;
+          minim:sparql_query
+            """
+            ?targetres chembox:NoSuchProperty ?value .
+            """ ;
+        ] ;
+      minim:min 1 ;
+      minim:max 1 ;
+      minim:show "This test should fail" ;
+    ] .

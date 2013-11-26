@@ -1,0 +1,162 @@
+Afak	2011-01-07	Afaka
+Aghb	2012-11-01	Caucasian Albanian
+Arab	2005-10-16	Arabic
+Armi	2007-12-05	Imperial Aramaic
+Armn	2005-10-16	Armenian
+Avst	2007-07-28	Avestan
+Bali	2005-10-16	Balinese
+Bamu	2009-07-30	Bamum
+Bass	2010-04-10	Bassa Vah
+Batk	2005-10-16	Batak
+Beng	2005-10-16	Bengali
+Blis	2005-10-16	Blissymbols
+Bopo	2005-10-16	Bopomofo
+Brah	2005-10-16	Brahmi
+Brai	2005-10-16	Braille
+Bugi	2005-10-16	Buginese
+Buhd	2005-10-16	Buhid
+Cakm	2007-12-05	Chakma
+Cans	2005-10-16	Unified Canadian Aboriginal Syllabics
+Cari	2006-07-21	Carian
+Cham	2005-10-16	Cham
+Cher	2005-10-16	Cherokee
+Cirt	2005-10-16	Cirth
+Copt	2005-10-16	Coptic
+Cprt	2005-10-16	Cypriot
+Cyrl	2005-10-16	Cyrillic
+Cyrs	2005-10-16	Cyrillic (Old Church Slavonic variant)
+Deva	2005-10-16	Devanagari / Nagari
+Dsrt	2005-10-16	Deseret / Mormon
+Dupl	2010-08-16	Duployan shorthand / Duployan stenography
+Egyd	2005-10-16	Egyptian demotic
+Egyh	2005-10-16	Egyptian hieratic
+Egyp	2005-10-16	Egyptian hieroglyphs
+Elba	2010-08-16	Elbasan
+Ethi	2005-10-16	Ethiopic / Ge&#x2bb;ez / Ge'ez
+Geok	2005-10-16	Khutsuri (Asomtavruli and Nuskhuri)
+Geor	2005-10-16	Georgian (Mkhedruli)
+Glag	2005-10-16	Glagolitic
+Goth	2005-10-16	Gothic
+Gran	2009-12-09	Grantha
+Grek	2005-10-16	Greek
+Gujr	2005-10-16	Gujarati
+Guru	2005-10-16	Gurmukhi
+Hang	2005-10-16	Hangul / Hang&#x16d;l / Hangeul
+Hani	2005-10-16	Han / Hanzi / Kanji / Hanja
+Hano	2005-10-16	Hanunoo / Hanun&#xf3;o
+Hans	2005-10-16	Han (Simplified variant)
+Hant	2005-10-16	Han (Traditional variant)
+Hebr	2005-10-16	Hebrew
+Hira	2005-10-16	Hiragana
+Hluw	2011-12-28	Anatolian Hieroglyphs / Luwian Hieroglyphs / Hittite Hieroglyphs
+Hmng	2005-10-16	Pahawh Hmong
+Hrkt	2005-10-16	Japanese syllabaries (alias for Hiragana + Katakana)
+Hung	2005-10-16	Old Hungarian / Hungarian Runic
+Inds	2005-10-16	Indus / Harappan
+Ital	2005-10-16	Old Italic (Etruscan, Oscan, etc.)
+Java	2005-10-16	Javanese
+Jpan	2006-07-21	Japanese (alias for Han + Hiragana + Katakana)
+Jurc	2011-01-07	Jurchen
+Kali	2005-10-16	Kayah Li
+Kana	2005-10-16	Katakana
+Khar	2005-10-16	Kharoshthi
+Khmr	2005-10-16	Khmer
+Khoj	2011-08-16	Khojki
+Knda	2005-10-16	Kannada
+Kore	2007-07-05	Korean (alias for Hangul + Han)
+Kpel	2010-04-10	Kpelle
+Kthi	2007-12-05	Kaithi
+Lana	2006-07-21	Tai Tham / Lanna
+Laoo	2005-10-16	Lao
+Latf	2005-10-16	Latin (Fraktur variant)
+Latg	2005-10-16	Latin (Gaelic variant)
+Latn	2005-10-16	Latin
+Lepc	2005-10-16	Lepcha / R&#xf3;ng
+Limb	2005-10-16	Limbu
+Lina	2005-10-16	Linear A
+Linb	2005-10-16	Linear B
+Lisu	2009-03-13	Lisu / Fraser
+Loma	2010-04-10	Loma
+Lyci	2006-07-21	Lycian
+Lydi	2006-07-21	Lydian
+Mahj	2012-11-01	Mahajani
+Mand	2005-10-16	Mandaic / Mandaean
+Mani	2007-07-28	Manichaean
+Maya	2005-10-16	Mayan hieroglyphs
+Mend	2010-04-10	Mende
+Merc	2009-12-09	Meroitic Cursive
+Mero	2005-10-16	Meroitic Hieroglyphs
+Mlym	2005-10-16	Malayalam
+Mong	2005-10-16	Mongolian
+Moon	2007-01-26	Moon / Moon code / Moon script / Moon type
+Mroo	2011-01-07	Mro / Mru
+Mtei	2007-01-26	Meitei Mayek / Meithei / Meetei
+Mymr	2005-10-16	Myanmar / Burmese
+Narb	2010-04-10	Old North Arabian / Ancient North Arabian
+Nbat	2010-04-10	Nabataean
+Nkgb	2009-03-13	Nakhi Geba / 'Na-'Khi &#xb2;Gg&#x14f;-&#xb9;baw / Naxi Geba
+Nkoo	2005-10-16	N&#x2019;Ko / N'Ko
+Nshu	2011-01-07	N&#xfc;shu
+Ogam	2005-10-16	Ogham
+Olck	2006-07-21	Ol Chiki / Ol Cemet' / Ol / Santali
+Orkh	2009-07-30	Old Turkic / Orkhon Runic
+Orya	2005-10-16	Oriya
+Osma	2005-10-16	Osmanya
+Palm	2010-04-10	Palmyrene
+Perm	2005-10-16	Old Permic
+Phag	2005-10-16	Phags-pa
+Phli	2007-12-05	Inscriptional Pahlavi
+Phlp	2007-12-05	Psalter Pahlavi
+Phlv	2007-07-28	Book Pahlavi
+Phnx	2005-10-16	Phoenician
+Plrd	2005-10-16	Miao / Pollard
+Prti	2007-12-05	Inscriptional Parthian
+Qaaa..Qabx	2005-10-16	Private use
+Rjng	2006-10-17	Rejang / Redjang / Kaganga
+Roro	2005-10-16	Rongorongo
+Runr	2005-10-16	Runic
+Samr	2007-07-28	Samaritan
+Sara	2005-10-16	Sarati
+Sarb	2009-07-30	Old South Arabian
+Saur	2006-07-21	Saurashtra
+Sgnw	2006-10-17	SignWriting
+Shaw	2005-10-16	Shavian / Shaw
+Shrd	2011-01-07	Sharada / &#x15a;&#x101;rad&#x101;
+Sind	2010-08-16	Khudawadi / Sindhi
+Sinh	2005-10-16	Sinhala
+Sora	2011-01-07	Sora Sompeng
+Sund	2006-07-21	Sundanese
+Sylo	2005-10-16	Syloti Nagri
+Syrc	2005-10-16	Syriac
+Syre	2005-10-16	Syriac (Estrangelo variant)
+Syrj	2005-10-16	Syriac (Western variant)
+Syrn	2005-10-16	Syriac (Eastern variant)
+Tagb	2005-10-16	Tagbanwa
+Takr	2011-01-07	Takri / &#x1e6c;&#x101;kr&#x12b; / &#x1e6c;&#x101;&#x1e45;kr&#x12b;
+Tale	2005-10-16	Tai Le
+Talu	2005-10-16	New Tai Lue
+Taml	2005-10-16	Tamil
+Tang	2011-01-07	Tangut
+Tavt	2007-12-05	Tai Viet
+Telu	2005-10-16	Telugu
+Teng	2005-10-16	Tengwar
+Tfng	2005-10-16	Tifinagh / Berber
+Tglg	2005-10-16	Tagalog / Baybayin / Alibata
+Thaa	2005-10-16	Thaana
+Thai	2005-10-16	Thai
+Tibt	2005-10-16	Tibetan
+Tirh	2011-08-16	Tirhuta
+Ugar	2005-10-16	Ugaritic
+Vaii	2005-10-16	Vai
+Visp	2005-10-16	Visible Speech
+Wara	2009-12-09	Warang Citi / Varang Kshiti
+Wole	2011-01-07	Woleai
+Xpeo	2005-10-16	Old Persian
+Xsux	2005-10-16	Sumero-Akkadian cuneiform
+Yiii	2005-10-16	Yi
+Zinh	2009-04-03	Code for inherited script
+Zmth	2007-12-05	Mathematical notation
+Zsym	2007-12-05	Symbols
+Zxxx	2005-10-16	Code for unwritten documents
+Zyyy	2005-10-16	Code for undetermined script
+Zzzz	2005-10-16	Code for uncoded script

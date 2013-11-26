@@ -1,9 +1,13 @@
-# ro_metadata.py
+# ro_uriutils.py
 
 """
 Helper functions for manipulasting and testing URIs and URI-related file paths,
 and for accessing or testing data at a URI reference.
 """
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
 
 import sys
 import os
@@ -43,6 +47,7 @@ def resolveFileAsUri(path):
     """
     if urlparse.urlsplit(path).scheme == "":
         path = resolveUri("", fileuribase, os.path.abspath(path))
+        # path = resolveUri("", fileuribase, os.path.join(os.getcwd(), path))
     return path
 
 def getFilenameFromUri(uri):
@@ -82,15 +87,6 @@ def isLiveUri(uriref):
         except:
             status   = 900
         # Pick out elements of response
-        islive = (status >= 200) and (status <= 299)
-    # Original logic @@TODO remove this
-    if 0:
-        hc = ROSRS_Session.ROSRS_Session(uriref)
-        status = -1
-        try:
-            (status, reason, headers, body) = hs.doRequest(uriref, method="HEAD")
-        except:
-            pass
         islive = (status >= 200) and (status <= 299)
     return islive
 

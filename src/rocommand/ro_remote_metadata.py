@@ -4,6 +4,10 @@
 Research Object metadata (manifest and annotations) access class
 """
 
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import os.path
@@ -14,7 +18,7 @@ import logging
 
 log = logging.getLogger(__name__)
 
-import MiscLib.ScanDirectories
+import MiscUtils.ScanDirectories
 
 import rdflib
 import rdflib.namespace
@@ -119,7 +123,7 @@ def getAsZip(rouri):
     log.debug("Ro %s retrieved as zip" % rouri)
     return tmp
 
-def sendZipRO(httpsession, uripath, roId, zip):
+def sendZipRO(httpsession, uripath, roId, zip, service_path="zip/upload"):
     """
     Send a research object in the zip format. 
     Returns: status
@@ -127,7 +131,7 @@ def sendZipRO(httpsession, uripath, roId, zip):
     reqheaders   = {
         "slug":     roId,
     }
-    return httpsession.doRequest(uripath, "POST", zip, "application/zip", "text/turtle", reqheaders);
+    return httpsession.doRequest(uripath.split("ROs/")[0]+service_path, "POST", zip, "application/zip", "application/json", reqheaders);
     
 class ro_remote_metadata(object):
     """
@@ -152,7 +156,11 @@ class ro_remote_metadata(object):
         self._loadManifest()
         # Get RO URI from manifest
         # May be different from computed value if manifest has absolute URI
-        self.rouri = self.manifestgraph.value(None, RDF.type, RO.ResearchObject)
+        # Nested URIs may be present; ours is the one described by the manifest URI,
+        # which is determined by the _loadManifest() method.
+        for s in self.manifestgraph.subjects(RDF.type, RO.ResearchObject):
+            if self.manifestgraph.value(s, ORE.isDescribedBy) == self.manifesturi:
+                self.rouri = s
         # Check that the manifest contained at least one RO URI
         assert self.rouri is not None
         return
@@ -217,7 +225,7 @@ class ro_remote_metadata(object):
 #        rofiles = [ro_file]
 #        if os.path.isdir(ro_file):
 #            rofiles = filter( notHidden,
-#                                MiscLib.ScanDirectories.CollectDirectoryContents(
+#                                MiscUtils.ScanDirectories.CollectDirectoryContents(
 #                                    os.path.abspath(ro_file), baseDir=os.path.abspath(self.roref),
 #                                    listDirs=False, listFiles=True, recursive=recurse, appendSep=False)
 #                            )
@@ -376,7 +384,7 @@ class ro_remote_metadata(object):
             log.debug("Could not find proxy for %s"%str(resuriref))
             (status, reason, headers, _) = self.httpsession.doRequest(
                 resuriref, method="DELETE")
-        if status == 307:
+        if status == 303:
             (status, reason, headers, _) = self.httpsession.doRequest(
                     headers["location"], method="DELETE")
         if status != 204:

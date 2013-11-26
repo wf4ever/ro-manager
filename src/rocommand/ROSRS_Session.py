@@ -2,20 +2,28 @@
 RO SRS session client implementation 
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import json # Used for service/resource info parsing
 import re   # Used for link header parsing
-import httplib
+#import httplib
 import urlparse
 import rdflib.graph
 import logging
+import time
 
-from ro_namespaces import RDF, ORE, RO, AO, ROEVO
-from rdflib.term import URIRef
-from ro_utils import EvoType
-from httplib2 import Http
 from xml.dom import minidom
 from urlparse import urljoin
-import time
+from httplib2 import Http
+from rdflib.term import URIRef
+
+from MiscUtils.HttpSession import HTTP_Session
+
+import ro_prefixes
+from ro_namespaces import RDF, ORE, RO, AO, ROEVO
+from ro_utils import EvoType
 
 # Logging object
 log = logging.getLogger(__name__)
@@ -24,7 +32,7 @@ log = logging.getLogger(__name__)
 
 ANNOTATION_CONTENT_TYPES = (
     { "application/rdf+xml":    "xml"
-    , "text/turtle":            "n3"
+    , "text/turtle":            "turtle"
     , "text/n3":                "n3"
     , "text/nt":                "nt"
     , "application/json":       "jsonld"
@@ -58,7 +66,7 @@ class ROSRS_Error(Exception):
 
     def __str__(self):
         txt = self._msg
-        if self._srsuri: txt += " for "+str(self._srsuri)
+        if self._srsuri: txt += " for srsuri "+str(self._srsuri)
         if self._value:  txt += ": "+repr(self._value)
         return txt
 
@@ -66,93 +74,14 @@ class ROSRS_Error(Exception):
         return ( "ROSRS_Error(%s, value=%s, srsuri=%s)"%
                  (repr(self._msg), repr(self._value), repr(self._srsuri)))
 
-def splitValues(txt, sep=",", lq='"<', rq='">'):
-    """
-    Helper function returns list of delimited values in a string,
-    where delimiters in quotes are protected.
+# Get URI for resource in RO, returned as rdflib.URIRef value
 
-    sep is string of separator
-    lq is string of opening quotes for strings within which separators are not recognized
-    rq is string of corresponding closing quotes
-    
-    @@TODO Is there a better way?  I tried using regexp, but grouping doesn't
-    seem to offer a way to handle repeated elements.
-    """
-    result = []
-    cursor = 0
-    begseg = cursor
-    while cursor < len(txt):
-        if txt[cursor] in lq:
-            # Skip quoted or bracketed string
-            eq = rq[lq.index(txt[cursor])]  # End quote/bracket character
-            cursor += 1
-            while cursor < len(txt) and txt[cursor] != eq:
-                if txt[cursor] == '\\': cursor += 1 # skip '\' quoted-pair
-                cursor += 1
-            if cursor < len(txt):
-                cursor += 1 # Skip closing quote/bracket
-        elif txt[cursor] in sep:
-            result.append(txt[begseg:cursor])
-            cursor += 1
-            begseg = cursor
-        else:
-            cursor += 1
-    # append final segment
-    result.append(txt[begseg:cursor])
-    return result
-
-def testSplitValues():
-    assert splitValues("a,b,c") == ['a','b','c']
-    assert splitValues('a,"b,c",d') == ['a','"b,c"','d']
-    assert splitValues('a, "b, c\\", c1", d') == ['a',' "b, c\\", c1"',' d']
-    assert splitValues('a,"b,c",d', ";") == ['a,"b,c",d']
-    assert splitValues('a;"b;c";d', ";") == ['a','"b;c"','d']
-    assert splitValues('a;<b;c>;d', ";") == ['a','<b;c>','d']
-    assert splitValues('"a;b";(c;d);e', ";", lq='"(', rq='")') == ['"a;b"','(c;d)','e']
-
-def parseLinks(headerlist):
-    """
-    Helper function to parse 'link:' headers,
-    returning a dictionary of links keyed by link relation type
-    
-    headerlist is a list of header (name,value) pairs
-    """
-    linkheaders = [ v for (h,v) in headerlist if h.lower() == "link" ]
-    log.debug("parseLinks linkheaders %s"%(repr(linkheaders)))
-    links = {}
-    for linkheader in linkheaders:
-        for linkval in splitValues(linkheader, ","):
-            linkparts = splitValues(linkval, ";")
-            linkmatch = re.match(r'''\s*<([^>]*)>\s*''', linkparts[0])
-            if linkmatch:
-                linkuri   = linkmatch.group(1)
-                for linkparam in linkparts[1:]:
-                    linkmatch = re.match(r'''\s*rel\s*=\s*"?(.*?)"?\s*$''', linkparam)  # .*? is non-greedy
-                    if linkmatch:
-                        linkrel = linkmatch.group(1)
-                        log.debug("parseLinks links[%s] = %s"%(linkrel, linkuri))
-                        links[linkrel] = rdflib.URIRef(linkuri)
-    return links
-
-def testParseLinks():
-    links = (
-        ('Link', '<http://example.org/foo>; rel=foo'),
-        ('Link', ' <http://example.org/bar> ; rel = bar '),
-        ('Link', '<http://example.org/bas>; rel=bas; par = zzz , <http://example.org/bat>; rel = bat'),
-        ('Link', ' <http://example.org/fie> ; par = fie '),
-        ('Link', ' <http://example.org/fum> ; rel = "http://example.org/rel/fum" '),
-        ('Link', ' <http://example.org/fas;far> ; rel = "http://example.org/rel/fas" '),
-        )
-    assert str(parseLinks(links)['foo']) == 'http://example.org/foo'
-    assert str(parseLinks(links)['bar']) == 'http://example.org/bar'
-    assert str(parseLinks(links)['bas']) == 'http://example.org/bas'
-    assert str(parseLinks(links)['bat']) == 'http://example.org/bat'
-    assert str(parseLinks(links)['http://example.org/rel/fum']) == 'http://example.org/fum'
-    assert str(parseLinks(links)['http://example.org/rel/fas']) == 'http://example.org/fas;far'
+def getResourceUri(rouri, resuriref):
+    return URIRef(urlparse.urljoin(str(rouri), str(resuriref)))
 
 # Class for handling ROSRS access
 
-class ROSRS_Session(object):
+class ROSRS_Session(HTTP_Session):
     
     """
     Client access class for RO SRS - creates a session to access a single ROSRS endpoint,
@@ -168,18 +97,14 @@ class ROSRS_Session(object):
 
     def __init__(self, srsuri, accesskey = None):
         log.debug("ROSRS_Session.__init__: srsuri "+srsuri)
+        super(ROSRS_Session, self).__init__(srsuri, accesskey)
         self._srsuri    = srsuri
-        self._key       = accesskey
-        parseduri       = urlparse.urlsplit(srsuri)
-        self._srsscheme = parseduri.scheme
-        self._srshost   = parseduri.netloc
-        self._srspath   = parseduri.path
-        self._httpcon   = httplib.HTTPConnection(self._srshost)
         return
 
     def close(self):
-        self._key = None
-        self._httpcon.close()
+        super(ROSRS_Session, self).close()
+        # self._key = None
+        # self._httpcon.close()
         return
 
     def baseuri(self):
@@ -187,128 +112,6 @@ class ROSRS_Session(object):
 
     def error(self, msg, value=None):
         return ROSRS_Error(msg=msg, value=value, srsuri=self._srsuri)
-
-    def parseLinks(self, headers):
-        """
-        Parse link header(s), return dictionary of links keyed by link relation type
-        """
-        return parseLinks(headers["_headerlist"])
-
-    def doRequest(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS
-        Return status, reason(text), response headers, response body
-        """
-        # Sort out path to use in HTTP request: request may be path or full URI or rdflib.URIRef
-        uripath = str(uripath)        # get URI string from rdflib.URIRef
-        uriparts = urlparse.urlsplit(urlparse.urljoin(self._srspath,uripath))
-        if uriparts.scheme:
-            if self._srsscheme != uriparts.scheme:
-                raise ROSRS_Error(
-                    "ROSRS URI scheme mismatch",
-                    value=uriparts.scheme,
-                    srsuri=self._srsuri)
-        if uriparts.netloc:
-            if self._srshost != uriparts.netloc:
-                raise ROSRS_Error(
-                    "ROSRS URI host:port mismatch",
-                    value=uriparts.netloc,
-                    srsuri=self._srsuri)
-        path = uriparts.path
-        if uriparts.query: path += "?"+uriparts.query
-        # Assemble request headers
-        if not reqheaders:
-            reqheaders = {}
-        if self._key:
-            reqheaders["authorization"] = "Bearer "+self._key
-        if ctype:
-            reqheaders["content-type"] = ctype
-        if accept:
-            reqheaders["accept"] = accept
-        # Execute request
-        log.debug("ROSRS_Session.doRequest method:     "+method)
-        log.debug("ROSRS_Session.doRequest path:       "+path)
-        log.debug("ROSRS_Session.doRequest reqheaders: "+repr(reqheaders))
-        log.debug("ROSRS_Session.doRequest body:       "+repr(body))
-        self._httpcon.request(method, path, body, reqheaders)
-        # Pick out elements of response
-        response = self._httpcon.getresponse()
-        status   = response.status
-        reason   = response.reason
-        headerlist = [ (h.lower(),v) for (h,v) in response.getheaders() ]
-        headers  = dict(headerlist)   # dict(...) keeps last result of multiple keys
-        headers["_headerlist"] = headerlist
-        data = response.read()
-        if status < 200 or status >= 300: data = None
-        log.debug("ROSRS_Session.doRequest response: "+str(status)+" "+reason)
-        log.debug("ROSRS_Session.doRequest headers:  "+repr(headers))
-        ###log.debug("ROSRS_Session.doRequest data:     "+repr(data))
-        return (status, reason, headers, data)
-
-    def doRequestFollowRedirect(
-        self, uripath, method="GET", body=None, ctype=None, accept=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS, following any redirect returned
-        Return status, reason(text), response headers, final uri, response body
-        """
-        (status, reason, headers, data) = self.doRequest(uripath,
-            method=method, accept=accept,
-            body=body, ctype=ctype, reqheaders=reqheaders)
-        if status in [302,303,307]:
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequest(uripath,
-                method=method, accept=accept,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-        if status in [302,307]:
-            # Allow second temporary redirect
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequest(uripath,
-                method=method,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
-
-    def doRequestRDF(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
-        """
-        Perform HTTP request with RDF response.
-        If requests succeeds, return response as RDF graph,
-        or return fake 9xx status if RDF cannot be parsed
-        otherwise return response and content per request.
-        Thus, only 2xx responses include RDF data.
-        """
-        (status, reason, headers, data) = self.doRequest(uripath,
-            method=method, body=body,
-            ctype=ctype, accept="application/rdf+xml", reqheaders=reqheaders)
-        if status >= 200 and status < 300:
-            if headers["content-type"].lower() == "application/rdf+xml":
-                rdfgraph = rdflib.graph.Graph()
-                try:
-                    rdfgraph.parse(data=data, format="xml")
-                    data = rdfgraph
-                except Exception, e:
-                    status   = 902
-                    reason   = "RDF parse failure"
-            else:
-                status   = 901
-                reason   = "Non-RDF content-type returned"
-        return (status, reason, headers, data)
-
-    def doRequestRDFFollowRedirect(self, uripath, method="GET", body=None, ctype=None, reqheaders=None):
-        """
-        Perform HTTP request to ROSRS, following any redirect returned
-        Return status, reason(text), response headers, final uri, response body
-        """
-        (status, reason, headers, data) = self.doRequestRDF(uripath,
-            method=method,
-            body=body, ctype=ctype, reqheaders=reqheaders)
-        log.debug("%03d %s from request to %s"%(status, reason, uripath))
-        if status in [302,303,307]:
-            uripath = headers["location"]
-            (status, reason, headers, data) = self.doRequestRDF(uripath,
-                method=method,
-                body=body, ctype=ctype, reqheaders=reqheaders)
-            log.debug("%03d %s from redirect to %s"%(status, reason, uripath))
-        return (status, reason, headers, rdflib.URIRef(uripath), data)
 
     def listROs(self):
         """
@@ -350,14 +153,16 @@ class ROSRS_Session(object):
         #@@TODO: Create annotations for title, creator, date??
         raise self.error("Error creating RO", "%03d %s"%(status, reason))
 
-    def deleteRO(self, rouri):
+    def deleteRO(self, rouri, purge=False):
         """
         Delete an RO
         Return (status, reason), where status is 204 or 404
         """
+        reqheaders=None
+        if purge:
+            reqheaders={"Purge": "True"}
         (status, reason, headers, data) = self.doRequest(rouri,
-            method="DELETE",
-            accept="application/rdf+xml")
+            method="DELETE", reqheaders=reqheaders)
         if status in [204, 404]:
             return (status, reason)
         raise self.error("Error deleting RO", "%03d %s (%s)"%(status, reason, str(rouri)))
@@ -369,26 +174,25 @@ class ROSRS_Session(object):
         """
         resuri = str(resuriref)
         if rouri:
-            resuri = urlparse.urljoin(str(rouri), resuri)
+            resuri = getResourceUri(rouri, resuri)
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(resuri,
             method="GET", accept=accept, reqheaders=reqheaders)
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO resource", "%03d %s (%s)"%(status, reason, resuriref))
 
-    def getROResourceRDF(self, resuriref, rouri=None, reqheaders=None):
+    def getROResourceRDF(self, resuri, rouri=None, reqheaders=None):
         """
         Retrieve RDF resource from RO
         Return (status, reason, headers, data), where status is 200 or 404
         """
-        resuri = str(resuriref)
         if rouri:
-            resuri = urlparse.urljoin(str(rouri), resuri)
+            resuri = getResourceUri(rouri, resuri)
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(resuri,
             method="GET", reqheaders=reqheaders)
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
-        raise self.error("Error retrieving RO RDF resource", "%03d %s (%s)"%(status, reason, resuriref))
+            return (status, reason, headers, URIRef(uri), data)
+        raise self.error("Error retrieving RO RDF resource", "%03d %s (%s)"%(status, reason, resuri))
 
     def getROResourceProxy(self, resuriref, rouri):
         """
@@ -401,7 +205,7 @@ class ROSRS_Session(object):
                              (status, reason))
         proxyuri = None
         if status == 200:
-            resuri = rdflib.URIRef(urlparse.urljoin(str(rouri), str(resuriref)))
+            resuri = getResourceUri(rouri, resuriref)
             proxyterms = list(manifest.subjects(predicate=ORE.proxyFor, object=resuri))
             log.debug("getROResourceProxy proxyterms: %s"%(repr(proxyterms)))
             if len(proxyterms) == 1:
@@ -415,9 +219,10 @@ class ROSRS_Session(object):
         """
         (status, reason, headers, uri, data) = self.doRequestRDFFollowRedirect(rouri,
             method="GET")
+        log.debug("getROManifest %s, status %d, len %d"%(uri, status, len(data or [])))
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
-        log.debug("Error %03d %s retrieving %s"%(status, reason, uri))
+            return (status, reason, headers, URIRef(uri), data)
+        log.info("Error %03d %s retrieving %s"%(status, reason, uri))
         log.debug("Headers %s"%(repr(headers)))
         raise self.error("Error retrieving RO manifest",
             "%03d %s"%(status, reason))
@@ -430,7 +235,7 @@ class ROSRS_Session(object):
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(rouri,
             method="GET", accept="text/html")
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO landing page",
             "%03d %s"%(status, reason))
 
@@ -442,7 +247,7 @@ class ROSRS_Session(object):
         (status, reason, headers, uri, data) = self.doRequestFollowRedirect(rouri,
             method="GET", accept="application/zip")
         if status in [200, 404]:
-            return (status, reason, headers, uri, data)
+            return (status, reason, headers, URIRef(uri), data)
         raise self.error("Error retrieving RO as ZIP file",
             "%03d %s"%(status, reason))
 
@@ -636,7 +441,6 @@ class ROSRS_Session(object):
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield a
         return
@@ -655,8 +459,8 @@ class ROSRS_Session(object):
         if status != 200:
             raise self.error("No manifest",
                 "%03d %s (%s)"%(status, reason, str(rouri)))
+        ###log.info(manifest.serialize(format="xml"))
         for (a,p) in manifest.subject_predicates(object=resuri):
-            # @@TODO: in due course, remove RO.annotatesAggregatedResource?
             if p in [AO.annotatesResource,RO.annotatesAggregatedResource]:
                 yield manifest.value(subject=a, predicate=AO.body)
         return
@@ -682,21 +486,16 @@ class ROSRS_Session(object):
         Returns graph of merged annotations
         """
         agraph = rdflib.graph.Graph()
-        for buri in set(self.getROAnnotationBodyUris(rouri, resuri)):
-            (status, reason, headers, curi, bodytext) = self.doRequestFollowRedirect(buri)
-            log.debug("- body uri %s, content uri %s"%(buri, curi))
-            if status == 200:
-                content_type = headers['content-type'].split(";", 1)[0]
-                content_type = content_type.strip().lower()
-                if content_type in ANNOTATION_CONTENT_TYPES:
-                    bodyformat = ANNOTATION_CONTENT_TYPES[content_type]
-                    agraph.parse(data=bodytext, format=bodyformat)
-                else:
-                    log.warn("getROResourceAnnotationGraph: %s has unrecognized content-type: %s"%
-                             (str(buri),content_type))
-            else:
-                log.warn("getROResourceAnnotationGraph: %s read failure: %03d %s"%
-                         (str(buri), status, reason))
+        for (prefix, uri) in ro_prefixes.prefixes:
+            agraph.bind(prefix, rdflib.namespace.Namespace(uri))
+        buris = set(self.getROAnnotationBodyUris(rouri, resuri))
+        ###log.info("getROAnnotationGraph: %r"%([ str(b) for b in buris]))
+        for buri in buris:
+            (status, reason, headers, curi, data) = self.doRequestRDFFollowRedirect(buri, 
+                graph=agraph, exthost=True)
+            log.debug("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
+            if status != 200:
+                log.error("getROAnnotationGraph: %03d %s reading %s"%(status, reason, buri))
         return agraph
 
     def getROAnnotation(self, annuri):
@@ -742,7 +541,8 @@ class ROSRS_Session(object):
     def getROEvolution(self, rouri):
         #if len(rouri.split(self._srsuri))>1:
             #rouri = rouri.split(self._srsuri)[-1]
-        (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml")
+        (manifest_status, manifest_reason, manifest_headers, manifest_data) = (
+            self.doRequest(uripath=urljoin(rouri,".ro/manifest.rdf"), accept="application/rdf+xml"))
         if manifest_status == 404:
             return (manifest_status, manifest_reason, manifest_data, None)
         (manifest_status, manifest_reason, manifest_headers, manifest_data) = self.doRequest(uripath=rouri, accept="application/rdf+xml")
@@ -758,11 +558,12 @@ class ROSRS_Session(object):
         graph = rdflib.Graph()
         graph.parse(data=evolution_data, format="n3")
         try:
-            (graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)),ROEVO.isFinalized)).next()
+            (graph.objects(getResourceUri(self._srsuri, rouri), ROEVO.isFinalized)).next()
             return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
         except StopIteration  as error:            
             try:
-                return (evolution_status, evolution_reason, evolution_data, self.checkType(graph.objects(URIRef(urlparse.urljoin(self._srsuri, rouri)), RDF.type)))
+                return (evolution_status, evolution_reason, evolution_data,
+                        self.checkType(graph.objects(getResourceUri(self._srsuri, rouri), RDF.type)))
             except StopIteration  as error:
                 return (evolution_status, evolution_reason, evolution_data, EvoType.UNDEFINED)
             
@@ -782,8 +583,15 @@ class ROSRS_Session(object):
         cNodes = DOMTree.childNodes
         status =  cNodes[0].getElementsByTagName("status")[0].childNodes[0].toxml()
         target =  cNodes[0].getElementsByTagName("target")[0].childNodes[0].toxml()
-        finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
-        type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
-        return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("finalize")) == 1 and len(cNodes[0].getElementsByTagName("type")[0]) == 1:
+            finalize =  cNodes[0].getElementsByTagName("finalize")[0].childNodes[0].toxml()
+            type =  cNodes[0].getElementsByTagName("type")[0].childNodes[0].toxml()
+            return (status,target,finalize,type)
+        if len(cNodes[0].getElementsByTagName("processed_resources")) == 1 and len(cNodes[0].getElementsByTagName("submitted_resources")) == 1 :
+            processed_resources = cNodes[0].getElementsByTagName("processed_resources")[0].firstChild.nodeValue
+            submitted_resources = cNodes[0].getElementsByTagName("submitted_resources")[0].firstChild.nodeValue
+            return (status,target,processed_resources,submitted_resources,"ZIP_JOB")
+        return (status,target)
+
             
 # End.

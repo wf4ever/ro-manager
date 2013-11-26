@@ -4,6 +4,10 @@
 Research Object manifest read, write, decode functions
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 #import sys
 #import os
 #import os.path
@@ -30,11 +34,11 @@ ore     = rdflib.URIRef("http://www.openarchives.org/ore/terms/")
 foaf    = rdflib.URIRef("http://xmlns.com/foaf/0.1/")
 ro      = rdflib.URIRef("http://purl.org/wf4ever/ro#")
 roevo   = rdflib.URIRef("http://purl.org/wf4ever/roevo#")
+roterms = rdflib.URIRef("http://purl.org/wf4ever/roterms#")
 wfprov  = rdflib.URIRef("http://purl.org/wf4ever/wfprov#")
 wfdesc  = rdflib.URIRef("http://purl.org/wf4ever/wfdesc#")
 wf4ever = rdflib.URIRef("http://purl.org/wf4ever/wf4ever#")
 dcterms = rdflib.URIRef("http://purl.org/dc/terms/")
-roterms = rdflib.URIRef("http://ro.example.org/ro/terms/")
 
 RDF     = makeNamespace(rdflib.namespace.RDF.uri,
             [ "Seq", "Bag", "Alt", "Statement", "Property", "XMLLiteral", "List", "PlainLiteral"
@@ -48,7 +52,7 @@ RDFS    = makeNamespace(rdflib.namespace.RDFS.uri,
             ])
 RO = makeNamespace(ro, 
             [ "ResearchObject", "AggregatedAnnotation"
-            , "annotatesAggregatedResource" # @@TODO: deprecated
+            , "annotatesAggregatedResource"
             ])
 ROEVO = makeNamespace(roevo, 
             [ "LiveRO","SnapshotRO","ArchivedRO","isFinalized"

@@ -4,6 +4,11 @@
 RO manager command parser and dispatcher
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
+
 import sys
 import os
 import os.path
@@ -14,9 +19,18 @@ import logging
 
 log = logging.getLogger(__name__)
 
-# Make sure MiscLib can be found on path
+# Make sure MiscUtils can be found on path
+# Set up logging
 if __name__ == "__main__":
     sys.path.append(os.path.join(sys.path[0],".."))
+    logging.basicConfig()
+    # Enable debug logging to a file
+    if False:
+        fileloghandler = logging.FileHandler("ro.log","w")
+        fileloghandler.setLevel(logging.DEBUG)
+        filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
+        fileloghandler.setFormatter(filelogformatter)
+        logging.getLogger('').addHandler(fileloghandler)
 
 import ro_settings
 import ro_command
@@ -59,6 +73,8 @@ def run(configbase, options, args):
         status = ro_command.push(progname, configbase, options, args)
     elif args[1] == "dump":
         status = ro_command.dump(progname, configbase, options, args)
+    elif args[1] == "manifest":
+        status = ro_command.manifest(progname, configbase, options, args)
     elif args[1] == "snapshot":
         status = ro_command.snapshot(progname, configbase, options, args)
     elif args[1] == "archive":
@@ -145,11 +161,6 @@ def parseCommandArgs(argv):
                       dest="debug",
                       default=False,
                       help="display debug output")
-    parser.add_option("--synchronous",
-                      action="store_true",
-                      dest="synchronous",
-                      default=False,
-                      help="perform operation in synchronous mode")
     parser.add_option("--asynchronous",
                       action="store_true",
                       dest="asynchronous",
@@ -160,6 +171,11 @@ def parseCommandArgs(argv):
                       dest="freeze",
                       default=False,
                       help="snaphot/archive and freeze in one step")
+    parser.add_option("--new",
+                      action="store_true",
+                      dest="new",
+                      default=False,
+                      help="force to create a new RO from zip")
     # parse command line now
     (options, args) = parser.parse_args(argv)
     if len(args) < 2: parser.error("No command present")
@@ -178,6 +194,15 @@ def runCommand(configbase, robase, argv):
     (options, args) = parseCommandArgs(argv)
     if not options or options.debug:
         logging.basicConfig(level=logging.DEBUG)
+        if True:
+            # Enable debug logging to a file
+            fileloghandler = logging.FileHandler("ro.log","w")
+            fileloghandler.setLevel(logging.DEBUG)
+            filelogformatter = logging.Formatter('%(asctime)s.%(msecs)03d %(levelname)s %(message)s', "%H:%M:%S")
+            fileloghandler.setFormatter(filelogformatter)
+            logging.getLogger('').addHandler(fileloghandler)
+    else:
+        logging.basicConfig(level=logging.INFO)
     log.debug("runCommand: configbase %s, robase %s, argv %s"%(configbase, robase, repr(argv)))
     status = 1
     if options:

@@ -1,9 +1,18 @@
+"""
+Pylons/Pyramid view functions for RO checklist servive.
+"""
+
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys
 import os
 import logging
 import StringIO
 import json
 import urllib
+import urlparse
 
 import rdflib
 
@@ -79,28 +88,46 @@ def service_html(request):
         <body>
           <h1>Research Object services</h1>
           <p>
-          This web site offers services to evaluate Research Objects.  The services offered are:
+          This web server offers services to evaluate Research Objects.
+          Dereferencing the URI of this page with content negotiation for RDF/XML or Turtle
+          will return a service description document that contains URI templates
+          (<a href="http://tools.ietf.org/html/rfc6570">RFC 6570</a>) for each of the services 
+          described below.
+          </p>
+          <p>
+          The services offered are:
           <ul>
             <li><code>/evaluate/checklist{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
-              Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
+              This is the primaruy checklist evaluation service.
+              It evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
               description, selected based on the indicated target resource and purpose,
-              and returns the result as an RDF graph in a selected format.
+              and returns the result as an RDF graph in a selected format using the
+              <a href="http://purl.org/minim/results">Minim-results</a> vocabulary.
+              Further descriptions of these can be found on 
+              <a href="https://github.com/wf4ever/ro-manager/blob/master/Minim/Minim-description.md">GitHub</a>. 
             </li>
             <li><code>/evaluate/trafficlight_json{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
-              Evaluates an identified research object using a checklist defined by the referenced
-              <a href="https://raw.github.com/wf4ever/ro-manager/master/src/iaeval/Minim/minim.rdf">MINIM</a>
+              This is a layered checklist result presentation service that 
+              evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
               description, selected based on the indicated target resource and purpose.
-              The result of the evaluation is then processeds into data to drive
-              a "traffic-light" display of the health of the RO with respect to the checklist.
+              The result of the evaluation is then processed into JSON data designed to drive
+              a "traffic-light" display of the conformance of the RO with the checklist requirements.
             </li>
-            <li>
-            ...
+            <li><code>/evaluate/trafficlight_html{?<cite>RO</cite>,<cite>minim</cite>,<cite>target</cite>,<cite>purpose</cite>}</code>
+              This is another layered checklist result presentation service that 
+              evaluates an identified research object using a checklist defined by the referenced
+              <a href="http://purl.org/minim/minim">Minim</a>
+              description, selected based on the indicated target resource and purpose.
+              The result of the evaluation is then processed into HTML that presents a "traffic-light"
+              display of the conformance of the RO with the checklist requirements, summarizing the overall
+              result and which of the individual checklist items were satisfied or not satisfied.
             </li>
           </ul>
           </p>
           <p>
-          Where the URI query parameters provided are:
+          The URI query parameters provided are:
           <ul>
             <li><code><cite>RO</cite></code> is the %-escaped URI of a research object to be evaluated</li>
             <li><code><cite>minim</cite></code> is the %-escaped URI of a MINIM model to be evaluated</li>
@@ -118,8 +145,8 @@ def real_evaluate(request):
     # gen-delims  = ":" / "/" / "?" / "#" / "[" / "]" / "@"
     # sub-delims  = "!" / "$" / "&" / "'" / "(" / ")"
     #              / "*" / "+" / "," / ";" / "="
-    quotesafe = ":/?#[]@!$&'()*+.;="
-    # isolate parameters (keep invaliud URI characters %-encoded)
+    quotesafe = ":/?#[]@!$&'()*+,;=" + "%"
+    # isolate parameters (keep invalid URI characters %-encoded)
     RO      = urllib.quote(request.params["RO"], quotesafe)
     minim   = urllib.quote(request.params["minim"], quotesafe)
     target  = urllib.quote(request.params.get("target","."), quotesafe)
@@ -127,15 +154,19 @@ def real_evaluate(request):
     log.info("Evaluate RO %s, minim %s, target %s, purpose %s"%(RO,minim,target,purpose))
     # create rometa object
     # @@TODO: use proper configuration and credentials
+    ROparse   = urlparse.urlparse(RO)
+    rosrs_uri = (ROparse.scheme or "http") + "://" + (ROparse.netloc or "localhost:8000") + "/"
     ro_config = {
         "annotationTypes":      annotationTypes,
         "annotationPrefixes":   annotationPrefixes,
+        "rosrs_uri":            rosrs_uri,
         #"rosrs_uri":            target,
-        "rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
+        #"rosrs_uri":            "http://sandbox.wf4ever-project.org/rodl/ROs/",
         #"rosrs_access_token":   "ac14dd1a-ab59-40ec-b510-ffdb01a85473",
         "rosrs_access_token":   None,
         }
     rometa = ro_metadata(ro_config, RO)
+    log.info("rometa.rouri: %s"%(rometa.rouri) )
     # invoke evaluation service
     (graph, evalresult) = ro_eval_minim.evaluate(rometa, minim, target, purpose)
     log.debug("evaluate:results: \n"+json.dumps(evalresult, indent=2))
@@ -150,7 +181,7 @@ def fake_evaluate(request):
         @prefix result:     <http://www.w3.org/2001/sw/DataAccess/tests/result-set#> .
         @prefix minim:      <http://purl.org/minim/minim#> .
         <http://sandbox.example.org/ROs/myro>
-          minim:testedConstraint   <http://another.example.com/minim/repeatable.rdf#runnable-RO-constraint> ;
+          minim:testedChecklist   <http://another.example.com/minim/repeatable.rdf#runnable-RO-constraint> ;
           minim:testedPurpose      "Runnable" ;
           minim:testedTarget       <http://sandbox.example.org/ROs/myro> ;
           minim:fullySatisfies     <http://another.example.com/minim/repeatable.rdf#runnable-RO-checklist> ;

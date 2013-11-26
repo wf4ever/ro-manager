@@ -1,3 +1,8 @@
+
+__author__      = "piotrhol"
+__copyright__   = "PNSC (@@check)"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 from urlparse import urljoin
 from ROSRS_Session import ROSRS_Session
 import logging
@@ -9,7 +14,6 @@ import time
 log = logging.getLogger(__name__)
 
 def copy_operation(options, args, ro_type):
-    print options["rosrs_uri"]
     options["rosrs_access_token"]
     rosrs = ROSRS_Session(options["rosrs_uri"], options["rosrs_access_token"])
     service_uri = urljoin(options["rosrs_uri"], "../evo/copy/")
@@ -25,12 +29,10 @@ def copy_operation(options, args, ro_type):
     response = rosrs.doRequest(uripath=service_uri, method="POST", body=body, ctype="application/json", reqheaders=reqheaders)
     if response[0] != 201:
         return handle_copy_error(options, rosrs, response, ro_type)
-    if not options["asynchronous"] and not options["synchronous"]:
+    if not options["asynchronous"]:
         return handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, ro_type)
     if options["asynchronous"]:
         return handle_asynchronous_copy_operation(options, rosrs, response, ro_type)
-    if options["synchronous"]:
-        return handle_synchronous_copy_operation(options, rosrs, response, ro_type)
     return 0
     
 def handle_copy_error(options, rosrs, response, type):
@@ -55,8 +57,8 @@ def handle_asynchronous_copy_operation(options, rosrs, response, type):
     print "Response Reason: %s" % reason
     print "Job Status: %s" % job_status
     print "Job URI: %s" % job_location
-    print "Target Name: %s" % target_id
-    print "Target URI: %s" % urljoin(options["rosrs_uri"],target_id)
+    print "Target Name: %s" % target_id.split(options["rosrs_uri"])[1][0:-1]
+    print "Target URI: %s" % urljoin(options["rosrs_uri"],str(target_id))
     return 0
 
 def handle_synchronous_copy_operation(options, rosrs, response, typ):
@@ -70,13 +72,11 @@ def handle_synchronous_copy_operation(options, rosrs, response, typ):
 
 def print_job_status(args, options, verbose, force = False):
     if (options["verbose"] and verbose) or force:
-        print "Target Name: %s" % args[1]
+        print "Target Name: %s" % args[1].split(options["rosrs_uri"])[1][0:-1]
         print "Job Status: %s" % args[0]
     if args[0] != "RUNNING" or force:
-        if not options["verbose"]:
-            print "Job Status: %s" % args[0]    
         print "Target URI: %s" % urljoin(options["rosrs_uri"],args[1],)
-    return args[0] == "RUNNING"
+    return (args[0] == "RUNNING")
 
 def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, type):
     (status, reason, headers, data) = response
@@ -86,9 +86,9 @@ def handle_synchronous_copy_operation_with_esc_option(options, rosrs, response, 
     else:
         print "Archive is processed"
     print "If you don't want to wait until the operation is finished press [ENTER]"
-    print "Job URI: %s" % job_location
-    i, o, e = select.select( [sys.stdin], [], [], 10 )
-    while print_job_status(parse_job(rosrs, job_location), options, False):
+    print "Job URI: %s" % str(job_location)
+    while print_job_status(parse_job(rosrs, str(job_location)), options, False):
+        i, o, e = select.select( [sys.stdin], [], [], 3 )
         if (i) and "" == sys.stdin.readline().strip():
             print "Job URI: %s" % job_location
             print_job_status(parse_job(rosrs, job_location), options, True, True)
@@ -110,6 +110,10 @@ def freeze(options, args):
         print "freeze operation finished successfully"
         return 0
     else:
+        print status
+        print reason
+        print headers
+        print data
         print "Given URI isn't correct"
         return -1
     

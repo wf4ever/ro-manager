@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE rdf:RDF [
+    <!ENTITY rdf     "http://www.w3.org/1999/02/22-rdf-syntax-ns#" >
+    <!ENTITY rdfs    "http://www.w3.org/2000/01/rdf-schema#" >
+    <!ENTITY owl     "http://www.w3.org/2002/07/owl#" >
+    <!ENTITY xsd     "http://www.w3.org/2001/XMLSchema#" >
+    <!ENTITY xml     "http://www.w3.org/XML/1998/namespace" >
+    <!ENTITY rdfg    "http://www.w3.org/2004/03/trix/rdfg-1/" >
+    <!ENTITY ore     "http://www.openarchives.org/ore/terms/" >
+    <!ENTITY ao      "http://purl.org/ao/" >
+    <!ENTITY dcterms "http://purl.org/dc/terms/" >
+    <!ENTITY foaf    "http://xmlns.com/foaf/0.1/" >
+    <!ENTITY ro      "http://purl.org/wf4ever/ro#" >
+    <!ENTITY wfprov  "http://purl.org/wf4ever/wfprov#" >
+    <!ENTITY wfdesc  "http://purl.org/wf4ever/wfdesc#" >
+    <!ENTITY wf4ever "http://purl.org/wf4ever/wf4ever#" >
+    <!ENTITY minim   "http://purl.org/minim/minim#" >
+]>
+
+<rdf:RDF xmlns="."
+     xmlns:rdf="&rdf;"
+     xmlns:rdfs="&rdfs;"
+     xmlns:owl="&owl;"
+     xmlns:xsd="&xsd;"
+     xmlns:xml="&xml;"
+     xmlns:rdfg="&rdfg;"
+     xmlns:ore="&ore;"
+     xmlns:ao="&ao;"
+     xmlns:dcterms="&dcterms;"
+     xmlns:foaf="&foaf;"
+     xmlns:ro="&ro;"
+     xmlns:wfprov="&wfprov;"
+     xmlns:wfdesc="&wfdesc;"
+     xmlns:wf4ever="&wf4ever;"
+     xmlns:minim="&minim;"
+>
+
+  <!-- ===========
+       CONSTRAINTS 
+       ===========
+    -->
+
+  <!-- Target for Minimum information requirement 
+
+       Minim invokes minimum information models on for a specified purpose
+       relating to a specified target.  The requirement may apply to some
+       resource other than the specified target.
+    -->
+
+  <rdf:Description rdf:about="http://workflow-experiment#ChecklistConstraints">
+
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#experiment-complete">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>ready-to-release</minim:forPurpose>
+        <minim:toModel rdf:resource="#experiment_complete_model" />
+        <rdfs:comment>
+          Constraint to be satisfied if the target RO is to be considered a
+          complete and fully-described workflow experiment.
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+
+    <minim:hasConstraint>
+      <minim:Constraint rdf:about="#wf-accessible">
+        <minim:forTargetTemplate>{+targetro}</minim:forTargetTemplate>
+        <minim:forPurpose>wf-accessible</minim:forPurpose>
+        <minim:toModel rdf:resource="#wf_accessible_model" />
+        <rdfs:comment>
+          Constraint to test workflow accessible item in isolation
+        </rdfs:comment>
+      </minim:Constraint>
+    </minim:hasConstraint>
+
+  </rdf:Description>
+
+  <!-- ======
+       MODELS
+       ======
+    -->
+
+  <!-- Model (checklist) for complete experiment RO
+    -->
+  <minim:Model rdf:about="#experiment_complete_model">
+    <rdfs:label>Complete experiment</rdfs:label>
+    <rdfs:comment>
+      This model defines information that must be satisfied by the target RO
+      for the target RO to be considered a complete and fully-described 
+      workflow experiment.
+    </rdfs:comment>
+    <minim:hasShouldRequirement rdf:resource="#RO_has_hypothesys" />
+    <minim:hasShouldRequirement rdf:resource="#RO_has_sketch" />
+    <minim:hasMustRequirement   rdf:resource="#WF_accessible" />
+    <minim:hasMustRequirement   rdf:resource="#WF_services_accessible" />
+    <minim:hasMustRequirement   rdf:resource="#RO_has_inputdata" />
+    <minim:hasShouldRequirement rdf:resource="#RO_has_conclusion" />
+  </minim:Model>
+
+  <!-- Model (checklist) for WF accessible
+    -->
+  <minim:Model rdf:about="#wf_accessible_model">
+    <rdfs:label>Workflow accessible</rdfs:label>
+    <rdfs:comment>
+      Model to test workflow accessible item in isolation
+    </rdfs:comment>
+    <minim:hasMustRequirement rdf:resource="#WF_accessible" />
+  </minim:Model>
+
+  <!-- =================
+       REQUIREMENT RULES
+       =================
+    -->
+
+  <!-- Hypothesis is present -->
+  <minim:Requirement rdf:about="#RO_has_hypothesys">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?hypothesis rdf:type roterms:Hypothesis .
+        </minim:exists>
+        <minim:showpass>Experiment hypothesis is present</minim:showpass>
+        <minim:showfail>Experiment hypothesis is not present</minim:showfail>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>010</minim:seq>
+  </minim:Requirement>
+
+  <!-- Workflow sketch is present -->
+  <minim:Requirement rdf:about="#RO_has_sketch">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?sketch rdf:type roterms:Sketch .
+        </minim:exists>
+        <minim:showpass>Workflow design sketch is present</minim:showpass>
+        <minim:showfail>Workflow design sketch is not present</minim:showfail>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>011</minim:seq>
+  </minim:Requirement>
+
+  <!-- Workflow definition is accessible (live) -->
+  <minim:Requirement rdf:about="#WF_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?wf rdf:type wfdesc:Workflow ;
+              rdfs:label ?wflab ;
+              wfdesc:hasWorkflowDefinition ?wfdef .
+        </minim:forall>
+        <minim:isLiveTemplate>
+          {+wfdef}
+        </minim:isLiveTemplate>
+        <minim:showpass>All workflow definitions are accessible</minim:showpass>
+        <minim:showfail>The definition for workflow &lt;i&gt;%(wflab)s &lt;/i&gt; is not accessible</minim:showfail>
+        <minim:showmiss>No workflow definitions are present</minim:showmiss>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>027</minim:seq>
+  </minim:Requirement>
+
+  <!-- All workflow services are accessible -->
+  <minim:Requirement rdf:about="#WF_services_accessible">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:forall>
+          ?pr rdf:type wfdesc:Process ;
+              rdfs:label ?prlab .
+            {
+            ?pr wf4ever:serviceURI ?pruri .
+            }
+          UNION
+            {
+            ?pr wf4ever:wsdlURI ?pruri .
+            }
+        </minim:forall>
+        <minim:orderby>ORDER BY ?prlab</minim:orderby>
+        <minim:isLiveTemplate>
+          {+pruri}
+        </minim:isLiveTemplate>
+        <minim:showpass>All web services used by workflows are accessible</minim:showpass>
+        <minim:showfail___>Web service &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt; is not accessible</minim:showfail___>
+        <minim:showfail>One or more web services used by one of the workflows are inaccessible, including &lt;a href="%(pruri)s"&gt;&lt;i&gt;%(prlab)s&lt;/i&gt;&lt;/a&gt;</minim:showfail>
+        <minim:showmiss___>No workflow services are referenced</minim:showmiss___>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>028</minim:seq>
+  </minim:Requirement>
+
+  <!-- Workflow input data is present -->
+  <minim:Requirement rdf:about="#RO_has_inputdata">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?wfbundle roterms:inputSelected ?inputdata .
+        </minim:exists>
+        <minim:showpass>Input data is present</minim:showpass>
+        <minim:showfail>Input data is not present</minim:showfail>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>030</minim:seq>
+  </minim:Requirement>
+
+  <!-- RO has conclusion -->
+  <minim:Requirement rdf:about="#RO_has_conclusion">
+    <minim:isDerivedBy>
+      <minim:ContentMatchRequirementRule>
+        <minim:exists>
+          ?sketch rdf:type roterms:Conclusions .
+        </minim:exists>
+        <minim:showpass>Experiment conclusions are present</minim:showpass>
+        <minim:showfail>Experiment conclusions are not present</minim:showfail>
+      </minim:ContentMatchRequirementRule>
+    </minim:isDerivedBy>
+    <minim:seq>062</minim:seq>
+  </minim:Requirement>
+
+</rdf:RDF>

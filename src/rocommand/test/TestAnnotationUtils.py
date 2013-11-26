@@ -6,6 +6,10 @@ Module to test RO manager annotation support utilities
 See: http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool
 """
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import os, os.path
 import sys
 import re
@@ -29,7 +33,7 @@ if __name__ == "__main__":
 
 import rdflib
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 from rocommand import ro_settings
 from rocommand import ro_manifest
@@ -261,13 +265,13 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "."
         attrdict = {
-            "type":         "Research Object",
+            "type":         rdflib.Literal("Research Object"),
             # @@TODO: handle lists "keywords":     ["test", "research", "object"],
-            "description":  "Test research object",
-            "format":       "application/vnd.wf4ever.ro",
-            "note":         "Research object created for annotation testing",
-            "title":        "Test research object",
-            "created":      "2011-12-07"
+            "description":  rdflib.Literal("Test research object"),
+            "format":       rdflib.Literal("application/vnd.wf4ever.ro"),
+            "note":         rdflib.Literal("Research object created for annotation testing"),
+            "title":        rdflib.Literal("Test research object"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfilebase = ro_annotation.createAnnotationBody(
             ro_config, rodir, roresource, attrdict)
@@ -306,11 +310,11 @@ class TestAnnotationUtils(TestROSupport.TestROSupport):
         rodir = self.createTestRo(testbase, "data/ro-test-1", "RO test annotation", "ro-testRoAnnotate")
         roresource = "subdir1/subdir1-file.txt"
         attrdict = {
-            "type":         "Test file",
-            "description":  "File in test research object",
-            "note":         "File in research object created for annotation testing",
-            "title":        "Test file in RO",
-            "created":      "2011-12-07"
+            "type":         rdflib.Literal("Test file"),
+            "description":  rdflib.Literal("File in test research object"),
+            "note":         rdflib.Literal("File in research object created for annotation testing"),
+            "title":        rdflib.Literal("Test file in RO"),
+            "created":      rdflib.Literal("2011-12-07")
             }
         annotationfilebase = ro_annotation.createAnnotationBody(
             ro_config, rodir, roresource, attrdict)

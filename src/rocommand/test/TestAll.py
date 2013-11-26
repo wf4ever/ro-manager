@@ -1,5 +1,9 @@
 #!/usr/bin/env python
 
+__author__      = "Graham Klyne (GK@ACM.ORG)"
+__copyright__   = "Copyright 2011-2013, University of Oxford"
+__license__     = "MIT (http://opensource.org/licenses/MIT)"
+
 import sys, unittest, os
 
 if __name__ == "__main__":
@@ -7,11 +11,13 @@ if __name__ == "__main__":
     sys.path.insert(0, "..")
     sys.path.insert(0, "../..")
     sys.path.insert(0, "../../iaeval/test")
+    sys.path.insert(0, "../../checklist/test")
     sys.path.insert(0, "../../sync/test")
     sys.path.insert(0, "../../roweb")
     sys.path.insert(0, "../../roweb/test")
 
 import TestConfig
+import TestSparqlQueries
 import TestBasicCommands
 import TestAnnotationUtils
 import TestManifest
@@ -25,12 +31,17 @@ import TestRemoteROMetadata
 import TestRosrsSync
 import TestEvoCommands
 import TestMinimAccess
-import TestRdfReport
+import TestMinimAccess2
 import TestEvalChecklist
+import TestEvalQueryMatch
+import TestRdfReport
+import TestGridMatch
+import TestMkMinim
 
 # Code to run unit tests from all library test modules
 def getTestSuite(select="unit"):
     suite = unittest.TestSuite()
+    suite.addTest(TestSparqlQueries.getTestSuite(select=select))
     suite.addTest(TestBasicCommands.getTestSuite(select=select))
     suite.addTest(TestAnnotationUtils.getTestSuite(select=select))
     suite.addTest(TestManifest.getTestSuite(select=select))
@@ -38,8 +49,12 @@ def getTestSuite(select="unit"):
     suite.addTest(TestAnnotations.getTestSuite(select=select))
     suite.addTest(TestLinks.getTestSuite(select=select))
     suite.addTest(TestMinimAccess.getTestSuite(select=select))
+    suite.addTest(TestMinimAccess2.getTestSuite(select=select))
     suite.addTest(TestEvalChecklist.getTestSuite(select=select))
+    suite.addTest(TestEvalQueryMatch.getTestSuite(select=select))
     suite.addTest(TestRdfReport.getTestSuite(select=select))
+    suite.addTest(TestGridMatch.getTestSuite(select=select))
+    suite.addTest(TestMkMinim.getTestSuite(select=select))
     if select != "unit":
         suite.addTest(TestROSRS_Session.getTestSuite(select=select))
         suite.addTest(TestRemoteROMetadata.getTestSuite(select=select))
@@ -49,7 +64,7 @@ def getTestSuite(select="unit"):
         suite.addTest(TestEvoCommands.getTestSuite(select));
     return suite
 
-from MiscLib import TestUtils
+from MiscUtils import TestUtils
 
 def runTestSuite():
     """
