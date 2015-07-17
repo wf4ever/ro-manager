@@ -1,5 +1,9 @@
 # Minim checklist description
 
+* Namespace: http://purl.org/minim/minim#
+* Ontology: [minim-revised.rdf](https://raw.github.com/wf4ever/ro-manager/develop/Minim/minim-revised.rdf) 
+* Vocabulary (HTML): http://www.essepuntato.it/lode/owlapi/https://raw.github.com/wf4ever/ro-manager/develop/Minim/minim-revised.rdf
+
 This document describes elements of the Minim checklist model.  Examples are presented using Turtle syntax (@@ref).
 
 HTML and LaTeX versions of this document can be generated using Pandoc; e.g.:
@@ -268,5 +272,5 @@ The result of running the command (i.e. data written to its standard output stre
 * Negated rule test; need to think if all or some results should result in failure
 * Maybe need to think about generalizing `minim:Ruletest` to handle rule composition
 * Drop `minim:existstest`, or keep it?
-* See: http://www.essepuntato.it/lode/owlapi/https://raw.github.com/wf4ever/ro-manager/develop/Minim/minim-revised.omn
+* See: http://www.essepuntato.it/lode/owlapi/https://raw.github.com/wf4ever/ro-manager/develop/Minim/minim-revised.rdf
 
