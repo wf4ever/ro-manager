@@ -1,8 +1,12 @@
 # Minim model for defining checklists
 
-This model has been significantly refactored and enhanced since that described in D4.2v1.  The enhancements provide a cleaner structure to the overall model, greater expressive capability (including value cardinality tests similar to those supported my MIM), and clear identification of extension points at which new capabilities can be added to the model.  The refactoring is done so that old-style Minim definitions do not conflict with new style definitions, and both may be supported in a single implementation.
+Minim is a model for defining _checklists for [Research Objects])(http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed SPARQL query that must be furfilled in its annotations.
 
 The Minim [ontology](http://purl.org/minim/minim), its [specification](#ref-Minim-spec) and its [OWLDoc documentation](#ref-Minim-owldoc) are maintained in a [GitHub project](https://github.com/wf4ever/ro-manager/tree/master/Minim).
+
+Please feel free to **contribute** by proposing changes as a [pull request](https://github.com/wf4ever/ro-manager/pulls) or a [raise an issue](https://github.com/wf4ever/ro-manager/issues).
+
+Changes: This model has been significantly refactored and enhanced.  The enhancements provide a cleaner structure to the overall model, greater expressive capability (including value cardinality tests similar to those supported my MIM), and clear identification of extension points at which new capabilities can be added to the model.  The refactoring is done so that old-style Minim definitions do not conflict with new style definitions, and both may be supported in a single implementation.
 
 The main elements of the Minim model are:
 
