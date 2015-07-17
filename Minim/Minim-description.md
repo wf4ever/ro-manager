@@ -1,6 +1,6 @@
 # Minim model for defining checklists
 
-Minim is a model for defining _checklists_ for [Research Objects](http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed _query_ that must be furfilled in its annotations.
+Minim is a model for defining _checklists_ for [Research Objects](http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed _query_ that must be fulfilled in its annotations.
 
 The Minim [ontology](http://purl.org/minim/minim), its [specification](minim-revised.md) and its [OWLDoc documentation](http://purl.org/minim/owldoc) are maintained in a [GitHub project](https://github.com/wf4ever/ro-manager/tree/master/Minim).
 
