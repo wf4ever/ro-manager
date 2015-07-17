@@ -1,8 +1,8 @@
 # Minim model for defining checklists
 
-Minim is a model for defining _checklists for [Research Objects])(http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed SPARQL query that must be furfilled in its annotations.
+Minim is a model for defining _checklists_ for [Research Objects](http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed _query_ that must be furfilled in its annotations.
 
-The Minim [ontology](http://purl.org/minim/minim), its [specification](#ref-Minim-spec) and its [OWLDoc documentation](#ref-Minim-owldoc) are maintained in a [GitHub project](https://github.com/wf4ever/ro-manager/tree/master/Minim).
+The Minim [ontology](http://purl.org/minim/minim), its [specification](minim-revised.md) and its [OWLDoc documentation](http://purl.org/minim/owldoc) are maintained in a [GitHub project](https://github.com/wf4ever/ro-manager/tree/master/Minim).
 
 Please feel free to **contribute** by proposing changes as a [pull request](https://github.com/wf4ever/ro-manager/pulls) or a [raise an issue](https://github.com/wf4ever/ro-manager/issues).
 
@@ -38,7 +38,7 @@ Any such extensions would need to be supported by new code added to a checklist 
 
 # Minim results model for checklist evaluation results
 
-The outcome of a checklist evaluation is returned as an RDF graph, using terms defined by the [Minim results model](#ref-Minim-results).  The result graph returned also includes a copy of the Minim description used to define the assessment, so should contain all information to create a meaningful rendering of the result.  The design is intended to allow multiple checklist results to be merged into a common RDF graph without losing information about which result applies to which combination of checklist, purpose and target resource.
+The outcome of a checklist evaluation is returned as an RDF graph, using terms defined by the [Minim results model](http://purl.org/minim/results).  The result graph returned also includes a copy of the Minim description used to define the assessment, so should contain all information to create a meaningful rendering of the result.  The design is intended to allow multiple checklist results to be merged into a common RDF graph without losing information about which result applies to which combination of checklist, purpose and target resource.
 
 The central values returned are the satisfaction properties (`missingMust`, etc.) that relate a target `Resource` with a Minim `Model` or the properties that relate a `Resource` to individual `ChecklistItemReport` (`satisfied`, `missingMust`, etc.).  Additional values are included so the result graph contains sufficient information to generate a meaningful user presentation of the checklist evaluation result.
 
@@ -90,7 +90,6 @@ In order to make life easier for such clients of the checklist service, a "wrapp
 
 !["Traffic Light" display of checklist results](Figures/Trafficlight-screenshot.png)
 
-These simplified result formats have been developed particularly with a view to facilitating integration of the checklist service into [myExperiment](#ref-myExperiment).
 
 
 # References
@@ -116,7 +115,4 @@ These simplified result formats have been developed particularly with a view to 
 <a id="ref-D2.2v2"></a>[D2.2v2]: (@@uri-tbd) (S. Bechhofer, Khalid Belhajjame, et. al., “Design, implementation and deployment of workflow lifecycle management components - Phase II. Deliverable D2.2v2, Wf4Ever Project, 2013,” 2013.)
 
 <a id="ref-WF-decay"></a>[WF-decay]: http://users.ox.ac.uk/~oerc0033/preprints/why-decay.pdf (Zhao J, Gómez-Pérez JM, Belhajjame K, Klyne G, García-Cuesta E, Garrido A, Hettne K, Roos M, De Roure D, Goble CA, "Why Workflows Break - Understanding and Combating Decay in Taverna Workflows", 8th IEEE International Conference on e-Science (e-Science 2012).)
-
-
-<a id="ref-..."></a>[...]: <uri> (descr)
 
