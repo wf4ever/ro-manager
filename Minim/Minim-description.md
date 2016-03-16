@@ -6,7 +6,7 @@ The Minim [ontology](http://purl.org/minim/minim), its [specification](minim-rev
 
 Please feel free to **contribute** by proposing changes as a [pull request](https://github.com/wf4ever/ro-manager/pulls) or a [raise an issue](https://github.com/wf4ever/ro-manager/issues).
 
-Changes: This model has been significantly refactored and enhanced.  The enhancements provide a cleaner structure to the overall model, greater expressive capability (including value cardinality tests similar to those supported my MIM), and clear identification of extension points at which new capabilities can be added to the model.  The refactoring is done so that old-style Minim definitions do not conflict with new style definitions, and both may be supported in a single implementation.
+Changes: This model has been significantly refactored and enhanced.  The enhancements provide a cleaner structure to the overall model, greater expressive capability (including value cardinality tests similar to those supported my [MIM](https://github.com/ResearchObject/mim-vocabulary)), and clear identification of extension points at which new capabilities can be added to the model.  The refactoring is done so that old-style Minim definitions do not conflict with new style definitions, and both may be supported in a single implementation.
 
 The main elements of the Minim model are:
 
@@ -98,9 +98,9 @@ In order to make life easier for such clients of the checklist service, a "wrapp
 
 <a id="ref-MIBBI"></a>[MIBBI]: http://www.nature.com/nbt/journal/v26/n8/pdf/nbt.1411.pdf (C. Taylor, D. Field, S. Sansone, J. A. R. Aerts, A. M., B. P. Ball C.A., M. Bogue and T. Booth, “Promoting coherent minimum reporting guidelines for biological and biomedical investigations: the MIBBI project”, Nature biotechnology, vol. 8, no. 26, pp. 889-896, 2008.)
 
-<a id="ref-MIM"></a>[MIM]: http://dx.doi.org/10.1109/eScience.2012.6404489 (Matthew Gamble, Jun Zhao, Graham Klyne, Carole Goble. "MIM: A Minimum Information Model Vocabulary and Framework for Scientific Linked Data", IEEE eScience 2012 Chicago, USA October, 2012)
+<a id="ref-MIM"></a>[MIM]: http://dx.doi.org/10.1109/eScience.2012.6404489 (Matthew Gamble, Jun Zhao, Graham Klyne, Carole Goble. "MIM: A Minimum Information Model Vocabulary and Framework for Scientific Linked Data", IEEE eScience 2012 Chicago, USA October, 2012) [[preprint]](http://www.esciencelab.org.uk/publications/preprints/2012/gamble-mim-10.1109_eScience.2012.6404489.pdf)
 
-<a id="ref-MIM-spec"></a>[MIM-spec]: http://purl.org/net/mim/ns (Minimum Information Model Vocabulary Specification)
+<a id="ref-MIM-spec"></a>[MIM-spec]: http://purl.org/net/mim/ns ([Minimum Information Model Vocabulary Specification](https://github.com/ResearchObject/mim-vocabulary))
 
 <a id="ref-Minim-OWL"></a>[Minim-OWL]: http://purl.org/minim/ (Minim ontology)
 
