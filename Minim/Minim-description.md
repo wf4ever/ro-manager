@@ -1,6 +1,7 @@
 # Minim model for defining checklists
 
-Permalink: http://purl.org/minim/description
+* Permalink: http://purl.org/minim/description
+* Ontology namespace: http://purl.org/minim/minim#
 
 Minim is a model for defining _checklists_ for [Research Objects](http://www.researchobject.org/). A Minim model defines a list of MUST/SHOULD/MAY _requirements_, associated with _rules_ that express how to satisfy the requirement, e.g. by requiring certain resources to exist in the RO, or a more detailed _query_ that must be fulfilled in its annotations.
 
