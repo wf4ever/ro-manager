@@ -19,9 +19,9 @@ More information, including installation instructions can be found in the README
 
 ## ro-manager
 
-This is a command-line Research Object management tool, following the specification at [http://www.wf4ever-project.org/wiki/display/docs/RO+management+tool](), which is in turn derived from [http://www.wf4ever-project.org/wiki/display/docs/RO+command+line+tool]().  Details of the command line interface are expected to evolve as the software is developed.
+This is a command-line Research Object management tool, following the specification at http://www.wf4ever.org/wiki/display/docs/RO+management+tool, which is in turn derived from http://www.wf4ever.org/wiki/display/docs/RO+command+line+tool 
 
-Documentation about using the tool is at [http://wf4ever.github.com/ro-manager/doc/RO-manager.html]() and [http://www.wf4ever-project.org/wiki/display/docs/RO+Manager+FAQ]().
+Documentation about using the tool is at http://wf4ever.github.com/ro-manager/doc/RO-manager.html and http://www.wf4ever.org/wiki/display/docs/RO+Manager+FAQ
 
 The RO manager tool also includes the main source code and an instantiation of the checklist evaluation service for ROs in the local file system.
 
